@@ -1,6 +1,12 @@
+import 'package:ffapp/routes.dart';
+import 'package:ffapp/services/routes.pbgrpc.dart';
+import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:flutter/material.dart';
+import 'package:grpc/grpc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  RoutesService.instance.init();
   runApp(const MyApp());
 }
 
@@ -67,6 +73,22 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+  var test = "defualt";
+
+  Future<void> GetUser() async {
+    try {
+      User user = User();
+      
+      var response = await RoutesService.instance.routesClient.getUser(user);
+      setState(() {
+        test = response.email;
+      });
+    } on GrpcError catch (e) {
+      print('Caught error: $e');
+    } catch (e) {
+      print('Caught error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,11 +134,18 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            Text(
+              test,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {
+          _incrementCounter();
+          GetUser();
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.

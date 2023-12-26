@@ -1,0 +1,5 @@
+Generate server protos (perform inside of root directory)
+protoc --proto_path=proto ./proto/*.proto  --go_out=./server/pb --go-grpc_out=./server/pb
+
+Generate client protos
+protoc --proto_path=proto ./proto/*.proto --dart_out=grpc:./ffapp/lib/services google/protobuf/timestamp.proto google/protobuf/field_mask.proto

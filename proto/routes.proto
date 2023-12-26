@@ -1,0 +1,21 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./routes";
+
+package routes;
+
+service Routes {
+    rpc GetUser(User) returns (User) {}
+}
+
+message User {
+    string email = 1;
+    string cur_figure = 2;
+    string name = 3;
+    string pass = 4;
+    int64 currency = 5;
+    int64 week_complete = 6;
+    int64 week_goal = 7;
+    google.protobuf.Timestamp cur_workout = 8;
+}
