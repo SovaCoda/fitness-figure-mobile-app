@@ -1,12 +1,18 @@
 import 'package:ffapp/routes.dart';
-import 'package:ffapp/services/routes.pbgrpc.dart';
-import 'package:ffapp/services/routes.pbgrpc.dart';
+import 'package:ffapp/services/routes.pbgrpc.dart' as routes;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   RoutesService.instance.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseAuth auth = FirebaseAuth.instance;
   runApp(const MyApp());
 }
 
@@ -63,6 +69,20 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  void initState() {
+    super.initState();
+    
+    FirebaseAuth.instance
+        .authStateChanges()
+        .listen((User? user) {
+      if (user == null) {
+        print('User is currently signed out');
+      } else {
+        print('User is signed in');
+      }
+    });
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -73,12 +93,15 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
   var test = "defualt";
+  var email = "null";
+  var pass = "null";
 
   Future<void> GetUser() async {
     try {
-      User user = User();
-      
+      routes.User user = routes.User(email: "Buford@BDBusiness.com");
+
       var response = await RoutesService.instance.routesClient.getUser(user);
       setState(() {
         test = response.email;
@@ -90,65 +113,58 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> CreateUser(String email, String pass) async {
+    try {
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: 'chb263@msstate.edu', password: 'bananacrisis23');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Email',
+              ),
+              onChanged: (value) {
+                // Store the email input value
+                email = value;
+              },
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Password',
+              ),
+              onChanged: (value) {
+                // Store the password input value
+                pass = value;
+              },
             ),
-            Text(
-              test,
-              style: Theme.of(context).textTheme.headlineMedium,
+            ElevatedButton(
+              onPressed: () {
+                CreateUser(email, pass);
+                print("User created with creds: $email, $pass");
+                // Perform account creation logic using the stored email and password values
+              },
+              child: Text('Create Account'),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _incrementCounter();
-          GetUser();
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

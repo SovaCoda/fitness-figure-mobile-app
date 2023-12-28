@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "107506093040",
+    "project_id": "fitness-figure",
+    "storage_bucket": "fitness-figure.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107506093040:android:21361d5f9564a0f1b66b35",
+        "android_client_info": {
+          "package_name": "com.example.ffapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBWbcpoV7jSxvHfUMrPv0fosfbNuH1ZSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

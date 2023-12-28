@@ -14,8 +14,6 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'google/protobuf/timestamp.pb.dart' as $1;
-
 class User extends $pb.GeneratedMessage {
   factory User({
     $core.String? email,
@@ -25,7 +23,7 @@ class User extends $pb.GeneratedMessage {
     $fixnum.Int64? currency,
     $fixnum.Int64? weekComplete,
     $fixnum.Int64? weekGoal,
-    $1.Timestamp? curWorkout,
+    $core.String? curWorkout,
   }) {
     final $result = create();
     if (email != null) {
@@ -66,7 +64,7 @@ class User extends $pb.GeneratedMessage {
     ..aInt64(5, _omitFieldNames ? '' : 'currency')
     ..aInt64(6, _omitFieldNames ? '' : 'weekComplete')
     ..aInt64(7, _omitFieldNames ? '' : 'weekGoal')
-    ..aOM<$1.Timestamp>(8, _omitFieldNames ? '' : 'curWorkout', subBuilder: $1.Timestamp.create)
+    ..aOS(8, _omitFieldNames ? '' : 'curWorkout')
     ..hasRequiredFields = false
   ;
 
@@ -155,15 +153,13 @@ class User extends $pb.GeneratedMessage {
   void clearWeekGoal() => clearField(7);
 
   @$pb.TagNumber(8)
-  $1.Timestamp get curWorkout => $_getN(7);
+  $core.String get curWorkout => $_getSZ(7);
   @$pb.TagNumber(8)
-  set curWorkout($1.Timestamp v) { setField(8, v); }
+  set curWorkout($core.String v) { $_setString(7, v); }
   @$pb.TagNumber(8)
   $core.bool hasCurWorkout() => $_has(7);
   @$pb.TagNumber(8)
   void clearCurWorkout() => clearField(8);
-  @$pb.TagNumber(8)
-  $1.Timestamp ensureCurWorkout() => $_ensure(7);
 }
 
 
