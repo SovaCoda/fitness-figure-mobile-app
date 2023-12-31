@@ -11,7 +11,6 @@ class CustomButton extends StatelessWidget {
 
   void press(){
     onTap;
-
   }
 
   @override
