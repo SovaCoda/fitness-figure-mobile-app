@@ -1,4 +1,5 @@
-import 'package:ffapp/pages/wapper.dart';
+import 'package:ffapp/pages/wrapper.dart';
+import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/routes.dart';
 import 'package:ffapp/services/routes.pbgrpc.dart' as routes;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,7 @@ Future<void> main() async {
   FirebaseAuth auth = FirebaseAuth.instance;
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -44,11 +46,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Wrapper(),
+      home: Dashboard(),
     );
   }
 }
 
+//Conners test input stuff
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -68,8 +71,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
   void initState() {
     super.initState();
     
@@ -81,17 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         print('User is signed in');
       }
-    });
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
     });
   }
 
