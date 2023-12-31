@@ -25,7 +25,7 @@ class CustomButton extends StatelessWidget {
             color: Colors.black,
           ),
           child: InkWell(
-            onTap: () {},
+            onTap: onTap,
             child: Container(
               padding: const EdgeInsets.all(22),
               child: Center(
