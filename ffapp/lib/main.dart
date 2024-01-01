@@ -10,10 +10,6 @@ import 'package:grpc/grpc.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   RoutesService.instance.init();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseAuth auth = FirebaseAuth.instance;
   runApp(const MyApp());
 }
 
