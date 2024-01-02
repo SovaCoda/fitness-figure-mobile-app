@@ -1,3 +1,4 @@
+import 'package:ffapp/components/double_line_divider.dart';
 import 'package:flutter/material.dart';
 
 
@@ -9,58 +10,86 @@ class Dashboard extends StatelessWidget {
   Widget build(BuildContext context) {           
 
     return Scaffold(
+      backgroundColor: Colors.grey[600],
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 200.0,
-              height: 200.0,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.red,
-                  width: 2.0,
+          child: Center (
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              //Robot image contianer with radiant background
+              Container(
+                width: 400.0,
+                height: 400.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    center: Alignment(0, 0),
+                    colors: [
+                      Colors.white.withOpacity(1),
+                      Colors.white.withOpacity(0),
+                    ],
+                    radius: .48,
+                  ),
+                ),
+                child: Center(
+                  child: Image.asset(
+                    //TO DO: GET APPROPRIATE ROBOT GIF LINK
+                    "lib/assets/icons/robot1_skin0_cropped.gif",
+                    height: 260.0,
+                    width: 260.0,
+                  ),
                 ),
               ),
-              child: Image.asset(
-                "lib/assets/icons/robot1_skin0_cropped.gif",
-                height: 200.0,
-                width: 200.0,
+
+              //Text underneath the robot
+              Text(
+                "Train consistently to power your Fitness Figure!",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
-            ),
-        ], 
-        )
+
+              const SizedBox(height: 5),
+
+              //Workout stats numbers row
+              IntrinsicHeight(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Column(
+                      children: [
+                        Text("3"),
+                        Text("Weekly Goal"),
+                      ]
+                    ),
+                    DoubleLineDivider(),
+                    Column(
+                      children: [
+                        Text("3"),
+                        Text("Weekly Goal"),
+                      ]
+                    ),
+                    DoubleLineDivider(),
+                    Column(
+                      children: [
+                        Text("3"),
+                        Text("Weekly Goal"),
+                      ]
+                    ),
+                  ],
+                ),
+              ),
+              
+
+            ], 
+          )
+        ),
       ),
     ),
     );
-  }
-}
-
-class Painter extends CustomPainter {
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    double radius = 100.0;
-    canvas.translate(size.width/2, size.height/2); 
-    Offset center = Offset(0.0, 0.0);
-    // draw shadow first
-    Path oval = Path()
-        ..addOval(Rect.fromCircle(center: center, radius: radius+10));
-    Paint shadowPaint = Paint() 
-        ..color = Colors.black.withOpacity(0.3)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 50);
-    canvas.drawPath(oval, shadowPaint);
-    // draw circle
-    Paint thumbPaint = Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, thumbPaint);
-  }
-
-  @override
-  bool shouldRepaint(Painter oldDelegate) {
-    return false;
   }
 }
