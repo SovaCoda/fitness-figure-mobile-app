@@ -1,4 +1,5 @@
 import 'package:ffapp/components/double_line_divider.dart';
+import 'package:ffapp/components/progress_bar.dart';
 import 'package:flutter/material.dart';
 
 
@@ -10,38 +11,16 @@ class Dashboard extends StatelessWidget {
   Widget build(BuildContext context) {           
 
     return Scaffold(
-      backgroundColor: Colors.grey[600],
-      body: SafeArea(
+      backgroundColor: Colors.blueGrey[800],
+      body: const SafeArea(
         child: SingleChildScrollView(
           child: Center (
             child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 
-              //Robot image contianer with radiant background
-              Container(
-                width: 400.0,
-                height: 400.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    center: Alignment(0, 0),
-                    colors: [
-                      Colors.white.withOpacity(1),
-                      Colors.white.withOpacity(0),
-                    ],
-                    radius: .48,
-                  ),
-                ),
-                child: Center(
-                  child: Image.asset(
-                    //TO DO: GET APPROPRIATE ROBOT GIF LINK
-                    "lib/assets/icons/robot1_skin0_cropped.gif",
-                    height: 260.0,
-                    width: 260.0,
-                  ),
-                ),
-              ),
+              //created below
+              RobotImageHolder(),
 
               //Text underneath the robot
               Text(
@@ -53,43 +32,141 @@ class Dashboard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 5),
+              SizedBox(height: 15),
 
-              //Workout stats numbers row
-              IntrinsicHeight(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
-                      children: [
-                        Text("3"),
-                        Text("Weekly Goal"),
-                      ]
-                    ),
-                    DoubleLineDivider(),
-                    Column(
-                      children: [
-                        Text("3"),
-                        Text("Weekly Goal"),
-                      ]
-                    ),
-                    DoubleLineDivider(),
-                    Column(
-                      children: [
-                        Text("3"),
-                        Text("Weekly Goal"),
-                      ]
-                    ),
-                  ],
-                ),
-              ),
+              //created below
+              WorkoutNumbersRow(),
               
+              SizedBox(height: 20,),
+
+              //imported from progress bar component
+              ProgressBar(),
+
+              SizedBox(height: 20,),
+
+              //progress explanation text
+              Text(
+                "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,)
 
             ], 
           )
         ),
       ),
     ),
+    );
+  }
+}
+
+class RobotImageHolder extends StatelessWidget {
+  const RobotImageHolder({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 400.0,
+      height: 400.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          center: Alignment(0, 0),
+          colors: [
+            Colors.white.withOpacity(1),
+            Colors.white.withOpacity(0),
+          ],
+          radius: .48,
+        ),
+      ),
+      child: Center(
+        child: Image.asset(
+          //TO DO: GET APPROPRIATE ROBOT GIF LINK
+          "lib/assets/icons/robot1_skin0_cropped.gif",
+          height: 260.0,
+          width: 260.0,
+        ),
+      ),
+    );
+  }
+}
+
+class WorkoutNumbersRow extends StatelessWidget {
+  const WorkoutNumbersRow({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const IntrinsicHeight(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Column(
+            children: [
+              Text(
+                //TO DO: GET WEEKLY GOAL
+                "3",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 20,
+                ),
+              ),
+              Text(
+                "Weekly Goal",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ]
+          ),
+          DoubleLineDivider(),
+          Column(
+            children: [
+              Text(
+                //TO DO: GET WEEKLY COMPLETED
+                "0",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 20,
+                ),
+              ),
+              Text(
+                "Weekly Completed",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ]
+          ),
+          DoubleLineDivider(),
+          Column(
+            children: [
+              Text(
+                //TO DO: GET TOTAL COMPLETED
+                "0",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 20,
+                ),
+              ),
+              Text(
+                "Total Completed",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ]
+          ),
+        ],
+      ),
     );
   }
 }
