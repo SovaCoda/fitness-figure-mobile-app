@@ -1,3 +1,4 @@
+import 'package:ffapp/pages/home/avatar_selection.dart';
 import 'package:ffapp/pages/wrapper.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/routes.dart';
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
           displaySmall: GoogleFonts.pacifico(),
         ),
       ),
-      home: Dashboard(),
+      home: AvatarSelection(),
     );
   }
 }
