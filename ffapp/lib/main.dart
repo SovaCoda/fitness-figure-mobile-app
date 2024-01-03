@@ -22,7 +22,8 @@ final GoRouter _router = GoRouter(
       name: 'Home',
       path: '/home', // Update the path to '/home'
       builder: (context, state) => const DashboardPage(),
-    )    GoRoute(
+    ),    
+    GoRoute(
       name: 'Register',
       path: '/register',
       builder: (context, state) => const Register()
