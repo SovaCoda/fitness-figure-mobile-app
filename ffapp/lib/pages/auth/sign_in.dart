@@ -5,6 +5,7 @@ import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -39,6 +40,7 @@ class _SignInState extends State<SignIn> {
     User? user = await auth.getUser();
     if (user != null) {
       logger.i("User is signed in");
+      context.goNamed('Home');
     }
     logger.i("User is not signed in");
   }
@@ -55,6 +57,7 @@ class _SignInState extends State<SignIn> {
       logger.e(user);
     } else if (user is User) {
       logger.i("user is signed in");
+      context.goNamed('Home');
     }
   }
 
@@ -77,7 +80,8 @@ class _SignInState extends State<SignIn> {
                 SvgPicture.asset(
                   "lib/assets/icons/fflogo.svg",
                   height: 350,
-                  width: 350,),
+                  width: 350,
+                ),
 
                 //spacer
                 const SizedBox(height: 25),
@@ -121,9 +125,8 @@ class _SignInState extends State<SignIn> {
                 //Sign In
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: CustomButton(onTap: signIn, text: "Sign In") ,
+                  child: CustomButton(onTap: signIn, text: "Sign In"),
                 ),
-                
 
                 //spacer
                 const SizedBox(height: 15),

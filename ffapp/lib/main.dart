@@ -1,6 +1,7 @@
 import 'package:ffapp/pages/landing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ffapp/pages/home/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,10 +16,13 @@ final GoRouter _router = GoRouter(
       path: '/',
       builder: (context, state) => const LandingPage(),
     ),
-
+    GoRoute(
+      name: 'Home',
+      path: '/home', // Update the path to '/home'
+      builder: (context, state) => const DashboardPage(),
+    )
   ]
 );
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -36,4 +40,5 @@ class MyApp extends StatelessWidget {
       routerConfig: _router,
     );
   }
+
 }
