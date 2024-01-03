@@ -1,3 +1,5 @@
+import 'package:ffapp/pages/auth/register.dart';
+import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,12 +16,21 @@ final GoRouter _router = GoRouter(
     GoRoute(
       name: 'LandingPage',
       path: '/',
-      builder: (context, state) => const LandingPage(),
+      builder: (context, state) => const LandingPage()
     ),
     GoRoute(
       name: 'Home',
       path: '/home', // Update the path to '/home'
       builder: (context, state) => const DashboardPage(),
+    )    GoRoute(
+      name: 'Register',
+      path: '/register',
+      builder: (context, state) => const Register()
+    ),
+    GoRoute(
+      name: 'SignIn',
+      path:'/signin',
+      builder: (context, state) => const SignIn()
     )
   ]
 );

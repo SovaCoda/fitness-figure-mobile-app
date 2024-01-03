@@ -134,7 +134,7 @@ class _SignInState extends State<SignIn> {
                 //create account
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: CustomButton(onTap: () {}, text: "Create Account"),
+                  child: CustomButton(onTap: () => context.goNamed('Register'), text: "Create Account"),
                 ),
 
                 //spacer
