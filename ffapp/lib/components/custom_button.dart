@@ -11,7 +11,7 @@ class CustomButton extends StatelessWidget {
     // required this.backGroundColor
   });
 
-  void press(){
+  void press() {
     onTap;
   }
 
