@@ -1,7 +1,9 @@
+import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -11,9 +13,48 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  late AuthService auth;
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final password2Controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  void initialize() async {
+    await initAuthService();
+  }
+
+  Future<void> initAuthService() async {
+    auth = await AuthService.init();
+    logger.i("AuthService initialized");
+  }
+
+  void createUser() async {
+    logger.i("signing up");
+
+    bool passwordMatch = passwordController.text == password2Controller.text;
+    if (!passwordMatch) {
+      logger.e("passwords do not match");
+      passwordController.clear();
+      password2Controller.clear();
+      return;
+    }
+
+    var user = await auth.createUser(
+      emailController.text,
+      passwordController.text,
+    );
+    logger.i("user is $user");
+    if (user is String) {
+      logger.e(user);
+    } else if (user is User) {
+      logger.i("user is created");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +92,7 @@ class _RegisterState extends State<Register> {
                 InputField(
                   controller: passwordController,
                   hintText: 'password',
-                  obscureText: false,
+                  obscureText: true,
                 ),
 
                 //spacer
@@ -60,14 +101,14 @@ class _RegisterState extends State<Register> {
                 InputField(
                   controller: password2Controller,
                   hintText: 'comfirm password',
-                  obscureText: false,
+                  obscureText: true,
                 ),
 
                 //spacer
                 const SizedBox(height: 15),
 
                 //Sign In
-                CustomButton(onTap: (){}, text: "Create Account"),
+                CustomButton(onTap: createUser, text: "Create Account"),
 
                 //Spacer
                 const SizedBox(height: 20),
