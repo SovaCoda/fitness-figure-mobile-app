@@ -1,4 +1,4 @@
-import 'package:ffapp/pages/auth/auth.dart';
+import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
@@ -6,6 +6,6 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Auth();
+    return const SignIn();
   }
 }

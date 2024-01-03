@@ -3,10 +3,10 @@ import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SignIn extends StatefulWidget {
-  final Function()? onTap;
-  const SignIn({super.key, required this.onTap});
+  const SignIn({super.key});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -39,13 +39,12 @@ class _SignInState extends State<SignIn> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                 //spacer
-                const SizedBox(height: 50),
+                const SizedBox(height: 20),
 
-                //logo
-                const Icon(
-                  Icons.lock_person,
-                  size: 150,
-                ),
+                SvgPicture.asset(
+                  "lib/assets/icons/fflogo.svg",
+                  height: 350,
+                  width: 350,),
 
                 //spacer
                 const SizedBox(height: 25),
@@ -89,13 +88,20 @@ class _SignInState extends State<SignIn> {
                 const SizedBox(height: 15),
 
                 //Sign In
-                CustomButton(onTap: signIn, text: "Sign In"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: CustomButton(onTap: signIn, text: "Sign In") ,
+                ),
+                
 
                 //spacer
                 const SizedBox(height: 15),
 
                 //create account
-                CustomButton(onTap: widget.onTap, text: "Create Account"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: CustomButton(onTap: () {}, text: "Create Account"),
+                ),
 
                 //spacer
                 const SizedBox(

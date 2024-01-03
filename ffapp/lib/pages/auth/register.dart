@@ -4,8 +4,7 @@ import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 
 class Register extends StatefulWidget {
-  final Function()? onTap;
-  const Register({super.key, required this.onTap});
+  const Register({super.key});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -74,7 +73,7 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 20),
 
                 //back to login
-                CustomButton(onTap: widget.onTap, text: "Back to Login"),
+                CustomButton(onTap: (){}, text: "Back to Login"),
 
                 //spacer
                 const SizedBox(
