@@ -39,7 +39,6 @@ class _SignInState extends State<SignIn> {
     User? user = await auth.getUser();
     if (user != null) {
       logger.i("User is signed in");
-      Navigator.pushNamed(context, '/home');
     }
     logger.i("User is not signed in");
   }
@@ -55,7 +54,7 @@ class _SignInState extends State<SignIn> {
     if (user is String) {
       logger.e(user);
     } else if (user is User) {
-      logger.i("User is signed in");
+      logger.i("user is signed in");
     }
   }
 
@@ -97,7 +96,7 @@ class _SignInState extends State<SignIn> {
                 InputField(
                   controller: passwordController,
                   hintText: 'password',
-                  obscureText: false,
+                  obscureText: true,
                 ),
 
                 //spacer
