@@ -4,6 +4,7 @@ import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -100,7 +101,7 @@ class _SignInState extends State<SignIn> {
                 //create account
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: CustomButton(onTap: () {}, text: "Create Account"),
+                  child: CustomButton(onTap: () => context.goNamed('Register'), text: "Create Account"),
                 ),
 
                 //spacer
