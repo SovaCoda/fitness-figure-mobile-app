@@ -9,7 +9,7 @@ class CustomButton extends StatelessWidget {
     required this.text,
   });
 
-  void press(){
+  void press() {
     onTap;
   }
 
@@ -18,12 +18,12 @@ class CustomButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 25),
       child: Material(
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.black,
-          ),
-          child: InkWell(
+          child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.black,
+        ),
+        child: InkWell(
             onTap: onTap,
             child: Container(
               padding: const EdgeInsets.all(22),
@@ -31,13 +31,13 @@ class CustomButton extends StatelessWidget {
                 child: Text(
                   text,
                   style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
                 ),
               ),
-            )
-          ),
-        )
-      ),
-    );  
+            )),
+      )),
+    );
   }
 }

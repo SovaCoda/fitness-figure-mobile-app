@@ -3,6 +3,7 @@ import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignIn extends StatefulWidget {
   final Function()? onTap;
@@ -13,19 +14,52 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final AuthService auth = AuthService();
+  late AuthService auth;
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  void initialize() async {
+    await initAuthService();
+    await checkUser();
+  }
+
+  Future<void> initAuthService() async {
+    auth = await AuthService.init();
+    logger.i("AuthService initialized");
+  }
+
+  Future<void> checkUser() async {
+    logger.i("Checking User Status");
+    User? user = await auth.getUser();
+    if (user != null) {
+      logger.i("User is signed in");
+      Navigator.pushNamed(context, '/home');
+    }
+    logger.i("User is not signed in");
+  }
+
   void signIn() async {
-
-
+    logger.i("signing in");
+    auth = await AuthService.init();
+    var user = await auth.signIn(
+      emailController.text,
+      passwordController.text,
+    );
+    logger.i("user is $user");
+    if (user is String) {
+      logger.e(user);
+    } else if (user is User) {
+      logger.i("User is signed in");
+    }
   }
 
-  void createAccount(){
-
-
-  }
+  void createAccount() {}
 
   @override
   Widget build(BuildContext context) {
@@ -70,20 +104,18 @@ class _SignInState extends State<SignIn> {
                 const SizedBox(height: 5),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Container(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                    'Get help logging in.',
-                    style: TextStyle(
-                      color: Colors.blue.shade900,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ) ,
-                  )  
-                  
-                ),
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Container(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'Get help logging in.',
+                        style: TextStyle(
+                          color: Colors.blue.shade900,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )),
 
                 //spacer
                 const SizedBox(height: 15),
