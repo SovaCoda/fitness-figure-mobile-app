@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
           displaySmall: GoogleFonts.pacifico(),
         ),
       ),
-      home: AvatarSelection(),
+      home: Dashboard(),
     );
   }
 }
