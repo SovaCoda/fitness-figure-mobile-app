@@ -4,6 +4,7 @@ import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -53,7 +54,12 @@ class _RegisterState extends State<Register> {
       logger.e(user);
     } else if (user is User) {
       logger.i("user is created");
+      context.goNamed('SignIn');
     }
+  }
+
+  void reroute() {
+    context.goNamed('SignIn');
   }
 
   @override
@@ -81,7 +87,7 @@ class _RegisterState extends State<Register> {
 
                 InputField(
                   controller: emailController,
-                  hintText: 'Username or email',
+                  hintText: 'Email',
                   obscureText: false,
                 ),
 
@@ -114,7 +120,7 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 20),
 
                 //back to login
-                CustomButton(onTap: (){}, text: "Back to Login"),
+                CustomButton(onTap: reroute, text: "Back to Login"),
 
                 //spacer
                 const SizedBox(
