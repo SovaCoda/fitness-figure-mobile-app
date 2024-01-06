@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 
 void main() {
-  runApp(const TestApp());
+  runApp(const MyApp());
 }
 
 /// The route configuration.
