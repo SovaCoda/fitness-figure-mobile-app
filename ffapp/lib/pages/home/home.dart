@@ -10,6 +10,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
 
+  //acts as a directory of the widgets that the navbar can route to and render
   static const List<Widget> _pages = <Widget>[
   Dashboard(),
   Text("Store"),
@@ -31,14 +32,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
 
+      //permanent top bar if we want it
       appBar: AppBar(
         title: const Text('We have a top bar here if wanted'),
       ),
 
+      //renders the page that the nav bar has currently selected
       body: Center(
         child: _pages.elementAt(_selectedIndex),
       ),
 
+      //permanent footer navigation that changes the page index state to switch displays
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.grey[800],
         unselectedItemColor: Colors.green,

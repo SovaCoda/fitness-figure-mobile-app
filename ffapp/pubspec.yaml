@@ -42,6 +42,7 @@ dependencies:
   google_fonts: ^6.1.0
   go_router: ^13.0.0
   logger: ^2.0.2+1
+  wheel_slider:
   
 
 dev_dependencies:
