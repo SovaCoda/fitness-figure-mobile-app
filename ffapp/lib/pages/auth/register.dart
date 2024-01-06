@@ -30,7 +30,7 @@ class _RegisterState extends State<Register> {
   }
 
   Future<void> initAuthService() async {
-    auth = await AuthService.init();
+    auth = await AuthService.instance;
     logger.i("AuthService initialized");
   }
 

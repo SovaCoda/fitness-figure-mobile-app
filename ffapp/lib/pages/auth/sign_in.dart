@@ -31,7 +31,7 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<void> initAuthService() async {
-    auth = await AuthService.init();
+    auth = await AuthService.instance;
     logger.i("AuthService initialized");
   }
 
@@ -47,7 +47,6 @@ class _SignInState extends State<SignIn> {
 
   void signIn() async {
     logger.i("signing in");
-    auth = await AuthService.init();
     var user = await auth.signIn(
       emailController.text,
       passwordController.text,
