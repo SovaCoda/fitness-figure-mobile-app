@@ -1,12 +1,13 @@
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
+import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const TestApp());
 }
 
 /// The route configuration.
@@ -52,5 +53,21 @@ class MyApp extends StatelessWidget {
       routerConfig: _router,
     );
   }
+}
 
+
+class TestApp extends StatelessWidget {
+  const TestApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Namer App',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        ),
+        home: const DashboardPage(),
+      );
+  }
 }
