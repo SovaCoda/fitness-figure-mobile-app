@@ -1,4 +1,5 @@
 import 'package:ffapp/pages/home/dashboard.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class _DashboardPageState extends State<DashboardPage> {
   //acts as a directory of the widgets that the navbar can route to and render
   static const List<Widget> _pages = <Widget>[
   Dashboard(),
-  Text("Store"),
+  Store(),
   Text("Log Workout"),
   Text("History"),
   Text("User")
@@ -32,9 +33,11 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
 
+      backgroundColor: Colors.blueGrey[800],
       //permanent top bar if we want it
       appBar: AppBar(
-        title: const Text('We have a top bar here if wanted'),
+        title: const Text('FF TOP BAR'),
+        backgroundColor: Colors.transparent,
       ),
 
       //renders the page that the nav bar has currently selected

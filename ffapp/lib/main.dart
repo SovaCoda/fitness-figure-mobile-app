@@ -1,5 +1,6 @@
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const TestApp());
 }
 
 /// The route configuration.
@@ -66,7 +67,7 @@ class TestApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
         ),
-        home: const WorkoutFrequencySelection(),
+        home: const DashboardPage(),
       );
   }
 }

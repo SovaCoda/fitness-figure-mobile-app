@@ -62,9 +62,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {           
 
-    return Scaffold(
-      backgroundColor: Colors.blueGrey[800],
-      body: const SafeArea(
+    return const SafeArea(
         child: SingleChildScrollView(
           child: Center (
             child: Column(
@@ -109,7 +107,6 @@ class _DashboardState extends State<Dashboard> {
           )
         ),
       ),
-    ),
     );
   }
 }
