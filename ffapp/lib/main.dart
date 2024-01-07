@@ -11,31 +11,25 @@ void main() {
 }
 
 /// The route configuration.
-final GoRouter _router = GoRouter(
-  initialLocation: '/',
-  routes:[
-    GoRoute(
+final GoRouter _router = GoRouter(initialLocation: '/', routes: [
+  GoRoute(
       name: 'LandingPage',
       path: '/',
-      builder: (context, state) => const LandingPage()
-    ),
-    GoRoute(
-      name: 'Home',
-      path: '/home', // Update the path to '/home'
-      builder: (context, state) => const DashboardPage(),
-    ),    
-    GoRoute(
+      builder: (context, state) => const LandingPage()),
+  GoRoute(
+    name: 'Home',
+    path: '/home', // Update the path to '/home'
+    builder: (context, state) => const DashboardPage(),
+  ),
+  GoRoute(
       name: 'Register',
       path: '/register',
-      builder: (context, state) => const Register()
-    ),
-    GoRoute(
+      builder: (context, state) => const Register()),
+  GoRoute(
       name: 'SignIn',
-      path:'/signin',
-      builder: (context, state) => const SignIn()
-    )
-  ]
-);
+      path: '/signin',
+      builder: (context, state) => const SignIn())
+]);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -55,18 +49,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class TestApp extends StatelessWidget {
   const TestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-        ),
-        home: const WorkoutFrequencySelection(),
-      );
+      title: 'Namer App',
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: const WorkoutFrequencySelection(),
+    );
   }
 }
