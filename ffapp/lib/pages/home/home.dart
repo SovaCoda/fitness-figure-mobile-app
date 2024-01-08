@@ -1,5 +1,7 @@
+import 'package:ffapp/components/currency_button.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/store.dart';
+import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:flutter/material.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -15,7 +17,7 @@ class _DashboardPageState extends State<DashboardPage> {
   static final List<Widget> _pages = <Widget>[
   const Dashboard(),
   Store(),
-  Text("Log Workout"),
+  const WorkoutAdder(),
   Text("History"),
   Text("User")
   ];
@@ -34,10 +36,33 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
 
       backgroundColor: Colors.blueGrey[800],
+
       //permanent top bar if we want it
       appBar: AppBar(
-        title: const Text('FF TOP BAR'),
+        title: const Text('FF',
+          style: TextStyle(
+            color: Colors.lightGreen
+          )
+        ),
         backgroundColor: Colors.transparent,
+        actions: [ 
+          IconButton(
+            icon: const Icon(
+              Icons.currency_exchange,
+              color: Colors.lightGreen,
+            ),
+            tooltip: 'Currency',
+            onPressed: () {}
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.question_mark,
+              color: Colors.lightGreen
+            ),
+            tooltip: 'Help',
+            onPressed: () {}
+          )
+        ],
       ),
 
       //renders the page that the nav bar has currently selected

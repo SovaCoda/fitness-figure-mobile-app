@@ -18,17 +18,30 @@ class Store extends StatelessWidget {
     return SingleChildScrollView(
       child: (
         Column(
-          // generates the store as a bunch of rows with 2 elements each from the array above
-          // TO DO: if there are an odd number of skins it wont render the last one rn
-          children: List.generate((listOfSkins.length / 2).floor(), (index) => 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                StoreItem(photoPath: listOfSkins[index*2][0].toString(), itemPrice: int.parse(listOfSkins[index*2][1].toString())),
-                StoreItem(photoPath: listOfSkins[index*2 + 1][0].toString(), itemPrice: int.parse(listOfSkins[index*2 + 1][1].toString()))
-              ],
-            )
-          ),
+          children: [
+            const Text(
+              "Figure Store",
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold
+              ),
+            ),
+
+            Column(
+            // generates the store as a bunch of rows with 2 elements each from the array above
+            // TO DO: if there are an odd number of skins it wont render the last one rn
+              children: List.generate((listOfSkins.length / 2).floor(), (index) => 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    StoreItem(photoPath: listOfSkins[index*2][0].toString(), itemPrice: int.parse(listOfSkins[index*2][1].toString())),
+                    StoreItem(photoPath: listOfSkins[index*2 + 1][0].toString(), itemPrice: int.parse(listOfSkins[index*2 + 1][1].toString()))
+                  ],
+                )
+              ),
+            ),
+          ],
         )
       ),
     );
