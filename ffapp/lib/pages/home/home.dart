@@ -12,8 +12,8 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
 
   //acts as a directory of the widgets that the navbar can route to and render
-  static const List<Widget> _pages = <Widget>[
-  Dashboard(),
+  static final List<Widget> _pages = <Widget>[
+  const Dashboard(),
   Store(),
   Text("Log Workout"),
   Text("History"),
