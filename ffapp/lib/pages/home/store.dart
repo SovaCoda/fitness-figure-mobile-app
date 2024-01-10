@@ -16,7 +16,6 @@ class Store extends StatelessWidget {
     return SingleChildScrollView(
       child: (
         Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const Text(
               "Figure Store",
