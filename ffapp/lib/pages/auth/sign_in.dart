@@ -51,13 +51,26 @@ class _SignInState extends State<SignIn> {
       emailController.text,
       passwordController.text,
     );
-    logger.i("user is $user");
-    if (user is String) {
-      logger.e(user);
-    } else if (user is User) {
-      logger.i("user is signed in");
-      context.goNamed('Home');
+    if (user != null) {
+      if (user is String) {
+        logger.e(user);
+      } else if (user is User) {
+        String email = emailController.text;
+        logger.i("$email is signed in");
+        context.goNamed('LandingPage');
+      }
+    } else {
+      logger.i("Invalid email/password.");
+      showSnackBar(context, "Invalid email or password! Please try again.");
     }
+  }
+
+  void showSnackBar(BuildContext context, String text) {
+    final snackBar = SnackBar(
+      content: Text(text),
+      duration: Duration(seconds: 1),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void createAccount() {}
@@ -107,7 +120,7 @@ class _SignInState extends State<SignIn> {
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
                     child: Container(
-                      alignment: Alignment.topLeft,
+                      alignment: Alignment.center,
                       child: Text(
                         'Get help logging in.',
                         style: TextStyle(
@@ -133,7 +146,9 @@ class _SignInState extends State<SignIn> {
                 //create account
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: CustomButton(onTap: () => context.goNamed('Register'), text: "Create Account"),
+                  child: CustomButton(
+                      onTap: () => context.goNamed('Register'),
+                      text: "Create Account"),
                 ),
 
                 //spacer
