@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -71,6 +72,24 @@ class _SignInState extends State<SignIn> {
       duration: Duration(seconds: 1),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger auth flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Auth details from request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // After sign in, return UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   void createAccount() {}
@@ -193,7 +212,10 @@ class _SignInState extends State<SignIn> {
                   children: [
                     //google buttom
                     SquareTile(
-                      onTap: () {},
+                      onTap: () {
+                        print("Pressed Google!");
+                        signInWithGoogle();
+                      },
                       imagePath: 'lib/assets/icons/google.svg',
                       height: 90,
                     ),

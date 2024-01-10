@@ -12,7 +12,20 @@
           "package_name": "com.example.ffapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "107506093040-n41he1kr7f1l6mgbma7oc4do70plmde6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ffapp",
+            "certificate_hash": "87e385de9e83586cbad8e3bb49c710a9001d76b7"
+          }
+        },
+        {
+          "client_id": "107506093040-bvnvei0aq7dqt6b661o22mt6030puup9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCBWbcpoV7jSxvHfUMrPv0fosfbNuH1ZSc"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107506093040-bvnvei0aq7dqt6b661o22mt6030puup9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107506093040-9c0hbk1difuk5m1gfd52e9l4r77qormk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ffapp.RunnerTests"
+              }
+            }
+          ]
         }
       }
     }
