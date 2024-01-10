@@ -27,21 +27,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   @override 
   Widget build(BuildContext context) {
     if (!_logging) {
-        return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(onPressed: startLogging, child: const Text("Log a Workout"))
-        ],
-      );
+        return Center(
+          child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(onPressed: startLogging, child: const Text("Log a Workout"))
+          ],
+                ),
+        );
     }
     else {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [ 
-          const Text("0:00"),
-          const SizedBox(height: 20),
-          ElevatedButton(onPressed: endLogging, child: const Text("End Workout"))
-        ],
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [ 
+            const Text("0:00"),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: endLogging, child: const Text("End Workout"))
+          ],
+        ),
       );
     }
   }

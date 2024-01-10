@@ -11,7 +11,15 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 50),
+        const Text(
+              "Profile",
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold
+              ),
+        ),
+        const SizedBox(height: 20),
         SettingsBar(
           name: "User Name",
           onTapFunction: emptyFunction,
@@ -57,7 +65,7 @@ class SettingsBar extends StatelessWidget {
           width: double.infinity,
           height: 50,
           decoration: const BoxDecoration(
-            color: Colors.white60,
+            color: Colors.white,
             border: Border( 
               bottom: BorderSide(
                 color: Colors.black
@@ -70,9 +78,9 @@ class SettingsBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-                Text(name, textAlign: TextAlign.center),
+                Text(name, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black87),),
                 const SizedBox(width: 10),
-                const Icon(Icons.edit)
+                const Icon(Icons.edit, color: Colors.black,)
               ]
           ),
         ),

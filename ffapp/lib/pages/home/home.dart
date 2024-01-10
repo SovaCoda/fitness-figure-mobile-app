@@ -1,5 +1,5 @@
-import 'package:ffapp/components/currency_button.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
+import 'package:ffapp/pages/home/history.dart';
 import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
@@ -19,8 +19,8 @@ class _DashboardPageState extends State<DashboardPage> {
   const Dashboard(),
   Store(),
   const WorkoutAdder(),
-  Text("History"),
-  Profile()
+  History(),
+  const Profile()
   ];
 
   int _selectedIndex = 0; 
@@ -67,9 +67,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
 
       //renders the page that the nav bar has currently selected
-      body: Center(
-        child: _pages.elementAt(_selectedIndex),
-      ),
+      body: _pages.elementAt(_selectedIndex),
 
       //permanent footer navigation that changes the page index state to switch displays
       bottomNavigationBar: BottomNavigationBar(
