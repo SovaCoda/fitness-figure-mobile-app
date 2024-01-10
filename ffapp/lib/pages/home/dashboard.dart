@@ -1,7 +1,6 @@
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ffapp/components/custom_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/double_line_divider.dart';
@@ -50,7 +49,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> initAuthService() async {
-    auth = await AuthService.init();
+    auth = await AuthService.instance;
     logger.i("AuthService initialized");
   }
 

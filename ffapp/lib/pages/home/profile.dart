@@ -1,10 +1,10 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
-
+  
   void emptyFunction() {}
 
   @override
@@ -39,6 +39,16 @@ class Profile extends StatelessWidget {
         SettingsBar(
           onTapFunction: emptyFunction, 
           name: "Manage Subscription",
+        ),
+        TextButton(
+          style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+          ),
+          onPressed: () {
+            signOut();
+            context.goNamed('SignIn');
+          },
+          child: Text('Sign Out'),
         ),
       ],
     );
@@ -89,4 +99,9 @@ class SettingsBar extends StatelessWidget {
       ]
     );
   }
+}
+
+
+Future<void> signOut() async {
+  await FirebaseAuth.instance.signOut();
 }

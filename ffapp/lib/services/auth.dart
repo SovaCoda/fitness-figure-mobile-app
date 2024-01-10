@@ -13,16 +13,21 @@ class AuthService {
 
   AuthService._(this._auth, this._routes);
 
-  static Future<AuthService> init() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    FirebaseAuth _auth = FirebaseAuth.instance;
+  static AuthService? _instance;
 
-    await RoutesService.instance.init();
-    RoutesService _routes = RoutesService.instance;
+  static Future<AuthService> get instance async {
+    if (_instance == null) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      FirebaseAuth _auth = FirebaseAuth.instance;
 
-    return AuthService._(_auth, _routes);
+      await RoutesService.instance.init();
+      RoutesService _routes = RoutesService.instance;
+
+      _instance = AuthService._(_auth, _routes);
+    }
+    return _instance!;
   }
 
   Future<User?> createUser(String email, String password) async {
