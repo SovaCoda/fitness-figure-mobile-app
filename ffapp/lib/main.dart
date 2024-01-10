@@ -1,14 +1,12 @@
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
-import 'package:ffapp/pages/home/store.dart';
-import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 
 void main() {
-  runApp(const TestApp());
+  runApp(const MyApp());
 }
 
 /// The route configuration.
@@ -63,7 +61,7 @@ class TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Namer App',
+        title: 'Test App',
         theme: ThemeData(
           useMaterial3: true,
         ),
