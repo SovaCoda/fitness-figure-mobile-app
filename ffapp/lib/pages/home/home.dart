@@ -1,5 +1,6 @@
 import 'package:ffapp/components/currency_button.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
+import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Store(),
   const WorkoutAdder(),
   Text("History"),
-  Text("User")
+  Profile()
   ];
 
   int _selectedIndex = 0; 

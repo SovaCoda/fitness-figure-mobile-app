@@ -101,8 +101,9 @@ class _DashboardState extends State<Dashboard> {
                   color: Colors.white70,
                   fontSize: 12,
                 ),
-                textAlign: TextAlign.center,)
+                textAlign: TextAlign.center,),
 
+              SizedBox(height: 50)
             ], 
           )
         ),
