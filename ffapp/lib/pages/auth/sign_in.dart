@@ -61,7 +61,7 @@ class _SignInState extends State<SignIn> {
         logger.i("$email is signed in");
         var userID = user.uid;
         logger.i("The user ID is $userID");
-        //context.goNamed('LandingPage');
+        context.goNamed('Home');
       }
     } else {
       logger.i("Invalid email/password.");
@@ -107,7 +107,6 @@ class _SignInState extends State<SignIn> {
       } else {
         return await FirebaseAuth.instance.signInWithProvider(appleProvider);
       }
-      context.goNamed('LandingPage');
     } catch (e) {
       logger.i("Invalid Apple SignIn.");
       showSnackBar(context, "Invalid Apple SignIn! Please try again.");
@@ -236,16 +235,15 @@ class _SignInState extends State<SignIn> {
                     //google buttom
                     SquareTile(
                       onTap: () {
-                        print("Pressed Google!");
+                        logger.i("Pressed Google!");
                         try {
                           signInWithGoogle();
                         } catch (e) {
-                          print("User could not be signed in.");
                           logger.i("Invalid Google Login.");
                           showSnackBar(context,
                               "Google could not authorize this login.");
                         }
-                        context.goNamed('LandingPage');
+                        context.goNamed('Home');
                       },
                       imagePath: 'lib/assets/icons/google.svg',
                       height: 90,
@@ -255,8 +253,16 @@ class _SignInState extends State<SignIn> {
                     // apple buttom
                     SquareTile(
                       onTap: () {
-                        print("Pressed Apple!");
-                        // signInWithApple();
+                        logger.i("Pressed Apple!");
+                        try {
+                          signInWithApple();
+                        } catch (e) {
+                          logger.i("Invalid Apple login.");
+                          showSnackBar(
+                              context, "Apple could not authorize this login.");
+                        }
+
+                        context.goNamed('Home');
                       },
                       imagePath: 'lib/assets/icons/apple.svg',
                       height: 60,
