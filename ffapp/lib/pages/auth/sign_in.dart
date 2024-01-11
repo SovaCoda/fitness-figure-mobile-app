@@ -2,6 +2,7 @@ import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -58,7 +59,9 @@ class _SignInState extends State<SignIn> {
       } else if (user is User) {
         String email = emailController.text;
         logger.i("$email is signed in");
-        context.goNamed('LandingPage');
+        var userID = user.uid;
+        logger.i("The user ID is $userID");
+        //context.goNamed('LandingPage');
       }
     } else {
       logger.i("Invalid email/password.");
@@ -75,6 +78,10 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<UserCredential> signInWithGoogle() async {
+    // Establishing Client ID through OAuth
+    clientId:
+    const String.fromEnvironment('GOOGLE_CLIENT_ID');
+
     // Trigger auth flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -90,6 +97,22 @@ class _SignInState extends State<SignIn> {
 
     // After sign in, return UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<UserCredential> signInWithApple() async {
+    final appleProvider = AppleAuthProvider();
+    try {
+      if (kIsWeb) {
+        return await FirebaseAuth.instance.signInWithPopup(appleProvider);
+      } else {
+        return await FirebaseAuth.instance.signInWithProvider(appleProvider);
+      }
+      context.goNamed('LandingPage');
+    } catch (e) {
+      logger.i("Invalid Apple SignIn.");
+      showSnackBar(context, "Invalid Apple SignIn! Please try again.");
+    }
+    return await FirebaseAuth.instance.signInWithPopup(appleProvider);
   }
 
   void createAccount() {}
@@ -214,7 +237,15 @@ class _SignInState extends State<SignIn> {
                     SquareTile(
                       onTap: () {
                         print("Pressed Google!");
-                        signInWithGoogle();
+                        try {
+                          signInWithGoogle();
+                        } catch (e) {
+                          print("User could not be signed in.");
+                          logger.i("Invalid Google Login.");
+                          showSnackBar(context,
+                              "Google could not authorize this login.");
+                        }
+                        context.goNamed('LandingPage');
                       },
                       imagePath: 'lib/assets/icons/google.svg',
                       height: 90,
@@ -223,7 +254,10 @@ class _SignInState extends State<SignIn> {
                     const SizedBox(width: 20),
                     // apple buttom
                     SquareTile(
-                      onTap: () {},
+                      onTap: () {
+                        print("Pressed Apple!");
+                        // signInWithApple();
+                      },
                       imagePath: 'lib/assets/icons/apple.svg',
                       height: 60,
                     ),
