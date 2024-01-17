@@ -40,6 +40,8 @@ class _RegisterState extends State<Register> {
     bool passwordMatch = passwordController.text == password2Controller.text;
     if (!passwordMatch) {
       logger.e("passwords do not match");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Passwords do not match! Please try again.")));
       passwordController.clear();
       password2Controller.clear();
       return;
@@ -55,6 +57,9 @@ class _RegisterState extends State<Register> {
     } else if (user is User) {
       logger.i("user is created");
       context.goNamed('SignIn');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("An account already exists with this email.")));
     }
   }
 
