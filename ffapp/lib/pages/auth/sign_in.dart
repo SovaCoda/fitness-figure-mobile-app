@@ -77,7 +77,7 @@ class _SignInState extends State<SignIn> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  Future<UserCredential> signInWithGoogle() async {
+  signInWithGoogle() async {
     // Establishing Client ID through OAuth
     clientId:
     const String.fromEnvironment('GOOGLE_CLIENT_ID');
@@ -91,12 +91,20 @@ class _SignInState extends State<SignIn> {
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+        accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
 
-    // After sign in, return UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+    // userCredentials var
+    var userCredents =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+    if (userCredents.user != null) {
+      //logged in
+      context.goNamed("Home");
+    } else {
+      //not logged in
+      logger.i("Invalid Google Authentication.");
+      showSnackBar(context, "Invalid Google sign in! Please try again.");
+    }
   }
 
   Future<UserCredential> signInWithApple() async {
@@ -232,25 +240,18 @@ class _SignInState extends State<SignIn> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    //google buttom
+                    //google button
                     SquareTile(
                       onTap: () {
                         logger.i("Pressed Google!");
-                        try {
-                          signInWithGoogle();
-                        } catch (e) {
-                          logger.i("Invalid Google Login.");
-                          showSnackBar(context,
-                              "Google could not authorize this login.");
-                        }
-                        context.goNamed('Home');
+                        signInWithGoogle();
                       },
                       imagePath: 'lib/assets/icons/google.svg',
                       height: 90,
                     ),
 
                     const SizedBox(width: 20),
-                    // apple buttom
+                    // apple button
                     SquareTile(
                       onTap: () {
                         logger.i("Pressed Apple!");
