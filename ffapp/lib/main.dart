@@ -1,6 +1,5 @@
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
-import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -55,11 +54,11 @@ class TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Namer App',
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
-      home: const WorkoutFrequencySelection(),
-    );
+        title: 'Test App',
+        theme: ThemeData(
+          useMaterial3: true,
+        ),
+        home: const DashboardPage(),
+      );
   }
 }
