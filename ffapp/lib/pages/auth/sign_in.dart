@@ -2,10 +2,12 @@ import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -57,7 +59,9 @@ class _SignInState extends State<SignIn> {
       } else if (user is User) {
         String email = emailController.text;
         logger.i("$email is signed in");
-        context.goNamed('LandingPage');
+        var userID = user.uid;
+        logger.i("The user ID is $userID");
+        context.goNamed('Home');
       }
     } else {
       logger.i("Invalid email/password.");
@@ -71,6 +75,51 @@ class _SignInState extends State<SignIn> {
       duration: Duration(seconds: 1),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  signInWithGoogle() async {
+    // Establishing Client ID through OAuth
+    clientId:
+    const String.fromEnvironment('GOOGLE_CLIENT_ID');
+
+    // Trigger auth flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Auth details from request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
+
+    // userCredentials var
+    var userCredents =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+    if (userCredents.user != null) {
+      //logged in
+      context.goNamed("Home");
+    } else {
+      //not logged in
+      logger.i("Invalid Google Authentication.");
+      showSnackBar(context, "Invalid Google sign in! Please try again.");
+    }
+  }
+
+  Future<UserCredential> signInWithApple() async {
+    final appleProvider = AppleAuthProvider();
+    try {
+      if (kIsWeb) {
+        return await FirebaseAuth.instance.signInWithPopup(appleProvider);
+      } else {
+        return await FirebaseAuth.instance.signInWithProvider(appleProvider);
+      }
+    } catch (e) {
+      logger.i("Invalid Apple SignIn.");
+      showSnackBar(context, "Invalid Apple SignIn! Please try again.");
+    }
+    return await FirebaseAuth.instance.signInWithPopup(appleProvider);
   }
 
   void createAccount() {}
@@ -191,17 +240,31 @@ class _SignInState extends State<SignIn> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    //google buttom
+                    //google button
                     SquareTile(
-                      onTap: () {},
+                      onTap: () {
+                        logger.i("Pressed Google!");
+                        signInWithGoogle();
+                      },
                       imagePath: 'lib/assets/icons/google.svg',
                       height: 90,
                     ),
 
                     const SizedBox(width: 20),
-                    // apple buttom
+                    // apple button
                     SquareTile(
-                      onTap: () {},
+                      onTap: () {
+                        logger.i("Pressed Apple!");
+                        try {
+                          signInWithApple();
+                        } catch (e) {
+                          logger.i("Invalid Apple login.");
+                          showSnackBar(
+                              context, "Apple could not authorize this login.");
+                        }
+
+                        context.goNamed('Home');
+                      },
                       imagePath: 'lib/assets/icons/apple.svg',
                       height: 60,
                     ),
