@@ -1,7 +1,11 @@
+import "dart:math";
+
+import "package:ffapp/services/routes.pb.dart" as Routes;
 import "package:firebase_auth/firebase_auth.dart";
 import "package:firebase_core/firebase_core.dart";
 import "package:ffapp/firebase_options.dart";
 import 'package:ffapp/routes.dart';
+import "package:flutter/material.dart";
 import 'package:logger/logger.dart';
 
 var logger = Logger();
@@ -23,6 +27,7 @@ class AuthService {
       FirebaseAuth _auth = FirebaseAuth.instance;
 
       await RoutesService.instance.init();
+      logger.i("RoutesService initialized");
       RoutesService _routes = RoutesService.instance;
 
       _instance = AuthService._(_auth, _routes);
@@ -32,11 +37,16 @@ class AuthService {
 
   Future<User?> createUser(String email, String password) async {
     try {
+
+      Routes.User user = Routes.User(email: email);
+      await _routes.routesClient.createUser(user);
+
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == "weak-password") {

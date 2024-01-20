@@ -19,7 +19,6 @@ class User extends $pb.GeneratedMessage {
     $core.String? email,
     $core.String? curFigure,
     $core.String? name,
-    $core.String? pass,
     $fixnum.Int64? currency,
     $fixnum.Int64? weekComplete,
     $fixnum.Int64? weekGoal,
@@ -34,9 +33,6 @@ class User extends $pb.GeneratedMessage {
     }
     if (name != null) {
       $result.name = name;
-    }
-    if (pass != null) {
-      $result.pass = pass;
     }
     if (currency != null) {
       $result.currency = currency;
@@ -60,11 +56,10 @@ class User extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'email')
     ..aOS(2, _omitFieldNames ? '' : 'curFigure')
     ..aOS(3, _omitFieldNames ? '' : 'name')
-    ..aOS(4, _omitFieldNames ? '' : 'pass')
-    ..aInt64(5, _omitFieldNames ? '' : 'currency')
-    ..aInt64(6, _omitFieldNames ? '' : 'weekComplete')
-    ..aInt64(7, _omitFieldNames ? '' : 'weekGoal')
-    ..aOS(8, _omitFieldNames ? '' : 'curWorkout')
+    ..aInt64(4, _omitFieldNames ? '' : 'currency')
+    ..aInt64(5, _omitFieldNames ? '' : 'weekComplete')
+    ..aInt64(6, _omitFieldNames ? '' : 'weekGoal')
+    ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
     ..hasRequiredFields = false
   ;
 
@@ -117,49 +112,40 @@ class User extends $pb.GeneratedMessage {
   void clearName() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get pass => $_getSZ(3);
+  $fixnum.Int64 get currency => $_getI64(3);
   @$pb.TagNumber(4)
-  set pass($core.String v) { $_setString(3, v); }
+  set currency($fixnum.Int64 v) { $_setInt64(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasPass() => $_has(3);
+  $core.bool hasCurrency() => $_has(3);
   @$pb.TagNumber(4)
-  void clearPass() => clearField(4);
+  void clearCurrency() => clearField(4);
 
   @$pb.TagNumber(5)
-  $fixnum.Int64 get currency => $_getI64(4);
+  $fixnum.Int64 get weekComplete => $_getI64(4);
   @$pb.TagNumber(5)
-  set currency($fixnum.Int64 v) { $_setInt64(4, v); }
+  set weekComplete($fixnum.Int64 v) { $_setInt64(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasCurrency() => $_has(4);
+  $core.bool hasWeekComplete() => $_has(4);
   @$pb.TagNumber(5)
-  void clearCurrency() => clearField(5);
+  void clearWeekComplete() => clearField(5);
 
   @$pb.TagNumber(6)
-  $fixnum.Int64 get weekComplete => $_getI64(5);
+  $fixnum.Int64 get weekGoal => $_getI64(5);
   @$pb.TagNumber(6)
-  set weekComplete($fixnum.Int64 v) { $_setInt64(5, v); }
+  set weekGoal($fixnum.Int64 v) { $_setInt64(5, v); }
   @$pb.TagNumber(6)
-  $core.bool hasWeekComplete() => $_has(5);
+  $core.bool hasWeekGoal() => $_has(5);
   @$pb.TagNumber(6)
-  void clearWeekComplete() => clearField(6);
+  void clearWeekGoal() => clearField(6);
 
   @$pb.TagNumber(7)
-  $fixnum.Int64 get weekGoal => $_getI64(6);
+  $core.String get curWorkout => $_getSZ(6);
   @$pb.TagNumber(7)
-  set weekGoal($fixnum.Int64 v) { $_setInt64(6, v); }
+  set curWorkout($core.String v) { $_setString(6, v); }
   @$pb.TagNumber(7)
-  $core.bool hasWeekGoal() => $_has(6);
+  $core.bool hasCurWorkout() => $_has(6);
   @$pb.TagNumber(7)
-  void clearWeekGoal() => clearField(7);
-
-  @$pb.TagNumber(8)
-  $core.String get curWorkout => $_getSZ(7);
-  @$pb.TagNumber(8)
-  set curWorkout($core.String v) { $_setString(7, v); }
-  @$pb.TagNumber(8)
-  $core.bool hasCurWorkout() => $_has(7);
-  @$pb.TagNumber(8)
-  void clearCurWorkout() => clearField(8);
+  void clearCurWorkout() => clearField(7);
 }
 
 

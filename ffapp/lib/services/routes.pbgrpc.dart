@@ -25,6 +25,18 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/GetUser',
       ($0.User value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$createUser = $grpc.ClientMethod<$0.User, $0.User>(
+      '/routes.Routes/CreateUser',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$updateUser = $grpc.ClientMethod<$0.User, $0.User>(
+      '/routes.Routes/UpdateUser',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$deleteUser = $grpc.ClientMethod<$0.User, $0.User>(
+      '/routes.Routes/DeleteUser',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.User.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -34,6 +46,18 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.User> getUser($0.User request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getUser, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.User> createUser($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createUser, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.User> updateUser($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateUser, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.User> deleteUser($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteUser, request, options: options);
   }
 }
 
@@ -49,11 +73,47 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.User.fromBuffer(value),
         ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.User>(
+        'CreateUser',
+        createUser_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.User>(
+        'UpdateUser',
+        updateUser_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.User>(
+        'DeleteUser',
+        deleteUser_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.User value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
     return getUser(call, await request);
   }
 
+  $async.Future<$0.User> createUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return createUser(call, await request);
+  }
+
+  $async.Future<$0.User> updateUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return updateUser(call, await request);
+  }
+
+  $async.Future<$0.User> deleteUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return deleteUser(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.User> deleteUser($grpc.ServiceCall call, $0.User request);
 }

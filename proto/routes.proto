@@ -5,17 +5,20 @@ option go_package = "./routes";
 package routes;
 
 service Routes {
+    // USER ROUTES //
     rpc GetUser(User) returns (User) {}
+    rpc CreateUser(User) returns (User) {}
+    rpc UpdateUser(User) returns (User) {}
+    rpc DeleteUser(User) returns (User) {}
 }
 
 message User {
     string email = 1;
     string cur_figure = 2;
     string name = 3;
-    string pass = 4;
-    int64 currency = 5;
-    int64 week_complete = 6;
-    int64 week_goal = 7;
-    string cur_workout = 8; // Modified field type
+    int64 currency = 4;
+    int64 week_complete = 5;
+    int64 week_goal = 6;
+    string cur_workout = 7; // Modified field type
 }
 

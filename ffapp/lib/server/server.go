@@ -1,0 +1,136 @@
+package main
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"net"
+	"os"
+
+	pb "server/pb/routes"
+
+	_ "github.com/go-sql-driver/mysql"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+)
+
+const (
+	DefaultFigure = "none"
+	DefaultCurrency = 0
+	DefaultWeekComplete = 0
+	DefaultWeekGoal = 0
+	DefaultCurWorkout = "2001-09-04 19:21:00"
+)
+
+type server struct {
+	pb.UnimplementedRoutesServer
+	db *sql.DB
+}
+
+func newServer(db *sql.DB) *server {
+	return &server{db: db}
+}
+
+// BEGIN USER METHODS //
+
+/* all methods return a user object and an error if there is one */
+
+func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
+	var user pb.User
+
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout)
+	if err != nil {
+		return nil, fmt.Errorf("could not get user: %v", err)
+	}
+	return &user, nil
+}
+
+func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
+	var user pb.User
+
+	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout) VALUES (?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout)
+
+	return &user, nil
+}
+
+func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
+	var user pb.User
+
+	// Retrieve existing user information
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout)
+	if err != nil {
+		return nil, fmt.Errorf("could not get user: %v", err)
+	}
+
+	// Update specified fields with the values from the passed user
+	if in.CurFigure != "" {
+		user.CurFigure = in.CurFigure
+	}
+	if in.Name != "" {
+		user.Name = in.Name
+	}
+	if in.Currency != 0 {
+		user.Currency = in.Currency
+	}
+	if in.WeekComplete != 0 {
+		user.WeekComplete = in.WeekComplete
+	}
+	if in.WeekGoal != 0 {
+		user.WeekGoal = in.WeekGoal
+	}
+	if in.CurWorkout != "" {
+		user.CurWorkout = in.CurWorkout
+	}
+
+	// Update the user in the database
+	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not update user: %v", err)
+	}
+
+	return &user, nil
+}
+
+func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) {
+	var user pb.User
+
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout)
+	if err != nil {
+		return nil, fmt.Errorf("could not get user: %v", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, "DELETE FROM users WHERE email = ?", in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete user: %v", err)
+	}
+
+	return &user, nil
+}
+
+// END USER METHODS //
+
+func main() {
+	dbHost := os.Getenv("DB_HOST")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName))
+	if err != nil {
+		log.Fatalf("could not connect to database: %v", err)
+	}
+	defer db.Close()
+
+	lis, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Fatalf("could not listen: %v", err)
+	}
+	log.Printf("Server is listening on %s", lis.Addr().String())
+	s := grpc.NewServer()
+	reflection.Register(s)
+	pb.RegisterRoutesServer(s, newServer(db))
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("could not serve: %v", err)
+	}
+}

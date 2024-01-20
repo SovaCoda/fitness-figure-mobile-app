@@ -1,8 +1,10 @@
+import 'package:ffapp/services/auth.dart';
 import 'package:grpc/grpc.dart';
 import 'package:ffapp/services/routes.pbgrpc.dart';
 
 class RoutesService {
-  String baseUrl = "localhost";
+  String baseUrl = "10.0.2.2";
+  var channel;
 
   RoutesService._internal();
   static final RoutesService _instance = RoutesService._internal();
@@ -27,6 +29,11 @@ class RoutesService {
       port: 8080,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
+    this.channel = channel;
+    logger.i("RoutesService channel created with port " +
+        channel.port.toString() +
+        " and baseUrl " +
+        baseUrl);
     _routesClient = RoutesClient(channel);
   }
 }
