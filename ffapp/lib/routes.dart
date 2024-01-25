@@ -3,7 +3,13 @@ import 'package:grpc/grpc.dart';
 import 'package:ffapp/services/routes.pbgrpc.dart';
 
 class RoutesService {
+
+  //works for android
   String baseUrl = "10.0.2.2";
+
+  //works for ios/macos
+  // String baseUrl = "0.0.0.0";
+  
   var channel;
 
   RoutesService._internal();
