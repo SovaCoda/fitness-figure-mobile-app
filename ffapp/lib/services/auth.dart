@@ -87,6 +87,12 @@ class AuthService {
     return _auth.currentUser;
   }
 
+  Future<Routes.User?> getUserDBInfo() async {
+    User? currentUser = _auth.currentUser;
+    Routes.User user = Routes.User(email: currentUser!.email);
+    return await _routes.routesClient.getUser(user);
+  }
+
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
   }
