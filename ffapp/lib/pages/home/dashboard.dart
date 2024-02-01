@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -5,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
+import 'package:ffapp/services/flutterUser.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key});
@@ -14,8 +17,12 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  late AuthService auth;
-  late String text = "Loading...";
+
+  FlutterUser user = FlutterUser();
+  late String email = "Loading...";
+  late int weeklyGoal = 0;
+  late int weeklyCompleted = 0;
+  late String figureURL = "robot1_skin0_cropped";
 
   @override
   void initState() {
@@ -24,44 +31,27 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void initialize() async {
-    await initAuthService();
-    await checkUser();
-    String email = await getText();
+    await user.initAuthService();
+    await user.checkUser();
+    String curEmail = await user.getEmail();
+    int curGoal = await user.getWorkoutGoal();
+    int curWeekly = await user.getWeeklyCompleted();
+    String curFigure = await user.getCurrentFigure();
     setState(() {
-      text = email;
+      email = curEmail;
+      weeklyGoal = curGoal;
+      weeklyCompleted = curWeekly;
+      if (curFigure != "none") {
+        figureURL = curFigure;
+      }
     });
-  }
-
-  Future<void> checkUser() async {
-    logger.i("Checking User Status");
-    User? user = await auth.getUser();
-    if (user != null) {
-      logger.i("User is signed in");
-      return;
-    }
-    logger.i("User is not signed in");
-    context.goNamed('SignIn');
-  }
-
-  Future<String> getText() async {
-    logger.i("getting user");
-    return auth.getUser().then((value) => value!.email.toString());
-  }
-
-  Future<void> initAuthService() async {
-    auth = await AuthService.instance;
-    logger.i("AuthService initialized");
-  }
-
-  void logoutUser() {
-    auth.signOut();
-    context.goNamed('SignIn');
+    logger.i(figureURL);
   }
 
   @override
   Widget build(BuildContext context) {           
 
-    return const SafeArea(
+    return SafeArea(
         child: SingleChildScrollView(
           child: Center (
             child: Column(
@@ -69,32 +59,33 @@ class _DashboardState extends State<Dashboard> {
             children: [
 
               //created below
-              RobotImageHolder(),
+              RobotImageHolder(url: figureURL),
 
               //Text underneath the robot
               Text(
                 "Train consistently to power your Fitness Figure!",
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   fontSize: 14,
                 ),
               ),
 
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
               //created below
-              WorkoutNumbersRow(),
+              WorkoutNumbersRow(weeklyCompleted: weeklyCompleted, weeklyGoal: weeklyGoal, lifeTimeCompleted: 10,),
               
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
 
               //imported from progress bar component
+              //TO DO: DECIDE HOW TO CALCULATE THIS
               ProgressBar(),
 
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
 
               //progress explanation text
-              Text(
+              const Text(
                 "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
                 style: TextStyle(
                   color: Colors.white70,
@@ -102,7 +93,7 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 textAlign: TextAlign.center,),
 
-              SizedBox(height: 50)
+              const SizedBox(height: 50)
             ], 
           )
         ),
@@ -112,8 +103,12 @@ class _DashboardState extends State<Dashboard> {
 }
 
 class RobotImageHolder extends StatelessWidget {
+
+  final String url;
+
   const RobotImageHolder({
     super.key,
+    required this.url
   });
 
   @override
@@ -134,8 +129,7 @@ class RobotImageHolder extends StatelessWidget {
       ),
       child: Center(
         child: Image.asset(
-          //TO DO: GET APPROPRIATE ROBOT GIF LINK
-          "lib/assets/icons/robot1_skin0_cropped.gif",
+          "lib/assets/icons/$url.gif",
           height: 260.0,
           width: 260.0,
         ),
@@ -145,21 +139,28 @@ class RobotImageHolder extends StatelessWidget {
 }
 
 class WorkoutNumbersRow extends StatelessWidget {
+
+  final int weeklyGoal;
+  final int weeklyCompleted;
+  final int lifeTimeCompleted;
+
   const WorkoutNumbersRow({
     super.key,
+    required this.weeklyCompleted,
+    required this.weeklyGoal,
+    required this.lifeTimeCompleted
   });
 
   @override
   Widget build(BuildContext context) {
-    return const IntrinsicHeight(
+    return IntrinsicHeight(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Column(
             children: [
               Text(
-                //TO DO: GET WEEKLY GOAL
-                "3",
+                weeklyGoal.toString(),
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 20,
@@ -178,8 +179,7 @@ class WorkoutNumbersRow extends StatelessWidget {
           Column(
             children: [
               Text(
-                //TO DO: GET WEEKLY COMPLETED
-                "0",
+                weeklyCompleted.toString(),
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 20,
@@ -198,8 +198,7 @@ class WorkoutNumbersRow extends StatelessWidget {
           Column(
             children: [
               Text(
-                //TO DO: GET TOTAL COMPLETED
-                "0",
+                lifeTimeCompleted.toString(),
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 20,
