@@ -51,6 +51,7 @@ class _RegisterState extends State<Register> {
       emailController.text,
       passwordController.text,
     );
+
     logger.i("user is $user");
     if (user is String) {
       logger.e(user);

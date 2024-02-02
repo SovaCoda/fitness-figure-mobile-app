@@ -1,6 +1,8 @@
+import 'package:ffapp/services/flutterUser.dart';
 import 'package:flutter/material.dart';
 import 'package:wheel_slider/wheel_slider.dart';
 import 'package:go_router/go_router.dart';
+import "package:ffapp/services/routes.pb.dart" as Routes;
 
 class WorkoutFrequencySelection extends StatefulWidget {
   const WorkoutFrequencySelection({super.key});
@@ -12,6 +14,20 @@ class WorkoutFrequencySelection extends StatefulWidget {
 class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
   bool _sliderDisplayed = false;
   int _nCurrentValue = 4;
+  FlutterUser user = FlutterUser();
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  void initialize() async {
+    await user.initAuthService();
+    await user.checkUser();
+    Routes.User dbuser = Routes.User();
+    
+  }
 
   void displaySlider() {
     setState(() {
@@ -27,6 +43,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
 
   void submitFrequency() {
     //TO DO: SEND FREQUENCY TO BACKEND AND REDIRECT TO HOME
+
     context.goNamed('Home');
   }
 

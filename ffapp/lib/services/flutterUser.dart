@@ -1,5 +1,6 @@
 import 'package:ffapp/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import "package:ffapp/services/routes.pb.dart" as Routes;
 
 /*
 This serves as a combined user class for use in the frontend
@@ -11,7 +12,6 @@ components. If you check out dashboard.dart you can see how im using it rn.
 */
 
 class FlutterUser {
-
   late AuthService auth;
 
   Future<void> initAuthService() async {
@@ -48,6 +48,11 @@ class FlutterUser {
   Future<String> getCurrentFigure() async {
     logger.i("getting user current figure from MySQL");
     return auth.getUserDBInfo().then((value) => value!.curFigure.toString());
+  }
+
+  Future<Routes.User> updateUser(Routes.User user) async {
+    logger.i("updating user in MySQL");
+    return await auth.updateUserDBInfo(user);
   }
 
   void logoutUser() {

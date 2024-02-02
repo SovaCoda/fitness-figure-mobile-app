@@ -29,7 +29,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
   GoRoute(
       name: 'SignIn',
       path: '/signin',
-      builder: (context, state) => const SignIn())
+      builder: (context, state) => const SignIn()),
+  GoRoute(
+      name: 'WorkoutFrequencySelection',
+      path: '/workout_frequency_selection',
+      builder: (context, state) => const WorkoutFrequencySelection())
 ]);
 
 class MyApp extends StatelessWidget {

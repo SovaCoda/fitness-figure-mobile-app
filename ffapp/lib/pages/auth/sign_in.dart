@@ -53,15 +53,20 @@ class _SignInState extends State<SignIn> {
       emailController.text,
       passwordController.text,
     );
+
     if (user != null) {
       if (user is String) {
         logger.e(user);
       } else if (user is User) {
         String email = emailController.text;
         logger.i("$email is signed in");
-        var userID = user.uid;
-        logger.i("The user ID is $userID");
-        context.goNamed('Home');
+        var dbUser = await auth.getUserDBInfo();
+        logger.i(dbUser?.weekGoal);
+        if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0) {
+          context.goNamed('WorkoutFrequencySelection');
+        } else {
+          context.goNamed('Home');
+        }
       }
     } else {
       logger.i("Invalid email/password.");

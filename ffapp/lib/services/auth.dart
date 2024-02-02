@@ -93,6 +93,10 @@ class AuthService {
     return await _routes.routesClient.getUser(user);
   }
 
+  Future<Routes.User> updateUserDBInfo(Routes.User user) async {
+    return await _routes.routesClient.updateUser(user);
+  }
+
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
   }
