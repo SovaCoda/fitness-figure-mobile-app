@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
-  
+
   void emptyFunction() {}
 
   @override
@@ -12,12 +12,9 @@ class Profile extends StatelessWidget {
     return Column(
       children: [
         const Text(
-              "Profile",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.white,
-                fontWeight: FontWeight.bold
-              ),
+          "Profile",
+          style: TextStyle(
+              fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
         SettingsBar(
@@ -25,19 +22,19 @@ class Profile extends StatelessWidget {
           onTapFunction: emptyFunction,
         ),
         SettingsBar(
-          onTapFunction: emptyFunction, 
+          onTapFunction: emptyFunction,
           name: "Email",
         ),
         SettingsBar(
-          onTapFunction: emptyFunction, 
+          onTapFunction: emptyFunction,
           name: "Password",
         ),
         SettingsBar(
-          onTapFunction: emptyFunction, 
+          onTapFunction: emptyFunction,
           name: "Change Workout Goal",
         ),
         SettingsBar(
-          onTapFunction: emptyFunction, 
+          onTapFunction: emptyFunction,
           name: "Manage Subscription",
         ),
         TextButton(
@@ -67,40 +64,39 @@ class SettingsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [InkWell(
+    return Column(children: [
+      InkWell(
         //when this setting bar is clicked callback the function given as an input to the class
-        onTap: () {onTapFunction();},
+        onTap: () {
+          onTapFunction();
+        },
         child: Container(
           width: double.infinity,
           height: 50,
           decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border( 
-              bottom: BorderSide(
-                color: Colors.black
-              ),
-              top: BorderSide(
-                color: Colors.black
-              ),
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(color: Colors.black),
+                top: BorderSide(color: Colors.black),
+              )),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(
+              name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black87),
+            ),
+            const SizedBox(width: 10),
+            const Icon(
+              Icons.edit,
+              color: Colors.black,
             )
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-                Text(name, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black87),),
-                const SizedBox(width: 10),
-                const Icon(Icons.edit, color: Colors.black,)
-              ]
-          ),
+          ]),
         ),
       ),
       const SizedBox(height: 5)
-      ]
-    );
+    ]);
   }
 }
-
 
 Future<void> signOut() async {
   await FirebaseAuth.instance.signOut();
