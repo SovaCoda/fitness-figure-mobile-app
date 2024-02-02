@@ -56,11 +56,11 @@ class TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Test App',
-        theme: ThemeData(
-          useMaterial3: true,
-        ),
-        home: WorkoutFrequencySelection(),
-      );
+      title: 'Test App',
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: SignIn(),
+    );
   }
 }

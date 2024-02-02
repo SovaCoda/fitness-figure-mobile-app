@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -104,6 +105,39 @@ class _SignInState extends State<SignIn> {
       //not logged in
       logger.i("Invalid Google Authentication.");
       showSnackBar(context, "Invalid Google sign in! Please try again.");
+    }
+  }
+
+  Future<UserCredential?> signInWithGoogleMobile() async {
+    try {
+      // Sign out from any existing Google sessions to ensure a fresh sign-in process
+      await GoogleSignIn().signOut();
+
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Abort if sign-in was aborted (user closed the dialog without signing in)
+      if (googleUser == null) {
+        logger.i("Google sign-in was aborted by the user.");
+        return null;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Once signed in, return the UserCredential
+      return await FirebaseAuth.instance.signInWithCredential(credential);
+    } catch (e) {
+      logger.e("Google sign-in failed: $e");
+      showSnackBar(context, "Google sign-in failed. Please try again.");
+      return null;
     }
   }
 
@@ -241,10 +275,20 @@ class _SignInState extends State<SignIn> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     //google button
+                    // Google sign-in button
                     SquareTile(
-                      onTap: () {
+                      onTap: () async {
                         logger.i("Pressed Google!");
-                        signInWithGoogle();
+                        UserCredential? userCredential =
+                            await signInWithGoogleMobile();
+                        if (userCredential?.user != null) {
+                          logger.i(
+                              "Successfully signed in with Google. Email: ${userCredential!.user!.email}");
+                          context.goNamed('Home');
+                        } else {
+                          logger.i(
+                              "Google sign-in failed or was cancelled by the user.");
+                        }
                       },
                       imagePath: 'lib/assets/icons/google.svg',
                       height: 90,
