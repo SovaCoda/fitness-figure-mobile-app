@@ -10,6 +10,26 @@ service Routes {
     rpc CreateUser(User) returns (User) {}
     rpc UpdateUser(User) returns (User) {}
     rpc DeleteUser(User) returns (User) {}
+
+    // WORKOUT ROUTES //
+    rpc GetWorkouts(User) returns (MultiWorkout) {}
+    rpc GetWorkout(Workout) returns (Workout) {}
+    rpc CreateWorkout(Workout) returns (Workout) {}
+    rpc UpdateWorkout(Workout) returns (Workout) {}
+    rpc DeleteWorkout(Workout) returns (Workout) {}
+}
+
+message Workout {
+    string Email = 1;
+    string Start_date = 2;
+    int64 Elapsed = 3;
+    int64 Currency_Add = 4;
+    string End_Date = 5;
+    int64 Charge_Add = 6;
+}
+
+message MultiWorkout {
+    repeated Workout workouts = 1;
 }
 
 message User {

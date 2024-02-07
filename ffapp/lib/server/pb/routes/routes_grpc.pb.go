@@ -27,6 +27,12 @@ type RoutesClient interface {
 	CreateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
 	UpdateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
 	DeleteUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
+	// WORKOUT ROUTES //
+	GetWorkouts(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiWorkout, error)
+	GetWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
+	CreateWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
+	UpdateWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
+	DeleteWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
 }
 
 type routesClient struct {
@@ -73,6 +79,51 @@ func (c *routesClient) DeleteUser(ctx context.Context, in *User, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *routesClient) GetWorkouts(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiWorkout, error) {
+	out := new(MultiWorkout)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetWorkouts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) GetWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error) {
+	out := new(Workout)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetWorkout", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) CreateWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error) {
+	out := new(Workout)
+	err := c.cc.Invoke(ctx, "/routes.Routes/CreateWorkout", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UpdateWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error) {
+	out := new(Workout)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateWorkout", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) DeleteWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error) {
+	out := new(Workout)
+	err := c.cc.Invoke(ctx, "/routes.Routes/DeleteWorkout", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoutesServer is the server API for Routes service.
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility
@@ -82,6 +133,12 @@ type RoutesServer interface {
 	CreateUser(context.Context, *User) (*User, error)
 	UpdateUser(context.Context, *User) (*User, error)
 	DeleteUser(context.Context, *User) (*User, error)
+	// WORKOUT ROUTES //
+	GetWorkouts(context.Context, *User) (*MultiWorkout, error)
+	GetWorkout(context.Context, *Workout) (*Workout, error)
+	CreateWorkout(context.Context, *Workout) (*Workout, error)
+	UpdateWorkout(context.Context, *Workout) (*Workout, error)
+	DeleteWorkout(context.Context, *Workout) (*Workout, error)
 	mustEmbedUnimplementedRoutesServer()
 }
 
@@ -100,6 +157,21 @@ func (UnimplementedRoutesServer) UpdateUser(context.Context, *User) (*User, erro
 }
 func (UnimplementedRoutesServer) DeleteUser(context.Context, *User) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedRoutesServer) GetWorkouts(context.Context, *User) (*MultiWorkout, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkouts not implemented")
+}
+func (UnimplementedRoutesServer) GetWorkout(context.Context, *Workout) (*Workout, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkout not implemented")
+}
+func (UnimplementedRoutesServer) CreateWorkout(context.Context, *Workout) (*Workout, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkout not implemented")
+}
+func (UnimplementedRoutesServer) UpdateWorkout(context.Context, *Workout) (*Workout, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorkout not implemented")
+}
+func (UnimplementedRoutesServer) DeleteWorkout(context.Context, *Workout) (*Workout, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteWorkout not implemented")
 }
 func (UnimplementedRoutesServer) mustEmbedUnimplementedRoutesServer() {}
 
@@ -186,6 +258,96 @@ func _Routes_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_GetWorkouts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetWorkouts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetWorkouts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetWorkouts(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_GetWorkout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Workout)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetWorkout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetWorkout",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetWorkout(ctx, req.(*Workout))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_CreateWorkout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Workout)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).CreateWorkout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/CreateWorkout",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).CreateWorkout(ctx, req.(*Workout))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UpdateWorkout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Workout)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UpdateWorkout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UpdateWorkout",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UpdateWorkout(ctx, req.(*Workout))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_DeleteWorkout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Workout)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).DeleteWorkout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/DeleteWorkout",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).DeleteWorkout(ctx, req.(*Workout))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Routes_ServiceDesc is the grpc.ServiceDesc for Routes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -208,6 +370,26 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteUser",
 			Handler:    _Routes_DeleteUser_Handler,
+		},
+		{
+			MethodName: "GetWorkouts",
+			Handler:    _Routes_GetWorkouts_Handler,
+		},
+		{
+			MethodName: "GetWorkout",
+			Handler:    _Routes_GetWorkout_Handler,
+		},
+		{
+			MethodName: "CreateWorkout",
+			Handler:    _Routes_CreateWorkout_Handler,
+		},
+		{
+			MethodName: "UpdateWorkout",
+			Handler:    _Routes_UpdateWorkout_Handler,
+		},
+		{
+			MethodName: "DeleteWorkout",
+			Handler:    _Routes_DeleteWorkout_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
