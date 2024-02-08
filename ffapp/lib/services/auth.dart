@@ -137,17 +137,25 @@ class AuthService {
   }
 
   Future<void> updateName(String name) async {
-    User? currentUser = _auth.currentUser;
+    FB.User? currentUser = _auth.currentUser;
     Routes.User user = Routes.User(email: currentUser!.email);
     user.name = name;
     await _routes.routesClient.updateUser(user);
   }
 
   Future<void> updateWeeklyGoal(int goal) async {
-    User? currentUser = _auth.currentUser;
+    FB.User? currentUser = _auth.currentUser;
     Routes.User user = Routes.User(email: currentUser!.email);
     Int64 goal64 = Int64(goal);
     user.weekGoal = goal64;
+    await _routes.routesClient.updateUser(user);
+  }
+
+  Future<void> updateCurrency(int currency) async {
+    FB.User? currentUser = _auth.currentUser;
+    Routes.User user = Routes.User(email: currentUser!.email);
+    Int64 currency64 = Int64(currency);
+    user.currency = currency64;
     await _routes.routesClient.updateUser(user);
   }
 
