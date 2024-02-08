@@ -1,5 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/routes.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:logger/logger.dart';
@@ -16,7 +20,21 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final logger = Logger();
   bool _logging = false;
   Timer _timer = Timer(Duration.zero, () {});
-  int time = 0;
+  Int64 time = Int64(0);
+  Int64 _timePassed = Int64(0);
+  late String _startTime, _endTime;
+  late AuthService auth;
+
+  @override
+  void initState() {
+    super.initState();
+    initAuthService();
+  }
+
+  Future<void> initAuthService() async {
+    auth = await AuthService.instance;
+    logger.i("AuthService initialized");
+  }
 
   void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -38,14 +56,26 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   void startLogging() {
     setState(() {
       _logging = true;
+      _startTime = DateTime.now().toString();
     });
   }
 
-  void endLogging() {
+  Future<void> endLogging() async {
+    _timePassed = time;
+    time = Int64.ZERO;
+    _endTime = DateTime.now().toString();
+    Workout workout = Workout(
+      startDate: _startTime,
+      endDate: _endTime,
+      elapsed: _timePassed,
+      email: await auth.getUser().then((value) => value!.email.toString()),
+      chargeAdd: Int64(Random.secure().nextInt(100)),
+      currencyAdd: Int64(Random.secure().nextInt(1000)),
+    );
+    auth.createWorkout(workout);
     setState(() {
       _logging = false;
       _timer.cancel();
-      time = 0;
     });
   }
 
@@ -68,19 +98,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   void showConfirmationBox() {
     showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Are you sure?"),
-          content: const Text(
-              "You haven't worked out at least as long as X, if you stop now you won't be able to log this workout. Are you sure you want to stop?"),
-          actions: [
-            imSureButton(),
-            noIllKeepAtIt(),
-          ],
-        );
-      }
-    );
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Are you sure?"),
+            content: const Text(
+                "You haven't worked out at least as long as X, if you stop now you won't be able to log this workout. Are you sure you want to stop?"),
+            actions: [
+              imSureButton(),
+              noIllKeepAtIt(),
+            ],
+          );
+        });
   }
 
   @override
@@ -110,10 +139,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(formatSeconds(time)),
+            Text(formatSeconds(time.toInt())),
             const SizedBox(height: 20),
             ElevatedButton(
-                onPressed: showConfirmationBox, child: const Text("End Workout"))
+                onPressed: showConfirmationBox,
+                child: const Text("End Workout"))
           ],
         ),
       );

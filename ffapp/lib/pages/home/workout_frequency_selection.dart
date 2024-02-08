@@ -16,6 +16,7 @@ class WorkoutFrequencySelection extends StatefulWidget {
 class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
   bool _sliderDisplayed = false;
   Int64 _nCurrentValue = Int64(4);
+  Int64 _mCurrentValue = Int64(30); // Added variable for minutes selection
   FlutterUser user = FlutterUser();
   String curEmail = "Loading...";
 
@@ -45,7 +46,10 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
 
   void submitFrequency() {
     //TO DO: SEND FREQUENCY TO BACKEND AND REDIRECT TO HOME
-    user.updateUser(Routes.User(weekGoal: _nCurrentValue, email: curEmail));
+    user.updateUser(Routes.User(
+        weekGoal: _nCurrentValue,
+        email: curEmail,
+        workoutMinTime: _mCurrentValue)); // Updated workoutMinTime value
     context.goNamed('Home');
   }
 
@@ -86,6 +90,30 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     onValueChanged: (val) {
                       setState(() {
                         _nCurrentValue = Int64(val.toInt());
+                      });
+                    },
+                    hapticFeedbackType: HapticFeedbackType.heavyImpact,
+                  ),
+                  const SizedBox(height: 60),
+                  WheelSlider.number( // Added another WheelSlider for minutes selection
+                    allowPointerTappable: true,
+                    perspective: 0.01,
+                    totalCount: 60,
+                    initValue: 30,
+                    selectedNumberStyle: const TextStyle(
+                      fontSize: 28,
+                      color: Colors.black,
+                      decoration: TextDecoration.none,
+                    ),
+                    unSelectedNumberStyle: const TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.grey,
+                      decoration: TextDecoration.none,
+                    ),
+                    currentIndex: _mCurrentValue.toInt(),
+                    onValueChanged: (val) {
+                      setState(() {
+                        _mCurrentValue = Int64(val.toInt());
                       });
                     },
                     hapticFeedbackType: HapticFeedbackType.heavyImpact,

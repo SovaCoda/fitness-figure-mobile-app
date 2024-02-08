@@ -187,6 +187,7 @@ class User extends $pb.GeneratedMessage {
     $fixnum.Int64? weekComplete,
     $fixnum.Int64? weekGoal,
     $core.String? curWorkout,
+    $fixnum.Int64? workoutMinTime,
   }) {
     final $result = create();
     if (email != null) {
@@ -210,6 +211,9 @@ class User extends $pb.GeneratedMessage {
     if (curWorkout != null) {
       $result.curWorkout = curWorkout;
     }
+    if (workoutMinTime != null) {
+      $result.workoutMinTime = workoutMinTime;
+    }
     return $result;
   }
   User._() : super();
@@ -224,6 +228,7 @@ class User extends $pb.GeneratedMessage {
     ..aInt64(5, _omitFieldNames ? '' : 'weekComplete')
     ..aInt64(6, _omitFieldNames ? '' : 'weekGoal')
     ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
+    ..aInt64(8, _omitFieldNames ? '' : 'workoutMinTime')
     ..hasRequiredFields = false
   ;
 
@@ -310,6 +315,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasCurWorkout() => $_has(6);
   @$pb.TagNumber(7)
   void clearCurWorkout() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get workoutMinTime => $_getI64(7);
+  @$pb.TagNumber(8)
+  set workoutMinTime($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasWorkoutMinTime() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearWorkoutMinTime() => clearField(8);
 }
 
 

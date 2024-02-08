@@ -57,6 +57,7 @@ const User$json = {
     {'1': 'week_complete', '3': 5, '4': 1, '5': 3, '10': 'weekComplete'},
     {'1': 'week_goal', '3': 6, '4': 1, '5': 3, '10': 'weekGoal'},
     {'1': 'cur_workout', '3': 7, '4': 1, '5': 9, '10': 'curWorkout'},
+    {'1': 'workout_min_time', '3': 8, '4': 1, '5': 3, '10': 'workoutMinTime'},
   ],
 };
 
@@ -65,5 +66,6 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'CgRVc2VyEhQKBWVtYWlsGAEgASgJUgVlbWFpbBIdCgpjdXJfZmlndXJlGAIgASgJUgljdXJGaW'
     'd1cmUSEgoEbmFtZRgDIAEoCVIEbmFtZRIaCghjdXJyZW5jeRgEIAEoA1IIY3VycmVuY3kSIwoN'
     'd2Vla19jb21wbGV0ZRgFIAEoA1IMd2Vla0NvbXBsZXRlEhsKCXdlZWtfZ29hbBgGIAEoA1IId2'
-    'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQ=');
+    'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQSKAoQd29ya291dF9taW5f'
+    'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWU=');
 

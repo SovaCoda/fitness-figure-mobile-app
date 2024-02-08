@@ -120,6 +120,10 @@ class AuthService {
     return await _routes.routesClient.getWorkouts(user);
   }
 
+  Future<Routes.Workout> getWorkout(Routes.Workout workout) async {
+    return await _routes.routesClient.getWorkout(workout);
+  }
+
   Future<void> sendPasswordResetEmail(String email) async {
     await _auth.sendPasswordResetEmail(email: email);
   }
