@@ -60,6 +60,18 @@ class FlutterUser {
     return await auth.getUserDBInfo().then((value) => value!.name.toString());
   }
 
+  Future<String> getCurrency() async {
+    logger.i("Getting user's currency");
+    return await auth
+        .getUserDBInfo()
+        .then((value) => value!.currency.toString());
+  }
+
+  Future<int> getCurrencyInt() async {
+    logger.i("Getting user's currency");
+    return await auth.getUserDBInfo().then((value) => value!.currency.toInt());
+  }
+
   void logoutUser() {
     auth.signOut();
     //redirect from this class
