@@ -46,6 +46,7 @@ dependencies:
   wheel_slider:
   google_sign_in: ^6.2.1
   sign_in_button: ^3.2.0
+  fixnum: ^1.1.0
 
 dev_dependencies:
   flutter_test:

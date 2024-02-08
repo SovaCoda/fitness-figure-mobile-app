@@ -47,6 +47,8 @@ class _RegisterState extends State<Register> {
       return;
     }
 
+    logger.i("Passwords match.");
+
     var user = await auth.createUser(
       emailController.text,
       passwordController.text,
