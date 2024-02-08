@@ -1,64 +1,85 @@
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:firebase_auth/firebase_auth.dart' as FB;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class History extends StatelessWidget {
-  History({super.key});
+class History extends StatefulWidget {
+  const History({Key? key}) : super(key: key);
 
-  List<FlSpot> chartData = [
-    FlSpot(0, 1),
-    FlSpot(1, 3),
-    FlSpot(2, 10),
-    FlSpot(3, 7),
-    FlSpot(4, 12),
-    FlSpot(5, 13),
-    FlSpot(6, 17),
-    FlSpot(7, 15),
-    FlSpot(8, 20),
-  ];
+  @override
+  State<History> createState() => HistoryState();
+}
+
+class HistoryState extends State<History> {
+  late AuthService auth;
+  late Future<List<Routes.Workout>> workoutsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
+    workoutsFuture = getWorkouts();
+  }
+
+  Future<List<Routes.Workout>> getWorkouts() async {
+    List<Routes.Workout> workouts = [];
+    Routes.MultiWorkout recievedWorkouts;
+    try {
+      recievedWorkouts = await auth.getWorkouts();
+      for (var workout in recievedWorkouts.workouts) {
+        workouts.add(workout);
+        logger.i(workout);
+      }
+    } catch (e) {
+      logger.e(e);
+    }
+    return workouts;
+  }
+
+  String formatSeconds(int seconds) {
+    final formatter = NumberFormat('00');
+    String hours = formatter.format((seconds / 3600).floor());
+    String minutes = formatter.format(((seconds % 3600) / 60).floor());
+    String second = formatter.format((seconds % 60));
+    return "$hours:$minutes:$second";
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [ 
-          const Text(
-                "History",
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold
+    return FutureBuilder<List<Routes.Workout>>(
+      future: workoutsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data?.length,
+            itemBuilder: (context, index) {
+              Routes.Workout? workout = snapshot.data?[index];
+              return ListTile(
+                title: Text(workout!.startDate),
+                subtitle: 
+                DefaultTextStyle(
+                  style: TextStyle(fontSize: 12, color: Colors.lime),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Elapsed time: ${formatSeconds(workout.elapsed.toInt())}'),
+                      Text('Charge gained: ${workout.chargeAdd}'),
+                      Text('Currency gained: ${workout.currencyAdd}'),
+                    ],
+                  )
                 ),
-              ),
-          
-          const SizedBox(height: 20),
-
-          Container(
-          padding: const EdgeInsets.all(10),
-          width: double.infinity,
-          height: 300,
-          child: LineChart(
-            LineChartData(borderData: FlBorderData(show: false), lineBarsData: [
-              LineChartBarData(
-                spots: chartData),
-              ]),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-          
-          Container(
-          padding: const EdgeInsets.all(10),
-          width: double.infinity,
-          height: 300,
-          child: LineChart(
-            LineChartData(borderData: FlBorderData(show: false), lineBarsData: [
-              LineChartBarData(
-                spots: chartData),
-              ]),
-            ),
-          ),
-        ],
-      ),
+              );
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
     );
   }
 }

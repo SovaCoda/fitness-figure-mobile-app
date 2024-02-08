@@ -1,7 +1,8 @@
 import "dart:math";
 
 import "package:ffapp/services/routes.pb.dart" as Routes;
-import "package:firebase_auth/firebase_auth.dart";
+import "package:ffapp/services/routes.pbgrpc.dart";
+import "package:firebase_auth/firebase_auth.dart" as FB;
 import "package:firebase_core/firebase_core.dart";
 import "package:ffapp/firebase_options.dart";
 import 'package:ffapp/routes.dart';
@@ -12,7 +13,7 @@ import 'package:fixnum/fixnum.dart';
 var logger = Logger();
 
 class AuthService {
-  final FirebaseAuth _auth; // firebase backend instance
+  final FB.FirebaseAuth _auth; // firebase backend instance
   final RoutesService _routes; // routes service instance
   // both not initialized to begin with, only when AuthService.init() is called
 
@@ -25,7 +26,7 @@ class AuthService {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      FirebaseAuth _auth = FirebaseAuth.instance;
+      FB.FirebaseAuth _auth = FB.FirebaseAuth.instance;
 
       await RoutesService.instance.init();
       logger.i("RoutesService initialized");
@@ -36,19 +37,19 @@ class AuthService {
     return _instance!;
   }
 
-  Future<User?> createUser(String email, String password) async {
+  Future<FB.User?> createUser(String email, String password) async {
     try {
       Routes.User user = Routes.User(email: email);
       await _routes.routesClient.createUser(user);
 
-      UserCredential userCredential =
+      FB.UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
+    } on FB.FirebaseAuthException catch (e) {
       if (e.code == "weak-password") {
         logger.e("The password provided is too weak.");
       } else if (e.code == "email-already-in-use") {
@@ -62,12 +63,12 @@ class AuthService {
 
   Future<dynamic> signIn(String email, String password) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      FB.UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
+    } on FB.FirebaseAuthException catch (e) {
       if (e.code == "user-not-found") {
         return "No user found for that email.";
       } else if (e.code == "wrong-password") {
@@ -83,12 +84,12 @@ class AuthService {
     await _auth.signOut();
   }
 
-  Future<User?> getUser() async {
+  Future<FB.User?> getUser() async {
     return _auth.currentUser;
   }
 
   Future<Routes.User?> getUserDBInfo() async {
-    User? currentUser = _auth.currentUser;
+    FB.User? currentUser = _auth.currentUser;
     Routes.User user = Routes.User(email: currentUser!.email);
     return await _routes.routesClient.getUser(user);
   }
@@ -99,6 +100,28 @@ class AuthService {
 
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
+  }
+
+  Future<Routes.Workout> createWorkout(Routes.Workout workout) async {
+    return await _routes.routesClient.createWorkout(workout);
+  }
+
+  Future<Routes.Workout> updateWorkout(Routes.Workout workout) async {
+    return await _routes.routesClient.updateWorkout(workout);
+  }
+
+  Future<void> deleteWorkout(Routes.Workout workout) async {
+    await _routes.routesClient.deleteWorkout(workout);
+  }
+
+  Future<Routes.MultiWorkout> getWorkouts() async {
+    FB.User? currentUser = _auth.currentUser;
+    Routes.User user = Routes.User(email: currentUser!.email);
+    return await _routes.routesClient.getWorkouts(user);
+  }
+
+  Future<Routes.Workout> getWorkout(Routes.Workout workout) async {
+    return await _routes.routesClient.getWorkout(workout);
   }
 
   Future<void> sendPasswordResetEmail(String email) async {

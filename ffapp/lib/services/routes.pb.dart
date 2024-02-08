@@ -14,6 +14,170 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+class Workout extends $pb.GeneratedMessage {
+  factory Workout({
+    $core.String? email,
+    $core.String? startDate,
+    $fixnum.Int64? elapsed,
+    $fixnum.Int64? currencyAdd,
+    $core.String? endDate,
+    $fixnum.Int64? chargeAdd,
+  }) {
+    final $result = create();
+    if (email != null) {
+      $result.email = email;
+    }
+    if (startDate != null) {
+      $result.startDate = startDate;
+    }
+    if (elapsed != null) {
+      $result.elapsed = elapsed;
+    }
+    if (currencyAdd != null) {
+      $result.currencyAdd = currencyAdd;
+    }
+    if (endDate != null) {
+      $result.endDate = endDate;
+    }
+    if (chargeAdd != null) {
+      $result.chargeAdd = chargeAdd;
+    }
+    return $result;
+  }
+  Workout._() : super();
+  factory Workout.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Workout.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Workout', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'Email', protoName: 'Email')
+    ..aOS(2, _omitFieldNames ? '' : 'StartDate', protoName: 'Start_date')
+    ..aInt64(3, _omitFieldNames ? '' : 'Elapsed', protoName: 'Elapsed')
+    ..aInt64(4, _omitFieldNames ? '' : 'CurrencyAdd', protoName: 'Currency_Add')
+    ..aOS(5, _omitFieldNames ? '' : 'EndDate', protoName: 'End_Date')
+    ..aInt64(6, _omitFieldNames ? '' : 'ChargeAdd', protoName: 'Charge_Add')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Workout clone() => Workout()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Workout copyWith(void Function(Workout) updates) => super.copyWith((message) => updates(message as Workout)) as Workout;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Workout create() => Workout._();
+  Workout createEmptyInstance() => create();
+  static $pb.PbList<Workout> createRepeated() => $pb.PbList<Workout>();
+  @$core.pragma('dart2js:noInline')
+  static Workout getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Workout>(create);
+  static Workout? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get startDate => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set startDate($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasStartDate() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStartDate() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get elapsed => $_getI64(2);
+  @$pb.TagNumber(3)
+  set elapsed($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasElapsed() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearElapsed() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get currencyAdd => $_getI64(3);
+  @$pb.TagNumber(4)
+  set currencyAdd($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCurrencyAdd() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCurrencyAdd() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get endDate => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set endDate($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasEndDate() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEndDate() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get chargeAdd => $_getI64(5);
+  @$pb.TagNumber(6)
+  set chargeAdd($fixnum.Int64 v) { $_setInt64(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasChargeAdd() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearChargeAdd() => clearField(6);
+}
+
+class MultiWorkout extends $pb.GeneratedMessage {
+  factory MultiWorkout({
+    $core.Iterable<Workout>? workouts,
+  }) {
+    final $result = create();
+    if (workouts != null) {
+      $result.workouts.addAll(workouts);
+    }
+    return $result;
+  }
+  MultiWorkout._() : super();
+  factory MultiWorkout.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiWorkout.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiWorkout', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<Workout>(1, _omitFieldNames ? '' : 'workouts', $pb.PbFieldType.PM, subBuilder: Workout.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiWorkout clone() => MultiWorkout()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiWorkout copyWith(void Function(MultiWorkout) updates) => super.copyWith((message) => updates(message as MultiWorkout)) as MultiWorkout;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiWorkout create() => MultiWorkout._();
+  MultiWorkout createEmptyInstance() => create();
+  static $pb.PbList<MultiWorkout> createRepeated() => $pb.PbList<MultiWorkout>();
+  @$core.pragma('dart2js:noInline')
+  static MultiWorkout getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiWorkout>(create);
+  static MultiWorkout? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Workout> get workouts => $_getList(0);
+}
+
 class User extends $pb.GeneratedMessage {
   factory User({
     $core.String? email,
@@ -23,6 +187,7 @@ class User extends $pb.GeneratedMessage {
     $fixnum.Int64? weekComplete,
     $fixnum.Int64? weekGoal,
     $core.String? curWorkout,
+    $fixnum.Int64? workoutMinTime,
   }) {
     final $result = create();
     if (email != null) {
@@ -46,6 +211,9 @@ class User extends $pb.GeneratedMessage {
     if (curWorkout != null) {
       $result.curWorkout = curWorkout;
     }
+    if (workoutMinTime != null) {
+      $result.workoutMinTime = workoutMinTime;
+    }
     return $result;
   }
   User._() : super();
@@ -60,6 +228,7 @@ class User extends $pb.GeneratedMessage {
     ..aInt64(5, _omitFieldNames ? '' : 'weekComplete')
     ..aInt64(6, _omitFieldNames ? '' : 'weekGoal')
     ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
+    ..aInt64(8, _omitFieldNames ? '' : 'workoutMinTime')
     ..hasRequiredFields = false
   ;
 
@@ -146,6 +315,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasCurWorkout() => $_has(6);
   @$pb.TagNumber(7)
   void clearCurWorkout() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get workoutMinTime => $_getI64(7);
+  @$pb.TagNumber(8)
+  set workoutMinTime($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasWorkoutMinTime() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearWorkoutMinTime() => clearField(8);
 }
 
 

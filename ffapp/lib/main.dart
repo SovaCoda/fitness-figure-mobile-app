@@ -1,14 +1,24 @@
+import 'dart:ffi';
+
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/home/avatar_selection.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
+import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final AuthService auth = await AuthService.instance;
+  runApp(Provider<AuthService>.value(
+      value: auth,
+      child: MyApp(authService: auth),  
+    )
+  );
 }
 
 /// The route configuration.
@@ -37,7 +47,8 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
 ]);
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AuthService authService;
+  const MyApp({Key? key, required this.authService}) : super(key: key);
 
   // This widget is the root of your application.
   @override
