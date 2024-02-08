@@ -62,6 +62,7 @@ class _SignInState extends State<SignIn> {
         String email = emailController.text;
         logger.i("$email is signed in");
         var dbUser = await auth.getUserDBInfo();
+        logger.i("Getting user info...");
         logger.i(dbUser?.weekGoal);
         if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0) {
           context.goNamed('WorkoutFrequencySelection');

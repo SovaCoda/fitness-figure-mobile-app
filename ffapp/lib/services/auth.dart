@@ -8,6 +8,7 @@ import "package:ffapp/firebase_options.dart";
 import 'package:ffapp/routes.dart';
 import "package:flutter/material.dart";
 import 'package:logger/logger.dart';
+import 'package:fixnum/fixnum.dart';
 
 var logger = Logger();
 
@@ -38,7 +39,6 @@ class AuthService {
 
   Future<FB.User?> createUser(String email, String password) async {
     try {
-
       Routes.User user = Routes.User(email: email);
       await _routes.routesClient.createUser(user);
 
@@ -47,7 +47,7 @@ class AuthService {
         email: email,
         password: password,
       );
-      
+
       return userCredential.user;
     } on FB.FirebaseAuthException catch (e) {
       if (e.code == "weak-password") {
@@ -135,4 +135,21 @@ class AuthService {
   Future<void> updatePassword(String password) async {
     await _auth.currentUser?.updatePassword(password);
   }
+
+  Future<void> updateName(String name) async {
+    User? currentUser = _auth.currentUser;
+    Routes.User user = Routes.User(email: currentUser!.email);
+    user.name = name;
+    await _routes.routesClient.updateUser(user);
+  }
+
+  Future<void> updateWeeklyGoal(int goal) async {
+    User? currentUser = _auth.currentUser;
+    Routes.User user = Routes.User(email: currentUser!.email);
+    Int64 goal64 = Int64(goal);
+    user.weekGoal = goal64;
+    await _routes.routesClient.updateUser(user);
+  }
+
+  // Add Manage Subscription Function possibly?
 }

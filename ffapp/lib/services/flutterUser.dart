@@ -5,7 +5,7 @@ import "package:ffapp/services/routes.pb.dart" as Routes;
 /*
 This serves as a combined user class for use in the frontend
 it accesses the firebase and sql through the auth.dart
-this might not be necessary but i added it cause the flutter compoenents
+this might not be necessary but i added it cause the flutter components
 were getting bloated with stuff but theres probably a better solution.
 It's better than having to manually define all these async functions inside the
 components. If you check out dashboard.dart you can see how im using it rn.
@@ -53,6 +53,11 @@ class FlutterUser {
   Future<Routes.User> updateUser(Routes.User user) async {
     logger.i("updating user in MySQL");
     return await auth.updateUserDBInfo(user);
+  }
+
+  Future<String> getName() async {
+    logger.i("Getting user's name");
+    return await auth.getUserDBInfo().then((value) => value!.name.toString());
   }
 
   void logoutUser() {

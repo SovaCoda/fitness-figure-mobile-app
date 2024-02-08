@@ -17,7 +17,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-
   FlutterUser user = FlutterUser();
   late String email = "Loading...";
   late int weeklyGoal = 0;
@@ -49,67 +48,69 @@ class _DashboardState extends State<Dashboard> {
   }
 
   @override
-  Widget build(BuildContext context) {           
-
+  Widget build(BuildContext context) {
     return SafeArea(
-        child: SingleChildScrollView(
-          child: Center (
+      child: SingleChildScrollView(
+        child: Center(
             child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            //created below
+            RobotImageHolder(url: figureURL),
 
-              //created below
-              RobotImageHolder(url: figureURL),
-
-              //Text underneath the robot
-              Text(
-                "Train consistently to power your Fitness Figure!",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
+            //Text underneath the robot
+            Text(
+              "Train consistently to power your Fitness Figure!",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 14,
               ),
+            ),
 
-              const SizedBox(height: 15),
+            const SizedBox(height: 15),
 
-              //created below
-              WorkoutNumbersRow(weeklyCompleted: weeklyCompleted, weeklyGoal: weeklyGoal, lifeTimeCompleted: 10,),
-              
-              const SizedBox(height: 20,),
+            //created below
+            WorkoutNumbersRow(
+              weeklyCompleted: weeklyCompleted,
+              weeklyGoal: weeklyGoal,
+              lifeTimeCompleted: 10,
+            ),
 
-              //imported from progress bar component
-              //TO DO: DECIDE HOW TO CALCULATE THIS
-              ProgressBar(),
+            const SizedBox(
+              height: 20,
+            ),
 
-              const SizedBox(height: 20,),
+            //imported from progress bar component
+            //TO DO: DECIDE HOW TO CALCULATE THIS
+            ProgressBar(),
 
-              //progress explanation text
-              const Text(
-                "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
-                textAlign: TextAlign.center,),
+            const SizedBox(
+              height: 20,
+            ),
 
-              const SizedBox(height: 50)
-            ], 
-          )
-        ),
+            //progress explanation text
+            const Text(
+              "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 50)
+          ],
+        )),
       ),
     );
   }
 }
 
 class RobotImageHolder extends StatelessWidget {
-
   final String url;
 
-  const RobotImageHolder({
-    super.key,
-    required this.url
-  });
+  const RobotImageHolder({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {
@@ -139,17 +140,15 @@ class RobotImageHolder extends StatelessWidget {
 }
 
 class WorkoutNumbersRow extends StatelessWidget {
-
   final int weeklyGoal;
   final int weeklyCompleted;
   final int lifeTimeCompleted;
 
-  const WorkoutNumbersRow({
-    super.key,
-    required this.weeklyCompleted,
-    required this.weeklyGoal,
-    required this.lifeTimeCompleted
-  });
+  const WorkoutNumbersRow(
+      {super.key,
+      required this.weeklyCompleted,
+      required this.weeklyGoal,
+      required this.lifeTimeCompleted});
 
   @override
   Widget build(BuildContext context) {
@@ -157,62 +156,56 @@ class WorkoutNumbersRow extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Column(
-            children: [
-              Text(
-                weeklyGoal.toString(),
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 20,
-                ),
+          Column(children: [
+            Text(
+              weeklyGoal.toString(),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 20,
               ),
-              Text(
-                "Weekly Goal",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
+            ),
+            Text(
+              "Weekly Goal",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
               ),
-            ]
-          ),
+            ),
+          ]),
           DoubleLineDivider(),
-          Column(
-            children: [
-              Text(
-                weeklyCompleted.toString(),
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 20,
-                ),
+          Column(children: [
+            Text(
+              weeklyCompleted.toString(),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 20,
               ),
-              Text(
-                "Weekly Completed",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
+            ),
+            Text(
+              "Weekly Completed",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
               ),
-            ]
-          ),
+            ),
+          ]),
           DoubleLineDivider(),
-          Column(
-            children: [
-              Text(
-                lifeTimeCompleted.toString(),
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 20,
-                ),
+          Column(children: [
+            Text(
+              lifeTimeCompleted.toString(),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 20,
               ),
-              Text(
-                "Total Completed",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
+            ),
+            Text(
+              "Total Completed",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
               ),
-            ]
-          ),
+            ),
+          ]),
         ],
       ),
     );
