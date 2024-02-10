@@ -139,7 +139,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(formatSeconds(time.toInt())),
+            Text(formatSeconds(time.toInt()),
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground
+              ),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
                 onPressed: showConfirmationBox,

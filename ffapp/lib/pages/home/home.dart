@@ -6,6 +6,7 @@ import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/services/flutterUser.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -57,11 +58,16 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.blueGrey[800],
+        backgroundColor: Theme.of(context).colorScheme.background,
 
         //permanent top bar if we want it
         appBar: AppBar(
-          title: const Text('FF', style: TextStyle(color: Colors.lightGreen)),
+          title: Text(
+            'FF', 
+            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+          ),
           backgroundColor: Colors.transparent,
           actions: [
             Padding(
@@ -74,15 +80,17 @@ class _DashboardPageState extends State<DashboardPage> {
                     Text(
                       currency,
                       style:
-                          TextStyle(color: Colors.lightGreen, fontSize: 18.0),
-                    ),
-                    SizedBox(width: 4.0),
-                    Icon(
-                      Icons.currency_exchange,
-                      color: Colors.lightGreen,
+                          Theme.of(context).textTheme.headlineLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          )
                     ),
                     SizedBox(width: 10.0),
-                    Icon(Icons.question_mark, color: Colors.lightGreen),
+                    Icon(
+                      Icons.currency_exchange,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                    SizedBox(width: 10.0),
+                    Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onBackground),
                     SizedBox(width: 4.0),
                   ],
                 ),
@@ -95,33 +103,44 @@ class _DashboardPageState extends State<DashboardPage> {
         body: _pages.elementAt(_selectedIndex),
 
         //permanent footer navigation that changes the page index state to switch displays
-        bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: Colors.grey[800],
-            unselectedItemColor: Colors.green,
-            selectedItemColor: Colors.lightGreen,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Dashboard',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.shop),
-                label: 'Shop',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add),
-                label: 'Add Workout',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.history_outlined),
-                label: 'History',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              )
-            ],
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped));
+        bottomNavigationBar: 
+          Theme(
+            data: Theme.of(context).copyWith(
+               // sets the background color of the `BottomNavigationBar`
+              canvasColor: Theme.of(context).colorScheme.surfaceVariant,
+              
+            ),
+            
+            child: BottomNavigationBar(
+              unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Dashboard',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.shop),
+                  label: 'Shop',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.add),
+                  label: 'Add Workout',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.history_outlined),
+                  label: 'History',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: 'Profile',
+                )
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped)
+        )
+              
+    );
+          
   }
 }

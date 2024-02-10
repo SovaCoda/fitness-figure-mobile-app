@@ -66,10 +66,11 @@ class _StoreState extends State<Store> {
     return SingleChildScrollView(
       child: (Column(
         children: [
-          const Text(
+           Text(
             "Figure Store",
-            style: TextStyle(
-                fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground,
+              )
           ),
           Column(
             // generates the store as a bunch of rows with 2 elements each from the array above
@@ -126,7 +127,11 @@ class StoreItem extends StatelessWidget {
           width: 180.0,
         ),
         const SizedBox(height: 10),
-        Text('Price: $itemPrice', style: const TextStyle(color: Colors.grey)),
+        Text('Price: $itemPrice', 
+          style: Theme.of(context).textTheme.labelMedium!.copyWith(
+            color: Theme.of(context).colorScheme.onBackground
+          )
+        ),
         const SizedBox(height: 10),
         ElevatedButton(
             onPressed: () => onBuySkin(context, itemPrice),

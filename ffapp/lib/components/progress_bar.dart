@@ -18,22 +18,22 @@ class ProgressBar extends StatelessWidget {
             width: barWidth,
             height: 40.0,
             alignment: Alignment.centerLeft,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
-              color: Color.fromARGB(255, 143, 246, 148),
+              color: Theme.of(context).colorScheme.primary,
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(255, 44, 44, 44),
-                  spreadRadius: .5,
-                  blurRadius: 10
+                  color: Theme.of(context).colorScheme.shadow,
+                  spreadRadius: .1,
+                  blurRadius: 1
                 )]
             ),
             child: Container(
               width: barWidth - 10,
-              height: 40,
-              decoration: const BoxDecoration(
+              height: 42,
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(20)),
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surfaceVariant,
               ),
               child: Row(
                   children: [
@@ -43,19 +43,19 @@ class ProgressBar extends StatelessWidget {
                       width: barWidth - 90,
                       height: 10.0,
                       alignment: Alignment.centerLeft,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.grey,
+                        color: Theme.of(context).colorScheme.inverseSurface,
                       ),
                       child: Container(
                         width: (barWidth - 90) * progressPercent,
                         height: 10,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Color.fromARGB(255, 143, 246, 148),
+                          color: Theme.of(context).colorScheme.primary,
                           boxShadow: [
                           BoxShadow(
-                            color: Color.fromARGB(255, 111, 110, 110),
+                            color: Theme.of(context).colorScheme.shadow,
                             spreadRadius: .1,
                             blurRadius: .5
                           )]
@@ -67,8 +67,8 @@ class ProgressBar extends StatelessWidget {
 
                     Text(
                       "${(progressPercent * 100).toStringAsFixed(0)}%",
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 143, 246, 148),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
