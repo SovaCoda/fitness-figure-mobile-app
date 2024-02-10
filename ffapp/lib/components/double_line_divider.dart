@@ -10,12 +10,12 @@ class DoubleLineDivider extends StatelessWidget {
       children: [
         SizedBox(width: 10),
         VerticalDivider(
-          color: Colors.grey[300],
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           width: 4,
           thickness: 1,
         ),
         VerticalDivider(
-          color: Colors.grey[300],
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           width: 4,
           thickness: 1,
         ),

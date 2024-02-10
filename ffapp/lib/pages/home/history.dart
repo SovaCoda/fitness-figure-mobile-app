@@ -58,10 +58,10 @@ class HistoryState extends State<History> {
             itemBuilder: (context, index) {
               Routes.Workout? workout = snapshot.data?[index];
               return ListTile(
-                title: Text(workout!.startDate),
+                title: Text(workout!.startDate, style: TextStyle(color: Theme.of(context).colorScheme.onBackground),),
                 subtitle: 
                 DefaultTextStyle(
-                  style: TextStyle(fontSize: 12, color: Colors.lime),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

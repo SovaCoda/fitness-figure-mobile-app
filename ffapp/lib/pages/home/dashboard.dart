@@ -61,11 +61,9 @@ class _DashboardState extends State<Dashboard> {
             //Text underneath the robot
             Text(
               "Train consistently to power your Fitness Figure!",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 14,
-              ),
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground,
+              )
             ),
 
             const SizedBox(height: 15),
@@ -90,11 +88,10 @@ class _DashboardState extends State<Dashboard> {
             ),
 
             //progress explanation text
-            const Text(
+            Text(
               "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -122,8 +119,8 @@ class RobotImageHolder extends StatelessWidget {
         gradient: RadialGradient(
           center: Alignment(0, 0),
           colors: [
-            Colors.white.withOpacity(1),
-            Colors.white.withOpacity(0),
+            Theme.of(context).colorScheme.onBackground.withOpacity(1),
+            Theme.of(context).colorScheme.onBackground.withOpacity(0),
           ],
           radius: .48,
         ),
@@ -159,51 +156,45 @@ class WorkoutNumbersRow extends StatelessWidget {
           Column(children: [
             Text(
               weeklyGoal.toString(),
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
             ),
             Text(
               "Weekly Goal",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
             ),
           ]),
           DoubleLineDivider(),
           Column(children: [
             Text(
               weeklyCompleted.toString(),
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
             ),
             Text(
               "Weekly Completed",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
             ),
           ]),
           DoubleLineDivider(),
           Column(children: [
             Text(
               lifeTimeCompleted.toString(),
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
             ),
             Text(
               "Total Completed",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
             ),
           ]),
         ],

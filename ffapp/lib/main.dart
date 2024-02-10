@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,10 +56,45 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Fitness Figure',
-      // theme: ThemeData(
-      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      //   useMaterial3: true,
-      // ),
+
+      theme: ThemeData(
+        useMaterial3: true,
+
+        // Define the default brightness and colors.
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(255, 255, 255, 1),
+          // ···
+          brightness: Brightness.dark,
+        ),
+
+        // Define the default `TextTheme`. Use this to specify the default
+        // text styling for headlines, titles, bodies of text, and more.
+        textTheme: TextTheme(
+          displayMedium: GoogleFonts.oswald(
+            fontSize: 30,
+            fontStyle: FontStyle.italic,
+          ),
+          headlineLarge: GoogleFonts.raleway(
+            fontSize: 26,
+            fontStyle: FontStyle.italic,
+          ),
+          headlineMedium: GoogleFonts.raleway(
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+          ),
+          headlineSmall: GoogleFonts.roboto( 
+            fontSize: 20,
+          ),
+          titleSmall: GoogleFonts.roboto( 
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          labelMedium: GoogleFonts.roboto( 
+            fontSize: 12,
+          )
+        ),
+      ),
+
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
     );
@@ -73,7 +109,9 @@ class TestApp extends StatelessWidget {
     return MaterialApp(
       title: 'Test App',
       theme: ThemeData(
-        useMaterial3: true,
+    useMaterial3: true,
+
+    // Define the default brightness and colors.
       ),
       home: SignIn(),
     );

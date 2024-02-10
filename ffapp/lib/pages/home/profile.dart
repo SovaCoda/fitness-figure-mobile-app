@@ -65,10 +65,11 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
+        Text(
           "Profile",
-          style: TextStyle(
-              fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground,
+              )
         ),
         const SizedBox(height: 20),
         SettingsBar(
@@ -162,8 +163,8 @@ class SettingsBar extends StatelessWidget {
         child: Container(
           width: double.infinity,
           height: 50,
-          decoration: const BoxDecoration(
-              color: Colors.white,
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
               border: Border(
                 bottom: BorderSide(color: Colors.black),
                 top: BorderSide(color: Colors.black),
@@ -172,12 +173,14 @@ class SettingsBar extends StatelessWidget {
             Text(
               name,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black87),
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant
+              ),
             ),
             const SizedBox(width: 10),
-            const Icon(
+            Icon(
               Icons.edit,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.primary,
             )
           ]),
         ),
