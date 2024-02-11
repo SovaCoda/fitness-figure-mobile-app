@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
@@ -56,8 +57,16 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            //created below
-            RobotImageHolder(url: figureURL, height: 400, width: 400,),
+            Stack(
+              children: [
+                RobotImageHolder(url: figureURL, height: 400, width: 400,),
+                Positioned(
+                  top: 40,
+                  left: 160,
+                  child: RobotDialogBox(dialogOptions: ["Hey", "Cool", "What's up!"], width: 200, height: 40,)
+                ),
+              ],
+            ),
 
             //Text underneath the robot
             Text(

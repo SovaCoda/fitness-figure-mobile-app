@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
           //small labels, ex. shop labels and dashboard disclaimer
           labelMedium: GoogleFonts.roboto( 
             fontSize: 12,
-          )
+          ),
         ),
       ),
 

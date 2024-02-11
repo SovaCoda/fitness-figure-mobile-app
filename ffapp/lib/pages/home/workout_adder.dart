@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -155,7 +156,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            RobotImageHolder(url: figureURL, height: 250, width: 250),
+            Stack(
+              children: [
+                RobotImageHolder(url: figureURL, height: 250, width: 250),
+                Positioned(
+                  child: RobotDialogBox(
+                    dialogOptions: ["You got it. Keep working out!"], 
+                    width: 120,
+                    height: 45
+                  )
+                ),
+                ]
+            ),
             const SizedBox(height: 40),
             Text( "Time Elapsed:",
               style: Theme.of(context).textTheme.headlineSmall!.copyWith(

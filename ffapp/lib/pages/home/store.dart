@@ -132,10 +132,11 @@ class StoreItem extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
+          color: Theme.of(context).colorScheme.outline,
           width: 2,
         ),
         borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).colorScheme.secondaryContainer
       ),
       child: (Column(
         children: [
@@ -148,7 +149,7 @@ class StoreItem extends StatelessWidget {
           const SizedBox(height: 10),
           Text('Price: $itemPrice', 
             style: Theme.of(context).textTheme.labelMedium!.copyWith(
-              color: Theme.of(context).colorScheme.onBackground
+              color: Theme.of(context).colorScheme.onSecondaryContainer
             )
           ),
           const SizedBox(height: 10),

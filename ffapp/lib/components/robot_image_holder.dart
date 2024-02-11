@@ -9,27 +9,33 @@ class RobotImageHolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          center: Alignment(0, 0),
-          colors: [
-            Theme.of(context).colorScheme.onBackground.withOpacity(1),
-            Theme.of(context).colorScheme.onBackground.withOpacity(0),
-          ],
-          radius: .48,
+    return Stack(
+      children: [
+        Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            center: Alignment(0, 0),
+            colors: [
+              Theme.of(context).colorScheme.onBackground.withOpacity(1),
+              Theme.of(context).colorScheme.onBackground.withOpacity(0),
+            ],
+            radius: .48,
+          ),
+        ),
+        child: Center(
+          child: Image.asset(
+            "lib/assets/icons/$url.gif",
+            height: height*(5/8),
+            width: width*(5/8),
+          ),
         ),
       ),
-      child: Center(
-        child: Image.asset(
-          "lib/assets/icons/$url.gif",
-          height: height*(5/8),
-          width: width*(5/8),
-        ),
-      ),
+      
+    ]
+
     );
   }
 }
