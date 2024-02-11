@@ -74,6 +74,7 @@ class _StoreState extends State<Store> {
                 color: Theme.of(context).colorScheme.onBackground,
               )
           ),
+          const SizedBox(height: 10),
           Column(
             // generates the store as a bunch of rows with 2 elements each from the array above
             // TO DO: if there are an odd number of skins it wont render the last one rn

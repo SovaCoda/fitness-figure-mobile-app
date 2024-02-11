@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -56,7 +57,7 @@ class _DashboardState extends State<Dashboard> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             //created below
-            RobotImageHolder(url: figureURL),
+            RobotImageHolder(url: figureURL, height: 400, width: 400,),
 
             //Text underneath the robot
             Text(
@@ -99,38 +100,6 @@ class _DashboardState extends State<Dashboard> {
             const SizedBox(height: 50)
           ],
         )),
-      ),
-    );
-  }
-}
-
-class RobotImageHolder extends StatelessWidget {
-  final String url;
-
-  const RobotImageHolder({super.key, required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 400.0,
-      height: 400.0,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          center: Alignment(0, 0),
-          colors: [
-            Theme.of(context).colorScheme.onBackground.withOpacity(1),
-            Theme.of(context).colorScheme.onBackground.withOpacity(0),
-          ],
-          radius: .48,
-        ),
-      ),
-      child: Center(
-        child: Image.asset(
-          "lib/assets/icons/$url.gif",
-          height: 260.0,
-          width: 260.0,
-        ),
       ),
     );
   }
