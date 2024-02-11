@@ -46,7 +46,16 @@ class _DashboardState extends State<Dashboard> {
       weeklyGoal = curGoal;
       weeklyCompleted = curWeekly;
       if (curFigure != "none") {
-        figureURL = curFigure;
+
+        //logic for display sad character... theres nothing stopping this from 
+        //display a broken url rn though
+        if (robotCharge < 30) {
+          figureURL = curFigure + "_sad";
+        }
+        else {
+          figureURL = curFigure;
+        }
+        
       }
     });
     logger.i(figureURL);
