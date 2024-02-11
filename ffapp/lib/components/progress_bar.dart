@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class ProgressBar extends StatelessWidget {
 
-  const ProgressBar({super.key});
+  final double progressPercent;
+
+  const ProgressBar({
+    super.key,
+    required this.progressPercent
+  });
 
   final barWidth = 320.0;
-
-  //TO DO: GET CHARGE PERCENT
-  final progressPercent = .83;
 
   @override
   Widget build(BuildContext context) {

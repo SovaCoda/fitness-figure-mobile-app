@@ -3,6 +3,8 @@
 //it contains methods that can be called that return the respective list of
 //quotes
 
+import 'dart:ffi';
+
 class RobotDialog {
   final _robotDialog = {
     'dashboard': {
@@ -17,27 +19,27 @@ class RobotDialog {
     }
   };
 
-  List<String>? getDashboardDialog(int charge) {
+  List<String> getDashboardDialog(int charge) {
     if (charge < 35) {
-      return _robotDialog['dashboard']!['low'];
+      return _robotDialog['dashboard']!['low']!;
     }
     else if (charge < 70) {
-      return _robotDialog['dashboard']!['medium'];
+      return _robotDialog['dashboard']!['medium']!;
     }
     else {
-      return _robotDialog['dashboard']!['high'];
+      return _robotDialog['dashboard']!['high']!;
     }
   }
 
-  List<String>? getLoggerDialog(int timeElapsed, int goalTime) {
+  List<String> getLoggerDialog(int timeElapsed, int goalTime) {
     if (timeElapsed / goalTime < .30) {
-      return _robotDialog['logger']!['start'];
+      return _robotDialog['logger']!['start']!;
     }
     else if (timeElapsed / goalTime < .70) {
-      return _robotDialog['logger']!['middle'];
+      return _robotDialog['logger']!['middle']!;
     }
     else {
-      return _robotDialog['logger']!['end'];
+      return _robotDialog['logger']!['end']!;
     }
   }
 }

@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/robotDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,6 +25,8 @@ class _DashboardState extends State<Dashboard> {
   late int weeklyGoal = 0;
   late int weeklyCompleted = 0;
   late String figureURL = "robot1_skin0_cropped";
+  final int robotCharge = 95;
+  RobotDialog robotDialog = RobotDialog();
 
   @override
   void initState() {
@@ -63,7 +66,7 @@ class _DashboardState extends State<Dashboard> {
                 Positioned(
                   top: 40,
                   left: 160,
-                  child: RobotDialogBox(dialogOptions: ["Hey", "Cool", "What's up!"], width: 200, height: 40,)
+                  child: RobotDialogBox(dialogOptions: robotDialog.getDashboardDialog(robotCharge), width: 200, height: 40,)
                 ),
               ],
             ),
@@ -91,7 +94,7 @@ class _DashboardState extends State<Dashboard> {
 
             //imported from progress bar component
             //TO DO: DECIDE HOW TO CALCULATE THIS
-            ProgressBar(),
+            ProgressBar(progressPercent: (robotCharge / 100)),
 
             const SizedBox(
               height: 20,

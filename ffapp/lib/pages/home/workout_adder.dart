@@ -5,6 +5,7 @@ import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/flutterUser.dart';
+import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   late String _startTime, _endTime;
   late AuthService auth;
   late String figureURL = "robot1_skin0_cropped";
+  RobotDialog robotDialog = RobotDialog();
 
   @override
   void initState() {
@@ -161,8 +163,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 RobotImageHolder(url: figureURL, height: 250, width: 250),
                 Positioned(
                   child: RobotDialogBox(
-                    dialogOptions: ["You got it. Keep working out!"], 
-                    width: 120,
+                    dialogOptions: robotDialog.getLoggerDialog(_timePassed.toInt(), 1800), 
+                    width: 180,
                     height: 45
                   )
                 ),
