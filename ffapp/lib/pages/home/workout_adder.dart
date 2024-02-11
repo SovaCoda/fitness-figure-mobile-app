@@ -139,6 +139,12 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text( "Time Elapsed:",
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground
+              ),
+            ),
+            const SizedBox(height: 10),
             Text(formatSeconds(time.toInt()),
               style: Theme.of(context).textTheme.displayMedium!.copyWith(
                 color: Theme.of(context).colorScheme.onBackground
