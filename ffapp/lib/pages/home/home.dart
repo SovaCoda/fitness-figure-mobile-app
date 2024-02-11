@@ -89,13 +89,41 @@ class _DashboardPageState extends State<DashboardPage> {
                       Icons.currency_exchange,
                       color: Theme.of(context).colorScheme.onBackground,
                     ),
-                    SizedBox(width: 10.0),
-                    Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onBackground),
-                    SizedBox(width: 4.0),
                   ],
                 ),
               ),
             ),
+
+            //question mark area that displays an alert on tap
+            InkWell(
+              onTap:() => {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Questions?"),
+                    content: const Text(
+                        '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();;
+                        },
+                      child: const Text("Get Fit")
+                      ),
+                    ],
+                    );
+                  }
+                )
+              },
+              child: Row(
+                children: [
+                  SizedBox(width: 10.0),
+                  Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onBackground),
+                  const SizedBox(width: 4.0),
+                ],
+              )
+            )
           ],
         ),
 

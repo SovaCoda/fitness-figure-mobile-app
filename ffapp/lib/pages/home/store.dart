@@ -18,7 +18,9 @@ class _StoreState extends State<Store> {
     ["lib/assets/icons/robot1_skin0_cropped.gif", 100],
     ["lib/assets/icons/robot1_skin1_cropped.gif", 350],
     ["lib/assets/icons/robot2_skin0_cropped.gif", 100],
-    ["lib/assets/icons/robot2_skin1_cropped.gif", 350]
+    ["lib/assets/icons/robot2_skin1_cropped.gif", 350],
+    ["lib/assets/icons/robot1_skin0_cropped.gif", 100],
+    ["lib/assets/icons/robot1_skin1_cropped.gif", 350],
   ];
 
   late AuthService auth;
@@ -72,29 +74,42 @@ class _StoreState extends State<Store> {
                 color: Theme.of(context).colorScheme.onBackground,
               )
           ),
+          const SizedBox(height: 10),
           Column(
             // generates the store as a bunch of rows with 2 elements each from the array above
             // TO DO: if there are an odd number of skins it wont render the last one rn
-            children: List.generate(
+            children: 
+                List.generate(
                 (listOfSkins.length / 2).floor(),
-                (index) => Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                (index) => 
+                    Column(
                       children: [
-                        StoreItem(
-                            photoPath: listOfSkins[index * 2][0].toString(),
-                            itemPrice:
-                                int.parse(listOfSkins[index * 2][1].toString()),
-                            onBuySkin: (context, price) =>
-                                subtractCurrency(context, price)),
-                        StoreItem(
-                            photoPath: listOfSkins[index * 2 + 1][0].toString(),
-                            itemPrice: int.parse(
-                                listOfSkins[index * 2 + 1][1].toString()),
-                            onBuySkin: (context, price) =>
-                                subtractCurrency(context, price))
-                      ],
-                    )),
+                        const SizedBox(height: 15),
+                        Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(width: 5),
+                          StoreItem(
+                              photoPath: listOfSkins[index * 2][0].toString(),
+                              itemPrice:
+                                  int.parse(listOfSkins[index * 2][1].toString()),
+                              onBuySkin: (context, price) =>
+                                  subtractCurrency(context, price)),
+                          const SizedBox(width: 15),
+                          StoreItem(
+                              photoPath: listOfSkins[index * 2 + 1][0].toString(),
+                              itemPrice: int.parse(
+                                  listOfSkins[index * 2 + 1][1].toString()),
+                              onBuySkin: (context, price) =>
+                                  subtractCurrency(context, price)),
+                          const SizedBox(width: 5),
+                          ],
+                        ),
+                      ]
+                    )
+                ),
           ),
+          const SizedBox(height: 30),
         ],
       )),
     );
@@ -112,31 +127,38 @@ class StoreItem extends StatelessWidget {
   final int itemPrice;
   final Function(BuildContext, int) onBuySkin;
 
-  void buySkin() {
-    //TO DO ADD BUYING SKIN LOGIC
-  }
-
   @override
   Widget build(BuildContext context) {
-    return (Column(
-      children: [
-        const SizedBox(height: 25),
-        Image.asset(
-          photoPath,
-          height: 180.0,
-          width: 180.0,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline,
+          width: 2,
         ),
-        const SizedBox(height: 10),
-        Text('Price: $itemPrice', 
-          style: Theme.of(context).textTheme.labelMedium!.copyWith(
-            color: Theme.of(context).colorScheme.onBackground
-          )
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-            onPressed: () => onBuySkin(context, itemPrice),
-            child: const Text("Buy Skin"))
-      ],
-    ));
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).colorScheme.secondaryContainer
+      ),
+      child: (Column(
+        children: [
+          const SizedBox(height: 25),
+          Image.asset(
+            photoPath,
+            height: 170.0,
+            width: 170.0,
+          ),
+          const SizedBox(height: 10),
+          Text('Price: $itemPrice', 
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onSecondaryContainer
+            )
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+              onPressed: () => onBuySkin(context, itemPrice),
+              child: const Text("Buy Skin")),
+          const SizedBox(height: 5),
+        ],
+      )),
+    );
   }
 }

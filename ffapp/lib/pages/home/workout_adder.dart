@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ffapp/components/robot_dialog_box.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/flutterUser.dart';
+import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +21,7 @@ class WorkoutAdder extends StatefulWidget {
 }
 
 class _WorkoutAdderState extends State<WorkoutAdder> {
+  FlutterUser user = FlutterUser();
   final logger = Logger();
   bool _logging = false;
   Timer _timer = Timer(Duration.zero, () {});
@@ -24,11 +29,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Int64 _timePassed = Int64(0);
   late String _startTime, _endTime;
   late AuthService auth;
+  late String figureURL = "robot1_skin0_cropped";
+  RobotDialog robotDialog = RobotDialog();
 
   @override
   void initState() {
     super.initState();
     initAuthService();
+  }
+
+  //get the users current figure
+  void initialize() async {
+    await user.initAuthService();
+    await user.checkUser();
+    String curFigure = await user.getCurrentFigure();
+    setState(() {
+      if (curFigure != "none") {
+        figureURL = curFigure;
+      }
+    });
   }
 
   Future<void> initAuthService() async {
@@ -139,6 +158,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Stack(
+              children: [
+                RobotImageHolder(url: figureURL, height: 250, width: 250),
+                Positioned(
+                  child: RobotDialogBox(
+                    dialogOptions: robotDialog.getLoggerDialog(_timePassed.toInt(), 1800), 
+                    width: 180,
+                    height: 45
+                  )
+                ),
+                ]
+            ),
+            const SizedBox(height: 40),
+            Text( "Time Elapsed:",
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground
+              ),
+            ),
+            const SizedBox(height: 10),
             Text(formatSeconds(time.toInt()),
               style: Theme.of(context).textTheme.displayMedium!.copyWith(
                 color: Theme.of(context).colorScheme.onBackground

@@ -62,36 +62,47 @@ class MyApp extends StatelessWidget {
 
         // Define the default brightness and colors.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(255, 255, 255, 1),
+          seedColor: Color.fromRGBO(42, 254, 0, 1),
           // ···
           brightness: Brightness.dark,
         ),
 
         // Define the default `TextTheme`. Use this to specify the default
         // text styling for headlines, titles, bodies of text, and more.
+        // I've assigned these to different elements in the app, be careful
+        // though because adding more might change the display of default
+        // stuff like buttons and popups - Reese
         textTheme: TextTheme(
-          displayMedium: GoogleFonts.oswald(
+          //really big things like the timer counter
+          displayMedium: GoogleFonts.orbitron(
             fontSize: 30,
             fontStyle: FontStyle.italic,
           ),
-          headlineLarge: GoogleFonts.raleway(
+          //top bar
+          headlineLarge: GoogleFonts.oswald(
             fontSize: 26,
             fontStyle: FontStyle.italic,
+            letterSpacing: 2.0,
           ),
-          headlineMedium: GoogleFonts.raleway(
+          //page titles
+          headlineMedium: GoogleFonts.orbitron(
             fontSize: 26,
             fontWeight: FontWeight.bold,
           ),
-          headlineSmall: GoogleFonts.roboto( 
+          //less important big stuff, ex. numbers in the dashboard
+          headlineSmall: GoogleFonts.orbitron( 
             fontSize: 20,
           ),
+          //small titles, ex. dashboard message and settings
           titleSmall: GoogleFonts.roboto( 
             fontSize: 14,
             fontWeight: FontWeight.bold,
+            letterSpacing: .1
           ),
+          //small labels, ex. shop labels and dashboard disclaimer
           labelMedium: GoogleFonts.roboto( 
             fontSize: 12,
-          )
+          ),
         ),
       ),
 
