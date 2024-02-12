@@ -9,9 +9,9 @@ import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
 
 class WorkoutAdder extends StatefulWidget {
   const WorkoutAdder({super.key});
@@ -27,6 +27,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Timer _timer = Timer(Duration.zero, () {});
   Int64 time = Int64(0);
   Int64 _timePassed = Int64(0);
+  late Int64 _timegoal = Int64(0);
   late String _startTime, _endTime;
   late AuthService auth;
   late String figureURL = "robot1_skin0_cropped";
@@ -36,6 +37,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   void initState() {
     super.initState();
     initAuthService();
+    initialize();
   }
 
   //get the users current figure
@@ -43,9 +45,14 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     await user.initAuthService();
     await user.checkUser();
     String curFigure = await user.getCurrentFigure();
+    Int64 timegoal = await user.getWorkoutMinTime().then((value) => Int64(value));
+    logger.i(timegoal);
     setState(() {
       if (curFigure != "none") {
         figureURL = curFigure;
+      }
+      if (timegoal != Int64.ZERO) {
+        _timegoal = timegoal * 60; //convert to seconds
       }
     });
   }
@@ -70,12 +77,21 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     String second = formatter.format((seconds % 60));
     return "$hours:$minutes:$second";
   }
-  //TO DO: SET A TIME PASSED AND UPDATE IT ON THE UI
 
   void startLogging() {
     setState(() {
       _logging = true;
       _startTime = DateTime.now().toString();
+    });
+  }
+  
+  Future<void> awardCurrency() async {
+    user.getCurrencyInt().then((value) {
+      int currency = value;
+      int addable_currency = _timePassed.toInt() ~/ 10;
+      bool isGoalMet = _timePassed >= _timegoal;
+      if (isGoalMet) {currency += addable_currency;}
+      user.updateCurrency(currency);
     });
   }
 
@@ -91,7 +107,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       chargeAdd: Int64(Random.secure().nextInt(100)),
       currencyAdd: Int64(Random.secure().nextInt(1000)),
     );
-    auth.createWorkout(workout);
+    await auth.createWorkout(workout);
+    await awardCurrency();
+    int weeklyCompleted = await user.getWeeklyCompleted();
+    int inttimePassed = _timePassed.toInt();
+    int inttimegoal = _timegoal.toInt();
+    if (inttimePassed >= inttimegoal) {weeklyCompleted += 1;}
+    await user.updateUser(Routes.User(email: await user.getEmail(), weekComplete: Int64(weeklyCompleted)));
     setState(() {
       _logging = false;
       _timer.cancel();
@@ -121,8 +143,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         builder: (context) {
           return AlertDialog(
             title: const Text("Are you sure?"),
-            content: const Text(
-                "You haven't worked out at least as long as X, if you stop now you won't be able to log this workout. Are you sure you want to stop?"),
+            content: Text(
+                "You haven't worked out at least as long as ${formatSeconds(_timegoal.toInt() * 60)}, if you stop now this workout will be logged, but you will gain no awards from it. Are you sure you want to stop?"),
             actions: [
               imSureButton(),
               noIllKeepAtIt(),
@@ -158,29 +180,30 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              children: [
-                RobotImageHolder(url: figureURL, height: 250, width: 250),
-                Positioned(
+            Stack(children: [
+              RobotImageHolder(url: figureURL, height: 250, width: 250),
+              Positioned(
                   child: RobotDialogBox(
-                    dialogOptions: robotDialog.getLoggerDialog(_timePassed.toInt(), 1800), 
-                    width: 180,
-                    height: 45
-                  )
-                ),
-                ]
-            ),
+                      dialogOptions: robotDialog.getLoggerDialog(
+                          _timePassed.toInt(), 1800),
+                      width: 180,
+                      height: 45)),
+            ]),
             const SizedBox(height: 40),
-            Text( "Time Elapsed:",
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onBackground
-              ),
+            Text(
+              "Time Elapsed:",
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall!
+                  .copyWith(color: Theme.of(context).colorScheme.onBackground),
             ),
             const SizedBox(height: 10),
-            Text(formatSeconds(time.toInt()),
-              style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onBackground
-              ),
+            Text(
+              formatSeconds(time.toInt()),
+              style: Theme.of(context)
+                  .textTheme
+                  .displayMedium!
+                  .copyWith(color: Theme.of(context).colorScheme.onBackground),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

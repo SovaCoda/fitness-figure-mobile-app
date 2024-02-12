@@ -1,6 +1,7 @@
 import 'package:ffapp/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:ffapp/services/routes.pb.dart" as Routes;
+import 'package:fixnum/fixnum.dart';
 
 /*
 This serves as a combined user class for use in the frontend
@@ -67,9 +68,21 @@ class FlutterUser {
         .then((value) => value!.currency.toString());
   }
 
+  Future<int> getWorkoutMinTime() async {
+    logger.i("Getting user's workout min time");
+    return await auth.getUserDBInfo().then((value) => value!.workoutMinTime.toInt());
+  }
+
   Future<int> getCurrencyInt() async {
     logger.i("Getting user's currency");
     return await auth.getUserDBInfo().then((value) => value!.currency.toInt());
+  }
+
+  Future<Routes.User> updateCurrency(int currency) async {
+    logger.i("Updating user's currency");
+    String email = await auth.getUser().then((value) => value!.email.toString());
+    Routes.User user = Routes.User(email: email, currency: Int64(currency));
+    return await auth.updateUserDBInfo(user);
   }
 
   void logoutUser() {

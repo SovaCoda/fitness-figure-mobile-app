@@ -46,16 +46,13 @@ class _DashboardState extends State<Dashboard> {
       weeklyGoal = curGoal;
       weeklyCompleted = curWeekly;
       if (curFigure != "none") {
-
-        //logic for display sad character... theres nothing stopping this from 
+        //logic for display sad character... theres nothing stopping this from
         //display a broken url rn though
         if (robotCharge < 30) {
           figureURL = curFigure + "_sad";
-        }
-        else {
+        } else {
           figureURL = curFigure;
         }
-        
       }
     });
     logger.i(figureURL);
@@ -71,22 +68,28 @@ class _DashboardState extends State<Dashboard> {
           children: [
             Stack(
               children: [
-                RobotImageHolder(url: figureURL, height: 400, width: 400,),
-                Positioned(
-                  top: 40,
-                  left: 160,
-                  child: RobotDialogBox(dialogOptions: robotDialog.getDashboardDialog(robotCharge), width: 200, height: 40,)
+                RobotImageHolder(
+                  url: figureURL,
+                  height: 400,
+                  width: 400,
                 ),
+                Positioned(
+                    top: 40,
+                    left: 160,
+                    child: RobotDialogBox(
+                      dialogOptions:
+                          robotDialog.getDashboardDialog(robotCharge),
+                      width: 200,
+                      height: 40,
+                    )),
               ],
             ),
 
             //Text underneath the robot
-            Text(
-              "Train consistently to power your Fitness Figure!",
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
-              )
-            ),
+            Text("Train consistently to power your Fitness Figure!",
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    )),
 
             const SizedBox(height: 15),
 
@@ -103,7 +106,7 @@ class _DashboardState extends State<Dashboard> {
 
             //imported from progress bar component
             //TO DO: DECIDE HOW TO CALCULATE THIS
-            ProgressBar(progressPercent: (robotCharge / 100)),
+            ProgressBar(progressPercent: (weeklyCompleted / weeklyGoal)),
 
             const SizedBox(
               height: 20,
@@ -113,8 +116,8 @@ class _DashboardState extends State<Dashboard> {
             Text(
               "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
               style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
 
@@ -144,48 +147,36 @@ class WorkoutNumbersRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Column(children: [
-            Text(
-              weeklyGoal.toString(),
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )
-            ),
-            Text(
-              "Weekly Goal",
-              style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )
-            ),
+            Text(weeklyGoal.toString(),
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
+            Text("Weekly Goal",
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
           ]),
           DoubleLineDivider(),
           Column(children: [
-            Text(
-              weeklyCompleted.toString(),
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )
-            ),
-            Text(
-              "Weekly Completed",
-              style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )
-            ),
+            Text(weeklyCompleted.toString(),
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
+            Text("Weekly Completed",
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
           ]),
           DoubleLineDivider(),
           Column(children: [
-            Text(
-              lifeTimeCompleted.toString(),
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )
-            ),
-            Text(
-              "Total Completed",
-              style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )
-            ),
+            Text(lifeTimeCompleted.toString(),
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
+            Text("Total Completed",
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
           ]),
         ],
       ),

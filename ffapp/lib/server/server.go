@@ -39,7 +39,7 @@ func newServer(db *sql.DB) *server {
 func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
