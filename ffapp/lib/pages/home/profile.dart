@@ -37,12 +37,10 @@ class _ProfileState extends State<Profile> {
     await initAuthService();
     await user.initAuthService();
     await user.checkUser();
-    String usrEmail = await user.getEmail();
     String usrName = await user.getName();
     int usrGoal = await user.getWorkoutGoal();
     setState(() {
       name = usrName;
-      email = usrEmail;
       password = "*******";
       weeklyGoal = usrGoal;
       manageSub = "Subscription Tier 1";

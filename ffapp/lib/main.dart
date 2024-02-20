@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
 
         // Define the default brightness and colors.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(42, 254, 0, 1),
+          seedColor: Color.fromRGBO(254, 0, 0, 1),
           // ···
           brightness: Brightness.dark,
         ),

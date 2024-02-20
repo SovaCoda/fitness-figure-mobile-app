@@ -4,13 +4,15 @@ import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/robotDialog.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as FB;
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
+import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key});
@@ -20,28 +22,31 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  late AuthService auth;
   FlutterUser user = FlutterUser();
   late String email = "Loading...";
   late int weeklyGoal = 0;
   late int weeklyCompleted = 0;
   late String figureURL = "robot1_skin0_cropped";
+  late double charge = 0;
   final int robotCharge = 95;
   RobotDialog robotDialog = RobotDialog();
 
   @override
   void initState() {
     super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
     initialize();
   }
 
   void initialize() async {
-    await user.initAuthService();
-    await user.checkUser();
-    String curEmail = await user.getEmail();
-    int curGoal = await user.getWorkoutGoal();
-    int curWeekly = await user.getWeeklyCompleted();
-    String curFigure = await user.getCurrentFigure();
+    Routes.User? databaseUser = await auth?.getUserDBInfo();
+    String curEmail = databaseUser?.email ?? "Loading...";
+    int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
+    int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
+    String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
     setState(() {
+      charge = curWeekly / curGoal;
       email = curEmail;
       weeklyGoal = curGoal;
       weeklyCompleted = curWeekly;
@@ -105,8 +110,7 @@ class _DashboardState extends State<Dashboard> {
             ),
 
             //imported from progress bar component
-            //TO DO: DECIDE HOW TO CALCULATE THIS
-            ProgressBar(progressPercent: (weeklyCompleted / weeklyGoal)),
+            ProgressBar(progressPercent: (charge)),
 
             const SizedBox(
               height: 20,
