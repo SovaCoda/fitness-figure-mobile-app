@@ -1,3 +1,4 @@
+import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/history.dart';
 import 'package:ffapp/pages/home/profile.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -14,6 +16,7 @@ class DashboardPage extends StatefulWidget {
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
+
 
 class _DashboardPageState extends State<DashboardPage> {
   //acts as a directory of the widgets that the navbar can route to and render
@@ -77,12 +80,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      currency,
-                      style:
-                          Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    Consumer<CurrencyModel>(
+                      builder: (context, currencyModel, child) {
+                        return Text(
+                          currencyModel.currency,
+                          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                             color: Theme.of(context).colorScheme.onBackground,
                           )
+                        );
+                      },
                     ),
                     SizedBox(width: 10.0),
                     Icon(

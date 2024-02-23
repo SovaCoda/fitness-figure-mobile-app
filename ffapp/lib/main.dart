@@ -12,13 +12,26 @@ import 'package:ffapp/pages/home/home.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+class CurrencyModel extends ChangeNotifier {
+  String currency = "0000";
+  void setCurrency(String newCurrency) {
+    currency = newCurrency;
+    notifyListeners();
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final AuthService auth = await AuthService.instance;
-  runApp(Provider<AuthService>.value(
-      value: auth,
-      child: MyApp(authService: auth),  
-    )
+  runApp(
+    MultiProvider(providers: [
+      Provider(
+        create: (context) => auth,
+      ),
+      ChangeNotifierProvider(
+        create: (context) => CurrencyModel(),
+      )
+    ], child: const MyApp()),
   );
 }
 
@@ -48,15 +61,13 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
 ]);
 
 class MyApp extends StatelessWidget {
-  final AuthService authService;
-  const MyApp({Key? key, required this.authService}) : super(key: key);
+  const MyApp();
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Fitness Figure',
-
       theme: ThemeData(
         useMaterial3: true,
 
@@ -90,22 +101,18 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
           //less important big stuff, ex. numbers in the dashboard
-          headlineSmall: GoogleFonts.orbitron( 
+          headlineSmall: GoogleFonts.orbitron(
             fontSize: 20,
           ),
           //small titles, ex. dashboard message and settings
-          titleSmall: GoogleFonts.roboto( 
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: .1
-          ),
+          titleSmall: GoogleFonts.roboto(
+              fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),
           //small labels, ex. shop labels and dashboard disclaimer
-          labelMedium: GoogleFonts.roboto( 
+          labelMedium: GoogleFonts.roboto(
             fontSize: 12,
           ),
         ),
       ),
-
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
     );
@@ -120,9 +127,9 @@ class TestApp extends StatelessWidget {
     return MaterialApp(
       title: 'Test App',
       theme: ThemeData(
-    useMaterial3: true,
+        useMaterial3: true,
 
-    // Define the default brightness and colors.
+        // Define the default brightness and colors.
       ),
       home: SignIn(),
     );

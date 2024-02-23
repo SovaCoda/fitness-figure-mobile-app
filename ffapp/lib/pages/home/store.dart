@@ -1,7 +1,11 @@
+import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:logger/logger.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:provider/provider.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:fixnum/fixnum.dart';
 
 var logger = Logger();
 
@@ -24,31 +28,24 @@ class _StoreState extends State<Store> {
   ];
 
   late AuthService auth;
-
-  Future<void> initAuthService() async {
-    auth = await AuthService.instance;
-    logger.i("AuthService initialized");
-  }
-
-  FlutterUser user = FlutterUser();
   late int currency = 0;
 
   void initState() {
     super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
     initialize();
   }
 
   void initialize() async {
-    await initAuthService();
-    await user.initAuthService();
-    await user.checkUser();
-    String stringCur = await user.getCurrency();
+    Routes.User? databaseUser = await auth.getUserDBInfo();
+    String stringCur = databaseUser?.currency.toString() ?? "0";
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
   }
 
   void subtractCurrency(BuildContext context, int subtractCurrency) async {
-    int currentCurrency = await user.getCurrencyInt();
+    Routes.User? databaseUser = await auth.getUserDBInfo();
+    int currentCurrency = databaseUser!.currency.toInt();
     logger.i(
         "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
     int updateCurrency = currentCurrency - subtractCurrency;
@@ -60,7 +57,10 @@ class _StoreState extends State<Store> {
       );
       return;
     }
-    await auth.updateCurrency((currentCurrency - subtractCurrency));
+    databaseUser.currency = Int64(updateCurrency);
+    await auth.updateUserDBInfo(databaseUser);
+    Provider.of<CurrencyModel>(context, listen: false)
+        .setCurrency(updateCurrency.toString());
   }
 
   @override
@@ -68,46 +68,40 @@ class _StoreState extends State<Store> {
     return SingleChildScrollView(
       child: (Column(
         children: [
-           Text(
-            "Figure Store",
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
-              )
-          ),
+          Text("Figure Store",
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
           const SizedBox(height: 10),
           Column(
             // generates the store as a bunch of rows with 2 elements each from the array above
             // TO DO: if there are an odd number of skins it wont render the last one rn
-            children: 
-                List.generate(
+            children: List.generate(
                 (listOfSkins.length / 2).floor(),
-                (index) => 
-                    Column(
-                      children: [
-                        const SizedBox(height: 15),
-                        Row(
+                (index) => Column(children: [
+                      const SizedBox(height: 15),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(width: 5),
                           StoreItem(
                               photoPath: listOfSkins[index * 2][0].toString(),
-                              itemPrice:
-                                  int.parse(listOfSkins[index * 2][1].toString()),
+                              itemPrice: int.parse(
+                                  listOfSkins[index * 2][1].toString()),
                               onBuySkin: (context, price) =>
                                   subtractCurrency(context, price)),
                           const SizedBox(width: 15),
                           StoreItem(
-                              photoPath: listOfSkins[index * 2 + 1][0].toString(),
+                              photoPath:
+                                  listOfSkins[index * 2 + 1][0].toString(),
                               itemPrice: int.parse(
                                   listOfSkins[index * 2 + 1][1].toString()),
                               onBuySkin: (context, price) =>
                                   subtractCurrency(context, price)),
                           const SizedBox(width: 5),
-                          ],
-                        ),
-                      ]
-                    )
-                ),
+                        ],
+                      ),
+                    ])),
           ),
           const SizedBox(height: 30),
         ],
@@ -131,13 +125,12 @@ class StoreItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.secondaryContainer
-      ),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(10),
+          color: Theme.of(context).colorScheme.secondaryContainer),
       child: (Column(
         children: [
           const SizedBox(height: 25),
@@ -147,11 +140,9 @@ class StoreItem extends StatelessWidget {
             width: 170.0,
           ),
           const SizedBox(height: 10),
-          Text('Price: $itemPrice', 
-            style: Theme.of(context).textTheme.labelMedium!.copyWith(
-              color: Theme.of(context).colorScheme.onSecondaryContainer
-            )
-          ),
+          Text('Price: $itemPrice',
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondaryContainer)),
           const SizedBox(height: 10),
           ElevatedButton(
               onPressed: () => onBuySkin(context, itemPrice),

@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
@@ -45,6 +46,8 @@ class _DashboardState extends State<Dashboard> {
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
+    Provider.of<CurrencyModel>(context, listen: false).setCurrency(
+        databaseUser?.currency.toString() ?? "0000");
     setState(() {
       charge = curWeekly / curGoal;
       email = curEmail;
