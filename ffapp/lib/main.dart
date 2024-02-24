@@ -70,12 +70,14 @@ class MyApp extends StatelessWidget {
       title: 'Fitness Figure',
       theme: ThemeData(
         useMaterial3: true,
+        
 
         // Define the default brightness and colors.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(254, 0, 0, 1),
+          seedColor: Color.fromRGBO(46, 207, 13, 1),
           // ···
           brightness: Brightness.dark,
+          
         ),
 
         // Define the default `TextTheme`. Use this to specify the default

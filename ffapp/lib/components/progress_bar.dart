@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class ProgressBar extends StatelessWidget {
 
   final double progressPercent;
+  final double barWidth;
+  final Color fillColor;
 
   const ProgressBar({
     super.key,
-    required this.progressPercent
+    required this.progressPercent,
+    required this.barWidth,
+    required this.fillColor,
   });
-
-  final barWidth = 320.0;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class ProgressBar extends StatelessWidget {
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
-              color: Theme.of(context).colorScheme.primary,
+              color: fillColor,
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).colorScheme.shadow,
@@ -54,7 +56,7 @@ class ProgressBar extends StatelessWidget {
                         height: 10,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Theme.of(context).colorScheme.primary,
+                          color: fillColor,
                           boxShadow: [
                           BoxShadow(
                             color: Theme.of(context).colorScheme.shadow,
@@ -70,7 +72,7 @@ class ProgressBar extends StatelessWidget {
                     Text(
                       "${(progressPercent * 100).toStringAsFixed(0)}%",
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: fillColor,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

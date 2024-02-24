@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ffapp/components/animated_points.dart';
+import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/services/auth.dart';
@@ -32,6 +34,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   late AuthService auth;
   late String figureURL = "robot1_skin0_cropped";
   RobotDialog robotDialog = RobotDialog();
+  final int RANDRANGE = 100;
+  final double OFFSET = 250 / 4;
 
   @override
   void initState() {
@@ -45,7 +49,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     await user.initAuthService();
     await user.checkUser();
     String curFigure = await user.getCurrentFigure();
-    Int64 timegoal = await user.getWorkoutMinTime().then((value) => Int64(value));
+    Int64 timegoal =
+        await user.getWorkoutMinTime().then((value) => Int64(value));
     logger.i(timegoal);
     setState(() {
       if (curFigure != "none") {
@@ -84,13 +89,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       _startTime = DateTime.now().toString();
     });
   }
-  
+
   Future<void> awardCurrency() async {
     user.getCurrencyInt().then((value) {
       int currency = value;
       int addable_currency = _timePassed.toInt() ~/ 10;
       bool isGoalMet = _timePassed >= _timegoal;
-      if (isGoalMet) {currency += addable_currency;}
+      if (isGoalMet) {
+        currency += addable_currency;
+      }
       user.updateCurrency(currency);
     });
   }
@@ -112,8 +119,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     int weeklyCompleted = await user.getWeeklyCompleted();
     int inttimePassed = _timePassed.toInt();
     int inttimegoal = _timegoal.toInt();
-    if (inttimePassed >= inttimegoal) {weeklyCompleted += 1;}
-    await user.updateUser(Routes.User(email: await user.getEmail(), weekComplete: Int64(weeklyCompleted)));
+    if (inttimePassed >= inttimegoal) {
+      weeklyCompleted += 1;
+    }
+    await user.updateUser(Routes.User(
+        email: await user.getEmail(), weekComplete: Int64(weeklyCompleted)));
     setState(() {
       _logging = false;
       _timer.cancel();
@@ -188,6 +198,27 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           _timePassed.toInt(), 1800),
                       width: 180,
                       height: 45)),
+              Positioned(
+                child: FloatingText(
+                    text: "+0.42",
+                    color: Theme.of(context).colorScheme.primary),
+                right: Random.secure().nextDouble() * RANDRANGE + OFFSET,
+                top: Random.secure().nextDouble() * RANDRANGE + OFFSET,
+              ),
+              Positioned(
+                child: FloatingText(
+                    text: "+0.21",
+                    color: Theme.of(context).colorScheme.secondary),
+                right: Random.secure().nextDouble() * RANDRANGE + OFFSET,
+                top: Random.secure().nextDouble() * RANDRANGE + OFFSET,
+              ),
+              Positioned(
+                child: FloatingText(
+                    text: "+0.115",
+                    color: Theme.of(context).colorScheme.tertiary),
+                right: Random.secure().nextDouble() * RANDRANGE + OFFSET,
+                top: Random.secure().nextDouble() * RANDRANGE + OFFSET,
+              ),
             ]),
             const SizedBox(height: 40),
             Text(
@@ -208,7 +239,55 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             const SizedBox(height: 20),
             ElevatedButton(
                 onPressed: showConfirmationBox,
-                child: const Text("End Workout"))
+                child: const Text("End Workout")),
+            const SizedBox(height: 20),
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ProgressBar(
+                      progressPercent:
+                          time.toDouble() / (_timegoal.toDouble() * 60),
+                      fillColor: Theme.of(context).colorScheme.primary,
+                      barWidth: 240),
+                  const SizedBox(width: 5),
+                  Icon(Icons.battery_charging_full,
+                      color: Theme.of(context).colorScheme.primary, size: 34),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ProgressBar(
+                      progressPercent:
+                          time.toDouble() / (_timegoal.toDouble() * 60) * 2,
+                      fillColor: Theme.of(context).colorScheme.secondary,
+                      barWidth: 240),
+                  const SizedBox(width: 5),
+                  Icon(Icons.currency_exchange,
+                      color: Theme.of(context).colorScheme.secondary, size: 34),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ProgressBar(
+                      progressPercent:
+                          time.toDouble() / (_timegoal.toDouble() * 60) * 4,
+                      fillColor: Theme.of(context).colorScheme.tertiary,
+                      barWidth: 240),
+                  const SizedBox(width: 5),
+                  Icon(Icons.upgrade,
+                      color: Theme.of(context).colorScheme.tertiary, size: 34),
+                ],
+              ),
+            ),
           ],
         ),
       );
