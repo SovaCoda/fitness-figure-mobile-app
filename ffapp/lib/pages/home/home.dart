@@ -18,6 +18,8 @@ class DashboardPage extends StatefulWidget {
 }
 
 
+
+
 class _DashboardPageState extends State<DashboardPage> {
   //acts as a directory of the widgets that the navbar can route to and render
   static final List<Widget> _pages = <Widget>[
@@ -134,7 +136,11 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
 
         //renders the page that the nav bar has currently selected
-        body: _pages.elementAt(_selectedIndex),
+        //indexed stack allows pages to retain their state when switching between them
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
 
         //permanent footer navigation that changes the page index state to switch displays
         bottomNavigationBar: 

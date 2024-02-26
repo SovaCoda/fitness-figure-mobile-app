@@ -113,7 +113,7 @@ class _DashboardState extends State<Dashboard> {
             ),
 
             //imported from progress bar component
-            ProgressBar(progressPercent: (charge)),
+            ProgressBar(progressPercent: (charge), barWidth: 320, fillColor: Theme.of(context).colorScheme.primary),
 
             const SizedBox(
               height: 20,
