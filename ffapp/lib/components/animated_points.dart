@@ -21,7 +21,7 @@ class _FloatingTextState extends State<FloatingText>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     )..repeat();
 
@@ -48,7 +48,7 @@ class _FloatingTextState extends State<FloatingText>
               widget.text,
               style: Theme.of(context)
                   .textTheme
-                  .displayMedium!
+                  .headlineSmall!
                   .copyWith(color: widget.color),
             ),
           ),

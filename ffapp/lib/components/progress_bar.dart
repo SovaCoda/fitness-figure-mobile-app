@@ -52,7 +52,7 @@ class ProgressBar extends StatelessWidget {
                         color: Theme.of(context).colorScheme.inverseSurface,
                       ),
                       child: Container(
-                        width: (barWidth - 90) * progressPercent,
+                        width: (barWidth - 90) * (progressPercent.clamp(0, 1)),
                         height: 10,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),

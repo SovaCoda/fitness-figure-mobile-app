@@ -36,6 +36,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   RobotDialog robotDialog = RobotDialog();
   final int RANDRANGE = 100;
   final double OFFSET = 250 / 4;
+  late double scoreIncrement;
+  final int sigfigs = 2;
 
   @override
   void initState() {
@@ -51,6 +53,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     String curFigure = await user.getCurrentFigure();
     Int64 timegoal =
         await user.getWorkoutMinTime().then((value) => Int64(value));
+    scoreIncrement = 1 / (timegoal.toDouble() * 60);
     logger.i(timegoal);
     setState(() {
       if (curFigure != "none") {
@@ -148,19 +151,124 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void showConfirmationBox() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Are you sure?"),
-            content: Text(
-                "You haven't worked out at least as long as ${formatSeconds(_timegoal.toInt() * 60)}, if you stop now this workout will be logged, but you will gain no awards from it. Are you sure you want to stop?"),
-            actions: [
-              imSureButton(),
-              noIllKeepAtIt(),
-            ],
-          );
-        });
+    if (time < _timegoal.toInt()) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Are you sure?"),
+              content: Text(
+                  "You haven't worked out at least as long as ${formatSeconds(_timegoal.toInt())}, if you stop now this workout will be logged, but you will only gain currency and EV points. Are you sure you want to stop?"),
+              actions: [
+                imSureButton(),
+                noIllKeepAtIt(),
+              ],
+            );
+          });
+    } else {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Are you sure?"),
+              content: Center(
+                child: Column(children: [
+                  Text(
+                    "You've met your goal!, if you stop now this workout will be logged, and you will gain currency, EV points, and a charge. You can keep going and gain currency, but your EV and charge is at a maximum now. Are you sure you want to stop?"),
+                  SizedBox(height: 8),
+                  Column(
+                  children: [
+                    Column(
+                      children: [
+                        ProgressBar(
+                          progressPercent: 1,
+                          fillColor: Theme.of(context).colorScheme.primary,
+                          barWidth: 240,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Charge: ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                        color: Theme.of(context).colorScheme.primary)),
+                            Text('10',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                        color: Theme.of(context).colorScheme.primary)), // Replace '10' with the actual charge value
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Column(
+                      children: [
+                        ProgressBar(
+                          progressPercent: 1,
+                          fillColor: Theme.of(context).colorScheme.secondary,
+                          barWidth: 240,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Currency: ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                        color: Theme.of(context).colorScheme.secondary)),
+                            Text('50',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                        color: Theme.of(context).colorScheme.secondary)), // Replace '50' with the actual currency value
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Column(
+                      children: [
+                        ProgressBar(
+                          progressPercent: 1,
+                          fillColor: Theme.of(context).colorScheme.tertiary,
+                          barWidth: 240,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('EV: ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                        color: Theme.of(context).colorScheme.tertiary)),
+                            Text('75',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                        color: Theme.of(context).colorScheme.tertiary)), // Replace '75' with the actual EV value
+                          ],
+                        ),
+                      ],
+                    ),
+                    RobotImageHolder(url: figureURL, height: 200, width: 200)
+                  ],
+                ),
+              ])),
+              actions: [
+                imSureButton(),
+                noIllKeepAtIt(),
+              ],
+            );
+          });
+    }
   }
 
   @override
@@ -198,29 +306,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           _timePassed.toInt(), 1800),
                       width: 180,
                       height: 45)),
-              Positioned(
-                child: FloatingText(
-                    text: "+0.42",
-                    color: Theme.of(context).colorScheme.primary),
-                right: Random.secure().nextDouble() * RANDRANGE + OFFSET,
-                top: Random.secure().nextDouble() * RANDRANGE + OFFSET,
-              ),
-              Positioned(
-                child: FloatingText(
-                    text: "+0.21",
-                    color: Theme.of(context).colorScheme.secondary),
-                right: Random.secure().nextDouble() * RANDRANGE + OFFSET,
-                top: Random.secure().nextDouble() * RANDRANGE + OFFSET,
-              ),
-              Positioned(
-                child: FloatingText(
-                    text: "+0.115",
-                    color: Theme.of(context).colorScheme.tertiary),
-                right: Random.secure().nextDouble() * RANDRANGE + OFFSET,
-                top: Random.secure().nextDouble() * RANDRANGE + OFFSET,
-              ),
             ]),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             Text(
               "Time Elapsed:",
               style: Theme.of(context)
@@ -228,7 +315,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                   .headlineSmall!
                   .copyWith(color: Theme.of(context).colorScheme.onBackground),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             Text(
               formatSeconds(time.toInt()),
               style: Theme.of(context)
@@ -236,55 +323,106 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                   .displayMedium!
                   .copyWith(color: Theme.of(context).colorScheme.onBackground),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             ElevatedButton(
                 onPressed: showConfirmationBox,
                 child: const Text("End Workout")),
             const SizedBox(height: 20),
             Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  ProgressBar(
-                      progressPercent:
-                          time.toDouble() / (_timegoal.toDouble() * 60),
-                      fillColor: Theme.of(context).colorScheme.primary,
-                      barWidth: 240),
-                  const SizedBox(width: 5),
-                  Icon(Icons.battery_charging_full,
-                      color: Theme.of(context).colorScheme.primary, size: 34),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProgressBar(
+                        progressPercent:
+                            time.toDouble() / (_timegoal.toDouble()),
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        barWidth: 240,
+                      ),
+                      const SizedBox(width: 20),
+                      Icon(
+                        Icons.battery_charging_full,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 34,
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    left: 65,
+                    top: 0,
+                    child: FloatingText(
+                      text: "^ " +
+                          (scoreIncrement * 10).toStringAsPrecision(sigfigs),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  ProgressBar(
-                      progressPercent:
-                          time.toDouble() / (_timegoal.toDouble() * 60) * 2,
-                      fillColor: Theme.of(context).colorScheme.secondary,
-                      barWidth: 240),
-                  const SizedBox(width: 5),
-                  Icon(Icons.currency_exchange,
-                      color: Theme.of(context).colorScheme.secondary, size: 34),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProgressBar(
+                        progressPercent:
+                            time.toDouble() / (_timegoal.toDouble()) * 2,
+                        fillColor: Theme.of(context).colorScheme.secondary,
+                        barWidth: 240,
+                      ),
+                      const SizedBox(width: 20),
+                      Icon(
+                        Icons.currency_exchange,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 34,
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    left: 65,
+                    top: 0,
+                    child: FloatingText(
+                      text: "^ " +
+                          (scoreIncrement * 20).toStringAsPrecision(sigfigs),
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  ProgressBar(
-                      progressPercent:
-                          time.toDouble() / (_timegoal.toDouble() * 60) * 4,
-                      fillColor: Theme.of(context).colorScheme.tertiary,
-                      barWidth: 240),
-                  const SizedBox(width: 5),
-                  Icon(Icons.upgrade,
-                      color: Theme.of(context).colorScheme.tertiary, size: 34),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProgressBar(
+                        progressPercent:
+                            time.toDouble() / (_timegoal.toDouble()) * 4,
+                        fillColor: Theme.of(context).colorScheme.tertiary,
+                        barWidth: 240,
+                      ),
+                      const SizedBox(width: 20),
+                      Icon(
+                        Icons.upgrade,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        size: 34,
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    left: 65,
+                    top: 0,
+                    child: FloatingText(
+                      text: "^ " +
+                          (scoreIncrement * 40).toStringAsPrecision(sigfigs),
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
                 ],
               ),
             ),
