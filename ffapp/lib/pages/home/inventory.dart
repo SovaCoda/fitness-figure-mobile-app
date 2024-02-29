@@ -1,4 +1,4 @@
-import 'package:ffapp/components/store_item.dart';
+import 'package:ffapp/components/inventory_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -20,8 +20,8 @@ class Inventory extends StatefulWidget {
 class _InventoryState extends State<Inventory> {
   //add a skin's image path and its price to render it in the store
   final listOfSkins = [
-    ["lib/assets/icons/robot1_skin0_cropped.gif", 100],
-    ["lib/assets/icons/robot1_skin1_cropped.gif", 350],
+    ["lib/assets/icons/robot1_skin0_cropped.gif", true],
+    ["lib/assets/icons/robot2_skin0_cropped.gif", false],
   ];
 
   late AuthService auth;
@@ -82,20 +82,19 @@ class _InventoryState extends State<Inventory> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(width: 5),
-                          StoreItem(
+                          InventoryItem(
                               photoPath: listOfSkins[index * 2][0].toString(),
-                              itemPrice: int.parse(
-                                  listOfSkins[index * 2][1].toString()),
-                              onBuySkin: (context, price) => ()
+                              onViewDetails: (context) => {},
+                              equiped: listOfSkins[index * 2][1].toString() == "true" ? true : false,
+                              onEquip: (context) => {}
                           ),
                           const SizedBox(width: 15),
-                          StoreItem(
-                              photoPath:
-                                  listOfSkins[index * 2 + 1][0].toString(),
-                              itemPrice: int.parse(
-                                  listOfSkins[index * 2 + 1][1].toString()),
-                              onBuySkin: (context, price) =>
-                                  ()),
+                          InventoryItem(
+                              photoPath: listOfSkins[index * 2 + 1][0].toString(),
+                              onViewDetails: (context) => {},
+                              equiped: listOfSkins[index * 2 + 1][1].toString() == "true" ? true : false,
+                              onEquip: (context) => {},
+                          ),
                           const SizedBox(width: 5),
                         ],
                       ),
@@ -104,7 +103,7 @@ class _InventoryState extends State<Inventory> {
           const SizedBox(height: 30),
           ElevatedButton(
               onPressed: () => context.goNamed('SkinStore'),
-              child: const Text("Buy More Skins")),
+              child: const Text("Buy More")),
         ],
       )),
     );
