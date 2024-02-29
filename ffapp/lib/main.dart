@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ffapp/pages/home/store.dart';
 
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
@@ -57,7 +58,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
   GoRoute(
       name: 'WorkoutFrequencySelection',
       path: '/workout_frequency_selection',
-      builder: (context, state) => const WorkoutFrequencySelection())
+      builder: (context, state) => const WorkoutFrequencySelection()),
+  GoRoute(
+      name: 'SkinStore',
+      path: '/store',
+      builder: (context, state) => const Store())
 ]);
 
 class MyApp extends StatelessWidget {
