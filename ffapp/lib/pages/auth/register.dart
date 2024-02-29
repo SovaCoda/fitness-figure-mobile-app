@@ -88,6 +88,7 @@ class _RegisterState extends State<Register> {
                 const Icon(
                   Icons.lock,
                   size: 150,
+                  color: Colors.black,
                 ),
 
                 //spacer
@@ -114,21 +115,27 @@ class _RegisterState extends State<Register> {
 
                 InputField(
                   controller: password2Controller,
-                  hintText: 'comfirm password',
+                  hintText: 'confirm password',
                   obscureText: true,
                 ),
 
                 //spacer
-                const SizedBox(height: 15),
+                const SizedBox(height: 25),
 
                 //Sign In
-                CustomButton(onTap: createUser, text: "Create Account"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: CustomButton(onTap: createUser, text: "Create Account"),
+                ),
 
                 //Spacer
                 const SizedBox(height: 20),
 
                 //back to login
-                CustomButton(onTap: reroute, text: "Back to Login"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: CustomButton(onTap: reroute, text: "Back to Login"),
+                ),
 
                 //spacer
                 const SizedBox(
@@ -186,6 +193,7 @@ class _RegisterState extends State<Register> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 50)
               ])),
         ),
       ),

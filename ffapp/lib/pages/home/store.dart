@@ -1,3 +1,4 @@
+import 'package:ffapp/components/store_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -6,6 +7,7 @@ import 'package:ffapp/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:fixnum/fixnum.dart';
+import 'package:go_router/go_router.dart';
 
 var logger = Logger();
 
@@ -23,8 +25,6 @@ class _StoreState extends State<Store> {
     ["lib/assets/icons/robot1_skin1_cropped.gif", 350],
     ["lib/assets/icons/robot2_skin0_cropped.gif", 100],
     ["lib/assets/icons/robot2_skin1_cropped.gif", 350],
-    ["lib/assets/icons/robot1_skin0_cropped.gif", 100],
-    ["lib/assets/icons/robot1_skin1_cropped.gif", 350],
   ];
 
   late AuthService auth;
@@ -65,91 +65,128 @@ class _StoreState extends State<Store> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: (Column(
-        children: [
-          Text("Figure Store",
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  )),
-          const SizedBox(height: 10),
-          Column(
-            // generates the store as a bunch of rows with 2 elements each from the array above
-            // TO DO: if there are an odd number of skins it wont render the last one rn
-            children: List.generate(
-                (listOfSkins.length / 2).floor(),
-                (index) => Column(children: [
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 5),
-                          StoreItem(
-                              photoPath: listOfSkins[index * 2][0].toString(),
-                              itemPrice: int.parse(
-                                  listOfSkins[index * 2][1].toString()),
-                              onBuySkin: (context, price) =>
-                                  subtractCurrency(context, price)),
-                          const SizedBox(width: 15),
-                          StoreItem(
-                              photoPath:
-                                  listOfSkins[index * 2 + 1][0].toString(),
-                              itemPrice: int.parse(
-                                  listOfSkins[index * 2 + 1][1].toString()),
-                              onBuySkin: (context, price) =>
-                                  subtractCurrency(context, price)),
-                          const SizedBox(width: 5),
-                        ],
+    return Scaffold(
+        backgroundColor: Colors.black,
+      //permanent top bar if we want it
+        appBar: AppBar(
+          title: InkWell(
+            onTap: () => context.goNamed("Home"),
+            child: Text(
+              'FF', 
+              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: InkWell(
+                onTap: () => context.goNamed('SkinStore'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Consumer<CurrencyModel>(
+                      builder: (context, currencyModel, child) {
+                        return Text(
+                          currencyModel.currency,
+                          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          )
+                        );
+                      },
+                    ),
+                    SizedBox(width: 10.0),
+                    Icon(
+                      Icons.currency_exchange,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            //question mark area that displays an alert on tap
+            InkWell(
+              onTap:() => {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Questions?"),
+                    content: const Text(
+                        '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();;
+                        },
+                      child: const Text("Get Fit")
                       ),
-                    ])),
-          ),
-          const SizedBox(height: 30),
-        ],
-      )),
-    );
-  }
-}
+                    ],
+                    );
+                  }
+                )
+              },
+              child: Row(
+                children: [
+                  SizedBox(width: 10.0),
+                  Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onBackground),
+                  const SizedBox(width: 4.0),
+                ],
+              )
+            )
+          ],
+        ),
 
-class StoreItem extends StatelessWidget {
-  const StoreItem(
-      {super.key,
-      required this.photoPath,
-      required this.itemPrice,
-      required this.onBuySkin});
-
-  final String photoPath;
-  final int itemPrice;
-  final Function(BuildContext, int) onBuySkin;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).colorScheme.secondaryContainer),
-      child: (Column(
-        children: [
-          const SizedBox(height: 25),
-          Image.asset(
-            photoPath,
-            height: 170.0,
-            width: 170.0,
-          ),
-          const SizedBox(height: 10),
-          Text('Price: $itemPrice',
-              style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onSecondaryContainer)),
-          const SizedBox(height: 10),
-          ElevatedButton(
-              onPressed: () => onBuySkin(context, itemPrice),
-              child: const Text("Buy Skin")),
-          const SizedBox(height: 5),
-        ],
-      )),
+      body: SingleChildScrollView(
+        child: (Column(
+          children: [
+            SizedBox(height: 30,),
+            Text("Figure Store",
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    )),
+            const SizedBox(height: 10),
+            Column(
+              // generates the store as a bunch of rows with 2 elements each from the array above
+              // TO DO: if there are an odd number of skins it wont render the last one rn
+              children: List.generate(
+                  (listOfSkins.length / 2).floor(),
+                  (index) => Column(children: [
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 5),
+                            StoreItem(
+                                photoPath: listOfSkins[index * 2][0].toString(),
+                                itemPrice: int.parse(
+                                    listOfSkins[index * 2][1].toString()),
+                                onBuySkin: (context, price) =>
+                                    subtractCurrency(context, price)),
+                            const SizedBox(width: 15),
+                            StoreItem(
+                                photoPath:
+                                    listOfSkins[index * 2 + 1][0].toString(),
+                                itemPrice: int.parse(
+                                    listOfSkins[index * 2 + 1][1].toString()),
+                                onBuySkin: (context, price) =>
+                                    subtractCurrency(context, price)),
+                            const SizedBox(width: 5),
+                          ],
+                        ),
+                      ])),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+                onPressed: () => context.goNamed('Home'),
+                child: const Text("Go Home")),
+            const SizedBox(height: 40,)
+          ],
+        )),
+      ),
     );
   }
 }

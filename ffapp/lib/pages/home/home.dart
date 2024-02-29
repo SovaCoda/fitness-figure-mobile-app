@@ -1,6 +1,7 @@
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/history.dart';
+import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
@@ -9,6 +10,7 @@ import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -24,7 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
   //acts as a directory of the widgets that the navbar can route to and render
   static final List<Widget> _pages = <Widget>[
     const Dashboard(),
-    Store(),
+    const Inventory(),
     const WorkoutAdder(),
     History(),
     const Profile()
@@ -78,7 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: InkWell(
-                onTap: () {},
+                onTap: () => context.goNamed('SkinStore'),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -161,7 +163,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.shop),
-                  label: 'Shop',
+                  label: 'Inventory',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.add),
