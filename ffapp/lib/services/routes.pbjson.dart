@@ -69,3 +69,35 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQSKAoQd29ya291dF9taW5f'
     'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWU=');
 
+@$core.Deprecated('Use figureDescriptor instead')
+const Figure$json = {
+  '1': 'Figure',
+  '2': [
+    {'1': 'Figure_Id', '3': 1, '4': 1, '5': 9, '10': 'FigureId'},
+    {'1': 'Name', '3': 2, '4': 1, '5': 9, '10': 'Name'},
+    {'1': 'Evo_points', '3': 3, '4': 1, '5': 5, '10': 'EvoPoints'},
+    {'1': 'Stage', '3': 4, '4': 1, '5': 5, '10': 'Stage'},
+    {'1': 'User_email', '3': 5, '4': 1, '5': 9, '10': 'UserEmail'},
+    {'1': 'charge', '3': 6, '4': 1, '5': 5, '10': 'charge'},
+  ],
+};
+
+/// Descriptor for `Figure`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List figureDescriptor = $convert.base64Decode(
+    'CgZGaWd1cmUSGwoJRmlndXJlX0lkGAEgASgJUghGaWd1cmVJZBISCgROYW1lGAIgASgJUgROYW'
+    '1lEh0KCkV2b19wb2ludHMYAyABKAVSCUV2b1BvaW50cxIUCgVTdGFnZRgEIAEoBVIFU3RhZ2US'
+    'HQoKVXNlcl9lbWFpbBgFIAEoCVIJVXNlckVtYWlsEhYKBmNoYXJnZRgGIAEoBVIGY2hhcmdl');
+
+@$core.Deprecated('Use multiFigureDescriptor instead')
+const MultiFigure$json = {
+  '1': 'MultiFigure',
+  '2': [
+    {'1': 'figures', '3': 1, '4': 3, '5': 11, '6': '.routes.Figure', '10': 'figures'},
+  ],
+};
+
+/// Descriptor for `MultiFigure`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiFigureDescriptor = $convert.base64Decode(
+    'CgtNdWx0aUZpZ3VyZRIoCgdmaWd1cmVzGAEgAygLMg4ucm91dGVzLkZpZ3VyZVIHZmlndXJlcw'
+    '==');
+

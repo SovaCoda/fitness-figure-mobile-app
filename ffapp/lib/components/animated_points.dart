@@ -21,7 +21,7 @@ class _FloatingTextState extends State<FloatingText>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     )..repeat();
 

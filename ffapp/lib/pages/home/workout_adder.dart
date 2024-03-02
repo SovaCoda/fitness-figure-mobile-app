@@ -5,6 +5,7 @@ import 'package:ffapp/components/animated_points.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:ffapp/services/robotDialog.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:provider/provider.dart';
 
 class WorkoutAdder extends StatefulWidget {
   const WorkoutAdder({super.key});
@@ -92,18 +94,33 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       _startTime = DateTime.now().toString();
     });
   }
+  
+  //function that does all the awarding in one
+  Future<void> awardAll() async {
+    int weeklyCompleted = await user
+        .getWeeklyCompleted(); // replace with user provider when completed
 
-  Future<void> awardCurrency() async {
-    user.getCurrencyInt().then((value) {
-      int currency = value;
-      int addable_currency = _timePassed.toInt() ~/ 10;
-      bool isGoalMet = _timePassed >= _timegoal;
-      if (isGoalMet) {
-        currency += addable_currency;
-      }
-      user.updateCurrency(currency);
-    });
-  }
+    int currency = int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
+    int addable_currency = _timePassed.toInt() ~/ 10;
+    currency += addable_currency;
+
+    int figureEV = 25; // needs to be replaced with the figure provider.
+    double eVConcistencyBonus = (figureEV * 0.1) * weeklyCompleted;
+    int ev = figureEV + eVConcistencyBonus.toInt();
+
+    int figureCharge = 10; // needs to be replaced with the figure provider.
+    double chargeConcistencyBonus = (figureCharge * 0.1) * weeklyCompleted;
+    int charge = figureCharge + chargeConcistencyBonus.toInt();
+
+    Provider.of<CurrencyModel>(context, listen: false).setCurrency(currency.toString());
+
+    await auth.updateUserDBInfo(Routes.User(
+        email: await user.getEmail(),
+        currency: Int64(currency),
+        //charge: Int64(charge),
+        //ev: Int64(ev), replace this eventually with the figure provider
+        weekComplete: Int64(weeklyCompleted + 1)));
+    }
 
   Future<void> endLogging() async {
     _timePassed = time;
@@ -118,15 +135,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       currencyAdd: Int64(Random.secure().nextInt(1000)),
     );
     await auth.createWorkout(workout);
-    await awardCurrency();
-    int weeklyCompleted = await user.getWeeklyCompleted();
-    int inttimePassed = _timePassed.toInt();
-    int inttimegoal = _timegoal.toInt();
-    if (inttimePassed >= inttimegoal) {
-      weeklyCompleted += 1;
-    }
-    await user.updateUser(Routes.User(
-        email: await user.getEmail(), weekComplete: Int64(weeklyCompleted)));
+    await awardAll();
     setState(() {
       _logging = false;
       _timer.cancel();
@@ -148,6 +157,68 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           Navigator.of(context).pop();
         },
         child: const Text("No I'll Keep At It!"));
+  }
+
+  void displaySwapWidget() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Change Figure"),
+            content: Column(
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      auth.updateUserDBInfo(
+                          Routes.User(curFigure: "robot1_skin0_cropped"));
+                      setState(() {
+                        figureURL = "robot1_skin0_cropped";
+                      });
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      showConfirmationBox();
+                    },
+                    child: const Text("Robot 1")),
+                ElevatedButton(
+                    onPressed: () {
+                      auth.updateUserDBInfo(
+                          Routes.User(curFigure: "robot1_skin1_cropped"));
+                      setState(() {
+                        figureURL = "robot1_skin1_cropped";
+                      });
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      showConfirmationBox();
+                    },
+                    child: const Text("Robot 2")),
+                ElevatedButton(
+                    onPressed: () {
+                      auth.updateUserDBInfo(
+                          Routes.User(curFigure: "robot2_skin0_cropped"));
+                      setState(() {
+                        figureURL = "robot2_skin0_cropped";
+                      });
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      showConfirmationBox();
+                    },
+                    child: const Text("Robot 3")),
+                ElevatedButton(
+                    onPressed: () {
+                      auth.updateUserDBInfo(
+                          Routes.User(curFigure: "robot2_skin1_cropped"));
+                      setState(() {
+                        figureURL = "robot2_skin1_cropped";
+                      });
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      showConfirmationBox();
+                    },
+                    child: const Text("Robot 4")),
+              ],
+            ),
+          );
+        });
   }
 
   void showConfirmationBox() {
@@ -172,11 +243,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             return AlertDialog(
               title: const Text("Are you sure?"),
               content: Center(
-                child: Column(children: [
-                  Text(
-                    "You've met your goal!, if you stop now this workout will be logged, and you will gain currency, EV points, and a charge. You can keep going and gain currency, but your EV and charge is at a maximum now. Are you sure you want to stop?"),
-                  SizedBox(height: 8),
-                  Column(
+                  child: Column(children: [
+                Text("You've met your goal!"),
+                SizedBox(height: 8),
+                Column(
                   children: [
                     Column(
                       children: [
@@ -193,13 +263,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context).colorScheme.primary)),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary)),
                             Text('10',
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context).colorScheme.primary)), // Replace '10' with the actual charge value
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary)), // Replace '10' with the actual charge value
                           ],
                         ),
                       ],
@@ -220,13 +294,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context).colorScheme.secondary)),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary)),
                             Text('50',
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context).colorScheme.secondary)), // Replace '50' with the actual currency value
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary)), // Replace '50' with the actual currency value
                           ],
                         ),
                       ],
@@ -247,18 +325,26 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context).colorScheme.tertiary)),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary)),
                             Text('75',
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context).colorScheme.tertiary)), // Replace '75' with the actual EV value
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary)), // Replace '75' with the actual EV value
                           ],
                         ),
                       ],
                     ),
-                    RobotImageHolder(url: figureURL, height: 200, width: 200)
+                    RobotImageHolder(url: figureURL, height: 200, width: 200),
+                    ElevatedButton(
+                      onPressed: displaySwapWidget,
+                      child: const Text("Change Figure"),
+                    ),
                   ],
                 ),
               ])),
@@ -352,8 +438,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     left: 65,
                     top: 0,
                     child: FloatingText(
-                      text: "^ " +
-                          (scoreIncrement * 10).toStringAsPrecision(sigfigs),
+                      text: "^ ${(scoreIncrement * 10).toStringAsPrecision(sigfigs)}",
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),

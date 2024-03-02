@@ -17,6 +17,13 @@ service Routes {
     rpc CreateWorkout(Workout) returns (Workout) {}
     rpc UpdateWorkout(Workout) returns (Workout) {}
     rpc DeleteWorkout(Workout) returns (Workout) {}
+
+    // FIGURE ROUTES //
+    rpc GetFigure(Figure) returns (Figure) {}
+    rpc UpdateFigure(Figure) returns (Figure) {}
+    rpc CreateFigure(Figure) returns (Figure) {}
+    rpc DeleteFigure(Figure) returns (Figure) {}
+    rpc GetFigures(User) returns (MultiFigure) {}
 }
 
 message Workout {
@@ -41,5 +48,18 @@ message User {
     int64 week_goal = 6;
     string cur_workout = 7;
     int64 workout_min_time = 8;
+}
+
+message Figure {
+    string Figure_Id = 1;
+    string Name = 2;
+    int32 Evo_points = 3;
+    int32 Stage = 4;
+    string User_email = 5;
+    int32 charge = 6;
+}
+
+message MultiFigure {
+    repeated Figure figures = 1;
 }
 
