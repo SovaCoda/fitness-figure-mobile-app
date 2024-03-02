@@ -20,6 +20,7 @@ class CurrencyModel extends ChangeNotifier {
   }
 }
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final AuthService auth = await AuthService.instance;

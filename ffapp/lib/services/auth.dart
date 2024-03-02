@@ -95,6 +95,7 @@ class AuthService {
   }
 
   Future<Routes.User> updateUserDBInfo(Routes.User user) async {
+    user.email = _auth.currentUser!.email!;
     return await _routes.routesClient.updateUser(user);
   }
 
@@ -159,5 +160,51 @@ class AuthService {
     await _routes.routesClient.updateUser(user);
   }
 
+
+  Future<Routes.Figure> getFigure(Routes.Figure figure) async {
+    try {
+      return await _routes.routesClient.getFigure(figure);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get figure");
+    }
+  }
+
+  Future<Routes.Figure> updateFigure(Routes.Figure figure) async {
+    try {
+      return await _routes.routesClient.updateFigure(figure);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update figure");
+    }
+  }
+
+  Future<Routes.Figure> createFigure(Routes.Figure figure) async {
+    try {
+      return await _routes.routesClient.createFigure(figure);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create figure");
+    }
+  }
+
+  Future<Routes.Figure> deleteFigure(Routes.Figure figure) async {
+    try {
+      return await _routes.routesClient.deleteFigure(figure);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete figure");
+    }
+  }
+
+  Future<Routes.MultiFigure> getFigures(Routes.User user) async {
+    try {
+      return await _routes.routesClient.getFigures(user);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get figures");
+    }
+  }
+  
   // Add Manage Subscription Function possibly?
 }

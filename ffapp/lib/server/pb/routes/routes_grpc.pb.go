@@ -33,6 +33,12 @@ type RoutesClient interface {
 	CreateWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
 	UpdateWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
 	DeleteWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
+	// FIGURE ROUTES //
+	GetFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
+	UpdateFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
+	CreateFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
+	DeleteFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
+	GetFigures(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiFigure, error)
 }
 
 type routesClient struct {
@@ -124,6 +130,51 @@ func (c *routesClient) DeleteWorkout(ctx context.Context, in *Workout, opts ...g
 	return out, nil
 }
 
+func (c *routesClient) GetFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error) {
+	out := new(Figure)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetFigure", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UpdateFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error) {
+	out := new(Figure)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateFigure", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) CreateFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error) {
+	out := new(Figure)
+	err := c.cc.Invoke(ctx, "/routes.Routes/CreateFigure", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) DeleteFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error) {
+	out := new(Figure)
+	err := c.cc.Invoke(ctx, "/routes.Routes/DeleteFigure", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) GetFigures(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiFigure, error) {
+	out := new(MultiFigure)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetFigures", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoutesServer is the server API for Routes service.
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility
@@ -139,6 +190,12 @@ type RoutesServer interface {
 	CreateWorkout(context.Context, *Workout) (*Workout, error)
 	UpdateWorkout(context.Context, *Workout) (*Workout, error)
 	DeleteWorkout(context.Context, *Workout) (*Workout, error)
+	// FIGURE ROUTES //
+	GetFigure(context.Context, *Figure) (*Figure, error)
+	UpdateFigure(context.Context, *Figure) (*Figure, error)
+	CreateFigure(context.Context, *Figure) (*Figure, error)
+	DeleteFigure(context.Context, *Figure) (*Figure, error)
+	GetFigures(context.Context, *User) (*MultiFigure, error)
 	mustEmbedUnimplementedRoutesServer()
 }
 
@@ -172,6 +229,21 @@ func (UnimplementedRoutesServer) UpdateWorkout(context.Context, *Workout) (*Work
 }
 func (UnimplementedRoutesServer) DeleteWorkout(context.Context, *Workout) (*Workout, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWorkout not implemented")
+}
+func (UnimplementedRoutesServer) GetFigure(context.Context, *Figure) (*Figure, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFigure not implemented")
+}
+func (UnimplementedRoutesServer) UpdateFigure(context.Context, *Figure) (*Figure, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateFigure not implemented")
+}
+func (UnimplementedRoutesServer) CreateFigure(context.Context, *Figure) (*Figure, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFigure not implemented")
+}
+func (UnimplementedRoutesServer) DeleteFigure(context.Context, *Figure) (*Figure, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFigure not implemented")
+}
+func (UnimplementedRoutesServer) GetFigures(context.Context, *User) (*MultiFigure, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFigures not implemented")
 }
 func (UnimplementedRoutesServer) mustEmbedUnimplementedRoutesServer() {}
 
@@ -348,6 +420,96 @@ func _Routes_DeleteWorkout_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_GetFigure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Figure)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetFigure(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetFigure",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetFigure(ctx, req.(*Figure))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UpdateFigure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Figure)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UpdateFigure(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UpdateFigure",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UpdateFigure(ctx, req.(*Figure))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_CreateFigure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Figure)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).CreateFigure(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/CreateFigure",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).CreateFigure(ctx, req.(*Figure))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_DeleteFigure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Figure)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).DeleteFigure(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/DeleteFigure",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).DeleteFigure(ctx, req.(*Figure))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_GetFigures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetFigures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetFigures",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetFigures(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Routes_ServiceDesc is the grpc.ServiceDesc for Routes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -390,6 +552,26 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteWorkout",
 			Handler:    _Routes_DeleteWorkout_Handler,
+		},
+		{
+			MethodName: "GetFigure",
+			Handler:    _Routes_GetFigure_Handler,
+		},
+		{
+			MethodName: "UpdateFigure",
+			Handler:    _Routes_UpdateFigure_Handler,
+		},
+		{
+			MethodName: "CreateFigure",
+			Handler:    _Routes_CreateFigure_Handler,
+		},
+		{
+			MethodName: "DeleteFigure",
+			Handler:    _Routes_DeleteFigure_Handler,
+		},
+		{
+			MethodName: "GetFigures",
+			Handler:    _Routes_GetFigures_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

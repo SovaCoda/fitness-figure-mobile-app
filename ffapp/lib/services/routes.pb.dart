@@ -326,6 +326,170 @@ class User extends $pb.GeneratedMessage {
   void clearWorkoutMinTime() => clearField(8);
 }
 
+class Figure extends $pb.GeneratedMessage {
+  factory Figure({
+    $core.String? figureId,
+    $core.String? name,
+    $core.int? evoPoints,
+    $core.int? stage,
+    $core.String? userEmail,
+    $core.int? charge,
+  }) {
+    final $result = create();
+    if (figureId != null) {
+      $result.figureId = figureId;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (evoPoints != null) {
+      $result.evoPoints = evoPoints;
+    }
+    if (stage != null) {
+      $result.stage = stage;
+    }
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (charge != null) {
+      $result.charge = charge;
+    }
+    return $result;
+  }
+  Figure._() : super();
+  factory Figure.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Figure.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Figure', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'FigureId', protoName: 'Figure_Id')
+    ..aOS(2, _omitFieldNames ? '' : 'Name', protoName: 'Name')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'EvoPoints', $pb.PbFieldType.O3, protoName: 'Evo_points')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'Stage', $pb.PbFieldType.O3, protoName: 'Stage')
+    ..aOS(5, _omitFieldNames ? '' : 'UserEmail', protoName: 'User_email')
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'charge', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Figure clone() => Figure()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Figure copyWith(void Function(Figure) updates) => super.copyWith((message) => updates(message as Figure)) as Figure;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Figure create() => Figure._();
+  Figure createEmptyInstance() => create();
+  static $pb.PbList<Figure> createRepeated() => $pb.PbList<Figure>();
+  @$core.pragma('dart2js:noInline')
+  static Figure getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Figure>(create);
+  static Figure? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get figureId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set figureId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFigureId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFigureId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get evoPoints => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set evoPoints($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasEvoPoints() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearEvoPoints() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get stage => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set stage($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasStage() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearStage() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get userEmail => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set userEmail($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasUserEmail() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearUserEmail() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get charge => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set charge($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCharge() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCharge() => clearField(6);
+}
+
+class MultiFigure extends $pb.GeneratedMessage {
+  factory MultiFigure({
+    $core.Iterable<Figure>? figures,
+  }) {
+    final $result = create();
+    if (figures != null) {
+      $result.figures.addAll(figures);
+    }
+    return $result;
+  }
+  MultiFigure._() : super();
+  factory MultiFigure.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiFigure.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiFigure', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<Figure>(1, _omitFieldNames ? '' : 'figures', $pb.PbFieldType.PM, subBuilder: Figure.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiFigure clone() => MultiFigure()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiFigure copyWith(void Function(MultiFigure) updates) => super.copyWith((message) => updates(message as MultiFigure)) as MultiFigure;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiFigure create() => MultiFigure._();
+  MultiFigure createEmptyInstance() => create();
+  static $pb.PbList<MultiFigure> createRepeated() => $pb.PbList<MultiFigure>();
+  @$core.pragma('dart2js:noInline')
+  static MultiFigure getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiFigure>(create);
+  static MultiFigure? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Figure> get figures => $_getList(0);
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

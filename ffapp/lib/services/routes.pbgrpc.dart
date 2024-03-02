@@ -57,6 +57,26 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/DeleteWorkout',
       ($0.Workout value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Workout.fromBuffer(value));
+  static final _$getFigure = $grpc.ClientMethod<$0.Figure, $0.Figure>(
+      '/routes.Routes/GetFigure',
+      ($0.Figure value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Figure.fromBuffer(value));
+  static final _$updateFigure = $grpc.ClientMethod<$0.Figure, $0.Figure>(
+      '/routes.Routes/UpdateFigure',
+      ($0.Figure value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Figure.fromBuffer(value));
+  static final _$createFigure = $grpc.ClientMethod<$0.Figure, $0.Figure>(
+      '/routes.Routes/CreateFigure',
+      ($0.Figure value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Figure.fromBuffer(value));
+  static final _$deleteFigure = $grpc.ClientMethod<$0.Figure, $0.Figure>(
+      '/routes.Routes/DeleteFigure',
+      ($0.Figure value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Figure.fromBuffer(value));
+  static final _$getFigures = $grpc.ClientMethod<$0.User, $0.MultiFigure>(
+      '/routes.Routes/GetFigures',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiFigure.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -98,6 +118,26 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Workout> deleteWorkout($0.Workout request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$deleteWorkout, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Figure> getFigure($0.Figure request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFigure, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Figure> updateFigure($0.Figure request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateFigure, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Figure> createFigure($0.Figure request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createFigure, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Figure> deleteFigure($0.Figure request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteFigure, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiFigure> getFigures($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFigures, request, options: options);
   }
 }
 
@@ -169,6 +209,41 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Workout.fromBuffer(value),
         ($0.Workout value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Figure, $0.Figure>(
+        'GetFigure',
+        getFigure_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Figure.fromBuffer(value),
+        ($0.Figure value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Figure, $0.Figure>(
+        'UpdateFigure',
+        updateFigure_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Figure.fromBuffer(value),
+        ($0.Figure value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Figure, $0.Figure>(
+        'CreateFigure',
+        createFigure_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Figure.fromBuffer(value),
+        ($0.Figure value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Figure, $0.Figure>(
+        'DeleteFigure',
+        deleteFigure_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Figure.fromBuffer(value),
+        ($0.Figure value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.MultiFigure>(
+        'GetFigures',
+        getFigures_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.MultiFigure value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
@@ -207,6 +282,26 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return deleteWorkout(call, await request);
   }
 
+  $async.Future<$0.Figure> getFigure_Pre($grpc.ServiceCall call, $async.Future<$0.Figure> request) async {
+    return getFigure(call, await request);
+  }
+
+  $async.Future<$0.Figure> updateFigure_Pre($grpc.ServiceCall call, $async.Future<$0.Figure> request) async {
+    return updateFigure(call, await request);
+  }
+
+  $async.Future<$0.Figure> createFigure_Pre($grpc.ServiceCall call, $async.Future<$0.Figure> request) async {
+    return createFigure(call, await request);
+  }
+
+  $async.Future<$0.Figure> deleteFigure_Pre($grpc.ServiceCall call, $async.Future<$0.Figure> request) async {
+    return deleteFigure(call, await request);
+  }
+
+  $async.Future<$0.MultiFigure> getFigures_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return getFigures(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
@@ -216,4 +311,9 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.Workout> createWorkout($grpc.ServiceCall call, $0.Workout request);
   $async.Future<$0.Workout> updateWorkout($grpc.ServiceCall call, $0.Workout request);
   $async.Future<$0.Workout> deleteWorkout($grpc.ServiceCall call, $0.Workout request);
+  $async.Future<$0.Figure> getFigure($grpc.ServiceCall call, $0.Figure request);
+  $async.Future<$0.Figure> updateFigure($grpc.ServiceCall call, $0.Figure request);
+  $async.Future<$0.Figure> createFigure($grpc.ServiceCall call, $0.Figure request);
+  $async.Future<$0.Figure> deleteFigure($grpc.ServiceCall call, $0.Figure request);
+  $async.Future<$0.MultiFigure> getFigures($grpc.ServiceCall call, $0.User request);
 }
