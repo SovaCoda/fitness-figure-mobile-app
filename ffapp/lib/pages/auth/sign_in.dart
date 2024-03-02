@@ -43,7 +43,17 @@ class _SignInState extends State<SignIn> {
     User? user = await auth.getUser();
     if (user != null) {
       logger.i("User is signed in");
-      context.goNamed('Home');
+      var dbUser = await auth.getUserDBInfo();
+      logger.i("Getting user info...");
+      logger.i(dbUser?.weekGoal);
+      if (dbUser?.curFigure == "none" || dbUser?.curFigure == "") {
+          context.goNamed('AvatarSelection');
+        }
+        else if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0 || dbUser?.workoutMinTime == null || dbUser?.workoutMinTime == 0) {
+          context.goNamed('WorkoutFrequencySelection');
+        } else {
+          context.goNamed('Home');
+        }
     }
     logger.i("User is not signed in");
   }
@@ -64,7 +74,10 @@ class _SignInState extends State<SignIn> {
         var dbUser = await auth.getUserDBInfo();
         logger.i("Getting user info...");
         logger.i(dbUser?.weekGoal);
-        if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0) {
+        if (dbUser?.curFigure == null) {
+          context.goNamed('AvatarSelection');
+        }
+        else if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0 || dbUser?.workoutMinTime == null || dbUser?.workoutMinTime == 0) {
           context.goNamed('WorkoutFrequencySelection');
         } else {
           context.goNamed('Home');

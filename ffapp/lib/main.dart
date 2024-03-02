@@ -60,6 +60,10 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
       path: '/workout_frequency_selection',
       builder: (context, state) => const WorkoutFrequencySelection()),
   GoRoute(
+      name: 'AvatarSelection',
+      path: '/avatar_selection',
+      builder: (context, state) => AvatarSelection()),
+  GoRoute(
       name: 'SkinStore',
       path: '/store',
       builder: (context, state) => const Store())

@@ -1,7 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ffapp/services/flutterUser.dart';
+import "package:ffapp/services/routes.pb.dart" as Routes;
 
-class AvatarSelection extends StatelessWidget {
-  AvatarSelection({super.key});
+class AvatarSelection extends StatefulWidget {
+  const AvatarSelection({super.key});
+
+  @override
+  State<AvatarSelection> createState() =>
+      _AvatarSelectionState();
+}
+
+class _AvatarSelectionState extends State<AvatarSelection> {
+  // Added variable for minutes selection
+  FlutterUser user = FlutterUser();
+  String curEmail = "Loading...";
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  void initialize() async {
+    await user.initAuthService();
+    await user.checkUser();
+    curEmail = await user.getEmail();
+  }
+
+  void submitFigure(String figureUrl) {
+    user.updateUser(Routes.User(
+        curFigure: figureUrl)); // Updated workoutMinTime value
+    if (user?.getWorkoutGoal() == null || user?.getWorkoutGoal() == 0 || user?.getWorkoutMinTime() == null || user?.getWorkoutMinTime() == 0) {
+      context.goNamed('WorkoutFrequencySelection');
+    } else {
+      context.goNamed('Home');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +79,7 @@ class AvatarSelection extends StatelessWidget {
                     width: 250,
                     child: IconButton(
                       icon: Image.asset('lib/assets/icons/robot1_skin0_cropped.gif'),
-                      onPressed: () {},
+                      onPressed: () {submitFigure("robot1_skin0_cropped");},
                     ),
                   ),
                 ),
@@ -65,7 +100,7 @@ class AvatarSelection extends StatelessWidget {
                     width: 250,
                     child: IconButton(
                       icon: Image.asset('lib/assets/icons/robot2_skin0_cropped.gif'),
-                      onPressed: () {},
+                      onPressed: () {submitFigure("robot2_skin0_cropped");},
                     ),
                   ),
                 ),
