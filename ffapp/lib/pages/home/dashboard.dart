@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
@@ -91,23 +92,36 @@ class _DashboardState extends State<Dashboard> {
                   },
                 ),
                 Positioned(
-                    top: 40,
-                    left: 160,
-                    child: RobotDialogBox(
-                      dialogOptions:
-                          robotDialog.getDashboardDialog(robotCharge),
-                      width: 200,
-                      height: 40,
-                    )),
+                  top: 40,
+                  left: 160,
+                  child: RobotDialogBox(
+                    dialogOptions:
+                        robotDialog.getDashboardDialog(robotCharge),
+                    width: 200,
+                    height: 40,
+                  )
+                ),
+                Positioned(
+                  bottom: 30,
+                  left: 100,
+                  child: EvBar(
+                    currentXp: 10,
+                    maxXp: 45,
+                    currentLvl: 1,
+                    fillColor: Theme.of(context).colorScheme.tertiary,
+                    barWidth: 200
+                  ),
+                )
               ],
             ),
+
+            SizedBox(height: 5,),
 
             //Text underneath the robot
             Text("Train consistently to power your Fitness Figure!",
                 style: Theme.of(context).textTheme.titleSmall!.copyWith(
                       color: Theme.of(context).colorScheme.onBackground,
                     )),
-
             const SizedBox(height: 15),
 
             //created below
