@@ -12,6 +12,7 @@ import 'package:ffapp/pages/home/home.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
 
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
@@ -21,6 +22,21 @@ class CurrencyModel extends ChangeNotifier {
   }
 }
 
+class UserModel extends ChangeNotifier {
+  Routes.User? user;
+  void setUser(Routes.User newUser) {
+    user = newUser;
+    notifyListeners();
+  }
+}
+
+class FigureModel extends ChangeNotifier {
+  Routes.Figure? figure;
+  void setFigure(Routes.Figure newFigure) {
+    figure = newFigure;
+    notifyListeners();
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +48,13 @@ Future<void> main() async {
       ),
       ChangeNotifierProvider(
         create: (context) => CurrencyModel(),
-      )
+      ),
+      ChangeNotifierProvider(
+        create: (context) => UserModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => FigureModel(),
+      ),
     ], child: const MyApp()),
   );
 }

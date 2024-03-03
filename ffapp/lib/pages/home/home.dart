@@ -3,12 +3,9 @@ import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/history.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/profile.dart';
-import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:flutter/material.dart';
-import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/services/flutterUser.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,9 +15,6 @@ class DashboardPage extends StatefulWidget {
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
-
-
-
 
 class _DashboardPageState extends State<DashboardPage> {
   //acts as a directory of the widgets that the navbar can route to and render

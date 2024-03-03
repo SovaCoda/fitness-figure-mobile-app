@@ -204,7 +204,7 @@ func (s *server) DeleteWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 func (s *server) GetFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, error) {
 	var figure pb.Figure
 
-	err := s.db.QueryRowContext(ctx, "SELECT figure_id, name, evo_points, stage, user_email, charge FROM figures WHERE figure_id = ?", in.Figure_Id).Scan(&figure.Figure_Id, &figure.Name, &figure.EvoPoints, &figure.Stage, &figure.UserEmail, &figure.Charge)
+	err := s.db.QueryRowContext(ctx, "SELECT figure_id, name, evo_points, stage, user_email, charge FROM figures WHERE user_email = ? AND figure_id = ?", in.UserEmail, in.Figure_Id).Scan(&figure.Figure_Id, &figure.Name, &figure.EvoPoints, &figure.Stage, &figure.UserEmail, &figure.Charge)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figure: %v", err)
 	}

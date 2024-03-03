@@ -37,17 +37,22 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+
     initialize();
   }
 
   void initialize() async {
     Routes.User? databaseUser = await auth?.getUserDBInfo();
+    Routes.Figure? databaseFigure = await auth?.getFigure(Routes.Figure(userEmail: databaseUser?.email, figureId: databaseUser?.curFigure));
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
     Provider.of<CurrencyModel>(context, listen: false).setCurrency(
         databaseUser?.currency.toString() ?? "0000");
+    Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+    Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure!);
+
     setState(() {
       charge = curWeekly / curGoal;
       email = curEmail;
@@ -76,10 +81,14 @@ class _DashboardState extends State<Dashboard> {
           children: [
             Stack(
               children: [
-                RobotImageHolder(
-                  url: figureURL,
-                  height: 400,
-                  width: 400,
+                Consumer<FigureModel>(
+                  builder: (context, figure, child) {
+                    return RobotImageHolder(
+                      url: figure.figure?.figureId ?? "robot1_skin0_cropped",
+                      height: 400,
+                      width: 400,
+                    );
+                  },
                 ),
                 Positioned(
                     top: 40,
