@@ -1,5 +1,4 @@
 import 'dart:ffi';
-
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';

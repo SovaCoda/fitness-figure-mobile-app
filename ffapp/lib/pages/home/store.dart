@@ -21,10 +21,10 @@ class Store extends StatefulWidget {
 class _StoreState extends State<Store> {
   //add a skin's image path and its price to render it in the store
   final listOfSkins = [
-    ["lib/assets/icons/robot1_skin0_cropped.gif", 100],
-    ["lib/assets/icons/robot1_skin1_cropped.gif", 350],
-    ["lib/assets/icons/robot2_skin0_cropped.gif", 100],
-    ["lib/assets/icons/robot2_skin1_cropped.gif", 350],
+    ["robot1_skin0_cropped", 100],
+    ["robot1_skin1_cropped", 350],
+    ["robot2_skin0_cropped", 100],
+    ["robot2_skin1_cropped", 350],
   ];
 
   late AuthService auth;
