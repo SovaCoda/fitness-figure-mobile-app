@@ -45,7 +45,6 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
   }
 
   void submitFrequency() {
-    //TO DO: SEND FREQUENCY TO BACKEND AND REDIRECT TO HOME
     user.updateUser(Routes.User(
         weekGoal: _nCurrentValue,
         email: curEmail,
@@ -59,13 +58,13 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
       body: SafeArea(
           child: Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Text("Select your weekly workout goal: ",
-              style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold)),
+          Text("Select your weekly workout goal: ",
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground,
+              )
+          ),
 
-          const SizedBox(height: 60),
+          const SizedBox(height: 30),
 
           //if slider is displayed the show the slider, else show the selection
           _sliderDisplayed
@@ -76,14 +75,14 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     perspective: 0.01,
                     totalCount: 10,
                     initValue: 4,
-                    selectedNumberStyle: const TextStyle(
+                    selectedNumberStyle: TextStyle(
                       fontSize: 28,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onBackground,
                       decoration: TextDecoration.none,
                     ),
-                    unSelectedNumberStyle: const TextStyle(
+                    unSelectedNumberStyle: TextStyle(
                       fontSize: 20.0,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.outline,
                       decoration: TextDecoration.none,
                     ),
                     currentIndex: _nCurrentValue.toInt(),
@@ -94,20 +93,26 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     },
                     hapticFeedbackType: HapticFeedbackType.heavyImpact,
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 60,),
+                  Text("Select your minutes per workout goal: ",
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                      )
+                  ),
+                  const SizedBox(height: 30),
                   WheelSlider.number( // Added another WheelSlider for minutes selection
                     allowPointerTappable: true,
                     perspective: 0.01,
                     totalCount: 60,
                     initValue: 30,
-                    selectedNumberStyle: const TextStyle(
+                    selectedNumberStyle: TextStyle(
                       fontSize: 28,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onBackground,
                       decoration: TextDecoration.none,
                     ),
-                    unSelectedNumberStyle: const TextStyle(
+                    unSelectedNumberStyle: TextStyle(
                       fontSize: 20.0,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.outline,
                       decoration: TextDecoration.none,
                     ),
                     currentIndex: _mCurrentValue.toInt(),
@@ -124,11 +129,11 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                 ])
               : Column(children: [
                   Container(
-                    height: 45,
-                    width: 90,
+                    height: 100,
+                    width: 150,
                     child: ElevatedButton(
                         onPressed: displaySlider,
-                        child: Text(_nCurrentValue.toString(),
+                        child: Text(_nCurrentValue.toString() + " days\n" + _mCurrentValue.toString() + " mins",
                             style: const TextStyle(fontSize: 22))),
                   ),
                   const SizedBox(height: 60),

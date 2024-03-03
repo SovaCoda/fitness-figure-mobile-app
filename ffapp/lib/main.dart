@@ -83,6 +83,10 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
       path: '/workout_frequency_selection',
       builder: (context, state) => const WorkoutFrequencySelection()),
   GoRoute(
+      name: 'AvatarSelection',
+      path: '/avatar_selection',
+      builder: (context, state) => AvatarSelection()),
+  GoRoute(
       name: 'SkinStore',
       path: '/store',
       builder: (context, state) => const Store())
@@ -134,6 +138,9 @@ class MyApp extends StatelessWidget {
           headlineSmall: GoogleFonts.orbitron(
             fontSize: 20,
           ),
+          //medium title ex. frequency selection prompt
+          titleMedium: GoogleFonts.roboto(
+              fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: .1),
           //small titles, ex. dashboard message and settings
           titleSmall: GoogleFonts.roboto(
               fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),

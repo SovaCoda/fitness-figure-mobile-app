@@ -16,11 +16,12 @@ import (
 )
 
 const (
-	DefaultFigure = "none"
-	DefaultCurrency = 0
+	DefaultFigure       = "none"
+	DefaultCurrency     = 0
 	DefaultWeekComplete = 0
-	DefaultWeekGoal = 0
-	DefaultCurWorkout = "2001-09-04 19:21:00"
+	DefaultWeekGoal     = 0
+	DefaultCurWorkout   = "2001-09-04 19:21:00"
+	DefaultMinTime      = 0
 )
 
 type server struct {
@@ -49,7 +50,7 @@ func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout) VALUES (?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout)
+	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime)
 
 	return &user, nil
 }
@@ -117,7 +118,7 @@ func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 
 func (s *server) CreateWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, error) {
 
-	var workout pb.Workout;
+	var workout pb.Workout
 
 	_, err := s.db.ExecContext(ctx, "INSERT INTO workouts (email, start_date, elapsed, currency_add, end_date, charge_add) VALUES (?, ?, ?, ?, ?, ?)", in.Email, in.StartDate, in.Elapsed, in.Currency_Add, in.End_Date, in.Charge_Add)
 	if err != nil {
