@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import "package:ffapp/services/routes.pb.dart" as Routes;
+import 'package:ffapp/services/auth.dart';
 
 class AvatarSelection extends StatefulWidget {
   const AvatarSelection({super.key});
@@ -26,12 +27,14 @@ class _AvatarSelectionState extends State<AvatarSelection> {
     await user.initAuthService();
     await user.checkUser();
     curEmail = await user.getEmail();
+    logger.i(user);
   }
 
-  void submitFigure(String figureUrl) {
+  void submitFigure(String figureUrl) async {
     user.updateUser(Routes.User(
+        email: curEmail,
         curFigure: figureUrl)); // Updated workoutMinTime value
-    if (user?.getWorkoutGoal() == null || user?.getWorkoutGoal() == 0 || user?.getWorkoutMinTime() == null || user?.getWorkoutMinTime() == 0) {
+    if (await user.getWorkoutGoal() == 0 || await user.getWorkoutMinTime() == 0) {
       context.goNamed('WorkoutFrequencySelection');
     } else {
       context.goNamed('Home');
@@ -41,7 +44,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[800],
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Center(
           child: Column(
