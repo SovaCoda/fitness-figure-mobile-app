@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/home/avatar_selection.dart';
+import 'package:ffapp/pages/home/figure_details.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:ffapp/services/auth.dart';
@@ -89,7 +90,14 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
   GoRoute(
       name: 'SkinStore',
       path: '/store',
-      builder: (context, state) => const Store())
+      builder: (context, state) => const Store()),
+  GoRoute(
+    path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
+    name: 'FigureDetails',
+    builder: (context, state) => FigureDetails(
+      figureUrl: state.pathParameters['figureUrl'],
+  ),
+),
 ]);
 
 class MyApp extends StatelessWidget {
