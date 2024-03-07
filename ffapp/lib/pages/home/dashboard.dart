@@ -6,6 +6,7 @@ import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FB;
@@ -123,19 +124,48 @@ class _DashboardState extends State<Dashboard> {
                     )),
             const SizedBox(height: 15),
 
-            //created below
-            WorkoutNumbersRow(
-              weeklyCompleted: weeklyCompleted,
-              weeklyGoal: weeklyGoal,
-              lifeTimeCompleted: 10,
+            Consumer<UserModel>(
+              builder: (context, user, child) {
+                if (user.user == null) {
+                  return CircularProgressIndicator();
+                }
+                return Text(
+                  "Welcome, " + user.user!.name ?? "Loading...",
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                );
+              },
             ),
+            
+            Consumer<UserModel>(builder: (context, user, child) {
+              if (user.user == null) {
+                return CircularProgressIndicator(); 
+              }
+              return WorkoutNumbersRow(
+                  weeklyCompleted: user.user!.weekComplete.toInt(),
+                  weeklyGoal: user.user!.weekGoal.toInt(),
+                  lifeTimeCompleted: 10,
+                );
+              }
+            ),
+
 
             const SizedBox(
               height: 20,
             ),
 
             //imported from progress bar component
-            ProgressBar(progressPercent: (charge), barWidth: 320, fillColor: Theme.of(context).colorScheme.primary),
+
+            Consumer<FigureModel>(builder: (context, figure, child) {
+              if (figure.figure == null) {
+                return CircularProgressIndicator();
+              }
+              return ProgressBar(
+                  progressPercent: figure.figure!.charge.toDouble()/100 ?? 0.0,
+                  barWidth: 320,
+                  fillColor: Theme.of(context).colorScheme.primary);
+            }),
 
             const SizedBox(
               height: 20,
