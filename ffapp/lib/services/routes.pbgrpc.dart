@@ -57,6 +57,26 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/DeleteWorkout',
       ($0.Workout value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Workout.fromBuffer(value));
+  static final _$getFigureInstance = $grpc.ClientMethod<$0.FigureInstance, $0.FigureInstance>(
+      '/routes.Routes/GetFigureInstance',
+      ($0.FigureInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value));
+  static final _$updateFigureInstance = $grpc.ClientMethod<$0.FigureInstance, $0.FigureInstance>(
+      '/routes.Routes/UpdateFigureInstance',
+      ($0.FigureInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value));
+  static final _$createFigureInstance = $grpc.ClientMethod<$0.FigureInstance, $0.FigureInstance>(
+      '/routes.Routes/CreateFigureInstance',
+      ($0.FigureInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value));
+  static final _$deleteFigureInstance = $grpc.ClientMethod<$0.FigureInstance, $0.FigureInstance>(
+      '/routes.Routes/DeleteFigureInstance',
+      ($0.FigureInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value));
+  static final _$getFigureInstances = $grpc.ClientMethod<$0.User, $0.MultiFigureInstance>(
+      '/routes.Routes/GetFigureInstances',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiFigureInstance.fromBuffer(value));
   static final _$getFigure = $grpc.ClientMethod<$0.Figure, $0.Figure>(
       '/routes.Routes/GetFigure',
       ($0.Figure value) => value.writeToBuffer(),
@@ -77,6 +97,42 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/GetFigures',
       ($0.User value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.MultiFigure.fromBuffer(value));
+  static final _$getSkinInstance = $grpc.ClientMethod<$0.SkinInstance, $0.SkinInstance>(
+      '/routes.Routes/GetSkinInstance',
+      ($0.SkinInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value));
+  static final _$updateSkinInstance = $grpc.ClientMethod<$0.SkinInstance, $0.SkinInstance>(
+      '/routes.Routes/UpdateSkinInstance',
+      ($0.SkinInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value));
+  static final _$createSkinInstance = $grpc.ClientMethod<$0.SkinInstance, $0.SkinInstance>(
+      '/routes.Routes/CreateSkinInstance',
+      ($0.SkinInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value));
+  static final _$deleteSkinInstance = $grpc.ClientMethod<$0.SkinInstance, $0.SkinInstance>(
+      '/routes.Routes/DeleteSkinInstance',
+      ($0.SkinInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value));
+  static final _$getSkinInstances = $grpc.ClientMethod<$0.User, $0.MultiSkinInstance>(
+      '/routes.Routes/GetSkinInstances',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiSkinInstance.fromBuffer(value));
+  static final _$getSkin = $grpc.ClientMethod<$0.Skin, $0.Skin>(
+      '/routes.Routes/GetSkin',
+      ($0.Skin value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Skin.fromBuffer(value));
+  static final _$updateSkin = $grpc.ClientMethod<$0.Skin, $0.Skin>(
+      '/routes.Routes/UpdateSkin',
+      ($0.Skin value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Skin.fromBuffer(value));
+  static final _$createSkin = $grpc.ClientMethod<$0.Skin, $0.Skin>(
+      '/routes.Routes/CreateSkin',
+      ($0.Skin value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Skin.fromBuffer(value));
+  static final _$deleteSkin = $grpc.ClientMethod<$0.Skin, $0.Skin>(
+      '/routes.Routes/DeleteSkin',
+      ($0.Skin value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Skin.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -120,6 +176,26 @@ class RoutesClient extends $grpc.Client {
     return $createUnaryCall(_$deleteWorkout, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.FigureInstance> getFigureInstance($0.FigureInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFigureInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.FigureInstance> updateFigureInstance($0.FigureInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateFigureInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.FigureInstance> createFigureInstance($0.FigureInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createFigureInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.FigureInstance> deleteFigureInstance($0.FigureInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteFigureInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiFigureInstance> getFigureInstances($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFigureInstances, request, options: options);
+  }
+
   $grpc.ResponseFuture<$0.Figure> getFigure($0.Figure request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getFigure, request, options: options);
   }
@@ -138,6 +214,42 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.MultiFigure> getFigures($0.User request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getFigures, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SkinInstance> getSkinInstance($0.SkinInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSkinInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SkinInstance> updateSkinInstance($0.SkinInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateSkinInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SkinInstance> createSkinInstance($0.SkinInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createSkinInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SkinInstance> deleteSkinInstance($0.SkinInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteSkinInstance, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiSkinInstance> getSkinInstances($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSkinInstances, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Skin> getSkin($0.Skin request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSkin, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Skin> updateSkin($0.Skin request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateSkin, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Skin> createSkin($0.Skin request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createSkin, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Skin> deleteSkin($0.Skin request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteSkin, request, options: options);
   }
 }
 
@@ -209,6 +321,41 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Workout.fromBuffer(value),
         ($0.Workout value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.FigureInstance>(
+        'GetFigureInstance',
+        getFigureInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value),
+        ($0.FigureInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.FigureInstance>(
+        'UpdateFigureInstance',
+        updateFigureInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value),
+        ($0.FigureInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.FigureInstance>(
+        'CreateFigureInstance',
+        createFigureInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value),
+        ($0.FigureInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.FigureInstance>(
+        'DeleteFigureInstance',
+        deleteFigureInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value),
+        ($0.FigureInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.MultiFigureInstance>(
+        'GetFigureInstances',
+        getFigureInstances_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.MultiFigureInstance value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Figure, $0.Figure>(
         'GetFigure',
         getFigure_Pre,
@@ -244,6 +391,69 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.User.fromBuffer(value),
         ($0.MultiFigure value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SkinInstance, $0.SkinInstance>(
+        'GetSkinInstance',
+        getSkinInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value),
+        ($0.SkinInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SkinInstance, $0.SkinInstance>(
+        'UpdateSkinInstance',
+        updateSkinInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value),
+        ($0.SkinInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SkinInstance, $0.SkinInstance>(
+        'CreateSkinInstance',
+        createSkinInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value),
+        ($0.SkinInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SkinInstance, $0.SkinInstance>(
+        'DeleteSkinInstance',
+        deleteSkinInstance_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SkinInstance.fromBuffer(value),
+        ($0.SkinInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.MultiSkinInstance>(
+        'GetSkinInstances',
+        getSkinInstances_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.MultiSkinInstance value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Skin, $0.Skin>(
+        'GetSkin',
+        getSkin_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Skin.fromBuffer(value),
+        ($0.Skin value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Skin, $0.Skin>(
+        'UpdateSkin',
+        updateSkin_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Skin.fromBuffer(value),
+        ($0.Skin value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Skin, $0.Skin>(
+        'CreateSkin',
+        createSkin_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Skin.fromBuffer(value),
+        ($0.Skin value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Skin, $0.Skin>(
+        'DeleteSkin',
+        deleteSkin_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Skin.fromBuffer(value),
+        ($0.Skin value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
@@ -282,6 +492,26 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return deleteWorkout(call, await request);
   }
 
+  $async.Future<$0.FigureInstance> getFigureInstance_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
+    return getFigureInstance(call, await request);
+  }
+
+  $async.Future<$0.FigureInstance> updateFigureInstance_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
+    return updateFigureInstance(call, await request);
+  }
+
+  $async.Future<$0.FigureInstance> createFigureInstance_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
+    return createFigureInstance(call, await request);
+  }
+
+  $async.Future<$0.FigureInstance> deleteFigureInstance_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
+    return deleteFigureInstance(call, await request);
+  }
+
+  $async.Future<$0.MultiFigureInstance> getFigureInstances_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return getFigureInstances(call, await request);
+  }
+
   $async.Future<$0.Figure> getFigure_Pre($grpc.ServiceCall call, $async.Future<$0.Figure> request) async {
     return getFigure(call, await request);
   }
@@ -302,6 +532,42 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return getFigures(call, await request);
   }
 
+  $async.Future<$0.SkinInstance> getSkinInstance_Pre($grpc.ServiceCall call, $async.Future<$0.SkinInstance> request) async {
+    return getSkinInstance(call, await request);
+  }
+
+  $async.Future<$0.SkinInstance> updateSkinInstance_Pre($grpc.ServiceCall call, $async.Future<$0.SkinInstance> request) async {
+    return updateSkinInstance(call, await request);
+  }
+
+  $async.Future<$0.SkinInstance> createSkinInstance_Pre($grpc.ServiceCall call, $async.Future<$0.SkinInstance> request) async {
+    return createSkinInstance(call, await request);
+  }
+
+  $async.Future<$0.SkinInstance> deleteSkinInstance_Pre($grpc.ServiceCall call, $async.Future<$0.SkinInstance> request) async {
+    return deleteSkinInstance(call, await request);
+  }
+
+  $async.Future<$0.MultiSkinInstance> getSkinInstances_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return getSkinInstances(call, await request);
+  }
+
+  $async.Future<$0.Skin> getSkin_Pre($grpc.ServiceCall call, $async.Future<$0.Skin> request) async {
+    return getSkin(call, await request);
+  }
+
+  $async.Future<$0.Skin> updateSkin_Pre($grpc.ServiceCall call, $async.Future<$0.Skin> request) async {
+    return updateSkin(call, await request);
+  }
+
+  $async.Future<$0.Skin> createSkin_Pre($grpc.ServiceCall call, $async.Future<$0.Skin> request) async {
+    return createSkin(call, await request);
+  }
+
+  $async.Future<$0.Skin> deleteSkin_Pre($grpc.ServiceCall call, $async.Future<$0.Skin> request) async {
+    return deleteSkin(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
@@ -311,9 +577,23 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.Workout> createWorkout($grpc.ServiceCall call, $0.Workout request);
   $async.Future<$0.Workout> updateWorkout($grpc.ServiceCall call, $0.Workout request);
   $async.Future<$0.Workout> deleteWorkout($grpc.ServiceCall call, $0.Workout request);
+  $async.Future<$0.FigureInstance> getFigureInstance($grpc.ServiceCall call, $0.FigureInstance request);
+  $async.Future<$0.FigureInstance> updateFigureInstance($grpc.ServiceCall call, $0.FigureInstance request);
+  $async.Future<$0.FigureInstance> createFigureInstance($grpc.ServiceCall call, $0.FigureInstance request);
+  $async.Future<$0.FigureInstance> deleteFigureInstance($grpc.ServiceCall call, $0.FigureInstance request);
+  $async.Future<$0.MultiFigureInstance> getFigureInstances($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.Figure> getFigure($grpc.ServiceCall call, $0.Figure request);
   $async.Future<$0.Figure> updateFigure($grpc.ServiceCall call, $0.Figure request);
   $async.Future<$0.Figure> createFigure($grpc.ServiceCall call, $0.Figure request);
   $async.Future<$0.Figure> deleteFigure($grpc.ServiceCall call, $0.Figure request);
   $async.Future<$0.MultiFigure> getFigures($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.SkinInstance> getSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);
+  $async.Future<$0.SkinInstance> updateSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);
+  $async.Future<$0.SkinInstance> createSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);
+  $async.Future<$0.SkinInstance> deleteSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);
+  $async.Future<$0.MultiSkinInstance> getSkinInstances($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.Skin> getSkin($grpc.ServiceCall call, $0.Skin request);
+  $async.Future<$0.Skin> updateSkin($grpc.ServiceCall call, $0.Skin request);
+  $async.Future<$0.Skin> createSkin($grpc.ServiceCall call, $0.Skin request);
+  $async.Future<$0.Skin> deleteSkin($grpc.ServiceCall call, $0.Skin request);
 }

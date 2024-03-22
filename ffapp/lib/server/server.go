@@ -202,10 +202,83 @@ func (s *server) DeleteWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 
 // BEGIN FIGURE METHODS //
 
+// INSTANCES //
+func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
+	var figureInstance pb.FigureInstance
+
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figureInstances WHERE User_Email = ? AND Figure_Id = ?", in.User_Email, in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge)
+	if err != nil {
+		return nil, fmt.Errorf("could not get figureInstance: %v", err)
+	}
+
+	return &figureInstance, nil
+}
+
+func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
+	_, err := s.db.ExecContext(ctx, "UPDATE figureInstances SET Figure_Name = ?, User_Email = ?, Cur_Skin = ?, Ev_Points = ?, Charge = ? WHERE Figure_Id = ?", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Figure_Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not update figureInstance: %v", err)
+	}
+
+	return in, nil
+}
+
+func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
+	_, err := s.db.ExecContext(ctx, "INSERT INTO figureInstances (Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge) VALUES (?, ?, ?, ?, ?, ?)", in.Figure_Id, in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge)
+	if err != nil {
+		return nil, fmt.Errorf("could not create figureInstance: %v", err)
+	}
+
+	return in, nil
+}
+
+func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
+	var figureInstance pb.FigureInstance
+
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figureInstances WHERE Figure_Id = ?", in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge)
+	if err != nil {
+		return nil, fmt.Errorf("could not get figureInstance: %v", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, "DELETE FROM figureInstances WHERE Figure_Id = ?", in.Figure_Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete figureInstance: %v", err)
+	}
+
+	return &figureInstance, nil
+}
+
+func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.MultiFigureInstance, error) {
+	figureInstances := &pb.MultiFigureInstance{} // Initialize figureInstances
+
+	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figureInstances WHERE User_Email = ?", in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not get figureInstances: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var figureInstance pb.FigureInstance
+		err := rows.Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan figureInstance: %v", err)
+		}
+		figureInstances.FigureInstances = append(figureInstances.FigureInstances, &figureInstance)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("could not iterate over figureInstances: %v", err)
+	}
+
+	return figureInstances, nil
+}
+
+// FIGURES //
+
 func (s *server) GetFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, error) {
 	var figure pb.Figure
 
-	err := s.db.QueryRowContext(ctx, "SELECT figure_id, name, evo_points, stage, user_email, charge FROM figures WHERE user_email = ? AND figure_id = ?", in.UserEmail, in.Figure_Id).Scan(&figure.Figure_Id, &figure.Name, &figure.EvoPoints, &figure.Stage, &figure.UserEmail, &figure.Charge)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM Figures WHERE Figure_Name = ?", in.Figure_Name).Scan(&figure.Figure_Name, &figure.Base_Ev_Gain, &figure.Base_Currency_Gain, &figure.Price, &figure.Stage1_Ev_Cutoff, &figure.Stage2_Ev_Cutoff, &figure.Stage3_Ev_Cutoff, &figure.Stage4_Ev_Cutoff, &figure.Stage5_Ev_Cutoff, &figure.Stage6_Ev_Cutoff, &figure.Stage7_Ev_Cutoff, &figure.Stage8_Ev_Cutoff, &figure.Stage9_Ev_Cutoff, &figure.Stage10_Ev_Cutoff)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figure: %v", err)
 	}
@@ -214,7 +287,7 @@ func (s *server) GetFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, erro
 }
 
 func (s *server) UpdateFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, error) {
-	_, err := s.db.ExecContext(ctx, "UPDATE figures SET name = ?, evo_points = ?, stage = ?, user_email = ?, charge = ? WHERE figure_id = ?", in.Name, in.EvoPoints, in.Stage, in.UserEmail, in.Charge, in.Figure_Id)
+	_, err := s.db.ExecContext(ctx, "UPDATE Figures SET Base_Ev_Gain = ?, Base_Currency_Gain = ?, Price = ?, Stage1_Ev_Cutoff = ?, Stage2_Ev_Cutoff = ?, Stage3_Ev_Cutoff = ?, Stage4_Ev_Cutoff = ?, Stage5_Ev_Cutoff = ?, Stage6_Ev_Cutoff = ?, Stage7_Ev_Cutoff = ?, Stage8_Ev_Cutoff = ?, Stage9_Ev_Cutoff = ?, Stage10_Ev_Cutoff = ? WHERE Figure_Name = ?", in.Base_Ev_Gain, in.Base_Currency_Gain, in.Price, in.Stage1_Ev_Cutoff, in.Stage2_Ev_Cutoff, in.Stage3_Ev_Cutoff, in.Stage4_Ev_Cutoff, in.Stage5_Ev_Cutoff, in.Stage6_Ev_Cutoff, in.Stage7_Ev_Cutoff, in.Stage8_Ev_Cutoff, in.Stage9_Ev_Cutoff, in.Stage10_Ev_Cutoff, in.Figure_Name)
 	if err != nil {
 		return nil, fmt.Errorf("could not update figure: %v", err)
 	}
@@ -223,7 +296,7 @@ func (s *server) UpdateFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, e
 }
 
 func (s *server) CreateFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, error) {
-	_, err := s.db.ExecContext(ctx, "INSERT INTO figures (figure_id, name, evo_points, stage, user_email, charge) VALUES (?, ?, ?, ?, ?, ?)", in.Figure_Id, in.Name, in.EvoPoints, in.Stage, in.UserEmail, in.Charge)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO Figures (Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Figure_Name, in.Base_Ev_Gain, in.Base_Currency_Gain, in.Price, in.Stage1_Ev_Cutoff, in.Stage2_Ev_Cutoff, in.Stage3_Ev_Cutoff, in.Stage4_Ev_Cutoff, in.Stage5_Ev_Cutoff, in.Stage6_Ev_Cutoff, in.Stage7_Ev_Cutoff, in.Stage8_Ev_Cutoff, in.Stage9_Ev_Cutoff, in.Stage10_Ev_Cutoff)
 	if err != nil {
 		return nil, fmt.Errorf("could not create figure: %v", err)
 	}
@@ -234,12 +307,12 @@ func (s *server) CreateFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, e
 func (s *server) DeleteFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, error) {
 	var figure pb.Figure
 
-	err := s.db.QueryRowContext(ctx, "SELECT figure_id, name, evo_points, stage, user_email, charge FROM figures WHERE figure_id = ?", in.Figure_Id).Scan(&figure.Figure_Id, &figure.Name, &figure.EvoPoints, &figure.Stage, &figure.UserEmail, &figure.Charge)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM Figures WHERE Figure_Name = ?", in.Figure_Name).Scan(&figure.Figure_Name, &figure.Base_Ev_Gain, &figure.Base_Currency_Gain, &figure.Price, &figure.Stage1_Ev_Cutoff, &figure.Stage2_Ev_Cutoff, &figure.Stage3_Ev_Cutoff, &figure.Stage4_Ev_Cutoff, &figure.Stage5_Ev_Cutoff, &figure.Stage6_Ev_Cutoff, &figure.Stage7_Ev_Cutoff, &figure.Stage8_Ev_Cutoff, &figure.Stage9_Ev_Cutoff, &figure.Stage10_Ev_Cutoff)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figure: %v", err)
 	}
 
-	_, err = s.db.ExecContext(ctx, "DELETE FROM figures WHERE figure_id = ?", in.Figure_Id)
+	_, err = s.db.ExecContext(ctx, "DELETE FROM Figures WHERE Figure_Name = ?", in.Figure_Name)
 	if err != nil {
 		return nil, fmt.Errorf("could not delete figure: %v", err)
 	}
@@ -250,7 +323,7 @@ func (s *server) DeleteFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, e
 func (s *server) GetFigures(ctx context.Context, in *pb.User) (*pb.MultiFigure, error) {
 	figures := &pb.MultiFigure{} // Initialize figures
 
-	rows, err := s.db.QueryContext(ctx, "SELECT figure_id, name, evo_points, stage, user_email, charge FROM figures WHERE user_email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM Figures WHERE User_Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figures: %v", err)
 	}
@@ -258,14 +331,14 @@ func (s *server) GetFigures(ctx context.Context, in *pb.User) (*pb.MultiFigure, 
 
 	for rows.Next() {
 		var figure pb.Figure
-		err := rows.Scan(&figure.Figure_Id, &figure.Name, &figure.EvoPoints, &figure.Stage, &figure.UserEmail, &figure.Charge)
+		err := rows.Scan(&figure.Figure_Name, &figure.Base_Ev_Gain, &figure.Base_Currency_Gain, &figure.Price, &figure.Stage1_Ev_Cutoff, &figure.Stage2_Ev_Cutoff, &figure.Stage3_Ev_Cutoff, &figure.Stage4_Ev_Cutoff, &figure.Stage5_Ev_Cutoff, &figure.Stage6_Ev_Cutoff, &figure.Stage7_Ev_Cutoff, &figure.Stage8_Ev_Cutoff, &figure.Stage9_Ev_Cutoff, &figure.Stage10_Ev_Cutoff)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan figure: %v", err)
 		}
 		figures.Figures = append(figures.Figures, &figure)
 
 		// Log output for each figure
-		log.Printf("Retrieved figure: FigureId=%s, Name=%s, EvoPoints=%d, Stage=%d, UserEmail=%s, Charge=%d", figure.Figure_Id, figure.Name, figure.EvoPoints, figure.Stage, figure.UserEmail, figure.Charge)
+		log.Printf("Retrieved figure: Figure_Name=%s, Base_Ev_Gain=%f, Base_Currency_Gain=%f, Price=%f, Stage1_Ev_Cutoff=%f, Stage2_Ev_Cutoff=%f, Stage3_Ev_Cutoff=%f, Stage4_Ev_Cutoff=%f, Stage5_Ev_Cutoff=%f, Stage6_Ev_Cutoff=%f, Stage7_Ev_Cutoff=%f, Stage8_Ev_Cutoff=%f, Stage9_Ev_Cutoff=%f, Stage10_Ev_Cutoff=%f", figure.Figure_Name, figure.Base_Ev_Gain, figure.Base_Currency_Gain, figure.Price, figure.Stage1_Ev_Cutoff, figure.Stage2_Ev_Cutoff, figure.Stage3_Ev_Cutoff, figure.Stage4_Ev_Cutoff, figure.Stage5_Ev_Cutoff, figure.Stage6_Ev_Cutoff, figure.Stage7_Ev_Cutoff, figure.Stage8_Ev_Cutoff, figure.Stage9_Ev_Cutoff, figure.Stage10_Ev_Cutoff)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -273,6 +346,124 @@ func (s *server) GetFigures(ctx context.Context, in *pb.User) (*pb.MultiFigure, 
 	}
 
 	return figures, nil
+}
+
+// END FIGURE METHODS //
+// BEGIN SKIN METHODS //
+
+func (s *server) GetSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
+	var skinstance pb.SkinInstance
+
+	err := s.db.QueryRowContext(ctx, "SELECT Skin_Id, Skin_Name, User_Email FROM SkinInstances WHERE Skin_Id = ?", in.Skin_Id).Scan(&skinstance.Skin_Id, &skinstance.Skin_Name, &skinstance.User_Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not get skin instance: %v", err)
+	}
+
+	return &skinstance, nil
+}
+
+func (s *server) UpdateSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
+	_, err := s.db.ExecContext(ctx, "UPDATE SkinInstances SET Skin_Name = ?, User_Email = ? WHERE Skin_Id = ?", in.Skin_Name, in.User_Email, in.Skin_Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not update skin instance: %v", err)
+	}
+
+	return in, nil
+}
+
+func (s *server) CreateSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
+	_, err := s.db.ExecContext(ctx, "INSERT INTO SkinInstances (Skin_Name, User_Email) VALUES (?, ?)", in.Skin_Name, in.User_Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not create skin instance: %v", err)
+	}
+
+	return in, nil
+}
+
+func (s *server) DeleteSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
+	_, err := s.db.ExecContext(ctx, "DELETE FROM SkinInstances WHERE Skin_Id = ?", in.Skin_Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete skin instance: %v", err)
+	}
+
+	return in, nil
+}
+
+func (s *server) GetSkinInstances(ctx context.Context, in *pb.User) (*pb.MultiSkinInstance, error) {
+	skinInstances := &pb.MultiSkinInstance{}
+
+	rows, err := s.db.QueryContext(ctx, "SELECT Skin_Id, Skin_Name, User_Email FROM SkinInstances WHERE User_Email = ?", in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not get skin instances: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var skinstance pb.SkinInstance
+		err := rows.Scan(&skinstance.Skin_Id, &skinstance.Skin_Name, &skinstance.User_Email)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan skin instance: %v", err)
+		}
+		skinInstances.SkinInstances = append(skinInstances.SkinInstances, &skinstance)
+
+		// Log output for each skin instance
+		log.Printf("Retrieved skin instance: Skin_Id=%s, Skin_Name=%s, User_Email=%s", skinstance.Skin_Id, skinstance.Skin_Name, skinstance.User_Email)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("could not iterate over skin instances: %v", err)
+	}
+
+	return skinInstances, nil
+}
+
+// SKIN ROUTES //
+func (s *server) GetSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
+	var skin pb.Skin
+
+	err := s.db.QueryRowContext(ctx, "SELECT Skin_Name, Figure_Name, Price FROM SkinInstances WHERE Skin_Name = ?", in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+	if err != nil {
+		return nil, fmt.Errorf("could not get skin: %v", err)
+	}
+
+	return &skin, nil
+}
+
+func (s *server) UpdateSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
+	var skin pb.Skin
+
+	err := s.db.QueryRowContext(ctx, "UPDATE SkinInstances SET Figure_Name = ?, Price = ? WHERE Skin_Name = ?", in.Figure_Name, in.Price, in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+	if err != nil {
+		return nil, fmt.Errorf("could not update skin: %v", err)
+	}
+
+	return &skin, nil
+}
+
+func (s *server) CreateSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
+	var skin pb.Skin
+
+	_, err := s.db.ExecContext(ctx, "INSERT INTO SkinInstances (Skin_Name, Figure_Name, Price) VALUES (?, ?, ?)", in.Skin_Name, in.Figure_Name, in.Price)
+	if err != nil {
+		return nil, fmt.Errorf("could not create skin: %v", err)
+	}
+
+	skin.Skin_Name = in.Skin_Name
+	skin.Figure_Name = in.Figure_Name
+	skin.Price = in.Price
+
+	return &skin, nil
+}
+
+func (s *server) DeleteSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
+	var skin pb.Skin
+
+	err := s.db.QueryRowContext(ctx, "DELETE FROM SkinInstances WHERE Skin_Name = ?", in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete skin: %v", err)
+	}
+
+	return &skin, nil
 }
 
 func main() {

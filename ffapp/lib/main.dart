@@ -32,8 +32,8 @@ class UserModel extends ChangeNotifier {
 }
 
 class FigureModel extends ChangeNotifier {
-  Routes.Figure? figure;
-  void setFigure(Routes.Figure newFigure) {
+  Routes.FigureInstance? figure;
+  void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
     notifyListeners();
   }

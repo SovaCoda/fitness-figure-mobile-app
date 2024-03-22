@@ -18,12 +18,32 @@ service Routes {
     rpc UpdateWorkout(Workout) returns (Workout) {}
     rpc DeleteWorkout(Workout) returns (Workout) {}
 
+    // FIGURE INSTANCE ROUTES //
+    rpc GetFigureInstance(FigureInstance) returns (FigureInstance) {}
+    rpc UpdateFigureInstance(FigureInstance) returns (FigureInstance) {}
+    rpc CreateFigureInstance(FigureInstance) returns (FigureInstance) {}
+    rpc DeleteFigureInstance(FigureInstance) returns (FigureInstance) {}
+    rpc GetFigureInstances(User) returns (MultiFigureInstance) {}
+
     // FIGURE ROUTES //
     rpc GetFigure(Figure) returns (Figure) {}
     rpc UpdateFigure(Figure) returns (Figure) {}
     rpc CreateFigure(Figure) returns (Figure) {}
     rpc DeleteFigure(Figure) returns (Figure) {}
     rpc GetFigures(User) returns (MultiFigure) {}
+
+    // SKIN INSTANCE ROUTES //
+    rpc GetSkinInstance(SkinInstance) returns (SkinInstance) {}
+    rpc UpdateSkinInstance(SkinInstance) returns (SkinInstance) {}
+    rpc CreateSkinInstance(SkinInstance) returns (SkinInstance) {}
+    rpc DeleteSkinInstance(SkinInstance) returns (SkinInstance) {}
+    rpc GetSkinInstances(User) returns (MultiSkinInstance) {}
+
+    // SKIN ROUTES //
+    rpc GetSkin(Skin) returns (Skin) {}
+    rpc UpdateSkin(Skin) returns (Skin) {}
+    rpc CreateSkin(Skin) returns (Skin) {}
+    rpc DeleteSkin(Skin) returns (Skin) {}
 }
 
 message Workout {
@@ -50,16 +70,52 @@ message User {
     int64 workout_min_time = 8;
 }
 
-message Figure {
+message FigureInstance {
     string Figure_Id = 1;
-    string Name = 2;
-    int32 Evo_points = 3;
-    int32 Stage = 4;
-    string User_email = 5;
-    int32 charge = 6;
+    string Figure_Name = 2;
+    string User_Email = 3;
+    string Cur_Skin = 4;
+    int32 Ev_Points = 5;
+    int32 Charge = 6;
+}
+
+message MultiFigureInstance {
+    repeated FigureInstance figureInstances = 1;
+}
+
+message Figure {
+    string Figure_Name = 1;
+    int32 Base_Ev_Gain = 2;
+    int32 Base_Currency_Gain = 3;
+    int32 Price = 4;
+    int32 Stage1_Ev_Cutoff = 5;
+    int32 Stage2_Ev_Cutoff = 6;
+    int32 Stage3_Ev_Cutoff = 7;
+    int32 Stage4_Ev_Cutoff = 8;
+    int32 Stage5_Ev_Cutoff = 9;
+    int32 Stage6_Ev_Cutoff = 10;
+    int32 Stage7_Ev_Cutoff = 11;
+    int32 Stage8_Ev_Cutoff = 12;
+    int32 Stage9_Ev_Cutoff = 13;
+    int32 Stage10_Ev_Cutoff = 14;
 }
 
 message MultiFigure {
     repeated Figure figures = 1;
 }
 
+message SkinInstance {
+    string Skin_Id = 1;
+    string Skin_Name = 2;
+    string User_Email = 3;
+}
+
+message MultiSkinInstance {
+    repeated SkinInstance skinInstances = 1;
+}
+
+message Skin {
+    string Skin_Name = 1;
+    string Figure_Name = 2;
+    int32 Price = 3;
+}

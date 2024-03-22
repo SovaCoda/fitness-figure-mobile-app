@@ -1,12 +1,8 @@
-import "dart:math";
-
 import "package:ffapp/services/routes.pb.dart" as Routes;
-import "package:ffapp/services/routes.pbgrpc.dart";
 import "package:firebase_auth/firebase_auth.dart" as FB;
 import "package:firebase_core/firebase_core.dart";
 import "package:ffapp/firebase_options.dart";
 import 'package:ffapp/routes.dart';
-import "package:flutter/material.dart";
 import 'package:logger/logger.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -160,7 +156,6 @@ class AuthService {
     await _routes.routesClient.updateUser(user);
   }
 
-
   Future<Routes.Figure> getFigure(Routes.Figure figure) async {
     try {
       return await _routes.routesClient.getFigure(figure);
@@ -206,5 +201,131 @@ class AuthService {
     }
   }
   
-  // Add Manage Subscription Function possibly?
+  Future<Routes.FigureInstance> getFigureInstance(Routes.FigureInstance figureInstance) async {
+    try {
+      return await _routes.routesClient.getFigureInstance(figureInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get figure instance");
+    }
+  }
+
+  Future<Routes.FigureInstance> updateFigureInstance(Routes.FigureInstance figureInstance) async {
+    try {
+      return await _routes.routesClient.updateFigureInstance(figureInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update figure instance");
+    }
+  }
+
+  Future<Routes.FigureInstance> createFigureInstance(Routes.FigureInstance figureInstance) async {
+    try {
+      return await _routes.routesClient.createFigureInstance(figureInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create figure instance");
+    }
+  }
+
+  Future<Routes.FigureInstance> deleteFigureInstance(Routes.FigureInstance figureInstance) async {
+    try {
+      return await _routes.routesClient.deleteFigureInstance(figureInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete figure instance");
+    }
+  }
+
+  Future<Routes.MultiFigureInstance> getFigureInstances(Routes.User user) async {
+    try {
+      return await _routes.routesClient.getFigureInstances(user);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get figure instances");
+    }
+  }
+
+  // SKIN METHODS //
+  Future<Routes.Skin> getSkin(Routes.Skin skin) async {
+    try {
+      return await _routes.routesClient.getSkin(skin);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get skin");
+    }
+  }
+
+  Future<Routes.Skin> updateSkin(Routes.Skin skin) async {
+    try {
+      return await _routes.routesClient.updateSkin(skin);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update skin");
+    }
+  }
+
+  Future<Routes.Skin> createSkin(Routes.Skin skin) async {
+    try {
+      return await _routes.routesClient.createSkin(skin);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create skin");
+    }
+  }
+
+  Future<Routes.Skin> deleteSkin(Routes.Skin skin) async {
+    try {
+      return await _routes.routesClient.deleteSkin(skin);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete skin");
+    }
+  }
+
+  Future<Routes.SkinInstance> getSkinInstance(Routes.SkinInstance skinInstance) async {
+    try {
+      return await _routes.routesClient.getSkinInstance(skinInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get skin instance");
+    }
+  }
+
+  Future<Routes.SkinInstance> updateSkinInstance(Routes.SkinInstance skinInstance) async {
+    try {
+      return await _routes.routesClient.updateSkinInstance(skinInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update skin instance");
+    }
+  }
+
+  Future<Routes.SkinInstance> createSkinInstance(Routes.SkinInstance skinInstance) async {
+    try {
+      return await _routes.routesClient.createSkinInstance(skinInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create skin instance");
+    }
+  }
+
+  Future<Routes.SkinInstance> deleteSkinInstance(Routes.SkinInstance skinInstance) async {
+    try {
+      return await _routes.routesClient.deleteSkinInstance(skinInstance);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete skin instance");
+    }
+  }
+
+  Future<Routes.MultiSkinInstance> getSkinInstances(Routes.User user) async {
+    try {
+      return await _routes.routesClient.getSkinInstances(user);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get skin instances");
+    }
+  }
+  // END SKIN METHODS //
 }

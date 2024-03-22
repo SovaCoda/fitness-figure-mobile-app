@@ -326,33 +326,229 @@ class User extends $pb.GeneratedMessage {
   void clearWorkoutMinTime() => clearField(8);
 }
 
-class Figure extends $pb.GeneratedMessage {
-  factory Figure({
+class FigureInstance extends $pb.GeneratedMessage {
+  factory FigureInstance({
     $core.String? figureId,
-    $core.String? name,
-    $core.int? evoPoints,
-    $core.int? stage,
+    $core.String? figureName,
     $core.String? userEmail,
+    $core.String? curSkin,
+    $core.int? evPoints,
     $core.int? charge,
   }) {
     final $result = create();
     if (figureId != null) {
       $result.figureId = figureId;
     }
-    if (name != null) {
-      $result.name = name;
-    }
-    if (evoPoints != null) {
-      $result.evoPoints = evoPoints;
-    }
-    if (stage != null) {
-      $result.stage = stage;
+    if (figureName != null) {
+      $result.figureName = figureName;
     }
     if (userEmail != null) {
       $result.userEmail = userEmail;
     }
+    if (curSkin != null) {
+      $result.curSkin = curSkin;
+    }
+    if (evPoints != null) {
+      $result.evPoints = evPoints;
+    }
     if (charge != null) {
       $result.charge = charge;
+    }
+    return $result;
+  }
+  FigureInstance._() : super();
+  factory FigureInstance.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FigureInstance.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FigureInstance', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'FigureId', protoName: 'Figure_Id')
+    ..aOS(2, _omitFieldNames ? '' : 'FigureName', protoName: 'Figure_Name')
+    ..aOS(3, _omitFieldNames ? '' : 'UserEmail', protoName: 'User_Email')
+    ..aOS(4, _omitFieldNames ? '' : 'CurSkin', protoName: 'Cur_Skin')
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'EvPoints', $pb.PbFieldType.O3, protoName: 'Ev_Points')
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'Charge', $pb.PbFieldType.O3, protoName: 'Charge')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FigureInstance clone() => FigureInstance()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FigureInstance copyWith(void Function(FigureInstance) updates) => super.copyWith((message) => updates(message as FigureInstance)) as FigureInstance;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FigureInstance create() => FigureInstance._();
+  FigureInstance createEmptyInstance() => create();
+  static $pb.PbList<FigureInstance> createRepeated() => $pb.PbList<FigureInstance>();
+  @$core.pragma('dart2js:noInline')
+  static FigureInstance getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FigureInstance>(create);
+  static FigureInstance? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get figureId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set figureId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFigureId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFigureId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get figureName => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set figureName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFigureName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFigureName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get userEmail => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set userEmail($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasUserEmail() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUserEmail() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get curSkin => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set curSkin($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCurSkin() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCurSkin() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get evPoints => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set evPoints($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasEvPoints() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEvPoints() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get charge => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set charge($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCharge() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCharge() => clearField(6);
+}
+
+class MultiFigureInstance extends $pb.GeneratedMessage {
+  factory MultiFigureInstance({
+    $core.Iterable<FigureInstance>? figureInstances,
+  }) {
+    final $result = create();
+    if (figureInstances != null) {
+      $result.figureInstances.addAll(figureInstances);
+    }
+    return $result;
+  }
+  MultiFigureInstance._() : super();
+  factory MultiFigureInstance.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiFigureInstance.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiFigureInstance', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<FigureInstance>(1, _omitFieldNames ? '' : 'figureInstances', $pb.PbFieldType.PM, protoName: 'figureInstances', subBuilder: FigureInstance.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiFigureInstance clone() => MultiFigureInstance()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiFigureInstance copyWith(void Function(MultiFigureInstance) updates) => super.copyWith((message) => updates(message as MultiFigureInstance)) as MultiFigureInstance;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiFigureInstance create() => MultiFigureInstance._();
+  MultiFigureInstance createEmptyInstance() => create();
+  static $pb.PbList<MultiFigureInstance> createRepeated() => $pb.PbList<MultiFigureInstance>();
+  @$core.pragma('dart2js:noInline')
+  static MultiFigureInstance getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiFigureInstance>(create);
+  static MultiFigureInstance? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<FigureInstance> get figureInstances => $_getList(0);
+}
+
+class Figure extends $pb.GeneratedMessage {
+  factory Figure({
+    $core.String? figureName,
+    $core.int? baseEvGain,
+    $core.int? baseCurrencyGain,
+    $core.int? price,
+    $core.int? stage1EvCutoff,
+    $core.int? stage2EvCutoff,
+    $core.int? stage3EvCutoff,
+    $core.int? stage4EvCutoff,
+    $core.int? stage5EvCutoff,
+    $core.int? stage6EvCutoff,
+    $core.int? stage7EvCutoff,
+    $core.int? stage8EvCutoff,
+    $core.int? stage9EvCutoff,
+    $core.int? stage10EvCutoff,
+  }) {
+    final $result = create();
+    if (figureName != null) {
+      $result.figureName = figureName;
+    }
+    if (baseEvGain != null) {
+      $result.baseEvGain = baseEvGain;
+    }
+    if (baseCurrencyGain != null) {
+      $result.baseCurrencyGain = baseCurrencyGain;
+    }
+    if (price != null) {
+      $result.price = price;
+    }
+    if (stage1EvCutoff != null) {
+      $result.stage1EvCutoff = stage1EvCutoff;
+    }
+    if (stage2EvCutoff != null) {
+      $result.stage2EvCutoff = stage2EvCutoff;
+    }
+    if (stage3EvCutoff != null) {
+      $result.stage3EvCutoff = stage3EvCutoff;
+    }
+    if (stage4EvCutoff != null) {
+      $result.stage4EvCutoff = stage4EvCutoff;
+    }
+    if (stage5EvCutoff != null) {
+      $result.stage5EvCutoff = stage5EvCutoff;
+    }
+    if (stage6EvCutoff != null) {
+      $result.stage6EvCutoff = stage6EvCutoff;
+    }
+    if (stage7EvCutoff != null) {
+      $result.stage7EvCutoff = stage7EvCutoff;
+    }
+    if (stage8EvCutoff != null) {
+      $result.stage8EvCutoff = stage8EvCutoff;
+    }
+    if (stage9EvCutoff != null) {
+      $result.stage9EvCutoff = stage9EvCutoff;
+    }
+    if (stage10EvCutoff != null) {
+      $result.stage10EvCutoff = stage10EvCutoff;
     }
     return $result;
   }
@@ -361,12 +557,20 @@ class Figure extends $pb.GeneratedMessage {
   factory Figure.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Figure', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'FigureId', protoName: 'Figure_Id')
-    ..aOS(2, _omitFieldNames ? '' : 'Name', protoName: 'Name')
-    ..a<$core.int>(3, _omitFieldNames ? '' : 'EvoPoints', $pb.PbFieldType.O3, protoName: 'Evo_points')
-    ..a<$core.int>(4, _omitFieldNames ? '' : 'Stage', $pb.PbFieldType.O3, protoName: 'Stage')
-    ..aOS(5, _omitFieldNames ? '' : 'UserEmail', protoName: 'User_email')
-    ..a<$core.int>(6, _omitFieldNames ? '' : 'charge', $pb.PbFieldType.O3)
+    ..aOS(1, _omitFieldNames ? '' : 'FigureName', protoName: 'Figure_Name')
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'BaseEvGain', $pb.PbFieldType.O3, protoName: 'Base_Ev_Gain')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'BaseCurrencyGain', $pb.PbFieldType.O3, protoName: 'Base_Currency_Gain')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'Price', $pb.PbFieldType.O3, protoName: 'Price')
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'Stage1EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage1_Ev_Cutoff')
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'Stage2EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage2_Ev_Cutoff')
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'Stage3EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage3_Ev_Cutoff')
+    ..a<$core.int>(8, _omitFieldNames ? '' : 'Stage4EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage4_Ev_Cutoff')
+    ..a<$core.int>(9, _omitFieldNames ? '' : 'Stage5EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage5_Ev_Cutoff')
+    ..a<$core.int>(10, _omitFieldNames ? '' : 'Stage6EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage6_Ev_Cutoff')
+    ..a<$core.int>(11, _omitFieldNames ? '' : 'Stage7EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage7_Ev_Cutoff')
+    ..a<$core.int>(12, _omitFieldNames ? '' : 'Stage8EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage8_Ev_Cutoff')
+    ..a<$core.int>(13, _omitFieldNames ? '' : 'Stage9EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage9_Ev_Cutoff')
+    ..a<$core.int>(14, _omitFieldNames ? '' : 'Stage10EvCutoff', $pb.PbFieldType.O3, protoName: 'Stage10_Ev_Cutoff')
     ..hasRequiredFields = false
   ;
 
@@ -392,58 +596,130 @@ class Figure extends $pb.GeneratedMessage {
   static Figure? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get figureId => $_getSZ(0);
+  $core.String get figureName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set figureId($core.String v) { $_setString(0, v); }
+  set figureName($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasFigureId() => $_has(0);
+  $core.bool hasFigureName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearFigureId() => clearField(1);
+  void clearFigureName() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get name => $_getSZ(1);
+  $core.int get baseEvGain => $_getIZ(1);
   @$pb.TagNumber(2)
-  set name($core.String v) { $_setString(1, v); }
+  set baseEvGain($core.int v) { $_setSignedInt32(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasName() => $_has(1);
+  $core.bool hasBaseEvGain() => $_has(1);
   @$pb.TagNumber(2)
-  void clearName() => clearField(2);
+  void clearBaseEvGain() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.int get evoPoints => $_getIZ(2);
+  $core.int get baseCurrencyGain => $_getIZ(2);
   @$pb.TagNumber(3)
-  set evoPoints($core.int v) { $_setSignedInt32(2, v); }
+  set baseCurrencyGain($core.int v) { $_setSignedInt32(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasEvoPoints() => $_has(2);
+  $core.bool hasBaseCurrencyGain() => $_has(2);
   @$pb.TagNumber(3)
-  void clearEvoPoints() => clearField(3);
+  void clearBaseCurrencyGain() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.int get stage => $_getIZ(3);
+  $core.int get price => $_getIZ(3);
   @$pb.TagNumber(4)
-  set stage($core.int v) { $_setSignedInt32(3, v); }
+  set price($core.int v) { $_setSignedInt32(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasStage() => $_has(3);
+  $core.bool hasPrice() => $_has(3);
   @$pb.TagNumber(4)
-  void clearStage() => clearField(4);
+  void clearPrice() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get userEmail => $_getSZ(4);
+  $core.int get stage1EvCutoff => $_getIZ(4);
   @$pb.TagNumber(5)
-  set userEmail($core.String v) { $_setString(4, v); }
+  set stage1EvCutoff($core.int v) { $_setSignedInt32(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasUserEmail() => $_has(4);
+  $core.bool hasStage1EvCutoff() => $_has(4);
   @$pb.TagNumber(5)
-  void clearUserEmail() => clearField(5);
+  void clearStage1EvCutoff() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.int get charge => $_getIZ(5);
+  $core.int get stage2EvCutoff => $_getIZ(5);
   @$pb.TagNumber(6)
-  set charge($core.int v) { $_setSignedInt32(5, v); }
+  set stage2EvCutoff($core.int v) { $_setSignedInt32(5, v); }
   @$pb.TagNumber(6)
-  $core.bool hasCharge() => $_has(5);
+  $core.bool hasStage2EvCutoff() => $_has(5);
   @$pb.TagNumber(6)
-  void clearCharge() => clearField(6);
+  void clearStage2EvCutoff() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get stage3EvCutoff => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set stage3EvCutoff($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasStage3EvCutoff() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearStage3EvCutoff() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.int get stage4EvCutoff => $_getIZ(7);
+  @$pb.TagNumber(8)
+  set stage4EvCutoff($core.int v) { $_setSignedInt32(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasStage4EvCutoff() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearStage4EvCutoff() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.int get stage5EvCutoff => $_getIZ(8);
+  @$pb.TagNumber(9)
+  set stage5EvCutoff($core.int v) { $_setSignedInt32(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasStage5EvCutoff() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearStage5EvCutoff() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.int get stage6EvCutoff => $_getIZ(9);
+  @$pb.TagNumber(10)
+  set stage6EvCutoff($core.int v) { $_setSignedInt32(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasStage6EvCutoff() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearStage6EvCutoff() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.int get stage7EvCutoff => $_getIZ(10);
+  @$pb.TagNumber(11)
+  set stage7EvCutoff($core.int v) { $_setSignedInt32(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasStage7EvCutoff() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearStage7EvCutoff() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.int get stage8EvCutoff => $_getIZ(11);
+  @$pb.TagNumber(12)
+  set stage8EvCutoff($core.int v) { $_setSignedInt32(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasStage8EvCutoff() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearStage8EvCutoff() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.int get stage9EvCutoff => $_getIZ(12);
+  @$pb.TagNumber(13)
+  set stage9EvCutoff($core.int v) { $_setSignedInt32(12, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasStage9EvCutoff() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearStage9EvCutoff() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.int get stage10EvCutoff => $_getIZ(13);
+  @$pb.TagNumber(14)
+  set stage10EvCutoff($core.int v) { $_setSignedInt32(13, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasStage10EvCutoff() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearStage10EvCutoff() => clearField(14);
 }
 
 class MultiFigure extends $pb.GeneratedMessage {
@@ -488,6 +764,206 @@ class MultiFigure extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<Figure> get figures => $_getList(0);
+}
+
+class SkinInstance extends $pb.GeneratedMessage {
+  factory SkinInstance({
+    $core.String? skinId,
+    $core.String? skinName,
+    $core.String? userEmail,
+  }) {
+    final $result = create();
+    if (skinId != null) {
+      $result.skinId = skinId;
+    }
+    if (skinName != null) {
+      $result.skinName = skinName;
+    }
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    return $result;
+  }
+  SkinInstance._() : super();
+  factory SkinInstance.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SkinInstance.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SkinInstance', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'SkinId', protoName: 'Skin_Id')
+    ..aOS(2, _omitFieldNames ? '' : 'SkinName', protoName: 'Skin_Name')
+    ..aOS(3, _omitFieldNames ? '' : 'UserEmail', protoName: 'User_Email')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SkinInstance clone() => SkinInstance()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SkinInstance copyWith(void Function(SkinInstance) updates) => super.copyWith((message) => updates(message as SkinInstance)) as SkinInstance;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SkinInstance create() => SkinInstance._();
+  SkinInstance createEmptyInstance() => create();
+  static $pb.PbList<SkinInstance> createRepeated() => $pb.PbList<SkinInstance>();
+  @$core.pragma('dart2js:noInline')
+  static SkinInstance getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SkinInstance>(create);
+  static SkinInstance? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get skinId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set skinId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSkinId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSkinId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get skinName => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set skinName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSkinName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSkinName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get userEmail => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set userEmail($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasUserEmail() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUserEmail() => clearField(3);
+}
+
+class MultiSkinInstance extends $pb.GeneratedMessage {
+  factory MultiSkinInstance({
+    $core.Iterable<SkinInstance>? skinInstances,
+  }) {
+    final $result = create();
+    if (skinInstances != null) {
+      $result.skinInstances.addAll(skinInstances);
+    }
+    return $result;
+  }
+  MultiSkinInstance._() : super();
+  factory MultiSkinInstance.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiSkinInstance.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiSkinInstance', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<SkinInstance>(1, _omitFieldNames ? '' : 'skinInstances', $pb.PbFieldType.PM, protoName: 'skinInstances', subBuilder: SkinInstance.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiSkinInstance clone() => MultiSkinInstance()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiSkinInstance copyWith(void Function(MultiSkinInstance) updates) => super.copyWith((message) => updates(message as MultiSkinInstance)) as MultiSkinInstance;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiSkinInstance create() => MultiSkinInstance._();
+  MultiSkinInstance createEmptyInstance() => create();
+  static $pb.PbList<MultiSkinInstance> createRepeated() => $pb.PbList<MultiSkinInstance>();
+  @$core.pragma('dart2js:noInline')
+  static MultiSkinInstance getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiSkinInstance>(create);
+  static MultiSkinInstance? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<SkinInstance> get skinInstances => $_getList(0);
+}
+
+class Skin extends $pb.GeneratedMessage {
+  factory Skin({
+    $core.String? skinName,
+    $core.String? figureName,
+    $core.int? price,
+  }) {
+    final $result = create();
+    if (skinName != null) {
+      $result.skinName = skinName;
+    }
+    if (figureName != null) {
+      $result.figureName = figureName;
+    }
+    if (price != null) {
+      $result.price = price;
+    }
+    return $result;
+  }
+  Skin._() : super();
+  factory Skin.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Skin.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Skin', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'SkinName', protoName: 'Skin_Name')
+    ..aOS(2, _omitFieldNames ? '' : 'FigureName', protoName: 'Figure_Name')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'Price', $pb.PbFieldType.O3, protoName: 'Price')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Skin clone() => Skin()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Skin copyWith(void Function(Skin) updates) => super.copyWith((message) => updates(message as Skin)) as Skin;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Skin create() => Skin._();
+  Skin createEmptyInstance() => create();
+  static $pb.PbList<Skin> createRepeated() => $pb.PbList<Skin>();
+  @$core.pragma('dart2js:noInline')
+  static Skin getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Skin>(create);
+  static Skin? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get skinName => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set skinName($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSkinName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSkinName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get figureName => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set figureName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFigureName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFigureName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get price => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set price($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPrice() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPrice() => clearField(3);
 }
 
 

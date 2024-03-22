@@ -44,7 +44,7 @@ class _DashboardState extends State<Dashboard> {
 
   void initialize() async {
     Routes.User? databaseUser = await auth?.getUserDBInfo();
-    Routes.Figure? databaseFigure = await auth?.getFigure(Routes.Figure(userEmail: databaseUser?.email, figureId: databaseUser?.curFigure));
+    Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(Routes.FigureInstance(userEmail: databaseUser?.email, figureName: databaseUser?.curFigure));
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
@@ -85,7 +85,7 @@ class _DashboardState extends State<Dashboard> {
                 Consumer<FigureModel>(
                   builder: (context, figure, child) {
                     return RobotImageHolder(
-                      url: figure.figure?.figureId ?? "robot1_skin0_cropped",
+                      url: figure.figure?.figureName ?? "robot1_skin0_cropped",
                       height: 400,
                       width: 400,
                     );
