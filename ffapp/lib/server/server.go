@@ -206,7 +206,7 @@ func (s *server) DeleteWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var figureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figureInstances WHERE User_Email = ? AND Figure_Id = ?", in.User_Email, in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figure_instances WHERE User_Email = ? AND Figure_Name = ?", in.User_Email, in.Figure_Name).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstance: %v", err)
 	}
@@ -215,7 +215,7 @@ func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (
 }
 
 func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
-	_, err := s.db.ExecContext(ctx, "UPDATE figureInstances SET Figure_Name = ?, User_Email = ?, Cur_Skin = ?, Ev_Points = ?, Charge = ? WHERE Figure_Id = ?", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Figure_Id)
+	_, err := s.db.ExecContext(ctx, "UPDATE figure_instances SET Figure_Name = ?, User_Email = ?, Cur_Skin = ?, Ev_Points = ?, Charge = ? WHERE Figure_Id = ?", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Figure_Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not update figureInstance: %v", err)
 	}
@@ -224,7 +224,7 @@ func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance
 }
 
 func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
-	_, err := s.db.ExecContext(ctx, "INSERT INTO figureInstances (Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge) VALUES (?, ?, ?, ?, ?, ?)", in.Figure_Id, in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge) VALUES (?, ?, ?, ?, ?, ?)", in.Figure_Id, in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge)
 	if err != nil {
 		return nil, fmt.Errorf("could not create figureInstance: %v", err)
 	}
@@ -237,12 +237,12 @@ func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance
 
 	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figureInstances WHERE Figure_Id = ?", in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge)
 	if err != nil {
-		return nil, fmt.Errorf("could not get figureInstance: %v", err)
+		return nil, fmt.Errorf("could not get figure_instances: %v", err)
 	}
 
-	_, err = s.db.ExecContext(ctx, "DELETE FROM figureInstances WHERE Figure_Id = ?", in.Figure_Id)
+	_, err = s.db.ExecContext(ctx, "DELETE FROM figure_instances WHERE Figure_Id = ?", in.Figure_Id)
 	if err != nil {
-		return nil, fmt.Errorf("could not delete figureInstance: %v", err)
+		return nil, fmt.Errorf("could not delete figure_instances: %v", err)
 	}
 
 	return &figureInstance, nil
@@ -251,7 +251,7 @@ func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance
 func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.MultiFigureInstance, error) {
 	figureInstances := &pb.MultiFigureInstance{} // Initialize figureInstances
 
-	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figureInstances WHERE User_Email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figure_instances WHERE User_Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstances: %v", err)
 	}
