@@ -151,8 +151,6 @@ func (s *server) GetWorkouts(ctx context.Context, in *pb.User) (*pb.MultiWorkout
 		}
 		workouts.Workouts = append(workouts.Workouts, &workout)
 
-		// Log output for each workout
-		log.Printf("Retrieved workout: Email=%s, StartDate=%s, Elapsed=%d, Currency_Add=%d, End_Date=%s, Charge_Add=%d", workout.Email, workout.StartDate, workout.Elapsed, workout.Currency_Add, workout.End_Date, workout.Charge_Add)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -338,7 +336,6 @@ func (s *server) GetFigures(ctx context.Context, in *pb.User) (*pb.MultiFigure, 
 		figures.Figures = append(figures.Figures, &figure)
 
 		// Log output for each figure
-		log.Printf("Retrieved figure: Figure_Name=%s, Base_Ev_Gain=%f, Base_Currency_Gain=%f, Price=%f, Stage1_Ev_Cutoff=%f, Stage2_Ev_Cutoff=%f, Stage3_Ev_Cutoff=%f, Stage4_Ev_Cutoff=%f, Stage5_Ev_Cutoff=%f, Stage6_Ev_Cutoff=%f, Stage7_Ev_Cutoff=%f, Stage8_Ev_Cutoff=%f, Stage9_Ev_Cutoff=%f, Stage10_Ev_Cutoff=%f", figure.Figure_Name, figure.Base_Ev_Gain, figure.Base_Currency_Gain, figure.Price, figure.Stage1_Ev_Cutoff, figure.Stage2_Ev_Cutoff, figure.Stage3_Ev_Cutoff, figure.Stage4_Ev_Cutoff, figure.Stage5_Ev_Cutoff, figure.Stage6_Ev_Cutoff, figure.Stage7_Ev_Cutoff, figure.Stage8_Ev_Cutoff, figure.Stage9_Ev_Cutoff, figure.Stage10_Ev_Cutoff)
 	}
 
 	if err := rows.Err(); err != nil {
