@@ -2,6 +2,7 @@ import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/inventory_item.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/auth.dart';
@@ -27,35 +28,16 @@ class _InventoryState extends State<Inventory> {
   late int currency = 0;
 
   late List<Routes.FigureInstance>  figureInstancesList = List.empty();
+  late List<Routes.Figure> figureList = List.empty();
 
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+
     initialize();
   }
 
-  void showFigureDetailsDialog(BuildContext context, String? figureUrl) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        child: Container(
-          width: 300,
-          height: 500,
-          child: Column(
-            children: [
-              SizedBox(height: 10,),
-              RobotImageHolder(url: figureUrl!, height: 300, width: 300),
-              SizedBox(height: 10,),
-              EvBar(currentXp: 10, maxXp: 45, currentLvl: 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
-              SizedBox(height: 40,),
-              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Close"))
-            ],
-          ),
-        ),
-      );
-    },
-  );}
+
 
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
@@ -63,6 +45,9 @@ class _InventoryState extends State<Inventory> {
     currency = int.parse(stringCur);
     await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
       figureInstancesList = value.figureInstances;
+    }));
+    await auth.getFigures().then((value) => setState(() {
+      figureList = value.figures;
     }));
   }
 
@@ -76,6 +61,70 @@ class _InventoryState extends State<Inventory> {
     ));
     auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
     Provider.of<FigureModel>(context, listen: false).setFigure(figureInstancesList.firstWhere((element) => element.figureName == newFigureName));
+  }
+
+  Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
+    int displayPoints = eVPoints;
+    int maxPoints = eVCutoffs[0];
+    int level = 1;
+
+    for (int i = 0; i < eVCutoffs.length; i++) {
+      if (displayPoints > eVCutoffs[i]) {
+        displayPoints -= eVCutoffs[i];
+        maxPoints = eVCutoffs[i];
+        level++;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      'displayPoints': displayPoints,
+      'maxPoints': maxPoints,
+      'level': level
+    };
+  }
+
+  void showFigureDetailsDialog(BuildContext context, String? figureUrl) {
+    List<int> eVCutoffs = [];
+    Figure figure = figureList.firstWhere((x) => x.figureName == figureUrl);
+    eVCutoffs.add(figure.stage1EvCutoff); // why did we decide to repersent this in the database this way it leads to a lot of code duplication
+    eVCutoffs.add(figure.stage2EvCutoff);
+    eVCutoffs.add(figure.stage3EvCutoff);
+    eVCutoffs.add(figure.stage4EvCutoff);
+    eVCutoffs.add(figure.stage5EvCutoff);// this is a lot of code duplication
+    eVCutoffs.add(figure.stage6EvCutoff); 
+    eVCutoffs.add(figure.stage7EvCutoff); // we could have just made a list of the stage ev cutoffs
+    eVCutoffs.add(figure.stage8EvCutoff);
+    eVCutoffs.add(figure.stage9EvCutoff); // and then looped through them to get the max points
+    eVCutoffs.add(figure.stage10EvCutoff); // this would have been a lot cleaner
+    // :(
+    Map<String, int> displayPointsAndMax = displayEVPointsAndMax(figureInstancesList.firstWhere((x) => x.figureName == figureUrl).evPoints, eVCutoffs);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 300,
+            height: 500,
+            child: Consumer<FigureModel>(
+              builder: (context, figureModel, _) {
+                return Column(
+                  children: [
+                    SizedBox(height: 10,),
+                    RobotImageHolder(url: figureUrl!, height: 300, width: 300),
+                    SizedBox(height: 10,),
+                    EvBar(currentXp: displayPointsAndMax['displayPoints'] ?? 0 , maxXp: displayPointsAndMax['maxPoints'] ?? 0, currentLvl: displayPointsAndMax['level'] ?? 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
+                    SizedBox(height: 40,),
+                    ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Close"))
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override

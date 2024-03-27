@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 option go_package = "./routes";
+import "google/protobuf/empty.proto";
 
 package routes;
 
@@ -30,7 +31,7 @@ service Routes {
     rpc UpdateFigure(Figure) returns (Figure) {}
     rpc CreateFigure(Figure) returns (Figure) {}
     rpc DeleteFigure(Figure) returns (Figure) {}
-    rpc GetFigures(User) returns (MultiFigure) {}
+    rpc GetFigures(google.protobuf.Empty) returns (MultiFigure) {}
 
     // SKIN INSTANCE ROUTES //
     rpc GetSkinInstance(SkinInstance) returns (SkinInstance) {}

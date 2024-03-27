@@ -61,12 +61,12 @@ class EvBar extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [ 
-          Text("Level " + currentLvl.toString() + "      ",
+          Text(currentLvl > 10 ? "Level MAX      " : "Level " + currentLvl.toString() + "      ",
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant
             ),
           ),
-          Text( currentXp.toString() + " / " + maxXp.toString() + " XP",
+          Text( currentXp.toString() + " / " + maxXp.toString() + " EV",
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant
             ),

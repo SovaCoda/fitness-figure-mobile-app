@@ -15,6 +15,7 @@ import 'dart:core' as $core;
 import 'package:grpc/service_api.dart' as $grpc;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'google/protobuf/empty.pb.dart' as $1;
 import 'routes.pb.dart' as $0;
 
 export 'routes.pb.dart';
@@ -93,9 +94,9 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/DeleteFigure',
       ($0.Figure value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Figure.fromBuffer(value));
-  static final _$getFigures = $grpc.ClientMethod<$0.User, $0.MultiFigure>(
+  static final _$getFigures = $grpc.ClientMethod<$1.Empty, $0.MultiFigure>(
       '/routes.Routes/GetFigures',
-      ($0.User value) => value.writeToBuffer(),
+      ($1.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.MultiFigure.fromBuffer(value));
   static final _$getSkinInstance = $grpc.ClientMethod<$0.SkinInstance, $0.SkinInstance>(
       '/routes.Routes/GetSkinInstance',
@@ -212,7 +213,7 @@ class RoutesClient extends $grpc.Client {
     return $createUnaryCall(_$deleteFigure, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.MultiFigure> getFigures($0.User request, {$grpc.CallOptions? options}) {
+  $grpc.ResponseFuture<$0.MultiFigure> getFigures($1.Empty request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getFigures, request, options: options);
   }
 
@@ -384,12 +385,12 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Figure.fromBuffer(value),
         ($0.Figure value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.User, $0.MultiFigure>(
+    $addMethod($grpc.ServiceMethod<$1.Empty, $0.MultiFigure>(
         'GetFigures',
         getFigures_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($core.List<$core.int> value) => $1.Empty.fromBuffer(value),
         ($0.MultiFigure value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.SkinInstance, $0.SkinInstance>(
         'GetSkinInstance',
@@ -528,7 +529,7 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return deleteFigure(call, await request);
   }
 
-  $async.Future<$0.MultiFigure> getFigures_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+  $async.Future<$0.MultiFigure> getFigures_Pre($grpc.ServiceCall call, $async.Future<$1.Empty> request) async {
     return getFigures(call, await request);
   }
 
@@ -586,7 +587,7 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.Figure> updateFigure($grpc.ServiceCall call, $0.Figure request);
   $async.Future<$0.Figure> createFigure($grpc.ServiceCall call, $0.Figure request);
   $async.Future<$0.Figure> deleteFigure($grpc.ServiceCall call, $0.Figure request);
-  $async.Future<$0.MultiFigure> getFigures($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.MultiFigure> getFigures($grpc.ServiceCall call, $1.Empty request);
   $async.Future<$0.SkinInstance> getSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);
   $async.Future<$0.SkinInstance> updateSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);
   $async.Future<$0.SkinInstance> createSkinInstance($grpc.ServiceCall call, $0.SkinInstance request);

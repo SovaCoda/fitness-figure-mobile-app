@@ -1,3 +1,4 @@
+import "package:ffapp/services/google/protobuf/empty.pb.dart";
 import "package:ffapp/services/routes.pb.dart" as Routes;
 import "package:firebase_auth/firebase_auth.dart" as FB;
 import "package:firebase_core/firebase_core.dart";
@@ -192,9 +193,9 @@ class AuthService {
     }
   }
 
-  Future<Routes.MultiFigure> getFigures(Routes.User user) async {
+  Future<Routes.MultiFigure> getFigures() async {
     try {
-      return await _routes.routesClient.getFigures(user);
+      return await _routes.routesClient.getFigures(Empty());
     } catch (e) {
       logger.e(e);
       throw Exception("Failed to get figures");

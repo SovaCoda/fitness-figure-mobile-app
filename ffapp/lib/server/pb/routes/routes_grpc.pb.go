@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -44,7 +45,7 @@ type RoutesClient interface {
 	UpdateFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
 	CreateFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
 	DeleteFigure(ctx context.Context, in *Figure, opts ...grpc.CallOption) (*Figure, error)
-	GetFigures(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiFigure, error)
+	GetFigures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiFigure, error)
 	// SKIN INSTANCE ROUTES //
 	GetSkinInstance(ctx context.Context, in *SkinInstance, opts ...grpc.CallOption) (*SkinInstance, error)
 	UpdateSkinInstance(ctx context.Context, in *SkinInstance, opts ...grpc.CallOption) (*SkinInstance, error)
@@ -228,7 +229,7 @@ func (c *routesClient) DeleteFigure(ctx context.Context, in *Figure, opts ...grp
 	return out, nil
 }
 
-func (c *routesClient) GetFigures(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiFigure, error) {
+func (c *routesClient) GetFigures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiFigure, error) {
 	out := new(MultiFigure)
 	err := c.cc.Invoke(ctx, "/routes.Routes/GetFigures", in, out, opts...)
 	if err != nil {
@@ -344,7 +345,7 @@ type RoutesServer interface {
 	UpdateFigure(context.Context, *Figure) (*Figure, error)
 	CreateFigure(context.Context, *Figure) (*Figure, error)
 	DeleteFigure(context.Context, *Figure) (*Figure, error)
-	GetFigures(context.Context, *User) (*MultiFigure, error)
+	GetFigures(context.Context, *emptypb.Empty) (*MultiFigure, error)
 	// SKIN INSTANCE ROUTES //
 	GetSkinInstance(context.Context, *SkinInstance) (*SkinInstance, error)
 	UpdateSkinInstance(context.Context, *SkinInstance) (*SkinInstance, error)
@@ -417,7 +418,7 @@ func (UnimplementedRoutesServer) CreateFigure(context.Context, *Figure) (*Figure
 func (UnimplementedRoutesServer) DeleteFigure(context.Context, *Figure) (*Figure, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFigure not implemented")
 }
-func (UnimplementedRoutesServer) GetFigures(context.Context, *User) (*MultiFigure, error) {
+func (UnimplementedRoutesServer) GetFigures(context.Context, *emptypb.Empty) (*MultiFigure, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFigures not implemented")
 }
 func (UnimplementedRoutesServer) GetSkinInstance(context.Context, *SkinInstance) (*SkinInstance, error) {
@@ -785,7 +786,7 @@ func _Routes_DeleteFigure_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _Routes_GetFigures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -797,7 +798,7 @@ func _Routes_GetFigures_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/routes.Routes/GetFigures",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoutesServer).GetFigures(ctx, req.(*User))
+		return srv.(RoutesServer).GetFigures(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

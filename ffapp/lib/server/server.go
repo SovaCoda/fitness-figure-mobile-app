@@ -11,6 +11,7 @@ import (
 	pb "server/pb/routes"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -318,10 +319,10 @@ func (s *server) DeleteFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, e
 	return &figure, nil
 }
 
-func (s *server) GetFigures(ctx context.Context, in *pb.User) (*pb.MultiFigure, error) {
+func (s *server) GetFigures(ctx context.Context, in *empty.Empty) (*pb.MultiFigure, error) {
 	figures := &pb.MultiFigure{} // Initialize figures
 
-	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM Figures WHERE User_Email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM figures")
 	if err != nil {
 		return nil, fmt.Errorf("could not get figures: %v", err)
 	}
