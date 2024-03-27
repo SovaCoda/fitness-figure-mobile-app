@@ -1,4 +1,6 @@
+import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/inventory_item.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +34,29 @@ class _InventoryState extends State<Inventory> {
     initialize();
   }
 
+  void showFigureDetailsDialog(BuildContext context, String? figureUrl) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Container(
+          width: 300,
+          height: 500,
+          child: Column(
+            children: [
+              SizedBox(height: 10,),
+              RobotImageHolder(url: figureUrl!, height: 300, width: 300),
+              SizedBox(height: 10,),
+              EvBar(currentXp: 10, maxXp: 45, currentLvl: 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
+              SizedBox(height: 40,),
+              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Close"))
+            ],
+          ),
+        ),
+      );
+    },
+  );}
+
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
     String stringCur = databaseUser?.currency.toString() ?? "0";
@@ -39,8 +64,18 @@ class _InventoryState extends State<Inventory> {
     await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
       figureInstancesList = value.figureInstances;
     }));
+  }
 
-
+  void equipNew(String newFigureName) {
+    Provider.of<UserModel>(context, listen: false).setUser(Routes.User(
+        email: Provider.of<UserModel>(context, listen: false).user?.email,
+        currency: Provider.of<UserModel>(context, listen: false).user?.currency,
+        weekGoal: Provider.of<UserModel>(context, listen: false).user?.weekGoal,
+        weekComplete: Provider.of<UserModel>(context, listen: false).user?.weekComplete,
+        curFigure: newFigureName,
+    ));
+    auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
+    Provider.of<FigureModel>(context, listen: false).setFigure(figureInstancesList.firstWhere((element) => element.figureName == newFigureName));
   }
 
   @override
@@ -57,34 +92,35 @@ class _InventoryState extends State<Inventory> {
             // generates the store as a bunch of rows with 2 elements each from the array above
             // TO DO: if there are an odd number of skins it wont render the last one rn
             children: List.generate(
-                (figureInstancesList.length / 2).floor(),
+                (figureInstancesList.length / 2).ceil(),
                 (index) => Column(children: [
                       const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 5),
-                          Consumer<UserModel>(
-                            builder: (context, userModel, _) {
-                              return InventoryItem(
+                      Consumer<UserModel>(
+                        builder: (context, userModel, _) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(width: 5),
+                              InventoryItem(
                                 photoPath: figureInstancesList[index * 2].figureName.toString(),
-                                onViewDetails: (context) => {context.goNamed("FigureDetails", pathParameters: {'figureUrl': figureInstancesList[index * 2].figureName.toString()})},
-                                equiped: figureInstancesList[index * 2].figureName.toString() == userModel.user?.curFigure ? true : false,
-                                onEquip: (context) => {}
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 15),
-                          InventoryItem(
-                              photoPath: listOfSkins[index * 2 + 1][0].toString(),
-                              onViewDetails: (context) => {context.goNamed("FigureDetails", pathParameters: {'figureUrl': listOfSkins[index * 2 + 1][0].toString()})},
-                              equiped: listOfSkins[index * 2 + 1][1].toString() == "true" ? true : false,
-                              onEquip: (context) => {},
-                          ),
-                          const SizedBox(width: 5),
-                        ],
+                                onViewDetails: (context) => {showFigureDetailsDialog(context, figureInstancesList[index * 2].figureName.toString())},
+                                equiped: figureInstancesList[index * 2].figureName.toString() == userModel.user?.curFigure,
+                                onEquip: (context) => {equipNew(figureInstancesList[index * 2].figureName.toString())}
+                              ),
+                              const SizedBox(width: 15),
+                              index * 2 + 1 >= figureInstancesList.length ? Container() : //Conditional to check if we have a last skin to render
+                              InventoryItem(
+                                photoPath: figureInstancesList[index * 2 + 1].figureName.toString(),
+                                onViewDetails: (context) => {showFigureDetailsDialog(context, figureInstancesList[index * 2 + 1].figureName.toString())},
+                                equiped: figureInstancesList[index * 2 + 1].figureName.toString() == userModel.user?.curFigure,
+                                onEquip: (context) => {equipNew(figureInstancesList[index * 2 + 1].figureName.toString())},
+                              ),
+                              const SizedBox(width: 5),
+                            ],
+                          );
+                        },
                       ),
-                    ])),
+            ])),
           ),
           const SizedBox(height: 30),
           ElevatedButton(

@@ -53,7 +53,6 @@ class _DashboardState extends State<Dashboard> {
         databaseUser?.currency.toString() ?? "0000");
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure!);
-
     setState(() {
       charge = curWeekly / curGoal;
       email = curEmail;
