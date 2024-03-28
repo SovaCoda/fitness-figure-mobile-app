@@ -214,9 +214,46 @@ func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (
 }
 
 func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
-	_, err := s.db.ExecContext(ctx, "UPDATE figure_instances SET Figure_Name = ?, User_Email = ?, Cur_Skin = ?, Ev_Points = ?, Charge = ? WHERE Figure_Id = ?", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Figure_Id)
+	var existingFigureInstance pb.FigureInstance
+
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge FROM figure_instances WHERE Figure_Id = ?", in.Figure_Id).Scan(&existingFigureInstance.Figure_Name, &existingFigureInstance.User_Email, &existingFigureInstance.Cur_Skin, &existingFigureInstance.Ev_Points, &existingFigureInstance.Charge)
 	if err != nil {
-		return nil, fmt.Errorf("could not update figureInstance: %v", err)
+		return nil, fmt.Errorf("could not get existing figureInstance: %v", err)
+	}
+
+	if in.Figure_Name != "" && in.Figure_Name != existingFigureInstance.Figure_Name {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET Figure_Name = ? WHERE Figure_Id = ?", in.Figure_Name, in.Figure_Id)
+		if err != nil {
+			return nil, fmt.Errorf("could not update Figure_Name: %v", err)
+		}
+	}
+
+	if in.User_Email != "" && in.User_Email != existingFigureInstance.User_Email {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET User_Email = ? WHERE Figure_Id = ?", in.User_Email, in.Figure_Id)
+		if err != nil {
+			return nil, fmt.Errorf("could not update User_Email: %v", err)
+		}
+	}
+
+	if in.Cur_Skin != "" && in.Cur_Skin != existingFigureInstance.Cur_Skin {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET Cur_Skin = ? WHERE Figure_Id = ?", in.Cur_Skin, in.Figure_Id)
+		if err != nil {
+			return nil, fmt.Errorf("could not update Cur_Skin: %v", err)
+		}
+	}
+
+	if in.Ev_Points != 0 && in.Ev_Points != existingFigureInstance.Ev_Points {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET Ev_Points = ? WHERE Figure_Id = ?", in.Ev_Points, in.Figure_Id)
+		if err != nil {
+			return nil, fmt.Errorf("could not update Ev_Points: %v", err)
+		}
+	}
+
+	if in.Charge != 0 && in.Charge != existingFigureInstance.Charge {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET Charge = ? WHERE Figure_Id = ?", in.Charge, in.Figure_Id)
+		if err != nil {
+			return nil, fmt.Errorf("could not update Charge: %v", err)
+		}
 	}
 
 	return in, nil
