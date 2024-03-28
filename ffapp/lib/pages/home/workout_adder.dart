@@ -385,7 +385,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Stack(children: [
-              RobotImageHolder(url: figureURL, height: 250, width: 250),
+              Consumer<FigureModel>(
+                builder: (context, figureModel, _) {
+                  return RobotImageHolder(
+                    url: figureModel.figure!.figureName,
+                    height: 250,
+                    width: 250,
+                  );
+                },
+              ),
               Positioned(
                   child: RobotDialogBox(
                       dialogOptions: robotDialog.getLoggerDialog(
