@@ -37,6 +37,16 @@ class FigureModel extends ChangeNotifier {
     figure = newFigure;
     notifyListeners();
   }
+
+  void setFigureEv(int newValue) {
+    figure?.evPoints = newValue;
+    notifyListeners();
+  }
+
+  void setFigureCharge(int newValue) {
+    figure?.charge = newValue;
+    notifyListeners();
+  }
 }
 
 Future<void> main() async {

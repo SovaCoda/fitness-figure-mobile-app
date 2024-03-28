@@ -25,7 +25,6 @@ class WorkoutAdder extends StatefulWidget {
 }
 
 class _WorkoutAdderState extends State<WorkoutAdder> {
-  FlutterUser user = FlutterUser();
   final logger = Logger();
   bool _logging = false;
   Timer _timer = Timer(Duration.zero, () {});
@@ -40,36 +39,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final double OFFSET = 250 / 4;
   late double scoreIncrement;
   final int sigfigs = 2;
+  late User user;
 
   @override
   void initState() {
     super.initState();
-    initAuthService();
+    auth = Provider.of<AuthService>(context, listen: false);
     initialize();
   }
 
-  //get the users current figure
   void initialize() async {
-    await user.initAuthService();
-    await user.checkUser();
-    String curFigure = await user.getCurrentFigure();
-    Int64 timegoal =
-        await user.getWorkoutMinTime().then((value) => Int64(value));
+    await auth.getUserDBInfo().then((value) {user = value!;});
+    Int64 timegoal = user.workoutMinTime;
     scoreIncrement = 1 / (timegoal.toDouble() * 60);
     logger.i(timegoal);
     setState(() {
-      if (curFigure != "none") {
-        figureURL = curFigure;
-      }
       if (timegoal != Int64.ZERO) {
         _timegoal = timegoal * 60; //convert to seconds
       }
     });
-  }
-
-  Future<void> initAuthService() async {
-    auth = await AuthService.instance;
-    logger.i("AuthService initialized");
   }
 
   void startTimer() {
@@ -97,30 +85,36 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   
   //function that does all the awarding in one
   Future<void> awardAll() async {
-    int weeklyCompleted = await user
-        .getWeeklyCompleted(); // replace with user provider when completed
-
+    FigureInstance figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
+    Figure figure = await auth.getFigure(Figure(figureName: figureInstance.figureName));
     int currency = int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
     int addable_currency = _timePassed.toInt() ~/ 10;
     currency += addable_currency;
 
-    int figureEV = 25; // needs to be replaced with the figure provider.
-    double eVConcistencyBonus = (figureEV * 0.1) * weeklyCompleted;
+    int figureEV = figure.baseEvGain; 
+    double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
     int ev = figureEV + eVConcistencyBonus.toInt();
 
     int figureCharge = 10; // needs to be replaced with the figure provider.
-    double chargeConcistencyBonus = (figureCharge * 0.1) * weeklyCompleted;
+    double chargeConcistencyBonus = (figureCharge * 0.1) * user.weekComplete.toInt();
     int charge = figureCharge + chargeConcistencyBonus.toInt();
 
     Provider.of<CurrencyModel>(context, listen: false).setCurrency(currency.toString());
+    Provider.of<FigureModel>(context, listen: false).setFigureEv(figureInstance.evPoints + ev);
+    Provider.of<FigureModel>(context, listen: false).setFigureCharge(figureInstance.charge + charge);
 
     await auth.updateUserDBInfo(Routes.User(
-        email: await user.getEmail(),
-        currency: Int64(currency),
-        //charge: Int64(charge),
-        //ev: Int64(ev), replace this eventually with the figure provider
-        weekComplete: Int64(weeklyCompleted + 1)));
-    }
+      email: user.email,
+      currency: Int64(currency),
+      weekComplete: Int64(user.weekComplete.toInt() + 1)
+    ));
+    
+    await auth.updateFigureInstance(FigureInstance(
+      figureId: figureInstance.figureId,
+      charge: (figureInstance.charge + charge).toInt(),
+      evPoints: (figureInstance.evPoints + ev).toInt()
+    ));
+  }
 
   Future<void> endLogging() async {
     _timePassed = time;
