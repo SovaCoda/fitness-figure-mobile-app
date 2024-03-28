@@ -277,7 +277,7 @@ func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.Multi
 func (s *server) GetFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, error) {
 	var figure pb.Figure
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM Figures WHERE Figure_Name = ?", in.Figure_Name).Scan(&figure.Figure_Name, &figure.Base_Ev_Gain, &figure.Base_Currency_Gain, &figure.Price, &figure.Stage1_Ev_Cutoff, &figure.Stage2_Ev_Cutoff, &figure.Stage3_Ev_Cutoff, &figure.Stage4_Ev_Cutoff, &figure.Stage5_Ev_Cutoff, &figure.Stage6_Ev_Cutoff, &figure.Stage7_Ev_Cutoff, &figure.Stage8_Ev_Cutoff, &figure.Stage9_Ev_Cutoff, &figure.Stage10_Ev_Cutoff)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM figures WHERE Figure_Name = ?", in.Figure_Name).Scan(&figure.Figure_Name, &figure.Base_Ev_Gain, &figure.Base_Currency_Gain, &figure.Price, &figure.Stage1_Ev_Cutoff, &figure.Stage2_Ev_Cutoff, &figure.Stage3_Ev_Cutoff, &figure.Stage4_Ev_Cutoff, &figure.Stage5_Ev_Cutoff, &figure.Stage6_Ev_Cutoff, &figure.Stage7_Ev_Cutoff, &figure.Stage8_Ev_Cutoff, &figure.Stage9_Ev_Cutoff, &figure.Stage10_Ev_Cutoff)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figure: %v", err)
 	}

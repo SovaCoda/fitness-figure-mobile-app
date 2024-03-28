@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
@@ -9,8 +8,6 @@ import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:firebase_auth/firebase_auth.dart' as FB;
-import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -32,6 +29,8 @@ class _DashboardState extends State<Dashboard> {
   late String figureURL = "robot1_skin0_cropped";
   late double charge = 0;
   final int robotCharge = 95;
+  late Map<String, int> evData = {};
+  late Figure figure = Figure();
   RobotDialog robotDialog = RobotDialog();
 
   @override
@@ -45,6 +44,19 @@ class _DashboardState extends State<Dashboard> {
   void initialize() async {
     Routes.User? databaseUser = await auth?.getUserDBInfo();
     Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(Routes.FigureInstance(userEmail: databaseUser?.email, figureName: databaseUser?.curFigure));
+    Routes.Figure? figure = await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
+    List<int> figureCutoffs = [];
+    figureCutoffs.add(figure?.stage1EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage2EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage3EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage4EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage5EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage6EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage7EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage8EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage9EvCutoff ?? 0);
+    figureCutoffs.add(figure?.stage10EvCutoff ?? 0);
+    Map<String, int> curEVData = displayEVPointsAndMax(databaseFigure.evPoints ?? 0, figureCutoffs);
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
@@ -54,6 +66,7 @@ class _DashboardState extends State<Dashboard> {
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure!);
     setState(() {
+      evData = curEVData;
       charge = curWeekly / curGoal;
       email = curEmail;
       weeklyGoal = curGoal;
@@ -69,6 +82,28 @@ class _DashboardState extends State<Dashboard> {
       }
     });
     logger.i(figureURL);
+  }
+
+  Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
+    int displayPoints = eVPoints;
+    int maxPoints = eVCutoffs[0];
+    int level = 1;
+
+    for (int i = 0; i < eVCutoffs.length; i++) {
+      if (displayPoints > eVCutoffs[i]) {
+        displayPoints -= eVCutoffs[i];
+        maxPoints = eVCutoffs[i];
+        level++;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      'displayPoints': displayPoints,
+      'maxPoints': maxPoints,
+      'level': level
+    };
   }
 
   @override
@@ -104,9 +139,9 @@ class _DashboardState extends State<Dashboard> {
                   bottom: 30,
                   left: 100,
                   child: EvBar(
-                    currentXp: 10,
-                    maxXp: 45,
-                    currentLvl: 1,
+                    currentXp: evData['displayPoints'] ?? 0,
+                    maxXp: evData['maxPoints'] ?? 0,
+                    currentLvl: evData['level'] ?? 1,
                     fillColor: Theme.of(context).colorScheme.tertiary,
                     barWidth: 200
                   ),

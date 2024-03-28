@@ -104,19 +104,19 @@ class _InventoryState extends State<Inventory> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          child: Container(
+          child: SizedBox(
             width: 300,
             height: 500,
             child: Consumer<FigureModel>(
               builder: (context, figureModel, _) {
                 return Column(
                   children: [
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
                     RobotImageHolder(url: figureUrl!, height: 300, width: 300),
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
                     EvBar(currentXp: displayPointsAndMax['displayPoints'] ?? 0 , maxXp: displayPointsAndMax['maxPoints'] ?? 0, currentLvl: displayPointsAndMax['level'] ?? 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
-                    SizedBox(height: 40,),
-                    ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Close"))
+                    const SizedBox(height: 40,),
+                    ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("Close"))
                   ],
                 );
               },
