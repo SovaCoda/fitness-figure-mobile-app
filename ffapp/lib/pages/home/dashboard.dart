@@ -26,7 +26,7 @@ class _DashboardState extends State<Dashboard> {
   late String email = "Loading...";
   late int weeklyGoal = 0;
   late int weeklyCompleted = 0;
-  late String figureURL = "robot1_skin0_cropped";
+  late String figureURL = "robot1";
   late double charge = 0;
   final int robotCharge = 95;
   late Map<String, int> evData = {};
@@ -64,7 +64,7 @@ class _DashboardState extends State<Dashboard> {
     Provider.of<CurrencyModel>(context, listen: false).setCurrency(
         databaseUser?.currency.toString() ?? "0000");
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
-    Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure!);
+    Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
     setState(() {
       evData = curEVData;
       charge = curWeekly / curGoal;
@@ -119,7 +119,7 @@ class _DashboardState extends State<Dashboard> {
                 Consumer<FigureModel>(
                   builder: (context, figure, child) {
                     return RobotImageHolder(
-                      url: figure.figure?.figureName ?? "robot1_skin0_cropped",
+                      url: (figure.figure != null) ? (figure.figure!.figureName + "_skin" + figure.figure!.curSkin + "_cropped") : "robot1_skin0_cropped",
                       height: 400,
                       width: 400,
                     );
