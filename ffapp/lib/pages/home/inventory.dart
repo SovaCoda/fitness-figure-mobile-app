@@ -85,9 +85,9 @@ class _InventoryState extends State<Inventory> {
     };
   }
 
-  void showFigureDetailsDialog(BuildContext context, String? figureUrl) {
+  void showFigureDetailsDialog(BuildContext context, String? figureName) {
     List<int> eVCutoffs = [];
-    Figure figure = figureList.firstWhere((x) => x.figureName == figureUrl);
+    Figure figure = figureList.firstWhere((x) => x.figureName == figureName);
     eVCutoffs.add(figure.stage1EvCutoff); // why did we decide to repersent this in the database this way it leads to a lot of code duplication
     eVCutoffs.add(figure.stage2EvCutoff);
     eVCutoffs.add(figure.stage3EvCutoff);
@@ -99,7 +99,7 @@ class _InventoryState extends State<Inventory> {
     eVCutoffs.add(figure.stage9EvCutoff); // and then looped through them to get the max points
     eVCutoffs.add(figure.stage10EvCutoff); // this would have been a lot cleaner
     // :(
-    Map<String, int> displayPointsAndMax = displayEVPointsAndMax(figureInstancesList.firstWhere((x) => x.figureName == figureUrl).evPoints, eVCutoffs);
+    Map<String, int> displayPointsAndMax = displayEVPointsAndMax(figureInstancesList.firstWhere((x) => x.figureName == figureName).evPoints, eVCutoffs);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -112,7 +112,7 @@ class _InventoryState extends State<Inventory> {
                 return Column(
                   children: [
                     const SizedBox(height: 10,),
-                    RobotImageHolder(url: figureUrl!, height: 300, width: 300),
+                    RobotImageHolder(url: (figureName! + "_skin0_cropped"), height: 300, width: 300),
                     const SizedBox(height: 10,),
                     EvBar(currentXp: displayPointsAndMax['displayPoints'] ?? 0 , maxXp: displayPointsAndMax['maxPoints'] ?? 0, currentLvl: displayPointsAndMax['level'] ?? 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
                     const SizedBox(height: 40,),
@@ -151,16 +151,16 @@ class _InventoryState extends State<Inventory> {
                             children: [
                               const SizedBox(width: 5),
                               InventoryItem(
-                                photoPath: figureInstancesList[index * 2].figureName.toString(),
-                                onViewDetails: (context) => {showFigureDetailsDialog(context, figureInstancesList[index * 2].figureName.toString())},
+                                photoPath: (figureInstancesList[index * 2].figureName.toString() + "_skin0_cropped"),
+                                onViewDetails: (context) => {showFigureDetailsDialog(context, (figureInstancesList[index * 2].figureName.toString()))},
                                 equiped: figureInstancesList[index * 2].figureName.toString() == userModel.user?.curFigure,
                                 onEquip: (context) => {equipNew(figureInstancesList[index * 2].figureName.toString())}
                               ),
                               const SizedBox(width: 15),
                               index * 2 + 1 >= figureInstancesList.length ? Container() : //Conditional to check if we have a last skin to render
                               InventoryItem(
-                                photoPath: figureInstancesList[index * 2 + 1].figureName.toString(),
-                                onViewDetails: (context) => {showFigureDetailsDialog(context, figureInstancesList[index * 2 + 1].figureName.toString())},
+                                photoPath: (figureInstancesList[index * 2 + 1].figureName.toString() + "_skin0_cropped"),
+                                onViewDetails: (context) => {showFigureDetailsDialog(context, (figureInstancesList[index * 2 + 1].figureName.toString()))},
                                 equiped: figureInstancesList[index * 2 + 1].figureName.toString() == userModel.user?.curFigure,
                                 onEquip: (context) => {equipNew(figureInstancesList[index * 2 + 1].figureName.toString())},
                               ),

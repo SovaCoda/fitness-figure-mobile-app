@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import "package:ffapp/services/routes.pb.dart" as Routes;
 import 'package:ffapp/services/auth.dart';
+import 'package:provider/provider.dart';
 
 class AvatarSelection extends StatefulWidget {
   const AvatarSelection({super.key});
@@ -15,11 +16,14 @@ class AvatarSelection extends StatefulWidget {
 class _AvatarSelectionState extends State<AvatarSelection> {
   // Added variable for minutes selection
   FlutterUser user = FlutterUser();
+  late AuthService auth;
   String curEmail = "Loading...";
 
   @override
   void initState() {
     super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
+
     initialize();
   }
 
@@ -33,7 +37,10 @@ class _AvatarSelectionState extends State<AvatarSelection> {
   void submitFigure(String figureUrl) async {
     user.updateUser(Routes.User(
         email: curEmail,
-        curFigure: figureUrl)); // Updated workoutMinTime value
+        curFigure: figureUrl));
+
+    await auth.createFigureInstance(Routes.FigureInstance(figureId: "4", figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70));
+    
     if (await user.getWorkoutGoal() == 0 || await user.getWorkoutMinTime() == 0) {
       context.goNamed('WorkoutFrequencySelection');
     } else {
@@ -80,7 +87,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                     width: 250,
                     child: IconButton(
                       icon: Image.asset('lib/assets/icons/robot1_skin0_cropped.gif'),
-                      onPressed: () {submitFigure("robot1_skin0_cropped");},
+                      onPressed: () {submitFigure("robot1");},
                     ),
                   ),
                 ),
@@ -101,7 +108,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                     width: 250,
                     child: IconButton(
                       icon: Image.asset('lib/assets/icons/robot2_skin0_cropped.gif'),
-                      onPressed: () {submitFigure("robot2_skin0_cropped");},
+                      onPressed: () {submitFigure("robot2");},
                     ),
                   ),
                 ),
