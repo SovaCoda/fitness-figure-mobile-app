@@ -193,3 +193,15 @@ final $typed_data.Uint8List skinDescriptor = $convert.base64Decode(
     'CgRTa2luEhsKCVNraW5fTmFtZRgBIAEoCVIIU2tpbk5hbWUSHwoLRmlndXJlX05hbWUYAiABKA'
     'lSCkZpZ3VyZU5hbWUSFAoFUHJpY2UYAyABKAVSBVByaWNl');
 
+@$core.Deprecated('Use multiSkinDescriptor instead')
+const MultiSkin$json = {
+  '1': 'MultiSkin',
+  '2': [
+    {'1': 'skins', '3': 1, '4': 3, '5': 11, '6': '.routes.Skin', '10': 'skins'},
+  ],
+};
+
+/// Descriptor for `MultiSkin`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiSkinDescriptor = $convert.base64Decode(
+    'CglNdWx0aVNraW4SIgoFc2tpbnMYASADKAsyDC5yb3V0ZXMuU2tpblIFc2tpbnM=');
+

@@ -389,7 +389,7 @@ func (s *server) GetFigures(ctx context.Context, in *empty.Empty) (*pb.MultiFigu
 func (s *server) GetSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
 	var skinstance pb.SkinInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Skin_Id, Skin_Name, User_Email FROM SkinInstances WHERE Skin_Id = ?", in.Skin_Id).Scan(&skinstance.Skin_Id, &skinstance.Skin_Name, &skinstance.User_Email)
+	err := s.db.QueryRowContext(ctx, "SELECT Skin_Id, Skin_Name, User_Email FROM skin_instances WHERE Skin_Id = ?", in.Skin_Id).Scan(&skinstance.Skin_Id, &skinstance.Skin_Name, &skinstance.User_Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get skin instance: %v", err)
 	}
@@ -398,7 +398,7 @@ func (s *server) GetSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.
 }
 
 func (s *server) UpdateSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
-	_, err := s.db.ExecContext(ctx, "UPDATE SkinInstances SET Skin_Name = ?, User_Email = ? WHERE Skin_Id = ?", in.Skin_Name, in.User_Email, in.Skin_Id)
+	_, err := s.db.ExecContext(ctx, "UPDATE skin_instances SET Skin_Name = ?, User_Email = ? WHERE Skin_Id = ?", in.Skin_Name, in.User_Email, in.Skin_Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not update skin instance: %v", err)
 	}
@@ -407,7 +407,7 @@ func (s *server) UpdateSkinInstance(ctx context.Context, in *pb.SkinInstance) (*
 }
 
 func (s *server) CreateSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
-	_, err := s.db.ExecContext(ctx, "INSERT INTO SkinInstances (Skin_Name, User_Email) VALUES (?, ?)", in.Skin_Name, in.User_Email)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO skin_instances (Skin_Name, User_Email) VALUES (?, ?)", in.Skin_Name, in.User_Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not create skin instance: %v", err)
 	}
@@ -416,7 +416,7 @@ func (s *server) CreateSkinInstance(ctx context.Context, in *pb.SkinInstance) (*
 }
 
 func (s *server) DeleteSkinInstance(ctx context.Context, in *pb.SkinInstance) (*pb.SkinInstance, error) {
-	_, err := s.db.ExecContext(ctx, "DELETE FROM SkinInstances WHERE Skin_Id = ?", in.Skin_Id)
+	_, err := s.db.ExecContext(ctx, "DELETE FROM skin_instances WHERE Skin_Id = ?", in.Skin_Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not delete skin instance: %v", err)
 	}
@@ -427,7 +427,7 @@ func (s *server) DeleteSkinInstance(ctx context.Context, in *pb.SkinInstance) (*
 func (s *server) GetSkinInstances(ctx context.Context, in *pb.User) (*pb.MultiSkinInstance, error) {
 	skinInstances := &pb.MultiSkinInstance{}
 
-	rows, err := s.db.QueryContext(ctx, "SELECT Skin_Id, Skin_Name, User_Email FROM SkinInstances WHERE User_Email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT Skin_Id, Skin_Name, User_Email FROM skin_instances WHERE User_Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get skin instances: %v", err)
 	}
@@ -456,7 +456,7 @@ func (s *server) GetSkinInstances(ctx context.Context, in *pb.User) (*pb.MultiSk
 func (s *server) GetSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
 	var skin pb.Skin
 
-	err := s.db.QueryRowContext(ctx, "SELECT Skin_Name, Figure_Name, Price FROM SkinInstances WHERE Skin_Name = ?", in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+	err := s.db.QueryRowContext(ctx, "SELECT Skin_Name, Figure_Name, Price FROM skin WHERE Skin_Name = ?", in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
 	if err != nil {
 		return nil, fmt.Errorf("could not get skin: %v", err)
 	}
@@ -464,10 +464,39 @@ func (s *server) GetSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
 	return &skin, nil
 }
 
+func (s *server) GetSkins(ctx context.Context, in *empty.Empty) (*pb.MultiSkin, error) {
+    skins := &pb.MultiSkin{}
+
+    rows, err := s.db.QueryContext(ctx, "SELECT Skin_Name, Figure_Name, Price FROM skins")
+    if err != nil {
+        return nil, fmt.Errorf("could not get skins: %v", err)
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var skin pb.Skin
+        err := rows.Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+        if err != nil {
+            return nil, fmt.Errorf("could not scan skin: %v", err)
+        }
+        skins.Skins = append(skins.Skins, &skin)
+
+        // Log output for each skin
+        log.Printf("Retrieved skin: Skin_Name=%s, Figure_Name=%s, Price=%f", skin.Skin_Name, skin.Figure_Name, skin.Price)
+    }
+
+    if err := rows.Err(); err != nil {
+        return nil, fmt.Errorf("could not iterate over skins: %v", err)
+    }
+
+    return skins, nil
+}
+	
+
 func (s *server) UpdateSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
 	var skin pb.Skin
 
-	err := s.db.QueryRowContext(ctx, "UPDATE SkinInstances SET Figure_Name = ?, Price = ? WHERE Skin_Name = ?", in.Figure_Name, in.Price, in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+	err := s.db.QueryRowContext(ctx, "UPDATE skins SET Figure_Name = ?, Price = ? WHERE Skin_Name = ?", in.Figure_Name, in.Price, in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
 	if err != nil {
 		return nil, fmt.Errorf("could not update skin: %v", err)
 	}
@@ -478,7 +507,7 @@ func (s *server) UpdateSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) 
 func (s *server) CreateSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
 	var skin pb.Skin
 
-	_, err := s.db.ExecContext(ctx, "INSERT INTO SkinInstances (Skin_Name, Figure_Name, Price) VALUES (?, ?, ?)", in.Skin_Name, in.Figure_Name, in.Price)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO skins (Skin_Name, Figure_Name, Price) VALUES (?, ?, ?)", in.Skin_Name, in.Figure_Name, in.Price)
 	if err != nil {
 		return nil, fmt.Errorf("could not create skin: %v", err)
 	}
@@ -493,7 +522,7 @@ func (s *server) CreateSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) 
 func (s *server) DeleteSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
 	var skin pb.Skin
 
-	err := s.db.QueryRowContext(ctx, "DELETE FROM SkinInstances WHERE Skin_Name = ?", in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
+	err := s.db.QueryRowContext(ctx, "DELETE FROM skins WHERE Skin_Name = ?", in.Skin_Name).Scan(&skin.Skin_Name, &skin.Figure_Name, &skin.Price)
 	if err != nil {
 		return nil, fmt.Errorf("could not delete skin: %v", err)
 	}

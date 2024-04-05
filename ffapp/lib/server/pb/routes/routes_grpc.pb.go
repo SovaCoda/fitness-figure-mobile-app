@@ -57,6 +57,7 @@ type RoutesClient interface {
 	UpdateSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
 	CreateSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
 	DeleteSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
+	GetSkins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiSkin, error)
 }
 
 type routesClient struct {
@@ -319,6 +320,15 @@ func (c *routesClient) DeleteSkin(ctx context.Context, in *Skin, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *routesClient) GetSkins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiSkin, error) {
+	out := new(MultiSkin)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetSkins", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoutesServer is the server API for Routes service.
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility
@@ -357,6 +367,7 @@ type RoutesServer interface {
 	UpdateSkin(context.Context, *Skin) (*Skin, error)
 	CreateSkin(context.Context, *Skin) (*Skin, error)
 	DeleteSkin(context.Context, *Skin) (*Skin, error)
+	GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error)
 	mustEmbedUnimplementedRoutesServer()
 }
 
@@ -447,6 +458,9 @@ func (UnimplementedRoutesServer) CreateSkin(context.Context, *Skin) (*Skin, erro
 }
 func (UnimplementedRoutesServer) DeleteSkin(context.Context, *Skin) (*Skin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSkin not implemented")
+}
+func (UnimplementedRoutesServer) GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSkins not implemented")
 }
 func (UnimplementedRoutesServer) mustEmbedUnimplementedRoutesServer() {}
 
@@ -965,6 +979,24 @@ func _Routes_DeleteSkin_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_GetSkins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetSkins(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetSkins",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetSkins(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Routes_ServiceDesc is the grpc.ServiceDesc for Routes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1083,6 +1115,10 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteSkin",
 			Handler:    _Routes_DeleteSkin_Handler,
+		},
+		{
+			MethodName: "GetSkins",
+			Handler:    _Routes_GetSkins_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

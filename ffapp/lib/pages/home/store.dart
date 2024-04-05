@@ -20,12 +20,10 @@ class Store extends StatefulWidget {
 
 class _StoreState extends State<Store> {
   //add a skin's image path and its price to render it in the store
-  final listOfSkins = [
-    ["robot1_skin0_cropped", 100],
-    ["robot1_skin1_cropped", 350],
-    ["robot2_skin0_cropped", 100],
-    ["robot2_skin1_cropped", 350],
-  ];
+  late List<Routes.Skin> listOfSkins = List.empty();
+  late List<Routes.Figure> listOfFigures = List.empty();
+  late List<Routes.FigureInstance> listOfFigureInstances = List.empty();
+  late List<Routes.SkinInstance> listOfSkinInstances = List.empty();
 
   late AuthService auth;
   late int currency = 0;
@@ -38,13 +36,27 @@ class _StoreState extends State<Store> {
 
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
+    
+    listOfSkins = await auth.getSkins().then((value) => value.skins);
+    listOfFigures = await auth.getFigures().then((value) => value.figures);
+    listOfFigureInstances = await auth.getFigureInstances(databaseUser!).then((value) => value.figureInstances);
+    listOfSkinInstances = await auth.getSkinInstances(databaseUser!).then((value) => value.skinInstances);
+
     String stringCur = databaseUser?.currency.toString() ?? "0";
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
+    setState(() {
+      listOfSkins = listOfSkins;
+    });
+  }
+
+  void addSkinInstance(BuildContext context, Routes.SkinInstance skinInstance) async {
+    await auth.createSkinInstance(skinInstance);
+    logger.i("Added skin instance to user's inventory.");
   }
 
   void subtractCurrency(BuildContext context, int subtractCurrency) async {
-    Routes.User? databaseUser = await auth.getUserDBInfo();
+    Routes.User? databaseUser = await auth.getUserDBInfo(); // needs to be changed to get user from provider
     int currentCurrency = databaseUser!.currency.toInt();
     logger.i(
         "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
@@ -160,20 +172,39 @@ class _StoreState extends State<Store> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(width: 5),
-                            StoreItem(
-                                photoPath: listOfSkins[index * 2][0].toString(),
-                                itemPrice: int.parse(
-                                    listOfSkins[index * 2][1].toString()),
-                                onBuySkin: (context, price) =>
-                                    subtractCurrency(context, price)),
-                            const SizedBox(width: 15),
-                            StoreItem(
-                                photoPath:
-                                    listOfSkins[index * 2 + 1][0].toString(),
-                                itemPrice: int.parse(
-                                    listOfSkins[index * 2 + 1][1].toString()),
-                                onBuySkin: (context, price) =>
-                                    subtractCurrency(context, price)),
+                            Consumer<UserModel>(
+                              builder: (context, userModel, child) {
+                                return Column(
+                                  children: [
+                                    StoreItem(
+                                      owned: listOfFigureInstances.any((instance) => instance.figureName == listOfSkins[index * 2].figureName) && listOfSkinInstances.any((instance) => instance.skinName == listOfSkins[index * 2].skinName),
+                                      photoPath: "${listOfSkins[index * 2].figureName}_${listOfSkins[index * 2].skinName}_cropped",
+                                      itemPrice: int.parse(listOfSkins[index * 2].price.toString()),
+                                      onBuySkin: (context, price) {
+                                        subtractCurrency(context, price);
+                                        addSkinInstance(context, Routes.SkinInstance(
+                                          skinName: listOfSkins[index * 2].skinName,
+                                          userEmail: userModel.user?.email,
+                                        ));
+                                      },
+                                    ),
+                                    const SizedBox(width: 15),
+                                    StoreItem(
+                                      owned: listOfFigureInstances.any((instance) => instance.figureName == listOfSkins[index * 2 + 1].figureName) && listOfSkinInstances.any((instance) => instance.skinName == listOfSkins[index * 2 + 1].skinName),
+                                      photoPath: "${listOfSkins[index * 2 + 1].figureName}_${listOfSkins[index * 2 + 1].skinName}_cropped",
+                                      itemPrice: int.parse(listOfSkins[index * 2 + 1].price.toString()),
+                                      onBuySkin: (context, price) {
+                                        subtractCurrency(context, price);
+                                        addSkinInstance(context, Routes.SkinInstance(
+                                          skinName: listOfSkins[index * 2 + 1].skinName,
+                                          userEmail: userModel.user?.email,
+                                        ));
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                             const SizedBox(width: 5),
                           ],
                         ),

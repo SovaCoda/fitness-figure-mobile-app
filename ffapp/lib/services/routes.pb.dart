@@ -966,6 +966,50 @@ class Skin extends $pb.GeneratedMessage {
   void clearPrice() => clearField(3);
 }
 
+class MultiSkin extends $pb.GeneratedMessage {
+  factory MultiSkin({
+    $core.Iterable<Skin>? skins,
+  }) {
+    final $result = create();
+    if (skins != null) {
+      $result.skins.addAll(skins);
+    }
+    return $result;
+  }
+  MultiSkin._() : super();
+  factory MultiSkin.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiSkin.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiSkin', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<Skin>(1, _omitFieldNames ? '' : 'skins', $pb.PbFieldType.PM, subBuilder: Skin.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiSkin clone() => MultiSkin()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiSkin copyWith(void Function(MultiSkin) updates) => super.copyWith((message) => updates(message as MultiSkin)) as MultiSkin;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiSkin create() => MultiSkin._();
+  MultiSkin createEmptyInstance() => create();
+  static $pb.PbList<MultiSkin> createRepeated() => $pb.PbList<MultiSkin>();
+  @$core.pragma('dart2js:noInline')
+  static MultiSkin getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiSkin>(create);
+  static MultiSkin? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Skin> get skins => $_getList(0);
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

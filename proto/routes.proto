@@ -45,6 +45,7 @@ service Routes {
     rpc UpdateSkin(Skin) returns (Skin) {}
     rpc CreateSkin(Skin) returns (Skin) {}
     rpc DeleteSkin(Skin) returns (Skin) {}
+    rpc GetSkins(google.protobuf.Empty) returns (MultiSkin) {}
 }
 
 message Workout {
@@ -119,4 +120,8 @@ message Skin {
     string Skin_Name = 1;
     string Figure_Name = 2;
     int32 Price = 3;
+}
+
+message MultiSkin {
+    repeated Skin skins = 1;
 }

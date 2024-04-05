@@ -257,6 +257,15 @@ class AuthService {
     }
   }
 
+  Future<Routes.MultiSkin> getSkins() async {
+    try {
+      return await _routes.routesClient.getSkins(Empty());
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get skins");
+    }
+  }
+
   Future<Routes.Skin> updateSkin(Routes.Skin skin) async {
     try {
       return await _routes.routesClient.updateSkin(skin);

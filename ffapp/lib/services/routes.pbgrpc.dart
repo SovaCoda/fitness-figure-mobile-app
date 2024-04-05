@@ -134,6 +134,10 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/DeleteSkin',
       ($0.Skin value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Skin.fromBuffer(value));
+  static final _$getSkins = $grpc.ClientMethod<$1.Empty, $0.MultiSkin>(
+      '/routes.Routes/GetSkins',
+      ($1.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiSkin.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -251,6 +255,10 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Skin> deleteSkin($0.Skin request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$deleteSkin, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiSkin> getSkins($1.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSkins, request, options: options);
   }
 }
 
@@ -455,6 +463,13 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Skin.fromBuffer(value),
         ($0.Skin value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$1.Empty, $0.MultiSkin>(
+        'GetSkins',
+        getSkins_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $1.Empty.fromBuffer(value),
+        ($0.MultiSkin value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
@@ -569,6 +584,10 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return deleteSkin(call, await request);
   }
 
+  $async.Future<$0.MultiSkin> getSkins_Pre($grpc.ServiceCall call, $async.Future<$1.Empty> request) async {
+    return getSkins(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
@@ -597,4 +616,5 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.Skin> updateSkin($grpc.ServiceCall call, $0.Skin request);
   $async.Future<$0.Skin> createSkin($grpc.ServiceCall call, $0.Skin request);
   $async.Future<$0.Skin> deleteSkin($grpc.ServiceCall call, $0.Skin request);
+  $async.Future<$0.MultiSkin> getSkins($grpc.ServiceCall call, $1.Empty request);
 }

@@ -37,8 +37,6 @@ class _InventoryState extends State<Inventory> {
     initialize();
   }
 
-
-
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
     String stringCur = databaseUser?.currency.toString() ?? "0";
