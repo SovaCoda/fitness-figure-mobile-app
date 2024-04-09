@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 import 'dart:math';
 
 import 'package:ffapp/components/animated_points.dart';
@@ -82,54 +83,63 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       _startTime = DateTime.now().toString();
     });
   }
-  
-  //function that does all the awarding in one
-  Future<void> awardAll() async {
+
+  Future<void> endLogging() async {
+    //get figure and figure instance
     FigureInstance figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
     Figure figure = await auth.getFigure(Figure(figureName: figureInstance.figureName));
+
+    //calculate some proportions
+    double timeProportion = (time.toInt() / _timegoal.toInt());
+    double chargeProportion = figureInstance.charge/100;
+
+    //calculate change currency
+    int beforeGoalCurrencyAdd = (min(timeProportion, 1) * figure.baseCurrencyGain * chargeProportion).toInt();
+    int afterGoalCurrencyAdd = (max(timeProportion - 1, 0) * pow(figure.baseCurrencyGain, .5) * pow((chargeProportion), 2).toDouble()).toInt();
+    // before currency is capped at base gain and after goal is small extra for if you've passed the goal
+    int currencyAdd = beforeGoalCurrencyAdd + afterGoalCurrencyAdd;
+
+    //calculate change ev
+    double squaredCharge = pow((chargeProportion), 2).toDouble();
+    //the charge proportion is weighted more but you can gain infinite ev if passing goal
+    int evAdd = (squaredCharge * timeProportion * figure.baseEvGain).toInt();
+
+    //calculate change charge
+    //gain min of half of missing charge or 40
+    int chargeAdd = min((100 - figureInstance.charge) ~/ 2, 40);
+
+    //update providers
     int currency = int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
-    int addable_currency = _timePassed.toInt() ~/ 10;
-    currency += addable_currency;
-
-    int figureEV = figure.baseEvGain; 
-    double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
-    int ev = figureEV + eVConcistencyBonus.toInt();
-
-    int figureCharge = 10; // needs to be replaced with the figure provider.
-    double chargeConcistencyBonus = (figureCharge * 0.1) * user.weekComplete.toInt();
-    int charge = figureCharge + chargeConcistencyBonus.toInt();
-
-    Provider.of<CurrencyModel>(context, listen: false).setCurrency(currency.toString());
-    Provider.of<FigureModel>(context, listen: false).setFigureEv(figureInstance.evPoints + ev);
-    Provider.of<FigureModel>(context, listen: false).setFigureCharge(figureInstance.charge + charge);
+    Provider.of<CurrencyModel>(context, listen: false).setCurrency((currency + currencyAdd).toString());
+    Provider.of<FigureModel>(context, listen: false).setFigureEv(figureInstance.evPoints + evAdd);
+    Provider.of<FigureModel>(context, listen: false).setFigureCharge(figureInstance.charge + chargeAdd);
 
     await auth.updateUserDBInfo(Routes.User(
       email: user.email,
-      currency: Int64(currency),
+      currency: Int64(currency + currencyAdd),
       weekComplete: Int64(user.weekComplete.toInt() + 1)
     ));
     
     await auth.updateFigureInstance(FigureInstance(
       figureId: figureInstance.figureId,
-      charge: (figureInstance.charge + charge).toInt(),
-      evPoints: (figureInstance.evPoints + ev).toInt()
+      charge: (figureInstance.charge + chargeAdd).toInt(),
+      evPoints: (figureInstance.evPoints + evAdd).toInt()
     ));
-  }
 
-  Future<void> endLogging() async {
     _timePassed = time;
     time = Int64.ZERO;
     _endTime = DateTime.now().toString();
+
     Workout workout = Workout(
       startDate: _startTime,
       endDate: _endTime,
       elapsed: _timePassed,
       email: await auth.getUser().then((value) => value!.email.toString()),
-      chargeAdd: Int64(Random.secure().nextInt(100)),
-      currencyAdd: Int64(Random.secure().nextInt(1000)),
+      chargeAdd: Int64(chargeAdd),
+      currencyAdd: Int64(currencyAdd),
     );
     await auth.createWorkout(workout);
-    await awardAll();
+
     setState(() {
       _logging = false;
       _timer.cancel();
