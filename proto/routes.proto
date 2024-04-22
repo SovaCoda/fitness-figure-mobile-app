@@ -110,6 +110,7 @@ message SkinInstance {
     string Skin_Id = 1;
     string Skin_Name = 2;
     string User_Email = 3;
+    string Figure_Name = 4;
 }
 
 message MultiSkinInstance {

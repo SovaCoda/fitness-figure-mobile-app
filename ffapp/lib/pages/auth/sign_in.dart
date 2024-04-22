@@ -64,7 +64,7 @@ class _SignInState extends State<SignIn> {
       emailController.text,
       passwordController.text,
     );
-
+    
     if (user != null) {
       if (user is String) {
         logger.e(user);

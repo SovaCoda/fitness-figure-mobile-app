@@ -157,13 +157,15 @@ const SkinInstance$json = {
     {'1': 'Skin_Id', '3': 1, '4': 1, '5': 9, '10': 'SkinId'},
     {'1': 'Skin_Name', '3': 2, '4': 1, '5': 9, '10': 'SkinName'},
     {'1': 'User_Email', '3': 3, '4': 1, '5': 9, '10': 'UserEmail'},
+    {'1': 'Figure_Name', '3': 4, '4': 1, '5': 9, '10': 'FigureName'},
   ],
 };
 
 /// Descriptor for `SkinInstance`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List skinInstanceDescriptor = $convert.base64Decode(
     'CgxTa2luSW5zdGFuY2USFwoHU2tpbl9JZBgBIAEoCVIGU2tpbklkEhsKCVNraW5fTmFtZRgCIA'
-    'EoCVIIU2tpbk5hbWUSHQoKVXNlcl9FbWFpbBgDIAEoCVIJVXNlckVtYWls');
+    'EoCVIIU2tpbk5hbWUSHQoKVXNlcl9FbWFpbBgDIAEoCVIJVXNlckVtYWlsEh8KC0ZpZ3VyZV9O'
+    'YW1lGAQgASgJUgpGaWd1cmVOYW1l');
 
 @$core.Deprecated('Use multiSkinInstanceDescriptor instead')
 const MultiSkinInstance$json = {

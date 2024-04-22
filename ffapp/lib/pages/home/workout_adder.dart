@@ -111,6 +111,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     
     await auth.updateFigureInstance(FigureInstance(
       figureId: figureInstance.figureId,
+      userEmail: user.email,
+      figureName: figureInstance.figureName,
       charge: (figureInstance.charge + charge).toInt(),
       evPoints: (figureInstance.evPoints + ev).toInt()
     ));

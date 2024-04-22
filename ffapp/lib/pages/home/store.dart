@@ -1,4 +1,4 @@
-import 'package:ffapp/components/store_item.dart';
+import 'package:ffapp/components/figure_store_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -8,8 +8,20 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:fixnum/fixnum.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ffapp/components/skin_view.dart';
 
 var logger = Logger();
+
+class FigureInstancesProvider extends ChangeNotifier {
+  late List<Routes.FigureInstance> listOfFigureInstances;
+  void initializeListOfFigureInstances(List<Routes.FigureInstance> listOfFigureInstances) {
+    this.listOfFigureInstances = listOfFigureInstances;
+  }
+  void setFigureInstanceCurSkin (String figureName, String curSkin) {
+    listOfFigureInstances.where((element) => element.figureName == figureName).first.curSkin = curSkin.substring(4);
+    notifyListeners();
+  }
+}
 
 class Store extends StatefulWidget {
   const Store({super.key});
@@ -20,9 +32,9 @@ class Store extends StatefulWidget {
 
 class _StoreState extends State<Store> {
   //add a skin's image path and its price to render it in the store
-  late List<Routes.Skin> listOfSkins = List.empty();
+  late List<Routes.Skin> listOfSkin = List.empty();
   late List<Routes.Figure> listOfFigures = List.empty();
-  late List<Routes.FigureInstance> listOfFigureInstances = List.empty();
+  late  List<Routes.FigureInstance> listOfFigureInstances = List.empty();
   late List<Routes.SkinInstance> listOfSkinInstances = List.empty();
 
   late AuthService auth;
@@ -37,7 +49,7 @@ class _StoreState extends State<Store> {
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
     
-    listOfSkins = await auth.getSkins().then((value) => value.skins);
+    listOfSkin = await auth.getSkins().then((value) => value.skins);
     listOfFigures = await auth.getFigures().then((value) => value.figures);
     listOfFigureInstances = await auth.getFigureInstances(databaseUser!).then((value) => value.figureInstances);
     listOfSkinInstances = await auth.getSkinInstances(databaseUser!).then((value) => value.skinInstances);
@@ -46,8 +58,31 @@ class _StoreState extends State<Store> {
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
     setState(() {
-      listOfSkins = listOfSkins;
+      listOfFigures = listOfFigures;
     });
+  }
+
+  void showSkinView(String figureName) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Skin View"),
+          content: Container(
+            height: MediaQuery.of(context).size.height * 0.8, // Set the height to 80% of the screen height
+            child: ChangeNotifierProvider(create: (context) => FigureInstancesProvider(), child: SkinViewer(listOfSkins: listOfSkin, listOfSkinInstances: listOfSkinInstances, figureName: figureName, listOfFigureInstances: listOfFigureInstances)),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void addSkinInstance(BuildContext context, Routes.SkinInstance skinInstance) async {
@@ -132,7 +167,7 @@ class _StoreState extends State<Store> {
                     actions: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop();;
+                          Navigator.of(context).pop();
                         },
                       child: const Text("Get Fit")
                       ),
@@ -163,9 +198,8 @@ class _StoreState extends State<Store> {
             const SizedBox(height: 10),
             Column(
               // generates the store as a bunch of rows with 2 elements each from the array above
-              // TO DO: if there are an odd number of skins it wont render the last one rn
               children: List.generate(
-                  (listOfSkins.length / 2).floor(),
+                  (listOfFigures.length / 2).floor(),
                   (index) => Column(children: [
                         const SizedBox(height: 15),
                         Row(
@@ -176,30 +210,37 @@ class _StoreState extends State<Store> {
                               builder: (context, userModel, child) {
                                 return Column(
                                   children: [
-                                    StoreItem(
-                                      owned: listOfFigureInstances.any((instance) => instance.figureName == listOfSkins[index * 2].figureName) && listOfSkinInstances.any((instance) => instance.skinName == listOfSkins[index * 2].skinName),
-                                      photoPath: "${listOfSkins[index * 2].figureName}_${listOfSkins[index * 2].skinName}_cropped",
-                                      itemPrice: int.parse(listOfSkins[index * 2].price.toString()),
-                                      onBuySkin: (context, price) {
-                                        subtractCurrency(context, price);
-                                        addSkinInstance(context, Routes.SkinInstance(
-                                          skinName: listOfSkins[index * 2].skinName,
-                                          userEmail: userModel.user?.email,
-                                        ));
-                                      },
-                                    ),
-                                    const SizedBox(width: 15),
-                                    StoreItem(
-                                      owned: listOfFigureInstances.any((instance) => instance.figureName == listOfSkins[index * 2 + 1].figureName) && listOfSkinInstances.any((instance) => instance.skinName == listOfSkins[index * 2 + 1].skinName),
-                                      photoPath: "${listOfSkins[index * 2 + 1].figureName}_${listOfSkins[index * 2 + 1].skinName}_cropped",
-                                      itemPrice: int.parse(listOfSkins[index * 2 + 1].price.toString()),
-                                      onBuySkin: (context, price) {
-                                        subtractCurrency(context, price);
-                                        addSkinInstance(context, Routes.SkinInstance(
-                                          skinName: listOfSkins[index * 2 + 1].skinName,
-                                          userEmail: userModel.user?.email,
-                                        ));
-                                      },
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        FigureStoreItem(
+                                          owned: listOfFigureInstances.any((instance) => instance.figureName == listOfFigures[index * 2].figureName),
+                                          photoPath: "${listOfFigures[index * 2].figureName}_skin0_cropped",
+                                          itemPrice: int.parse(listOfFigures[index * 2].price.toString()),
+                                          onOpenSkin: (context, price, skinSkinName) {
+                                            subtractCurrency(context, price);
+                                          },
+                                          onViewSkin: (context, figureName) {
+                                            showSkinView(listOfFigures[index * 2].figureName);
+                                          },
+                                          skinName: "",
+                                          figureName: listOfFigures[index * 2].figureName,
+                                        ),
+                                        const SizedBox(width: 15),
+                                        FigureStoreItem(
+                                          skinName: "",
+                                          owned: listOfFigureInstances.any((instance) => instance.figureName == listOfFigures[index * 2 + 1].figureName),
+                                          photoPath: "${listOfFigures[index * 2 + 1].figureName}_skin0_cropped",
+                                          itemPrice: int.parse(listOfFigures[index * 2 + 1].price.toString()),
+                                          onOpenSkin: (context, price, skinSkinName) {
+                                            subtractCurrency(context, price);
+                                          },
+                                          onViewSkin: (context, skinName) {
+                                            showSkinView(listOfFigures[index * 2 + 1].figureName);
+                                          },
+                                          figureName: listOfFigures[index * 2 + 1].figureName,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 );

@@ -771,6 +771,7 @@ class SkinInstance extends $pb.GeneratedMessage {
     $core.String? skinId,
     $core.String? skinName,
     $core.String? userEmail,
+    $core.String? figureName,
   }) {
     final $result = create();
     if (skinId != null) {
@@ -782,6 +783,9 @@ class SkinInstance extends $pb.GeneratedMessage {
     if (userEmail != null) {
       $result.userEmail = userEmail;
     }
+    if (figureName != null) {
+      $result.figureName = figureName;
+    }
     return $result;
   }
   SkinInstance._() : super();
@@ -792,6 +796,7 @@ class SkinInstance extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'SkinId', protoName: 'Skin_Id')
     ..aOS(2, _omitFieldNames ? '' : 'SkinName', protoName: 'Skin_Name')
     ..aOS(3, _omitFieldNames ? '' : 'UserEmail', protoName: 'User_Email')
+    ..aOS(4, _omitFieldNames ? '' : 'FigureName', protoName: 'Figure_Name')
     ..hasRequiredFields = false
   ;
 
@@ -842,6 +847,15 @@ class SkinInstance extends $pb.GeneratedMessage {
   $core.bool hasUserEmail() => $_has(2);
   @$pb.TagNumber(3)
   void clearUserEmail() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get figureName => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set figureName($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasFigureName() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearFigureName() => clearField(4);
 }
 
 class MultiSkinInstance extends $pb.GeneratedMessage {
