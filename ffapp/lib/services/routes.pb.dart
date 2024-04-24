@@ -334,6 +334,7 @@ class FigureInstance extends $pb.GeneratedMessage {
     $core.String? curSkin,
     $core.int? evPoints,
     $core.int? charge,
+    $core.int? mood,
   }) {
     final $result = create();
     if (figureId != null) {
@@ -354,6 +355,9 @@ class FigureInstance extends $pb.GeneratedMessage {
     if (charge != null) {
       $result.charge = charge;
     }
+    if (mood != null) {
+      $result.mood = mood;
+    }
     return $result;
   }
   FigureInstance._() : super();
@@ -367,6 +371,7 @@ class FigureInstance extends $pb.GeneratedMessage {
     ..aOS(4, _omitFieldNames ? '' : 'CurSkin', protoName: 'Cur_Skin')
     ..a<$core.int>(5, _omitFieldNames ? '' : 'EvPoints', $pb.PbFieldType.O3, protoName: 'Ev_Points')
     ..a<$core.int>(6, _omitFieldNames ? '' : 'Charge', $pb.PbFieldType.O3, protoName: 'Charge')
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'Mood', $pb.PbFieldType.O3, protoName: 'Mood')
     ..hasRequiredFields = false
   ;
 
@@ -444,6 +449,15 @@ class FigureInstance extends $pb.GeneratedMessage {
   $core.bool hasCharge() => $_has(5);
   @$pb.TagNumber(6)
   void clearCharge() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get mood => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set mood($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasMood() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearMood() => clearField(7);
 }
 
 class MultiFigureInstance extends $pb.GeneratedMessage {

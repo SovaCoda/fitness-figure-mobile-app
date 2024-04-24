@@ -79,6 +79,7 @@ message FigureInstance {
     string Cur_Skin = 4;
     int32 Ev_Points = 5;
     int32 Charge = 6;
+    int32 Mood = 7;
 }
 
 message MultiFigureInstance {

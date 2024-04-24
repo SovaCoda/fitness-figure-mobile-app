@@ -79,6 +79,7 @@ const FigureInstance$json = {
     {'1': 'Cur_Skin', '3': 4, '4': 1, '5': 9, '10': 'CurSkin'},
     {'1': 'Ev_Points', '3': 5, '4': 1, '5': 5, '10': 'EvPoints'},
     {'1': 'Charge', '3': 6, '4': 1, '5': 5, '10': 'Charge'},
+    {'1': 'Mood', '3': 7, '4': 1, '5': 5, '10': 'Mood'},
   ],
 };
 
@@ -87,7 +88,7 @@ final $typed_data.Uint8List figureInstanceDescriptor = $convert.base64Decode(
     'Cg5GaWd1cmVJbnN0YW5jZRIbCglGaWd1cmVfSWQYASABKAlSCEZpZ3VyZUlkEh8KC0ZpZ3VyZV'
     '9OYW1lGAIgASgJUgpGaWd1cmVOYW1lEh0KClVzZXJfRW1haWwYAyABKAlSCVVzZXJFbWFpbBIZ'
     'CghDdXJfU2tpbhgEIAEoCVIHQ3VyU2tpbhIbCglFdl9Qb2ludHMYBSABKAVSCEV2UG9pbnRzEh'
-    'YKBkNoYXJnZRgGIAEoBVIGQ2hhcmdl');
+    'YKBkNoYXJnZRgGIAEoBVIGQ2hhcmdlEhIKBE1vb2QYByABKAVSBE1vb2Q=');
 
 @$core.Deprecated('Use multiFigureInstanceDescriptor instead')
 const MultiFigureInstance$json = {
