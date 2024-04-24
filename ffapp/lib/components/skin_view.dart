@@ -107,7 +107,7 @@ class _SkinViewerState extends State<SkinViewer> {
                   figureName: skin.figureName,
                   skinName: skin.skinName,
                   onViewSkin: (context, figureName) => viewSkin(context, figureName),
-                  photoPath: "${skin.figureName}_${skin.skinName}_cropped",
+                  photoPath: "${skin.figureName}/${skin.figureName}_${skin.skinName}_evo0_cropped_happy",
                   itemPrice: skin.price,
                   onPurchaseSkin: (context, price, skinSkinName, figureSkinName, owned) => purchaseSkin(context, skin.price, skin.skinName, skin.figureName, owned),
                   onEquipSkin: (context, figureName, skinName) => equipSkin(context, figureName, skinName),

@@ -58,7 +58,7 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
         children: [
           const SizedBox(height: 25),
           Image.asset(
-            "lib/assets/icons/${widget.photoPath}.gif",
+            "lib/assets/${widget.photoPath}.gif",
             height: 170.0,
             width: 170.0,
           ),

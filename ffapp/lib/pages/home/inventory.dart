@@ -110,7 +110,7 @@ class _InventoryState extends State<Inventory> {
                 return Column(
                   children: [
                     const SizedBox(height: 10,),
-                    RobotImageHolder(url: (figureName! + "_skin0_cropped"), height: 300, width: 300),
+                    RobotImageHolder(url: ("$figureName/${figureName}_skin0_evo${displayPointsAndMax['level']! - 1}_cropped_happy"), height: 300, width: 300),
                     const SizedBox(height: 10,),
                     EvBar(currentXp: displayPointsAndMax['displayPoints'] ?? 0 , maxXp: displayPointsAndMax['maxPoints'] ?? 0, currentLvl: displayPointsAndMax['level'] ?? 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
                     const SizedBox(height: 40,),
@@ -149,7 +149,7 @@ class _InventoryState extends State<Inventory> {
                             children: [
                               const SizedBox(width: 5),
                               InventoryItem(
-                                photoPath: (figureInstancesList[index * 2].figureName.toString() + "_skin0_cropped"),
+                                photoPath: ("${figureInstancesList[index * 2].figureName}/${figureInstancesList[index * 2].figureName}_skin0_evo0_cropped_happy"),
                                 onViewDetails: (context) => {showFigureDetailsDialog(context, (figureInstancesList[index * 2].figureName.toString()))},
                                 equiped: figureInstancesList[index * 2].figureName.toString() == userModel.user?.curFigure,
                                 onEquip: (context) => {equipNew(figureInstancesList[index * 2].figureName.toString())}
@@ -157,7 +157,7 @@ class _InventoryState extends State<Inventory> {
                               const SizedBox(width: 15),
                               index * 2 + 1 >= figureInstancesList.length ? Container() : //Conditional to check if we have a last skin to render
                               InventoryItem(
-                                photoPath: (figureInstancesList[index * 2 + 1].figureName.toString() + "_skin0_cropped"),
+                                photoPath: ("${figureInstancesList[index * 2 + 1].figureName}/${figureInstancesList[index * 2 + 1].figureName}_skin0_evo0_cropped_happy"),
                                 onViewDetails: (context) => {showFigureDetailsDialog(context, (figureInstancesList[index * 2 + 1].figureName.toString()))},
                                 equiped: figureInstancesList[index * 2 + 1].figureName.toString() == userModel.user?.curFigure,
                                 onEquip: (context) => {equipNew(figureInstancesList[index * 2 + 1].figureName.toString())},

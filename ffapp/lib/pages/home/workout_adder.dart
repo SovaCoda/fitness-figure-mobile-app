@@ -384,7 +384,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               Consumer<FigureModel>(
                 builder: (context, figureModel, _) {
                   return RobotImageHolder(
-                    url: (figureModel.figure!.figureName + "_skin" + figureModel.figure!.curSkin + "_cropped"),
+                    url: ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
                     height: 250,
                     width: 250,
                   );

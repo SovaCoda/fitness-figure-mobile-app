@@ -215,7 +215,7 @@ class _StoreState extends State<Store> {
                                       children: [
                                         FigureStoreItem(
                                           owned: listOfFigureInstances.any((instance) => instance.figureName == listOfFigures[index * 2].figureName),
-                                          photoPath: "${listOfFigures[index * 2].figureName}_skin0_cropped",
+                                          photoPath: "${listOfFigures[index * 2].figureName}/${listOfFigures[index * 2].figureName}_skin0_evo0_cropped_happy",
                                           itemPrice: int.parse(listOfFigures[index * 2].price.toString()),
                                           onOpenSkin: (context, price, skinSkinName) {
                                             subtractCurrency(context, price);
@@ -230,7 +230,7 @@ class _StoreState extends State<Store> {
                                         FigureStoreItem(
                                           skinName: "",
                                           owned: listOfFigureInstances.any((instance) => instance.figureName == listOfFigures[index * 2 + 1].figureName),
-                                          photoPath: "${listOfFigures[index * 2 + 1].figureName}_skin0_cropped",
+                                          photoPath: "${listOfFigures[index * 2 + 1].figureName}/${listOfFigures[index * 2 + 1] .figureName}_skin0_evo0_cropped_happy",
                                           itemPrice: int.parse(listOfFigures[index * 2 + 1].price.toString()),
                                           onOpenSkin: (context, price, skinSkinName) {
                                             subtractCurrency(context, price);

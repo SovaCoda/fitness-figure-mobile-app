@@ -33,8 +33,15 @@ class UserModel extends ChangeNotifier {
 
 class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure;
+  int EVLevel = 0;
+  
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
+    notifyListeners();
+  }
+
+  void setFigureLevel(int newValue) {
+    EVLevel = newValue;
     notifyListeners();
   }
 
@@ -101,13 +108,13 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
       name: 'SkinStore',
       path: '/store',
       builder: (context, state) => const Store()),
-  GoRoute(
-    path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
-    name: 'FigureDetails',
-    builder: (context, state) => FigureDetails(
-      figureUrl: state.pathParameters['figureUrl'],
-  ),
-),
+//   GoRoute(
+//     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
+//     name: 'FigureDetails',
+//     builder: (context, state) => FigureDetails(
+//       figureUrl: state.pathParameters['figureUrl'],
+//   ),
+// ),   !!THIS WAS REMOVED IN FAVOR OF POPUP INSTEAD OF ACUTAL ROUTE BUT IM KEEPING IT CAUSE I DONT KNOW IF REESE WANTS IT!!
 ]);
 
 class MyApp extends StatelessWidget {

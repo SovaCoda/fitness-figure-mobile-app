@@ -37,7 +37,7 @@ class FigureStoreItem extends StatelessWidget {
           children: [
             const SizedBox(height: 25),
             Image.asset(
-              "lib/assets/icons/" + photoPath + ".gif",
+              "lib/assets/" + photoPath + ".gif",
               height: 170.0,
               width: 170.0,
             ),

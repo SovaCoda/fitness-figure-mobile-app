@@ -65,6 +65,7 @@ class _DashboardState extends State<Dashboard> {
         databaseUser?.currency.toString() ?? "0000");
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
+    Provider.of<FigureModel>(context, listen: false).setFigureLevel(curEVData['level']! - 1);
     setState(() {
       evData = curEVData;
       charge = curWeekly / curGoal;
@@ -119,7 +120,7 @@ class _DashboardState extends State<Dashboard> {
                 Consumer<FigureModel>(
                   builder: (context, figure, child) {
                     return RobotImageHolder(
-                      url: (figure.figure != null) ? (figure.figure!.figureName + "_skin" + figure.figure!.curSkin + "_cropped") : "robot1_skin0_cropped",
+                      url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped_happy") : "robot1/robot1_skin0_evo0_cropped_happy",
                       height: 400,
                       width: 400,
                     );
