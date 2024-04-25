@@ -117,14 +117,16 @@ class _DashboardState extends State<Dashboard> {
           children: [
             Stack(
               children: [
-                Consumer<FigureModel>(
+                Center(
+                  child: Consumer<FigureModel>(
                   builder: (context, figure, child) {
                     return RobotImageHolder(
-                      url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped_happy") : "robot1/robot1_skin0_evo0_cropped_happy",
-                      height: 400,
-                      width: 400,
+                    url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped_happy") : "robot1/robot1_skin0_evo0_cropped_happy",
+                    height: 460,
+                    width: 460,
                     );
                   },
+                  ),
                 ),
                 Positioned(
                   top: 40,
@@ -136,21 +138,19 @@ class _DashboardState extends State<Dashboard> {
                     height: 40,
                   )
                 ),
-                Positioned(
-                  bottom: 30,
-                  left: 100,
-                  child: EvBar(
-                    currentXp: evData['displayPoints'] ?? 0,
-                    maxXp: evData['maxPoints'] ?? 0,
-                    currentLvl: evData['level'] ?? 1,
-                    fillColor: Theme.of(context).colorScheme.tertiary,
-                    barWidth: 200
-                  ),
-                )
+                
               ],
             ),
+            Center(
+              child: EvBar(
+                currentXp: evData['displayPoints'] ?? 0,
+                maxXp: evData['maxPoints'] ?? 0,
+                currentLvl: evData['level'] ?? 1,
+                fillColor: Theme.of(context).colorScheme.tertiary,
+                barWidth: 200
+              ),
+            ),
 
-            SizedBox(height: 5,),
 
             //Text underneath the robot
             Text("Train consistently to power your Fitness Figure!",

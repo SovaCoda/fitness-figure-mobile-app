@@ -46,7 +46,10 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 700,
+      width: 300,
       decoration: BoxDecoration(
+        
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
           width: 2,
@@ -59,8 +62,8 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
           const SizedBox(height: 25),
           Image.asset(
             "lib/assets/${widget.photoPath}.gif",
-            height: 170.0,
-            width: 170.0,
+            height: 150.0,
+            width: 150.0,
           ),
           const SizedBox(height: 10),
           Text(

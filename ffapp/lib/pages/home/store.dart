@@ -69,7 +69,7 @@ class _StoreState extends State<Store> {
         return AlertDialog(
           title: const Text("Skin View"),
           content: Container(
-            height: MediaQuery.of(context).size.height * 0.8, // Set the height to 80% of the screen height
+            height: MediaQuery.of(context).size.height * 1, // Set the height to 80% of the screen height
             child: ChangeNotifierProvider(create: (context) => FigureInstancesProvider(), child: SkinViewer(listOfSkins: listOfSkin, listOfSkinInstances: listOfSkinInstances, figureName: figureName, listOfFigureInstances: listOfFigureInstances)),
           ),
           actions: [

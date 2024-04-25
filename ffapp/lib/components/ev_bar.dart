@@ -66,12 +66,11 @@ class EvBar extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant
             ),
           ),
-          Text( currentXp.toString() + " / " + maxXp.toString() + " EV",
+          Text(currentXp.toString() + " / " + maxXp.toString() + " EV",
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant
             ),
           ),
-          
         ],
       )
       ]

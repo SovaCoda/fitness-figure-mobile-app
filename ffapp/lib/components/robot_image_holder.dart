@@ -28,14 +28,12 @@ class RobotImageHolder extends StatelessWidget {
         child: Center(
           child: Image.asset(
             "lib/assets/$url.gif",
-            height: height*(5/8),
-            width: width*(5/8),
+            height: height <= 400 ?  height*(5/8) : height*(3/4),
+            width: width <= 400 ? width*(5/8) : width*(3/4),
           ),
         ),
-      ),
-      
+      ), 
     ]
-
     );
   }
 }

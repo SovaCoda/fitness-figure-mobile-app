@@ -170,7 +170,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),
                   label: 'Profile',
-                )
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.map_outlined), 
+                  label: 'Fitventures')
               ],
               currentIndex: _selectedIndex,
               onTap: _onItemTapped)
