@@ -4,6 +4,7 @@ import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/home/avatar_selection.dart';
 import 'package:ffapp/pages/home/figure_details.dart';
+import 'package:ffapp/pages/home/fitventures.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:ffapp/services/auth.dart';
@@ -108,6 +109,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
       name: 'SkinStore',
       path: '/store',
       builder: (context, state) => const Store()),
+  GoRoute(
+    name: 'Fitventures',
+    path: '/fitventures',
+    builder: (context, state) => const Fitventures(),
+  )
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',

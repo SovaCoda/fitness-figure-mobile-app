@@ -1,5 +1,6 @@
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
+import 'package:ffapp/pages/home/fitventures.dart';
 import 'package:ffapp/pages/home/history.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/profile.dart';
@@ -23,7 +24,8 @@ class _DashboardPageState extends State<DashboardPage> {
     const Inventory(),
     const WorkoutAdder(),
     History(),
-    const Profile()
+    const Profile(),
+    const Fitventures()
   ];
 
   int _selectedIndex = 0;

@@ -81,6 +81,7 @@ flutter:
     - lib/assets/robot2/
     - lib/assets/robot1/
     - lib/assets/icons/
+    - lib/assets/fitventures/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
