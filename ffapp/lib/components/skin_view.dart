@@ -1,4 +1,3 @@
-import 'package:ffapp/components/figure_store_item.dart';
 import 'package:ffapp/components/figure_store_skin_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
@@ -8,8 +7,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
-
-
 
 class SkinViewer extends StatefulWidget {
   final List<Routes.Skin> listOfSkins;

@@ -1,8 +1,11 @@
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart' as store;
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/google/protobuf/empty.pb.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
@@ -39,6 +42,37 @@ class _DashboardState extends State<Dashboard> {
     auth = Provider.of<AuthService>(context, listen: false);
 
     initialize();
+  }
+
+  void onViewSkins() async {
+    Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(Routes.User(email: Provider.of<UserModel>(context, listen: false).user!.email));
+    Routes.MultiFigureInstance multifigureinstances =await auth.getFigureInstances(Routes.User(email: Provider.of<UserModel>(context, listen: false).user!.email));
+    Routes.MultiSkin multiskins = await auth.getSkins();
+
+    List<Routes.SkinInstance> skinInstances = multiskininstances.skinInstances;
+    List<Routes.FigureInstance> figureInstances = multifigureinstances.figureInstances;
+    List<Routes.Skin> skins = multiskins.skins;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Skin View"),
+          content: Container(
+            height: MediaQuery.of(context).size.height * 1, // Set the height to 80% of the screen height
+            child: ChangeNotifierProvider(create: (context) => store.FigureInstancesProvider(), child: SkinViewer(listOfSkins: skins, listOfSkinInstances: skinInstances, figureName: Provider.of<FigureModel>(context, listen:false).figure!.figureName, listOfFigureInstances: figureInstances)),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void initialize() async {
@@ -141,6 +175,10 @@ class _DashboardState extends State<Dashboard> {
                 
               ],
             ),
+
+            Center(child: ElevatedButton.icon(onPressed: onViewSkins, icon: Icon(Icons.swap_calls), label: Text("Skins"))),
+            const SizedBox(height: 5),
+
             Center(
               child: EvBar(
                 currentXp: evData['displayPoints'] ?? 0,
@@ -150,8 +188,7 @@ class _DashboardState extends State<Dashboard> {
                 barWidth: 200
               ),
             ),
-
-
+            
             //Text underneath the robot
             Text("Train consistently to power your Fitness Figure!",
                 style: Theme.of(context).textTheme.titleSmall!.copyWith(
