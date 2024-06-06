@@ -39,7 +39,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
         email: curEmail,
         curFigure: figureUrl));
 
-    await auth.createFigureInstance(Routes.FigureInstance(figureId: "4", figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70));
+    await auth.createFigureInstance(Routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70));
     
     if (await user.getWorkoutGoal() == 0 || await user.getWorkoutMinTime() == 0) {
       context.goNamed('WorkoutFrequencySelection');
@@ -86,7 +86,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                     height: 250,
                     width: 250,
                     child: IconButton(
-                      icon: Image.asset('lib/assets/icons/robot1_skin0_cropped.gif'),
+                      icon: Image.asset('lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif'),
                       onPressed: () {submitFigure("robot1");},
                     ),
                   ),
@@ -107,7 +107,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                     height: 250,
                     width: 250,
                     child: IconButton(
-                      icon: Image.asset('lib/assets/icons/robot2_skin0_cropped.gif'),
+                      icon: Image.asset('lib/assets/robot2/robot2_skin0_evo0_cropped_happy.gif'),
                       onPressed: () {submitFigure("robot2");},
                     ),
                   ),

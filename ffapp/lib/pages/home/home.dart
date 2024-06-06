@@ -1,6 +1,6 @@
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
-import 'package:ffapp/pages/home/fitventures.dart';
+import 'package:ffapp/pages/home/fitventureslite.dart';
 import 'package:ffapp/pages/home/history.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/profile.dart';
@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -25,7 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
     const WorkoutAdder(),
     History(),
     const Profile(),
-    const Fitventures()
+    const FitVenturesLite()
   ];
 
   int _selectedIndex = 0;
@@ -94,6 +95,29 @@ class _DashboardPageState extends State<DashboardPage> {
                     Icon(
                       Icons.currency_exchange,
                       color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: InkWell(
+                onTap: () => context.goNamed('Subscribe'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(width: 10.0),
+                    Text(
+                      'FF',
+                      style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    Icon(
+                      Icons.add,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),

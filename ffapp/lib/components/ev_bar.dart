@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class EvBar extends StatelessWidget {
 
@@ -54,7 +55,17 @@ class EvBar extends StatelessWidget {
                     ),
                 ),
               ),
-            )
+            ),
+            SizedBox(width: 5,),
+            Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: GestureDetector(
+                onTap: () {
+                  context.goNamed('Subscribe');
+                },
+                child: Text("+?", style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: Theme.of(context).colorScheme.tertiary)),
+              ),
+            ),
           ],
       ),
       SizedBox(height: 3,),

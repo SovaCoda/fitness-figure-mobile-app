@@ -5,9 +5,14 @@ import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/home/avatar_selection.dart';
 import 'package:ffapp/pages/home/figure_details.dart';
 import 'package:ffapp/pages/home/fitventures.dart';
+import 'package:ffapp/pages/home/subscribe.dart';
+import 'package:ffapp/pages/home/survey.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/firebaseApi.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
@@ -57,9 +62,20 @@ class FigureModel extends ChangeNotifier {
   }
 }
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
+  await FirebaseApi().initNotifications();
   runApp(
     MultiProvider(providers: [
       Provider(
@@ -113,7 +129,17 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     name: 'Fitventures',
     path: '/fitventures',
     builder: (context, state) => const Fitventures(),
-  )
+  ),
+  GoRoute(
+    name: 'Subscribe', 
+    path: '/subscribe', 
+    builder: (context, state) => SubscribePage()
+  ),
+  GoRoute(
+    name: 'Survey',
+    path: '/survey',
+    builder: (context, state) => SurveyWidget(),
+  ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',

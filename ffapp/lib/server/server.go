@@ -267,7 +267,7 @@ func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance
 }
 
 func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
-	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood) VALUES (?, ?, ?, ?, ?, ?, ?)", in.Figure_Id, in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Mood)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood) VALUES (?, ?, ?, ?, ?, ?)", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Mood)
 	if err != nil {
 		return nil, fmt.Errorf("could not create figureInstance: %v", err)
 	}

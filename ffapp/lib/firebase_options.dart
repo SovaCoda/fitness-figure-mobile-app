@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -67,15 +64,30 @@ class DefaultFirebaseOptions {
     messagingSenderId: '107506093040',
     projectId: 'fitness-figure',
     storageBucket: 'fitness-figure.appspot.com',
+    androidClientId: '107506093040-n41he1kr7f1l6mgbma7oc4do70plmde6.apps.googleusercontent.com',
+    iosClientId: '107506093040-t2gqpphhqlj5fn5866hkb7mhnli57kra.apps.googleusercontent.com',
     iosBundleId: 'com.example.ffapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA7audmEVMucuE2AebgtLN7uJEw1Ssbqek',
-    appId: '1:107506093040:ios:87b8c75340adebd3b66b35',
+    appId: '1:107506093040:ios:4e82c4b7a71fc303b66b35',
     messagingSenderId: '107506093040',
     projectId: 'fitness-figure',
     storageBucket: 'fitness-figure.appspot.com',
-    iosBundleId: 'com.example.ffapp.RunnerTests',
+    androidClientId: '107506093040-n41he1kr7f1l6mgbma7oc4do70plmde6.apps.googleusercontent.com',
+    iosClientId: '107506093040-t2gqpphhqlj5fn5866hkb7mhnli57kra.apps.googleusercontent.com',
+    iosBundleId: 'com.example.ffapp',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCI_5chkouVZZ7A5X-jyWFJl1zbYGl4tcM',
+    appId: '1:107506093040:web:6b2e895737236e14b66b35',
+    messagingSenderId: '107506093040',
+    projectId: 'fitness-figure',
+    authDomain: 'fitness-figure.firebaseapp.com',
+    storageBucket: 'fitness-figure.appspot.com',
+    measurementId: 'G-KYPNX2SE14',
+  );
+
 }

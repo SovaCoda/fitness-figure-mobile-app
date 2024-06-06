@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ffapp/components/animated_points.dart';
+import 'package:ffapp/components/popup.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
@@ -116,6 +117,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       charge: (figureInstance.charge + charge).toInt(),
       evPoints: (figureInstance.evPoints + ev).toInt()
     ));
+
+    showDialog(
+      context: context,
+      builder: (context) => PopupWidget(message: 'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',),
+    );
   }
 
   Future<void> endLogging() async {
@@ -336,7 +342,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         ),
                       ],
                     ),
-                    RobotImageHolder(url: figureURL, height: 200, width: 200),
+                          Consumer<FigureModel>(
+                      builder: (context, figureModel, _) {
+                        return RobotImageHolder(
+                          url: ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
+                          height: 250,
+                          width: 250,
+                        );
+                      },
+                    ),
                     ElevatedButton(
                       onPressed: displaySwapWidget,
                       child: const Text("Change Figure"),

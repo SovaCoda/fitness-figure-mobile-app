@@ -156,8 +156,8 @@ class _DashboardState extends State<Dashboard> {
                   builder: (context, figure, child) {
                     return RobotImageHolder(
                     url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped_happy") : "robot1/robot1_skin0_evo0_cropped_happy",
-                    height: 460,
-                    width: 460,
+                    height: 400,
+                    width: 600,
                     );
                   },
                   ),
@@ -188,6 +188,7 @@ class _DashboardState extends State<Dashboard> {
                 barWidth: 200
               ),
             ),
+                
             
             //Text underneath the robot
             Text("Train consistently to power your Fitness Figure!",
@@ -196,20 +197,6 @@ class _DashboardState extends State<Dashboard> {
                     )),
             const SizedBox(height: 15),
 
-            Consumer<UserModel>(
-              builder: (context, user, child) {
-                if (user.user == null) {
-                  return CircularProgressIndicator();
-                }
-                return Text(
-                  "Welcome, " + user.user!.name ?? "Loading...",
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                );
-              },
-            ),
-            
             Consumer<UserModel>(builder: (context, user, child) {
               if (user.user == null) {
                 return CircularProgressIndicator(); 
@@ -221,7 +208,6 @@ class _DashboardState extends State<Dashboard> {
                 );
               }
             ),
-
 
             const SizedBox(
               height: 20,

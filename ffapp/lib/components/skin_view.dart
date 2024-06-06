@@ -28,7 +28,6 @@ class _SkinViewerState extends State<SkinViewer> {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
     userModel = Provider.of<UserModel>(context, listen: false);
-
   }
 
   void showOverlayAlert(BuildContext context, String message, MaterialColor color, int offset) {

@@ -28,6 +28,7 @@ class AuthService {
       await RoutesService.instance.init();
       logger.i("RoutesService initialized");
       RoutesService _routes = RoutesService.instance;
+      
 
       _instance = AuthService._(_auth, _routes);
     }
