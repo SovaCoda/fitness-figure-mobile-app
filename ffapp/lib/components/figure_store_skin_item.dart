@@ -46,10 +46,8 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 700,
-      width: 300,
+      width: MediaQuery.sizeOf(context).width * 0.4,
       decoration: BoxDecoration(
-        
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
           width: 2,
@@ -58,31 +56,30 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
         color: Theme.of(context).colorScheme.secondaryContainer,
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const SizedBox(height: 25),
+
           Image.asset(
             "lib/assets/${widget.photoPath}.gif",
             height: 150.0,
             width: 150.0,
           ),
-          const SizedBox(height: 10),
+
           Text(
             'Price: ${widget.itemPrice}',
             style: Theme.of(context).textTheme.labelMedium!.copyWith(
               color: Theme.of(context).colorScheme.onSecondaryContainer,
             ),
           ),
-          const SizedBox(height: 10),
-          Column(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  widget.onViewSkin(context, widget.skinName);
-                },
-                child: const Text("View Skin"),
-              ),
-            ],
+
+
+          ElevatedButton(
+            onPressed: () {
+              widget.onViewSkin(context, widget.skinName);
+            },
+            child: const Text("View Skin"),
           ),
+
           equipped
               ? ElevatedButton(
                   onPressed: () {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SurveyWidget extends StatefulWidget {
   const SurveyWidget({Key? key}) : super(key: key);
@@ -59,8 +60,10 @@ class _SurveyWidgetState extends State<SurveyWidget> {
             content: const Text('Thanks for taking the survey!'),
             actions: [
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   context.goNamed('Home');
+                  final SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setBool('hasSurveyed', true);
                 },
                 child: const Text('Back'),
               ),

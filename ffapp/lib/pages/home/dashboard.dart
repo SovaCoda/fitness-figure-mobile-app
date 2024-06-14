@@ -59,7 +59,7 @@ class _DashboardState extends State<Dashboard> {
         return AlertDialog(
           title: const Text("Skin View"),
           content: Container(
-            height: MediaQuery.of(context).size.height * 1, // Set the height to 80% of the screen height
+            height: 1000, // Set the height to 80% of the screen height
             child: ChangeNotifierProvider(create: (context) => store.FigureInstancesProvider(), child: SkinViewer(listOfSkins: skins, listOfSkinInstances: skinInstances, figureName: Provider.of<FigureModel>(context, listen:false).figure!.figureName, listOfFigureInstances: figureInstances)),
           ),
           actions: [
@@ -284,17 +284,17 @@ class WorkoutNumbersRow extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )),
           ]),
-          DoubleLineDivider(),
-          Column(children: [
-            Text(lifeTimeCompleted.toString(),
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    )),
-            Text("Total Completed",
-                style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    )),
-          ]),
+          // DoubleLineDivider(),
+          // Column(children: [
+          //   Text(lifeTimeCompleted.toString(),
+          //       style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+          //             color: Theme.of(context).colorScheme.onSurfaceVariant,
+          //           )),
+          //   Text("Total Completed",
+          //       style: Theme.of(context).textTheme.labelMedium!.copyWith(
+          //             color: Theme.of(context).colorScheme.onSurfaceVariant,
+          //           )),
+          // ]),
         ],
       ),
     );

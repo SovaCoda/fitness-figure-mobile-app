@@ -93,6 +93,8 @@ class _SkinViewerState extends State<SkinViewer> {
           return Container(
             child: CarouselSlider(
               options: CarouselOptions(
+                enlargeStrategy: CenterPageEnlargeStrategy.height,
+                aspectRatio: 1.4,
                 viewportFraction: 1.0,
               ),
               items: widget.listOfSkins.where((element) => element.figureName == widget.figureName,).map((skin) {

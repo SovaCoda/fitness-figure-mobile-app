@@ -8,7 +8,6 @@ import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/flutterUser.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -17,6 +16,7 @@ import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkoutAdder extends StatefulWidget {
   const WorkoutAdder({super.key});
@@ -26,6 +26,8 @@ class WorkoutAdder extends StatefulWidget {
 }
 
 class _WorkoutAdderState extends State<WorkoutAdder> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   final logger = Logger();
   bool _logging = false;
   Timer _timer = Timer(Duration.zero, () {});
@@ -50,7 +52,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void initialize() async {
-    await auth.getUserDBInfo().then((value) {user = value!;});
+    await auth.getUserDBInfo().then((value) {
+      user = value!;
+    });
     Int64 timegoal = user.workoutMinTime;
     scoreIncrement = 1 / (timegoal.toDouble() * 60);
     logger.i(timegoal);
@@ -83,45 +87,57 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       _startTime = DateTime.now().toString();
     });
   }
-  
+
   //function that does all the awarding in one
   Future<void> awardAll() async {
-    FigureInstance figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
-    Figure figure = await auth.getFigure(Figure(figureName: figureInstance.figureName));
-    int currency = int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
+    FigureInstance figureInstance =
+        Provider.of<FigureModel>(context, listen: false).figure!;
+    Figure figure =
+        await auth.getFigure(Figure(figureName: figureInstance.figureName));
+    int currency =
+        int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
     int addable_currency = _timePassed.toInt() ~/ 10;
     currency += addable_currency;
 
-    int figureEV = figure.baseEvGain; 
+    int figureEV = figure.baseEvGain;
     double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
     int ev = figureEV + eVConcistencyBonus.toInt();
 
-    int figureCharge = 10; // needs to be replaced with the figure provider.
-    double chargeConcistencyBonus = (figureCharge * 0.1) * user.weekComplete.toInt();
+    int figureCharge = 5; // needs to be replaced with the figure provider.
+    double chargeConcistencyBonus =
+        (figureCharge * 0.01) * user.weekComplete.toInt();
     int charge = figureCharge + chargeConcistencyBonus.toInt();
 
-    Provider.of<CurrencyModel>(context, listen: false).setCurrency(currency.toString());
-    Provider.of<FigureModel>(context, listen: false).setFigureEv(figureInstance.evPoints + ev);
-    Provider.of<FigureModel>(context, listen: false).setFigureCharge(figureInstance.charge + charge);
+    Provider.of<CurrencyModel>(context, listen: false)
+        .setCurrency(currency.toString());
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigureEv(figureInstance.evPoints + ev);
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigureCharge(figureInstance.charge + charge);
 
     await auth.updateUserDBInfo(Routes.User(
-      email: user.email,
-      currency: Int64(currency),
-      weekComplete: Int64(user.weekComplete.toInt() + 1)
-    ));
-    
-    await auth.updateFigureInstance(FigureInstance(
-      figureId: figureInstance.figureId,
-      userEmail: user.email,
-      figureName: figureInstance.figureName,
-      charge: (figureInstance.charge + charge).toInt(),
-      evPoints: (figureInstance.evPoints + ev).toInt()
-    ));
+        email: user.email,
+        currency: Int64(currency),
+        weekComplete: Int64(user.weekComplete.toInt() + 1)));
 
-    showDialog(
-      context: context,
-      builder: (context) => PopupWidget(message: 'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',),
-    );
+    await auth.updateFigureInstance(FigureInstance(
+        figureId: figureInstance.figureId,
+        userEmail: user.email,
+        figureName: figureInstance.figureName,
+        charge: (figureInstance.charge + charge).toInt(),
+        evPoints: (figureInstance.evPoints + ev).toInt()));
+
+    final SharedPreferences prefs = await _prefs; 
+    if (prefs.getBool("hasSurveyed") == null ||
+        prefs.getBool("hasSurveyed") == false) {
+      showDialog(
+        context: context,
+        builder: (context) => PopupWidget(
+          message:
+              'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',
+        ),
+      );
+    }
   }
 
   Future<void> endLogging() async {
@@ -335,17 +351,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                    color: Theme.of(context)
-                                    .colorScheme
-                                    .tertiary)), // Replace '75' with the actual EV value
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary)), // Replace '75' with the actual EV value
                           ],
                         ),
                       ],
                     ),
-                          Consumer<FigureModel>(
+                    Consumer<FigureModel>(
                       builder: (context, figureModel, _) {
                         return RobotImageHolder(
-                          url: ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
+                          url:
+                              ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
                           height: 250,
                           width: 250,
                         );
@@ -398,7 +415,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               Consumer<FigureModel>(
                 builder: (context, figureModel, _) {
                   return RobotImageHolder(
-                    url: ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
+                    url:
+                        ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
                     height: 250,
                     width: 250,
                   );
@@ -456,7 +474,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     left: 65,
                     top: 0,
                     child: FloatingText(
-                      text: "^ ${(scoreIncrement * 10).toStringAsPrecision(sigfigs)}",
+                      text:
+                          "^ ${(scoreIncrement * 10).toStringAsPrecision(sigfigs)}",
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
