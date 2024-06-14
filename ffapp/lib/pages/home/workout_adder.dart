@@ -335,9 +335,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     .textTheme
                                     .headlineSmall!
                                     .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary)), // Replace '75' with the actual EV value
+                                    color: Theme.of(context)
+                                    .colorScheme
+                                    .tertiary)), // Replace '75' with the actual EV value
                           ],
                         ),
                       ],

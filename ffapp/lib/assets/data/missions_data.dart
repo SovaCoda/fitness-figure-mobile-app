@@ -1,10 +1,8 @@
-import 'package:ffapp/components/Mission.dart';
+import 'package:ffapp/components/mission.dart';
 
 
-
-
-List<ListMission> missionList = [
-  ListMission(
+List<MissionListWidget> missionList = [
+  MissionListWidget(
     missionName: "Focus Curls",
     url: "robot1/robot1_skin0_evo0_cropped_happy",
     moneyReward: 40,
@@ -15,7 +13,7 @@ List<ListMission> missionList = [
       // Handle start button press
     },
   ),
-  ListMission(
+  MissionListWidget(
     missionName: "Pulldowns",
     url: "robot1/robot1_skin0_evo0_cropped_happy",
     moneyReward: 24,
@@ -26,7 +24,7 @@ List<ListMission> missionList = [
       // Handle start button press
     },
   ),
-  ListMission(
+  MissionListWidget(
     missionName: "Squats",
     url: "robot1/robot1_skin0_evo0_cropped_happy",
     moneyReward: 30,
@@ -37,7 +35,7 @@ List<ListMission> missionList = [
       // Handle start button press
     },
   ),
-  ListMission(
+  MissionListWidget(
     missionName: "Push-ups",
     url: "robot1/robot1_skin0_evo0_cropped_happy",
     moneyReward: 20,
@@ -45,10 +43,9 @@ List<ListMission> missionList = [
     chargeReward: 2,
     seconds: 8 * 60,
     onStart: () {
-      
     },
   ),
-  ListMission(
+  MissionListWidget(
     missionName: "Plank",
     url: "robot1/robot1_skin0_evo0_cropped_happy",
     moneyReward: 15,

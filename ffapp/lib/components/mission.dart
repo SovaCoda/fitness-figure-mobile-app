@@ -3,12 +3,31 @@ import 'dart:async';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/fitventureslite.dart' as FL;
-import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class ListMission extends StatefulWidget {
+class InternalListMission {
+  final String missionName;
+  final String url;
+  final int moneyReward;
+  final int evoReward;
+  final double chargeReward;
+  final int seconds;
+  final VoidCallback onStart;
+
+  InternalListMission({
+    required this.missionName,
+    required this.url,
+    required this.moneyReward,
+    required this.evoReward,
+    required this.chargeReward,
+    required this.seconds,
+    required this.onStart,
+  });
+}
+
+class MissionListWidget extends StatefulWidget {
   final String missionName;
   final String url;
   final int moneyReward;
@@ -17,7 +36,7 @@ class ListMission extends StatefulWidget {
   int seconds;
   final VoidCallback onStart;
 
-  ListMission({
+  MissionListWidget({
     required this.missionName,
     required this.url,
     required this.moneyReward,
@@ -31,7 +50,7 @@ class ListMission extends StatefulWidget {
   _MissionState createState() => _MissionState();
 }
 
-class _MissionState extends State<ListMission> {
+class _MissionState extends State<MissionListWidget> {
   Timer _timer = Timer(Duration.zero, () {});
 
   void startTimer() {
@@ -39,7 +58,7 @@ class _MissionState extends State<ListMission> {
     if (Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).currentMission.missionName != "null") return;
 
 
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).startMission(ListMission(
+    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).startMission(MissionListWidget(
       missionName: widget.missionName,
       url: widget.url,
       moneyReward: widget.moneyReward,
@@ -58,10 +77,6 @@ class _MissionState extends State<ListMission> {
     });
   }
 
-  void onRewards() {
-
-  }
-
   void onMissionCancel() {
     Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).completeMission();
     _timer.cancel();
@@ -70,7 +85,6 @@ class _MissionState extends State<ListMission> {
   void onMissionComplete() {
     _timer.cancel();
     Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).completeMission();
-    onRewards();
   }
 
   String formatSeconds(int seconds) {
@@ -175,7 +189,7 @@ class _MissionState extends State<ListMission> {
 }
 
 class MissionList extends StatelessWidget {
-  final List<ListMission> missions;
+  final List<MissionListWidget> missions;
 
   MissionList({required this.missions});
 

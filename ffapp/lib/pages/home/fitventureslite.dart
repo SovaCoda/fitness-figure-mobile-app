@@ -1,6 +1,6 @@
-import 'package:ffapp/components/Mission.dart';
+import 'package:ffapp/components/mission.dart';
 import 'package:flutter/material.dart';
-import 'package:ffapp/assets/data/missions.dart';
+import 'package:ffapp/assets/data/missions_data.dart';
 import 'package:provider/provider.dart';
 
 
@@ -12,7 +12,7 @@ class FitVenturesLite extends StatefulWidget {
 }
 
 class FitventuresMissionManagerProvider with ChangeNotifier {
-  late ListMission _currentMission = ListMission(
+  late MissionListWidget _currentMission = MissionListWidget(
     missionName: "null",
     url: "not",
     moneyReward: 0,
@@ -22,15 +22,15 @@ class FitventuresMissionManagerProvider with ChangeNotifier {
     onStart: () {},
   );
 
-  ListMission get currentMission => _currentMission;
+  MissionListWidget get currentMission => _currentMission;
 
-  void startMission(ListMission mission) {
+  void startMission(MissionListWidget mission) {
     _currentMission = mission;
     notifyListeners();
   }
 
   void completeMission() {
-    _currentMission = ListMission(
+    _currentMission = MissionListWidget(
       missionName: "null",
       url: "not",
       moneyReward: 0,
