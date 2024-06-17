@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	pb "server/pb/routes"
 
@@ -23,6 +24,7 @@ const (
 	DefaultWeekGoal     = 0
 	DefaultCurWorkout   = "2001-09-04 19:21:00"
 	DefaultMinTime      = 0
+	DefaultLastReset    = "2001-09-04 19:21:00"
 )
 
 type server struct {
@@ -41,7 +43,7 @@ func newServer(db *sql.DB) *server {
 func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -51,7 +53,7 @@ func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime)
+	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, DefaultLastReset)
 
 	return &user, nil
 }
@@ -60,7 +62,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	var user pb.User
 
 	// Retrieve existing user information
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -87,9 +89,12 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	if in.WorkoutMinTime != 0 {
 		user.WorkoutMinTime = in.WorkoutMinTime
 	}
+	if in.LastReset != "" {
+		user.LastReset = in.LastReset
+	}
 
 	// Update the user in the database
-	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ?, workout_min_time = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.WorkoutMinTime, user.Email)
+	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ?, workout_min_time = ?, last_reset = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.WorkoutMinTime, user.LastReset, user.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not update user: %v", err)
 	}
@@ -100,7 +105,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -205,7 +210,7 @@ func (s *server) DeleteWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var figureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood FROM figure_instances WHERE User_Email = ? AND Figure_Name = ?", in.User_Email, in.Figure_Name).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE User_Email = ? AND Figure_Name = ?", in.User_Email, in.Figure_Name).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstance: %v", err)
 	}
@@ -216,7 +221,7 @@ func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (
 func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var existingFigureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood FROM figure_instances WHERE Figure_Name = ? AND User_Email = ?", in.Figure_Name, in.User_Email).Scan(&existingFigureInstance.Figure_Name, &existingFigureInstance.User_Email, &existingFigureInstance.Cur_Skin, &existingFigureInstance.Ev_Points, &existingFigureInstance.Charge, &existingFigureInstance.Mood)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE Figure_Name = ? AND User_Email = ?", in.Figure_Name, in.User_Email).Scan(&existingFigureInstance.Figure_Name, &existingFigureInstance.User_Email, &existingFigureInstance.Cur_Skin, &existingFigureInstance.Ev_Points, &existingFigureInstance.Charge, &existingFigureInstance.Mood, &existingFigureInstance.Last_Reset)
 	if err != nil {
 		return nil, fmt.Errorf("could not get existing figureInstance: %v", err)
 	}
@@ -267,7 +272,7 @@ func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance
 }
 
 func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
-	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood) VALUES (?, ?, ?, ?, ?, ?)", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Mood)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset) VALUES (?, ?, ?, ?, ?, ?, ?)", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Mood, in.Last_Reset)
 	if err != nil {
 		return nil, fmt.Errorf("could not create figureInstance: %v", err)
 	}
@@ -278,7 +283,7 @@ func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance
 func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var figureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood FROM figure_instances WHERE Figure_Id = ?", in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE Figure_Id = ?", in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figure_instances: %v", err)
 	}
@@ -294,7 +299,7 @@ func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance
 func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.MultiFigureInstance, error) {
 	figureInstances := &pb.MultiFigureInstance{} // Initialize figureInstances
 
-	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood FROM figure_instances WHERE User_Email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE User_Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstances: %v", err)
 	}
@@ -302,7 +307,7 @@ func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.Multi
 
 	for rows.Next() {
 		var figureInstance pb.FigureInstance
-		err := rows.Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood)
+		err := rows.Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan figureInstance: %v", err)
 		}
@@ -553,6 +558,9 @@ func (s *server) DeleteSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) 
 	return &skin, nil
 }
 
+const resetTimer = 30 * time.Minute 
+const longResetTimer = 24 * time.Hour
+
 func main() {
 	dbHost := os.Getenv("DB_HOST")
 	dbUser := os.Getenv("DB_USER")
@@ -565,6 +573,39 @@ func main() {
 	}
 	defer db.Close()
 
+	resetticker := time.NewTicker(resetTimer)
+	
+	go func() {
+		for {
+			select {
+			case <-resetticker.C:
+				fmt.Println("Applying Figure Charge Decay")
+				rows, err := db.Query("CALL sp_figureDecay()")
+				if err != nil {
+					log.Fatalf("could not decay figures: %v", err)
+				}
+				var alteredFigureInstances []*pb.FigureInstance
+				for rows.Next() {
+					var figureInstance pb.FigureInstance
+					err := rows.Scan(&figureInstance.Charge, &figureInstance.User_Email)
+					if err != nil {
+						log.Fatalf("could not scan figure instance: %v", err)
+					}
+					alteredFigureInstances = append(alteredFigureInstances, &figureInstance)
+				}
+				var alteredFigureInstancesString string
+				for _, figureInstance := range alteredFigureInstances {
+					alteredFigureInstancesString += fmt.Sprintf("%s ", figureInstance.User_Email)
+				}
+				log.Default().Printf("Decayed %d figure instances for users %s for charge totaling %d", len(alteredFigureInstances), alteredFigureInstancesString, len(alteredFigureInstances)*10)
+				rows.Close()
+
+			case <-resetticker.C:
+				fmt.Println("Applying User Weekly Reset")
+			}
+		}
+	}()
+
 	lis, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatalf("could not listen: %v", err)
@@ -576,5 +617,4 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("could not serve: %v", err)
 	}
-
 }

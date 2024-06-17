@@ -188,6 +188,7 @@ class User extends $pb.GeneratedMessage {
     $fixnum.Int64? weekGoal,
     $core.String? curWorkout,
     $fixnum.Int64? workoutMinTime,
+    $core.String? lastReset,
   }) {
     final $result = create();
     if (email != null) {
@@ -214,6 +215,9 @@ class User extends $pb.GeneratedMessage {
     if (workoutMinTime != null) {
       $result.workoutMinTime = workoutMinTime;
     }
+    if (lastReset != null) {
+      $result.lastReset = lastReset;
+    }
     return $result;
   }
   User._() : super();
@@ -229,6 +233,7 @@ class User extends $pb.GeneratedMessage {
     ..aInt64(6, _omitFieldNames ? '' : 'weekGoal')
     ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
     ..aInt64(8, _omitFieldNames ? '' : 'workoutMinTime')
+    ..aOS(9, _omitFieldNames ? '' : 'lastReset')
     ..hasRequiredFields = false
   ;
 
@@ -324,6 +329,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasWorkoutMinTime() => $_has(7);
   @$pb.TagNumber(8)
   void clearWorkoutMinTime() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get lastReset => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set lastReset($core.String v) { $_setString(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasLastReset() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearLastReset() => clearField(9);
 }
 
 class FigureInstance extends $pb.GeneratedMessage {
@@ -335,6 +349,7 @@ class FigureInstance extends $pb.GeneratedMessage {
     $core.int? evPoints,
     $core.int? charge,
     $core.int? mood,
+    $core.String? lastReset,
   }) {
     final $result = create();
     if (figureId != null) {
@@ -358,6 +373,9 @@ class FigureInstance extends $pb.GeneratedMessage {
     if (mood != null) {
       $result.mood = mood;
     }
+    if (lastReset != null) {
+      $result.lastReset = lastReset;
+    }
     return $result;
   }
   FigureInstance._() : super();
@@ -372,6 +390,7 @@ class FigureInstance extends $pb.GeneratedMessage {
     ..a<$core.int>(5, _omitFieldNames ? '' : 'EvPoints', $pb.PbFieldType.O3, protoName: 'Ev_Points')
     ..a<$core.int>(6, _omitFieldNames ? '' : 'Charge', $pb.PbFieldType.O3, protoName: 'Charge')
     ..a<$core.int>(7, _omitFieldNames ? '' : 'Mood', $pb.PbFieldType.O3, protoName: 'Mood')
+    ..aOS(8, _omitFieldNames ? '' : 'LastReset', protoName: 'Last_Reset')
     ..hasRequiredFields = false
   ;
 
@@ -458,6 +477,15 @@ class FigureInstance extends $pb.GeneratedMessage {
   $core.bool hasMood() => $_has(6);
   @$pb.TagNumber(7)
   void clearMood() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get lastReset => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set lastReset($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasLastReset() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearLastReset() => clearField(8);
 }
 
 class MultiFigureInstance extends $pb.GeneratedMessage {

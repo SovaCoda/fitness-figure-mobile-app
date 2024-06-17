@@ -70,6 +70,7 @@ message User {
     int64 week_goal = 6;
     string cur_workout = 7;
     int64 workout_min_time = 8;
+    string last_reset = 9;
 }
 
 message FigureInstance {
@@ -80,6 +81,7 @@ message FigureInstance {
     int32 Ev_Points = 5;
     int32 Charge = 6;
     int32 Mood = 7;
+    string Last_Reset = 8;
 }
 
 message MultiFigureInstance {

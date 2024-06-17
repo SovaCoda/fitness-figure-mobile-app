@@ -58,6 +58,7 @@ const User$json = {
     {'1': 'week_goal', '3': 6, '4': 1, '5': 3, '10': 'weekGoal'},
     {'1': 'cur_workout', '3': 7, '4': 1, '5': 9, '10': 'curWorkout'},
     {'1': 'workout_min_time', '3': 8, '4': 1, '5': 3, '10': 'workoutMinTime'},
+    {'1': 'last_reset', '3': 9, '4': 1, '5': 9, '10': 'lastReset'},
   ],
 };
 
@@ -67,7 +68,8 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'd1cmUSEgoEbmFtZRgDIAEoCVIEbmFtZRIaCghjdXJyZW5jeRgEIAEoA1IIY3VycmVuY3kSIwoN'
     'd2Vla19jb21wbGV0ZRgFIAEoA1IMd2Vla0NvbXBsZXRlEhsKCXdlZWtfZ29hbBgGIAEoA1IId2'
     'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQSKAoQd29ya291dF9taW5f'
-    'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWU=');
+    'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWUSHQoKbGFzdF9yZXNldBgJIAEoCVIJbGFzdFJlc2'
+    'V0');
 
 @$core.Deprecated('Use figureInstanceDescriptor instead')
 const FigureInstance$json = {
@@ -80,6 +82,7 @@ const FigureInstance$json = {
     {'1': 'Ev_Points', '3': 5, '4': 1, '5': 5, '10': 'EvPoints'},
     {'1': 'Charge', '3': 6, '4': 1, '5': 5, '10': 'Charge'},
     {'1': 'Mood', '3': 7, '4': 1, '5': 5, '10': 'Mood'},
+    {'1': 'Last_Reset', '3': 8, '4': 1, '5': 9, '10': 'LastReset'},
   ],
 };
 
@@ -88,7 +91,8 @@ final $typed_data.Uint8List figureInstanceDescriptor = $convert.base64Decode(
     'Cg5GaWd1cmVJbnN0YW5jZRIbCglGaWd1cmVfSWQYASABKAlSCEZpZ3VyZUlkEh8KC0ZpZ3VyZV'
     '9OYW1lGAIgASgJUgpGaWd1cmVOYW1lEh0KClVzZXJfRW1haWwYAyABKAlSCVVzZXJFbWFpbBIZ'
     'CghDdXJfU2tpbhgEIAEoCVIHQ3VyU2tpbhIbCglFdl9Qb2ludHMYBSABKAVSCEV2UG9pbnRzEh'
-    'YKBkNoYXJnZRgGIAEoBVIGQ2hhcmdlEhIKBE1vb2QYByABKAVSBE1vb2Q=');
+    'YKBkNoYXJnZRgGIAEoBVIGQ2hhcmdlEhIKBE1vb2QYByABKAVSBE1vb2QSHQoKTGFzdF9SZXNl'
+    'dBgIIAEoCVIJTGFzdFJlc2V0');
 
 @$core.Deprecated('Use multiFigureInstanceDescriptor instead')
 const MultiFigureInstance$json = {
