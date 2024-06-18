@@ -13,6 +13,18 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use genericStringResponseDescriptor instead')
+const GenericStringResponse$json = {
+  '1': 'GenericStringResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `GenericStringResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List genericStringResponseDescriptor = $convert.base64Decode(
+    'ChVHZW5lcmljU3RyaW5nUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
+
 @$core.Deprecated('Use workoutDescriptor instead')
 const Workout$json = {
   '1': 'Workout',
@@ -70,6 +82,18 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQSKAoQd29ya291dF9taW5f'
     'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWUSHQoKbGFzdF9yZXNldBgJIAEoCVIJbGFzdFJlc2'
     'V0');
+
+@$core.Deprecated('Use multiUserDescriptor instead')
+const MultiUser$json = {
+  '1': 'MultiUser',
+  '2': [
+    {'1': 'users', '3': 1, '4': 3, '5': 11, '6': '.routes.User', '10': 'users'},
+  ],
+};
+
+/// Descriptor for `MultiUser`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiUserDescriptor = $convert.base64Decode(
+    'CglNdWx0aVVzZXISIgoFdXNlcnMYASADKAsyDC5yb3V0ZXMuVXNlclIFdXNlcnM=');
 
 @$core.Deprecated('Use figureInstanceDescriptor instead')
 const FigureInstance$json = {

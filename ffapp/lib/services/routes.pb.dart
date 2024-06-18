@@ -14,6 +14,56 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+class GenericStringResponse extends $pb.GeneratedMessage {
+  factory GenericStringResponse({
+    $core.String? message,
+  }) {
+    final $result = create();
+    if (message != null) {
+      $result.message = message;
+    }
+    return $result;
+  }
+  GenericStringResponse._() : super();
+  factory GenericStringResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GenericStringResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GenericStringResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GenericStringResponse clone() => GenericStringResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GenericStringResponse copyWith(void Function(GenericStringResponse) updates) => super.copyWith((message) => updates(message as GenericStringResponse)) as GenericStringResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GenericStringResponse create() => GenericStringResponse._();
+  GenericStringResponse createEmptyInstance() => create();
+  static $pb.PbList<GenericStringResponse> createRepeated() => $pb.PbList<GenericStringResponse>();
+  @$core.pragma('dart2js:noInline')
+  static GenericStringResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GenericStringResponse>(create);
+  static GenericStringResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => clearField(1);
+}
+
 class Workout extends $pb.GeneratedMessage {
   factory Workout({
     $core.String? email,
@@ -338,6 +388,50 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasLastReset() => $_has(8);
   @$pb.TagNumber(9)
   void clearLastReset() => clearField(9);
+}
+
+class MultiUser extends $pb.GeneratedMessage {
+  factory MultiUser({
+    $core.Iterable<User>? users,
+  }) {
+    final $result = create();
+    if (users != null) {
+      $result.users.addAll(users);
+    }
+    return $result;
+  }
+  MultiUser._() : super();
+  factory MultiUser.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiUser.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiUser', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<User>(1, _omitFieldNames ? '' : 'users', $pb.PbFieldType.PM, subBuilder: User.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiUser clone() => MultiUser()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiUser copyWith(void Function(MultiUser) updates) => super.copyWith((message) => updates(message as MultiUser)) as MultiUser;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiUser create() => MultiUser._();
+  MultiUser createEmptyInstance() => create();
+  static $pb.PbList<MultiUser> createRepeated() => $pb.PbList<MultiUser>();
+  @$core.pragma('dart2js:noInline')
+  static MultiUser getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiUser>(create);
+  static MultiUser? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<User> get users => $_getList(0);
 }
 
 class FigureInstance extends $pb.GeneratedMessage {

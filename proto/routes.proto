@@ -46,6 +46,14 @@ service Routes {
     rpc CreateSkin(Skin) returns (Skin) {}
     rpc DeleteSkin(Skin) returns (Skin) {}
     rpc GetSkins(google.protobuf.Empty) returns (MultiSkin) {}
+
+    // SERVER ACTIONS //
+    rpc FigureDecay(FigureInstance) returns (GenericStringResponse) {}
+    rpc UserWeeklyReset(MultiUser) returns (GenericStringResponse) {}
+}
+
+message GenericStringResponse {
+    string message = 1;
 }
 
 message Workout {
@@ -71,6 +79,10 @@ message User {
     string cur_workout = 7;
     int64 workout_min_time = 8;
     string last_reset = 9;
+}
+
+message MultiUser {
+    repeated User users = 1;
 }
 
 message FigureInstance {

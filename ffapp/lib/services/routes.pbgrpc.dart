@@ -138,6 +138,14 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/GetSkins',
       ($1.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.MultiSkin.fromBuffer(value));
+  static final _$figureDecay = $grpc.ClientMethod<$0.FigureInstance, $0.GenericStringResponse>(
+      '/routes.Routes/FigureDecay',
+      ($0.FigureInstance value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value));
+  static final _$userWeeklyReset = $grpc.ClientMethod<$0.MultiUser, $0.GenericStringResponse>(
+      '/routes.Routes/UserWeeklyReset',
+      ($0.MultiUser value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -259,6 +267,14 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.MultiSkin> getSkins($1.Empty request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getSkins, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GenericStringResponse> figureDecay($0.FigureInstance request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$figureDecay, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GenericStringResponse> userWeeklyReset($0.MultiUser request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$userWeeklyReset, request, options: options);
   }
 }
 
@@ -470,6 +486,20 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $1.Empty.fromBuffer(value),
         ($0.MultiSkin value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.GenericStringResponse>(
+        'FigureDecay',
+        figureDecay_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FigureInstance.fromBuffer(value),
+        ($0.GenericStringResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.MultiUser, $0.GenericStringResponse>(
+        'UserWeeklyReset',
+        userWeeklyReset_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.MultiUser.fromBuffer(value),
+        ($0.GenericStringResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
@@ -588,6 +618,14 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return getSkins(call, await request);
   }
 
+  $async.Future<$0.GenericStringResponse> figureDecay_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
+    return figureDecay(call, await request);
+  }
+
+  $async.Future<$0.GenericStringResponse> userWeeklyReset_Pre($grpc.ServiceCall call, $async.Future<$0.MultiUser> request) async {
+    return userWeeklyReset(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
@@ -617,4 +655,6 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.Skin> createSkin($grpc.ServiceCall call, $0.Skin request);
   $async.Future<$0.Skin> deleteSkin($grpc.ServiceCall call, $0.Skin request);
   $async.Future<$0.MultiSkin> getSkins($grpc.ServiceCall call, $1.Empty request);
+  $async.Future<$0.GenericStringResponse> figureDecay($grpc.ServiceCall call, $0.FigureInstance request);
+  $async.Future<$0.GenericStringResponse> userWeeklyReset($grpc.ServiceCall call, $0.MultiUser request);
 }

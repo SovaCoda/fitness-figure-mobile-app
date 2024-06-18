@@ -58,6 +58,9 @@ type RoutesClient interface {
 	CreateSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
 	DeleteSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
 	GetSkins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiSkin, error)
+	// SERVER ACTIONS //
+	FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error)
+	UserWeeklyReset(ctx context.Context, in *MultiUser, opts ...grpc.CallOption) (*GenericStringResponse, error)
 }
 
 type routesClient struct {
@@ -329,6 +332,24 @@ func (c *routesClient) GetSkins(ctx context.Context, in *emptypb.Empty, opts ...
 	return out, nil
 }
 
+func (c *routesClient) FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error) {
+	out := new(GenericStringResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/FigureDecay", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UserWeeklyReset(ctx context.Context, in *MultiUser, opts ...grpc.CallOption) (*GenericStringResponse, error) {
+	out := new(GenericStringResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UserWeeklyReset", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoutesServer is the server API for Routes service.
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility
@@ -368,6 +389,9 @@ type RoutesServer interface {
 	CreateSkin(context.Context, *Skin) (*Skin, error)
 	DeleteSkin(context.Context, *Skin) (*Skin, error)
 	GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error)
+	// SERVER ACTIONS //
+	FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error)
+	UserWeeklyReset(context.Context, *MultiUser) (*GenericStringResponse, error)
 	mustEmbedUnimplementedRoutesServer()
 }
 
@@ -461,6 +485,12 @@ func (UnimplementedRoutesServer) DeleteSkin(context.Context, *Skin) (*Skin, erro
 }
 func (UnimplementedRoutesServer) GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSkins not implemented")
+}
+func (UnimplementedRoutesServer) FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FigureDecay not implemented")
+}
+func (UnimplementedRoutesServer) UserWeeklyReset(context.Context, *MultiUser) (*GenericStringResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserWeeklyReset not implemented")
 }
 func (UnimplementedRoutesServer) mustEmbedUnimplementedRoutesServer() {}
 
@@ -997,6 +1027,42 @@ func _Routes_GetSkins_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_FigureDecay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FigureInstance)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).FigureDecay(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/FigureDecay",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).FigureDecay(ctx, req.(*FigureInstance))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UserWeeklyReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UserWeeklyReset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UserWeeklyReset",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UserWeeklyReset(ctx, req.(*MultiUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Routes_ServiceDesc is the grpc.ServiceDesc for Routes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1119,6 +1185,14 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSkins",
 			Handler:    _Routes_GetSkins_Handler,
+		},
+		{
+			MethodName: "FigureDecay",
+			Handler:    _Routes_FigureDecay_Handler,
+		},
+		{
+			MethodName: "UserWeeklyReset",
+			Handler:    _Routes_UserWeeklyReset_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -558,8 +558,96 @@ func (s *server) DeleteSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) 
 	return &skin, nil
 }
 
-const resetTimer = 30 * time.Minute 
-const longResetTimer = 24 * time.Hour
+func (s *server) FigureDecay(ctx context.Context, in  *pb.FigureInstance) (*pb.GenericStringResponse, error) {
+	fmt.Println("Applying Figure Charge Decay")
+	rows, err := s.db.Query("CALL sp_figureDecaySingle(?)", in.User_Email)
+	if err != nil {
+		log.Fatalf("could not decay figures: %v", err)
+		return nil, fmt.Errorf("could not decay figures: %v", err)
+	}
+	var alteredFigureInstances []*pb.FigureInstance
+	for rows.Next() {
+		var figureInstance pb.FigureInstance
+		err := rows.Scan(&figureInstance.Charge, &figureInstance.User_Email)
+		if err != nil {
+			log.Fatalf("could not scan figure instance: %v", err)
+			return nil, fmt.Errorf("could not iterate figures for decay: %v", err)
+		}
+		alteredFigureInstances = append(alteredFigureInstances, &figureInstance)
+	}
+	var alteredFigureInstancesString string
+	for _, figureInstance := range alteredFigureInstances {
+		alteredFigureInstancesString += fmt.Sprintf("%s ", figureInstance.User_Email)
+	}
+	log.Default().Printf("Decayed %d figure instances for users %s for charge totaling %d", len(alteredFigureInstances), alteredFigureInstancesString, len(alteredFigureInstances)*10)
+	rows.Close()
+	return &pb.GenericStringResponse{Message: "Decayed figures"}, nil
+}
+
+func (s *server) UserDecay(ctx context.Context, in  *pb.User) (*pb.GenericStringResponse, error) {
+	fmt.Println("Applying User Weekly Reset to User: ", in.Email)
+	rows, err := s.db.Query("CALL sp_userResetSingle(?)", in.Email)
+	if err != nil {
+		log.Fatalf("could not decay users: %v", err)
+		return nil, fmt.Errorf("could not decay users: %v", err)
+	}
+	rows.Close()
+	return &pb.GenericStringResponse{Message: "Decayed Users"}, nil
+}
+
+func ServerInitiatedFigureDecay(db *sql.DB) (error) {
+	fmt.Println("Applying Figure Charge Decay")
+	rows, err := db.Query("CALL sp_figureDecay()")
+	if err != nil {
+		log.Fatalf("could not decay figures: %v", err)
+		return fmt.Errorf("could not decay figures: %v", err)
+	}
+	var alteredFigureInstances []*pb.FigureInstance
+	for rows.Next() {
+		var figureInstance pb.FigureInstance
+		err := rows.Scan(&figureInstance.Charge, &figureInstance.User_Email)
+		if err != nil {
+			log.Fatalf("could not scan figure instance: %v", err)
+			return fmt.Errorf("could not iterate figures for decay: %v", err)
+		}
+		alteredFigureInstances = append(alteredFigureInstances, &figureInstance)
+	}
+	var alteredFigureInstancesString string
+	for _, figureInstance := range alteredFigureInstances {
+		alteredFigureInstancesString += fmt.Sprintf("%s ", figureInstance.User_Email)
+	}
+	log.Default().Printf("Decayed %d figure instances for users %s for charge totaling %d", len(alteredFigureInstances), alteredFigureInstancesString, len(alteredFigureInstances)*10)
+	rows.Close()
+	return nil
+}
+
+func ServerIntiaitedUserDecay(db *sql.DB) (error) {
+	fmt.Println("Applying User Weekly Reset")
+	rows, err := db.Query("CALL sp_userReset()")
+	if err != nil {
+		log.Fatalf("could not decay users: %v", err)
+		return fmt.Errorf("could not decay users: %v", err)
+	}
+	var alteredUsers []*pb.User
+	for rows.Next() {
+		var user pb.User
+		err := rows.Scan(&user.Email)
+		if err != nil {
+			log.Fatalf("could not scan user: %v", err)
+			return fmt.Errorf("could not iterate users for decay: %v", err)
+		}
+		alteredUsers = append(alteredUsers, &user)
+	}
+	var alteredUsersString string
+	for _, user := range alteredUsers {
+		alteredUsersString += fmt.Sprintf("%s ", user.Email)
+	}
+	log.Default().Printf("Decayed %d users: %s", len(alteredUsers), alteredUsersString)
+	rows.Close()
+	return nil
+}
+
+const resetTimer = 30  * time.Minute 
 
 func main() {
 	dbHost := os.Getenv("DB_HOST")
@@ -579,29 +667,14 @@ func main() {
 		for {
 			select {
 			case <-resetticker.C:
-				fmt.Println("Applying Figure Charge Decay")
-				rows, err := db.Query("CALL sp_figureDecay()")
+				err = ServerInitiatedFigureDecay(db)
 				if err != nil {
 					log.Fatalf("could not decay figures: %v", err)
 				}
-				var alteredFigureInstances []*pb.FigureInstance
-				for rows.Next() {
-					var figureInstance pb.FigureInstance
-					err := rows.Scan(&figureInstance.Charge, &figureInstance.User_Email)
-					if err != nil {
-						log.Fatalf("could not scan figure instance: %v", err)
-					}
-					alteredFigureInstances = append(alteredFigureInstances, &figureInstance)
+				err = ServerIntiaitedUserDecay(db)
+				if err != nil {
+					log.Fatalf("could not decay users: %v", err)
 				}
-				var alteredFigureInstancesString string
-				for _, figureInstance := range alteredFigureInstances {
-					alteredFigureInstancesString += fmt.Sprintf("%s ", figureInstance.User_Email)
-				}
-				log.Default().Printf("Decayed %d figure instances for users %s for charge totaling %d", len(alteredFigureInstances), alteredFigureInstancesString, len(alteredFigureInstances)*10)
-				rows.Close()
-
-			case <-resetticker.C:
-				fmt.Println("Applying User Weekly Reset")
 			}
 		}
 	}()
