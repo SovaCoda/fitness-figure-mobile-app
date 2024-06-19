@@ -43,19 +43,16 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final double OFFSET = 250 / 4;
   late double scoreIncrement;
   final int sigfigs = 2;
-  late User user;
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-    initialize();
   }
 
-  void initialize() async {
-    await auth.getUserDBInfo().then((value) {
-      user = value!;
-    });
+  void startTimer() {
+    UserModel? userModel = Provider.of<UserModel>(context, listen: false);
+    User user = userModel.user != null ? userModel.user! : User();
     Int64 timegoal = user.workoutMinTime;
     scoreIncrement = 1 / (timegoal.toDouble() * 60);
     logger.i(timegoal);
@@ -64,9 +61,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         _timegoal = timegoal * 60; //convert to seconds
       }
     });
-  }
-
-  void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         time++;
@@ -91,6 +85,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   //function that does all the awarding in one
   Future<void> awardAll({required bool weeklyGoalMet}) async {
+    User user = Provider.of<UserModel>(context, listen: false).user!;
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
     Figure figure =
@@ -112,6 +107,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       charge = figureCharge + chargeConcistencyBonus.toInt();
     }
 
+    await auth.updateUserDBInfo(Routes.User(
+        email: user.email,
+        currency: Int64(currency),
+        weekComplete: Int64(user.weekComplete.toInt() + 1)));
+
     Provider.of<CurrencyModel>(context, listen: false)
         .setCurrency(currency.toString());
     Provider.of<FigureModel>(context, listen: false)
@@ -120,11 +120,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         .setFigureCharge(figureInstance.charge + charge);
     Provider.of<UserModel>(context, listen: false)
         .setUserWeekCompleted(Int64(user.weekComplete.toInt() + 1));
-
-    await auth.updateUserDBInfo(Routes.User(
-        email: user.email,
-        currency: Int64(currency),
-        weekComplete: Int64(user.weekComplete.toInt() + 1)));
 
     await auth.updateFigureInstance(FigureInstance(
         figureId: figureInstance.figureId,
@@ -161,12 +156,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     await auth.createWorkout(workout);
     var user = Provider.of<UserModel>(context, listen: false).user;
     if (user!.weekComplete >= user.weekGoal) {
-      showDialog(
-          context: context,
-          builder: (context) => GenericPopupWidget(
-              message:
-                  'Hold on! You\'ve met your weekly goal, you\'ll still recieve currency and EV points, but you won\'t recieve charge. Keep up the good work!',
-              title: 'Weekly Goal Met'));
       setState(() {
         _logging = false;
         _timer.cancel();
@@ -210,69 +199,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  void displaySwapWidget() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Change Figure"),
-            content: Column(
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      auth.updateUserDBInfo(
-                          Routes.User(curFigure: "robot1_skin0_cropped"));
-                      setState(() {
-                        figureURL = "robot1_skin0_cropped";
-                      });
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      showConfirmationBox();
-                    },
-                    child: const Text("Robot 1")),
-                ElevatedButton(
-                    onPressed: () {
-                      auth.updateUserDBInfo(
-                          Routes.User(curFigure: "robot1_skin1_cropped"));
-                      setState(() {
-                        figureURL = "robot1_skin1_cropped";
-                      });
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      showConfirmationBox();
-                    },
-                    child: const Text("Robot 2")),
-                ElevatedButton(
-                    onPressed: () {
-                      auth.updateUserDBInfo(
-                          Routes.User(curFigure: "robot2_skin0_cropped"));
-                      setState(() {
-                        figureURL = "robot2_skin0_cropped";
-                      });
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      showConfirmationBox();
-                    },
-                    child: const Text("Robot 3")),
-                ElevatedButton(
-                    onPressed: () {
-                      auth.updateUserDBInfo(
-                          Routes.User(curFigure: "robot2_skin1_cropped"));
-                      setState(() {
-                        figureURL = "robot2_skin1_cropped";
-                      });
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      showConfirmationBox();
-                    },
-                    child: const Text("Robot 4")),
-              ],
-            ),
-          );
-        });
-  }
 
-  void showConfirmationBox() {
+  void showConfirmationBox() async {
     if (time < _timegoal.toInt()) {
       showDialog(
           context: context,
@@ -288,6 +216,28 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             );
           });
     } else {
+      FigureInstance figureInstance =
+          Provider.of<FigureModel>(context, listen: false).figure!;
+      Figure figure =
+          await auth.getFigure(Figure(figureName: figureInstance.figureName));
+      int currency = int.parse(
+          Provider.of<CurrencyModel>(context, listen: false).currency);
+      int addable_currency = time.toInt() ~/ 10;
+      currency += addable_currency;
+
+      var user = Provider.of<UserModel>(context, listen: false).user;
+
+      int figureEV = figure.baseEvGain;
+      double eVConcistencyBonus = (figureEV * 0.1) * user!.weekComplete.toInt();
+      int ev = figureEV + eVConcistencyBonus.toInt();
+
+      int charge = 0;
+      if (user!.weekComplete <= user.weekGoal) {
+        int figureCharge = 5; // needs to be replaced with the figure provider.
+        double chargeConcistencyBonus =
+            (figureCharge * 0.01) * user.weekComplete.toInt();
+        charge = figureCharge + chargeConcistencyBonus.toInt();
+      }
       showDialog(
           context: context,
           builder: (context) {
@@ -317,7 +267,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .primary)),
-                            Text('10',
+                            Text(charge.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
@@ -348,7 +298,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary)),
-                            Text('50',
+                            Text(addable_currency.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
@@ -379,7 +329,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .tertiary)),
-                            Text('75',
+                            Text(ev.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
@@ -400,10 +350,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           width: 250,
                         );
                       },
-                    ),
-                    ElevatedButton(
-                      onPressed: displaySwapWidget,
-                      child: const Text("Change Figure"),
                     ),
                   ],
                 ),
@@ -584,12 +530,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               ],
             ),
           ),
-          user.email == "chb263@msstate.edu" ?
-          DraggableAdminPanel(
-              onButton1Pressed: add5Minutes,
-              onButton2Pressed: add10Minutes,
-              button1Text: "Add 5 Minutes",
-              button2Text: "Add 10 Minutes") : Container(),
+          Consumer<UserModel>(builder: (context, user, _) {
+            return user.user?.email == "chb263@msstate.edu"
+                ? DraggableAdminPanel(
+                    onButton1Pressed: add5Minutes,
+                    onButton2Pressed: add10Minutes,
+                    button1Text: "Add 5 Minutes",
+                    button2Text: "Add 10 Minutes")
+                : Container();
+          })
         ],
       );
     }
