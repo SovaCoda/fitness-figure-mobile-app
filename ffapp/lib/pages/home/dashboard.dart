@@ -153,9 +153,19 @@ class _DashboardState extends State<Dashboard> {
               children: [
                 Center(
                   child: Consumer<FigureModel>(
-                  builder: (context, figure, child) {
+                    builder: (context, figure, child) { 
+                    String suffix;
+                    
+                    // Implemented logic for determining the robot's happiness or sadness
+                    if (robotCharge >= 0 && robotCharge <= 20) {
+                      suffix = "_sad";
+                    } else if (robotCharge >= 51 && robotCharge <= 100) {
+                      suffix = "_happy";
+                    } else {
+                      suffix = "";
+                    }
                     return RobotImageHolder(
-                    url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped_happy") : "robot1/robot1_skin0_evo0_cropped_happy",
+                    url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped${suffix}") : "robot1/robot1_skin0_evo0_cropped_happy",
                     height: 400,
                     width: 600,
                     );
