@@ -28,3 +28,26 @@ class PopupWidget extends StatelessWidget {
     );
   }
 }
+
+class GenericPopupWidget extends StatelessWidget {
+  final String message;
+  final String title;
+
+  GenericPopupWidget({required this.message, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(
+          child: Text('Close'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+}

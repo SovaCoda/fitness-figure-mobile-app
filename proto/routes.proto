@@ -49,7 +49,7 @@ service Routes {
 
     // SERVER ACTIONS //
     rpc FigureDecay(FigureInstance) returns (GenericStringResponse) {}
-    rpc UserWeeklyReset(MultiUser) returns (GenericStringResponse) {}
+    rpc UserWeeklyReset(User) returns (GenericStringResponse) {}
 }
 
 message GenericStringResponse {

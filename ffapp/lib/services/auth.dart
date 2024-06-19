@@ -28,7 +28,6 @@ class AuthService {
       await RoutesService.instance.init();
       logger.i("RoutesService initialized");
       RoutesService _routes = RoutesService.instance;
-      
 
       _instance = AuthService._(_auth, _routes);
     }
@@ -202,8 +201,9 @@ class AuthService {
       throw Exception("Failed to get figures");
     }
   }
-  
-  Future<Routes.FigureInstance> getFigureInstance(Routes.FigureInstance figureInstance) async {
+
+  Future<Routes.FigureInstance> getFigureInstance(
+      Routes.FigureInstance figureInstance) async {
     try {
       return await _routes.routesClient.getFigureInstance(figureInstance);
     } catch (e) {
@@ -212,7 +212,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.FigureInstance> updateFigureInstance(Routes.FigureInstance figureInstance) async {
+  Future<Routes.FigureInstance> updateFigureInstance(
+      Routes.FigureInstance figureInstance) async {
     try {
       return await _routes.routesClient.updateFigureInstance(figureInstance);
     } catch (e) {
@@ -221,7 +222,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.FigureInstance> createFigureInstance(Routes.FigureInstance figureInstance) async {
+  Future<Routes.FigureInstance> createFigureInstance(
+      Routes.FigureInstance figureInstance) async {
     try {
       return await _routes.routesClient.createFigureInstance(figureInstance);
     } catch (e) {
@@ -230,7 +232,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.FigureInstance> deleteFigureInstance(Routes.FigureInstance figureInstance) async {
+  Future<Routes.FigureInstance> deleteFigureInstance(
+      Routes.FigureInstance figureInstance) async {
     try {
       return await _routes.routesClient.deleteFigureInstance(figureInstance);
     } catch (e) {
@@ -239,7 +242,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.MultiFigureInstance> getFigureInstances(Routes.User user) async {
+  Future<Routes.MultiFigureInstance> getFigureInstances(
+      Routes.User user) async {
     try {
       return await _routes.routesClient.getFigureInstances(user);
     } catch (e) {
@@ -294,7 +298,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SkinInstance> getSkinInstance(Routes.SkinInstance skinInstance) async {
+  Future<Routes.SkinInstance> getSkinInstance(
+      Routes.SkinInstance skinInstance) async {
     try {
       return await _routes.routesClient.getSkinInstance(skinInstance);
     } catch (e) {
@@ -303,7 +308,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SkinInstance> updateSkinInstance(Routes.SkinInstance skinInstance) async {
+  Future<Routes.SkinInstance> updateSkinInstance(
+      Routes.SkinInstance skinInstance) async {
     try {
       return await _routes.routesClient.updateSkinInstance(skinInstance);
     } catch (e) {
@@ -312,7 +318,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SkinInstance> createSkinInstance(Routes.SkinInstance skinInstance) async {
+  Future<Routes.SkinInstance> createSkinInstance(
+      Routes.SkinInstance skinInstance) async {
     try {
       return await _routes.routesClient.createSkinInstance(skinInstance);
     } catch (e) {
@@ -321,7 +328,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SkinInstance> deleteSkinInstance(Routes.SkinInstance skinInstance) async {
+  Future<Routes.SkinInstance> deleteSkinInstance(
+      Routes.SkinInstance skinInstance) async {
     try {
       return await _routes.routesClient.deleteSkinInstance(skinInstance);
     } catch (e) {
@@ -339,4 +347,24 @@ class AuthService {
     }
   }
   // END SKIN METHODS //
+  // BEGIN SERVER ACTIONS //
+  Future<Routes.GenericStringResponse> figureDecay(
+      Routes.FigureInstance figure) async {
+    try {
+      return await _routes.routesClient.figureDecay(figure);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to decay figure");
+    }
+  }
+
+  Future<Routes.GenericStringResponse> userReset(Routes.User user) async {
+    try {
+      return await _routes.routesClient.userWeeklyReset(user);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to reset user");
+    }
+  }
+  // END SERVER ACTIONS //
 }

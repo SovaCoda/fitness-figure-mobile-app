@@ -1,9 +1,8 @@
-import 'dart:ffi';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/home/avatar_selection.dart';
-import 'package:ffapp/pages/home/figure_details.dart';
 import 'package:ffapp/pages/home/fitventures.dart';
 import 'package:ffapp/pages/home/subscribe.dart';
 import 'package:ffapp/pages/home/survey.dart';
@@ -33,6 +32,11 @@ class UserModel extends ChangeNotifier {
   Routes.User? user;
   void setUser(Routes.User newUser) {
     user = newUser;
+    notifyListeners();
+  }
+
+  void setUserWeekCompleted(Int64 newValue) {
+    user?.weekComplete = newValue;
     notifyListeners();
   }
 }

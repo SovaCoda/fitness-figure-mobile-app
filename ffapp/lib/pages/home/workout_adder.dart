@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_points.dart';
 import 'package:ffapp/components/popup.dart';
 import 'package:ffapp/components/progress_bar.dart';
@@ -89,7 +90,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   //function that does all the awarding in one
-  Future<void> awardAll() async {
+  Future<void> awardAll({required bool weeklyGoalMet}) async {
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
     Figure figure =
@@ -103,10 +104,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
     int ev = figureEV + eVConcistencyBonus.toInt();
 
-    int figureCharge = 5; // needs to be replaced with the figure provider.
-    double chargeConcistencyBonus =
-        (figureCharge * 0.01) * user.weekComplete.toInt();
-    int charge = figureCharge + chargeConcistencyBonus.toInt();
+    int charge = 0;
+    if (!weeklyGoalMet) {
+      int figureCharge = 5; // needs to be replaced with the figure provider.
+      double chargeConcistencyBonus =
+          (figureCharge * 0.01) * user.weekComplete.toInt();
+      charge = figureCharge + chargeConcistencyBonus.toInt();
+    }
 
     Provider.of<CurrencyModel>(context, listen: false)
         .setCurrency(currency.toString());
@@ -114,6 +118,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         .setFigureEv(figureInstance.evPoints + ev);
     Provider.of<FigureModel>(context, listen: false)
         .setFigureCharge(figureInstance.charge + charge);
+    Provider.of<UserModel>(context, listen: false)
+        .setUserWeekCompleted(Int64(user.weekComplete.toInt() + 1));
 
     await auth.updateUserDBInfo(Routes.User(
         email: user.email,
@@ -124,10 +130,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         figureId: figureInstance.figureId,
         userEmail: user.email,
         figureName: figureInstance.figureName,
-        charge: (figureInstance.charge + charge).toInt(),
-        evPoints: (figureInstance.evPoints + ev).toInt()));
+        charge: (figureInstance.charge).toInt(),
+        evPoints: (figureInstance.evPoints).toInt()));
 
-    final SharedPreferences prefs = await _prefs; 
+    final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
         prefs.getBool("hasSurveyed") == false) {
       showDialog(
@@ -153,7 +159,22 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       currencyAdd: Int64(Random.secure().nextInt(1000)),
     );
     await auth.createWorkout(workout);
-    await awardAll();
+    var user = Provider.of<UserModel>(context, listen: false).user;
+    if (user!.weekComplete >= user.weekGoal) {
+      showDialog(
+          context: context,
+          builder: (context) => GenericPopupWidget(
+              message:
+                  'Hold on! You\'ve met your weekly goal, you\'ll still recieve currency and EV points, but you won\'t recieve charge. Keep up the good work!',
+              title: 'Weekly Goal Met'));
+      setState(() {
+        _logging = false;
+        _timer.cancel();
+      });
+      await awardAll(weeklyGoalMet: true);
+      return;
+    }
+    await awardAll(weeklyGoalMet: false);
     setState(() {
       _logging = false;
       _timer.cancel();
@@ -175,6 +196,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           Navigator.of(context).pop();
         },
         child: const Text("No I'll Keep At It!"));
+  }
+
+  add5Minutes() {
+    setState(() {
+      time += Int64(300);
+    });
+  }
+
+  add10Minutes() {
+    setState(() {
+      time += Int64(600);
+    });
   }
 
   void displaySwapWidget() {
@@ -407,149 +440,157 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         ),
       );
     } else {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(children: [
-              Consumer<FigureModel>(
-                builder: (context, figureModel, _) {
-                  return RobotImageHolder(
-                    url:
-                        ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
-                    height: 250,
-                    width: 250,
-                  );
-                },
-              ),
-              Positioned(
-                  child: RobotDialogBox(
-                      dialogOptions: robotDialog.getLoggerDialog(
-                          _timePassed.toInt(), 1800),
-                      width: 180,
-                      height: 45)),
-            ]),
-            const SizedBox(height: 20),
-            Text(
-              "Time Elapsed:",
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.onBackground),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              formatSeconds(time.toInt()),
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onBackground),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-                onPressed: showConfirmationBox,
-                child: const Text("End Workout")),
-            const SizedBox(height: 20),
-            Center(
-              child: Stack(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      return Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(children: [
+                  Consumer<FigureModel>(
+                    builder: (context, figureModel, _) {
+                      return RobotImageHolder(
+                        url:
+                            ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
+                        height: 250,
+                        width: 250,
+                      );
+                    },
+                  ),
+                  Positioned(
+                      child: RobotDialogBox(
+                          dialogOptions: robotDialog.getLoggerDialog(
+                              _timePassed.toInt(), 1800),
+                          width: 180,
+                          height: 45)),
+                ]),
+                const SizedBox(height: 20),
+                Text(
+                  "Time Elapsed:",
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  formatSeconds(time.toInt()),
+                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                    onPressed: showConfirmationBox,
+                    child: const Text("End Workout")),
+                const SizedBox(height: 20),
+                Center(
+                  child: Stack(
                     children: [
-                      ProgressBar(
-                        progressPercent:
-                            time.toDouble() / (_timegoal.toDouble()),
-                        fillColor: Theme.of(context).colorScheme.primary,
-                        barWidth: 240,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ProgressBar(
+                            progressPercent:
+                                time.toDouble() / (_timegoal.toDouble()),
+                            fillColor: Theme.of(context).colorScheme.primary,
+                            barWidth: 240,
+                          ),
+                          const SizedBox(width: 20),
+                          Icon(
+                            Icons.battery_charging_full,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 34,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                      Icon(
-                        Icons.battery_charging_full,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 34,
+                      Positioned(
+                        left: 65,
+                        top: 0,
+                        child: FloatingText(
+                          text:
+                              "^ ${(scoreIncrement * 10).toStringAsPrecision(sigfigs)}",
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ],
                   ),
-                  Positioned(
-                    left: 65,
-                    top: 0,
-                    child: FloatingText(
-                      text:
-                          "^ ${(scoreIncrement * 10).toStringAsPrecision(sigfigs)}",
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Stack(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Stack(
                     children: [
-                      ProgressBar(
-                        progressPercent:
-                            time.toDouble() / (_timegoal.toDouble()) * 2,
-                        fillColor: Theme.of(context).colorScheme.secondary,
-                        barWidth: 240,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ProgressBar(
+                            progressPercent:
+                                time.toDouble() / (_timegoal.toDouble()) * 2,
+                            fillColor: Theme.of(context).colorScheme.secondary,
+                            barWidth: 240,
+                          ),
+                          const SizedBox(width: 20),
+                          Icon(
+                            Icons.currency_exchange,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 34,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                      Icon(
-                        Icons.currency_exchange,
-                        color: Theme.of(context).colorScheme.secondary,
-                        size: 34,
+                      Positioned(
+                        left: 65,
+                        top: 0,
+                        child: FloatingText(
+                          text: "^ " +
+                              (scoreIncrement * 20)
+                                  .toStringAsPrecision(sigfigs),
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
                     ],
                   ),
-                  Positioned(
-                    left: 65,
-                    top: 0,
-                    child: FloatingText(
-                      text: "^ " +
-                          (scoreIncrement * 20).toStringAsPrecision(sigfigs),
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Stack(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Stack(
                     children: [
-                      ProgressBar(
-                        progressPercent:
-                            time.toDouble() / (_timegoal.toDouble()) * 4,
-                        fillColor: Theme.of(context).colorScheme.tertiary,
-                        barWidth: 240,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ProgressBar(
+                            progressPercent:
+                                time.toDouble() / (_timegoal.toDouble()) * 4,
+                            fillColor: Theme.of(context).colorScheme.tertiary,
+                            barWidth: 240,
+                          ),
+                          const SizedBox(width: 20),
+                          Icon(
+                            Icons.upgrade,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            size: 34,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                      Icon(
-                        Icons.upgrade,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 34,
+                      Positioned(
+                        left: 65,
+                        top: 0,
+                        child: FloatingText(
+                          text: "^ " +
+                              (scoreIncrement * 40)
+                                  .toStringAsPrecision(sigfigs),
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
                       ),
                     ],
                   ),
-                  Positioned(
-                    left: 65,
-                    top: 0,
-                    child: FloatingText(
-                      text: "^ " +
-                          (scoreIncrement * 40).toStringAsPrecision(sigfigs),
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          user.email == "chb263@msstate.edu" ?
+          DraggableAdminPanel(
+              onButton1Pressed: add5Minutes,
+              onButton2Pressed: add10Minutes,
+              button1Text: "Add 5 Minutes",
+              button2Text: "Add 10 Minutes") : Container(),
+        ],
       );
     }
   }

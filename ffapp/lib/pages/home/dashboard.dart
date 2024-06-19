@@ -1,3 +1,4 @@
+import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/widgets.dart';
 import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
@@ -45,12 +47,17 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void onViewSkins() async {
-    Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(Routes.User(email: Provider.of<UserModel>(context, listen: false).user!.email));
-    Routes.MultiFigureInstance multifigureinstances =await auth.getFigureInstances(Routes.User(email: Provider.of<UserModel>(context, listen: false).user!.email));
+    Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(
+        Routes.User(
+            email: Provider.of<UserModel>(context, listen: false).user!.email));
+    Routes.MultiFigureInstance multifigureinstances =
+        await auth.getFigureInstances(Routes.User(
+            email: Provider.of<UserModel>(context, listen: false).user!.email));
     Routes.MultiSkin multiskins = await auth.getSkins();
 
     List<Routes.SkinInstance> skinInstances = multiskininstances.skinInstances;
-    List<Routes.FigureInstance> figureInstances = multifigureinstances.figureInstances;
+    List<Routes.FigureInstance> figureInstances =
+        multifigureinstances.figureInstances;
     List<Routes.Skin> skins = multiskins.skins;
 
     showDialog(
@@ -60,7 +67,15 @@ class _DashboardState extends State<Dashboard> {
           title: const Text("Skin View"),
           content: Container(
             height: 1000, // Set the height to 80% of the screen height
-            child: ChangeNotifierProvider(create: (context) => store.FigureInstancesProvider(), child: SkinViewer(listOfSkins: skins, listOfSkinInstances: skinInstances, figureName: Provider.of<FigureModel>(context, listen:false).figure!.figureName, listOfFigureInstances: figureInstances)),
+            child: ChangeNotifierProvider(
+                create: (context) => store.FigureInstancesProvider(),
+                child: SkinViewer(
+                    listOfSkins: skins,
+                    listOfSkinInstances: skinInstances,
+                    figureName: Provider.of<FigureModel>(context, listen: false)
+                        .figure!
+                        .figureName,
+                    listOfFigureInstances: figureInstances)),
           ),
           actions: [
             ElevatedButton(
@@ -77,8 +92,12 @@ class _DashboardState extends State<Dashboard> {
 
   void initialize() async {
     Routes.User? databaseUser = await auth?.getUserDBInfo();
-    Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(Routes.FigureInstance(userEmail: databaseUser?.email, figureName: databaseUser?.curFigure));
-    Routes.Figure? figure = await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
+    Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+        Routes.FigureInstance(
+            userEmail: databaseUser?.email,
+            figureName: databaseUser?.curFigure));
+    Routes.Figure? figure =
+        await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
     List<int> figureCutoffs = [];
     figureCutoffs.add(figure?.stage1EvCutoff ?? 0);
     figureCutoffs.add(figure?.stage2EvCutoff ?? 0);
@@ -90,16 +109,18 @@ class _DashboardState extends State<Dashboard> {
     figureCutoffs.add(figure?.stage8EvCutoff ?? 0);
     figureCutoffs.add(figure?.stage9EvCutoff ?? 0);
     figureCutoffs.add(figure?.stage10EvCutoff ?? 0);
-    Map<String, int> curEVData = displayEVPointsAndMax(databaseFigure.evPoints ?? 0, figureCutoffs);
+    Map<String, int> curEVData =
+        displayEVPointsAndMax(databaseFigure.evPoints ?? 0, figureCutoffs);
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
-    Provider.of<CurrencyModel>(context, listen: false).setCurrency(
-        databaseUser?.currency.toString() ?? "0000");
+    Provider.of<CurrencyModel>(context, listen: false)
+        .setCurrency(databaseUser?.currency.toString() ?? "0000");
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
-    Provider.of<FigureModel>(context, listen: false).setFigureLevel(curEVData['level']! - 1);
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigureLevel(curEVData['level']! - 1);
     setState(() {
       evData = curEVData;
       charge = curWeekly / curGoal;
@@ -141,6 +162,14 @@ class _DashboardState extends State<Dashboard> {
     };
   }
 
+  void triggerFigureDecay() {
+    auth?.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
+  }
+
+  void triggerUserReset() {
+    auth?.userReset(Provider.of<UserModel>(context, listen: false).user!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -153,59 +182,74 @@ class _DashboardState extends State<Dashboard> {
               children: [
                 Center(
                   child: Consumer<FigureModel>(
-                    builder: (context, figure, child) { 
-                    String suffix;
-                    
-                    // Implemented logic for determining the robot's happiness or sadness
-                    // TODO(Eric Duncan) Query to the server for robotCharge instead of constant int value
-                    if(figure.figure?.charge != null){
-                      if (figure.figure!.charge.toInt() >= 0 && figure.figure!.charge.toInt() <= 20) {
-                        suffix = "_sad";
-                      } else if (figure.figure!.charge.toInt() >= 51 && figure.figure!.charge.toInt() <= 100) {
-                        suffix = "_happy";
+                    builder: (context, figure, child) {
+                      String suffix;
+
+                      // Implemented logic for determining the robot's happiness or sadness
+                      // TODO(Eric Duncan) Query to the server for robotCharge instead of constant int value
+                      if (figure.figure?.charge != null) {
+                        if (figure.figure!.charge.toInt() >= 0 &&
+                            figure.figure!.charge.toInt() <= 20) {
+                          suffix = "_sad";
+                        } else if (figure.figure!.charge.toInt() >= 51 &&
+                            figure.figure!.charge.toInt() <= 100) {
+                          suffix = "_happy";
+                        } else {
+                          suffix = "";
+                        }
                       } else {
                         suffix = "";
                       }
-                    }
-                    else {
-                      suffix = "";
-                    }
-                    return RobotImageHolder(
-                    url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped${suffix}") : "robot1/robot1_skin0_evo0_cropped_happy",
-                    height: 400,
-                    width: 600,
-                    );
-                  },
+                      return RobotImageHolder(
+                        url: (figure.figure != null)
+                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped${suffix}")
+                            : "robot1/robot1_skin0_evo0_cropped_happy",
+                        height: 400,
+                        width: 600,
+                      );
+                    },
                   ),
                 ),
                 Positioned(
-                  top: 40,
-                  left: 160,
-                  child: RobotDialogBox(
-                    dialogOptions:
-                        robotDialog.getDashboardDialog(robotCharge),
-                    width: 200,
-                    height: 40,
-                  )
-                ),
-                
+                    top: 40,
+                    left: 160,
+                    child: RobotDialogBox(
+                      dialogOptions:
+                          robotDialog.getDashboardDialog(robotCharge),
+                      width: 200,
+                      height: 40,
+                    )),
+                Consumer<UserModel>(
+                  builder: (context, user, child) => (user != null &&
+                          user.user != null &&
+                          user.user!.email == "chb263@msstate.edu")
+                      ? DraggableAdminPanel(
+                          onButton1Pressed: triggerFigureDecay,
+                          onButton2Pressed: triggerUserReset,
+                          button1Text: "Daily Decay Figure",
+                          button2Text: "Weekly Reset User",
+                        )
+                      : Container(),
+                )
               ],
             ),
 
-            Center(child: ElevatedButton.icon(onPressed: onViewSkins, icon: Icon(Icons.swap_calls), label: Text("Skins"))),
+            Center(
+                child: ElevatedButton.icon(
+                    onPressed: onViewSkins,
+                    icon: Icon(Icons.swap_calls),
+                    label: Text("Skins"))),
             const SizedBox(height: 5),
 
             Center(
               child: EvBar(
-                currentXp: evData['displayPoints'] ?? 0,
-                maxXp: evData['maxPoints'] ?? 0,
-                currentLvl: evData['level'] ?? 1,
-                fillColor: Theme.of(context).colorScheme.tertiary,
-                barWidth: 200
-              ),
+                  currentXp: evData['displayPoints'] ?? 0,
+                  maxXp: evData['maxPoints'] ?? 0,
+                  currentLvl: evData['level'] ?? 1,
+                  fillColor: Theme.of(context).colorScheme.tertiary,
+                  barWidth: 200),
             ),
-                
-            
+
             //Text underneath the robot
             Text("Train consistently to power your Fitness Figure!",
                 style: Theme.of(context).textTheme.titleSmall!.copyWith(
@@ -215,15 +259,14 @@ class _DashboardState extends State<Dashboard> {
 
             Consumer<UserModel>(builder: (context, user, child) {
               if (user.user == null) {
-                return CircularProgressIndicator(); 
+                return CircularProgressIndicator();
               }
               return WorkoutNumbersRow(
-                  weeklyCompleted: user.user!.weekComplete.toInt(),
-                  weeklyGoal: user.user!.weekGoal.toInt(),
-                  lifeTimeCompleted: 10,
-                );
-              }
-            ),
+                weeklyCompleted: user.user!.weekComplete.toInt(),
+                weeklyGoal: user.user!.weekGoal.toInt(),
+                lifeTimeCompleted: 10,
+              );
+            }),
 
             const SizedBox(
               height: 20,
@@ -236,7 +279,8 @@ class _DashboardState extends State<Dashboard> {
                 return CircularProgressIndicator();
               }
               return ProgressBar(
-                  progressPercent: figure.figure!.charge.toDouble()/100 ?? 0.0,
+                  progressPercent:
+                      figure.figure!.charge.toDouble() / 100 ?? 0.0,
                   barWidth: 320,
                   fillColor: Theme.of(context).colorScheme.primary);
             }),
@@ -293,11 +337,15 @@ class WorkoutNumbersRow extends StatelessWidget {
           Column(children: [
             Text(weeklyCompleted.toString(),
                 style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: weeklyCompleted >= weeklyGoal
+                          ? Theme.of(context).colorScheme.tertiary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     )),
             Text("Weekly Completed",
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: weeklyCompleted >= weeklyGoal
+                          ? Theme.of(context).colorScheme.tertiary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     )),
           ]),
           // DoubleLineDivider(),

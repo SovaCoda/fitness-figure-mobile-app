@@ -584,7 +584,7 @@ func (s *server) FigureDecay(ctx context.Context, in  *pb.FigureInstance) (*pb.G
 	return &pb.GenericStringResponse{Message: "Decayed figures"}, nil
 }
 
-func (s *server) UserDecay(ctx context.Context, in  *pb.User) (*pb.GenericStringResponse, error) {
+func (s *server) UserWeeklyReset(ctx context.Context, in  *pb.User) (*pb.GenericStringResponse, error) {
 	fmt.Println("Applying User Weekly Reset to User: ", in.Email)
 	rows, err := s.db.Query("CALL sp_userResetSingle(?)", in.Email)
 	if err != nil {

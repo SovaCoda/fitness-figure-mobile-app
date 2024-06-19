@@ -60,7 +60,7 @@ type RoutesClient interface {
 	GetSkins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiSkin, error)
 	// SERVER ACTIONS //
 	FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error)
-	UserWeeklyReset(ctx context.Context, in *MultiUser, opts ...grpc.CallOption) (*GenericStringResponse, error)
+	UserWeeklyReset(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericStringResponse, error)
 }
 
 type routesClient struct {
@@ -341,7 +341,7 @@ func (c *routesClient) FigureDecay(ctx context.Context, in *FigureInstance, opts
 	return out, nil
 }
 
-func (c *routesClient) UserWeeklyReset(ctx context.Context, in *MultiUser, opts ...grpc.CallOption) (*GenericStringResponse, error) {
+func (c *routesClient) UserWeeklyReset(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericStringResponse, error) {
 	out := new(GenericStringResponse)
 	err := c.cc.Invoke(ctx, "/routes.Routes/UserWeeklyReset", in, out, opts...)
 	if err != nil {
@@ -391,7 +391,7 @@ type RoutesServer interface {
 	GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error)
 	// SERVER ACTIONS //
 	FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error)
-	UserWeeklyReset(context.Context, *MultiUser) (*GenericStringResponse, error)
+	UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error)
 	mustEmbedUnimplementedRoutesServer()
 }
 
@@ -489,7 +489,7 @@ func (UnimplementedRoutesServer) GetSkins(context.Context, *emptypb.Empty) (*Mul
 func (UnimplementedRoutesServer) FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FigureDecay not implemented")
 }
-func (UnimplementedRoutesServer) UserWeeklyReset(context.Context, *MultiUser) (*GenericStringResponse, error) {
+func (UnimplementedRoutesServer) UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserWeeklyReset not implemented")
 }
 func (UnimplementedRoutesServer) mustEmbedUnimplementedRoutesServer() {}
@@ -1046,7 +1046,7 @@ func _Routes_FigureDecay_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _Routes_UserWeeklyReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MultiUser)
+	in := new(User)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1058,7 +1058,7 @@ func _Routes_UserWeeklyReset_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/routes.Routes/UserWeeklyReset",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoutesServer).UserWeeklyReset(ctx, req.(*MultiUser))
+		return srv.(RoutesServer).UserWeeklyReset(ctx, req.(*User))
 	}
 	return interceptor(ctx, in, info, handler)
 }
