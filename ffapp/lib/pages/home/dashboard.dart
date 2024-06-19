@@ -31,7 +31,7 @@ class _DashboardState extends State<Dashboard> {
   late int weeklyCompleted = 0;
   late String figureURL = "robot1";
   late double charge = 0;
-  final int robotCharge = 95;
+  final int robotCharge = 20;
   late Map<String, int> evData = {};
   late Figure figure = Figure();
   RobotDialog robotDialog = RobotDialog();
@@ -157,11 +157,17 @@ class _DashboardState extends State<Dashboard> {
                     String suffix;
                     
                     // Implemented logic for determining the robot's happiness or sadness
-                    if (robotCharge >= 0 && robotCharge <= 20) {
-                      suffix = "_sad";
-                    } else if (robotCharge >= 51 && robotCharge <= 100) {
-                      suffix = "_happy";
-                    } else {
+                    // TODO(Eric Duncan) Query to the server for robotCharge instead of constant int value
+                    if(figure.figure?.charge != null){
+                      if (figure.figure!.charge.toInt() >= 0 && figure.figure!.charge.toInt() <= 20) {
+                        suffix = "_sad";
+                      } else if (figure.figure!.charge.toInt() >= 51 && figure.figure!.charge.toInt() <= 100) {
+                        suffix = "_happy";
+                      } else {
+                        suffix = "";
+                      }
+                    }
+                    else {
                       suffix = "";
                     }
                     return RobotImageHolder(
