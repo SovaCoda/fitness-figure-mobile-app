@@ -109,6 +109,9 @@ class _DashboardState extends State<Dashboard> {
     figureCutoffs.add(figure?.stage8EvCutoff ?? 0);
     figureCutoffs.add(figure?.stage9EvCutoff ?? 0);
     figureCutoffs.add(figure?.stage10EvCutoff ?? 0);
+
+    Provider.of<FigureModel>(context, listen: false).figureCutoffs = figureCutoffs;
+
     Map<String, int> curEVData =
         displayEVPointsAndMax(databaseFigure.evPoints ?? 0, figureCutoffs);
     String curEmail = databaseUser?.email ?? "Loading...";
@@ -141,24 +144,15 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
+    FigureModel figureModel = Provider.of<FigureModel>(context, listen: false);
     int displayPoints = eVPoints;
-    int maxPoints = eVCutoffs[0];
-    int level = 1;
-
-    for (int i = 0; i < eVCutoffs.length; i++) {
-      if (displayPoints > eVCutoffs[i]) {
-        displayPoints -= eVCutoffs[i];
-        maxPoints = eVCutoffs[i];
-        level++;
-      } else {
-        break;
-      }
-    }
+    int maxPoints = figureModel.figureCutoffs[figureModel.EVLevel];
 
     return {
       'displayPoints': displayPoints,
       'maxPoints': maxPoints,
-      'level': level
+      'readyToEvolve': displayPoints >= maxPoints ? 1 : 0,
+      'level': figureModel.EVLevel + 1,
     };
   }
 
@@ -242,7 +236,11 @@ class _DashboardState extends State<Dashboard> {
             const SizedBox(height: 5),
 
             Center(
-              child: EvBar(
+             
+              child:  evData['readyToEvolve'] == 1 ? 
+              ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.tertiary)))
+              : EvBar(
                   currentXp: evData['displayPoints'] ?? 0,
                   maxXp: evData['maxPoints'] ?? 0,
                   currentLvl: evData['level'] ?? 1,

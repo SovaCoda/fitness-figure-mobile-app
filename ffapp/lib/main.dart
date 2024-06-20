@@ -1,4 +1,5 @@
 
+import 'package:ffapp/pages/home/evo.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
@@ -44,6 +45,8 @@ class UserModel extends ChangeNotifier {
 class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure;
   int EVLevel = 0;
+  List<int> figureCutoffs = [];
+  int totalEVForNext = 0;
   
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
@@ -51,8 +54,10 @@ class FigureModel extends ChangeNotifier {
   }
 
   void setFigureLevel(int newValue) {
-    EVLevel = newValue;
-    notifyListeners();
+    if(newValue <= 7){
+      EVLevel = newValue;
+      notifyListeners();
+    }
   }
 
   void setFigureEv(int newValue) {
@@ -144,6 +149,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     path: '/survey',
     builder: (context, state) => SurveyWidget(),
   ),
+  GoRoute(
+    name: 'Evolution',
+    path: '/evolution',
+    builder: (context, state) => EvolutionPage(),
+  )
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',
