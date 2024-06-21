@@ -238,8 +238,8 @@ class _DashboardState extends State<Dashboard> {
                     )),
                 Consumer<UserModel>(
                   builder: (context, user, child) => (user != null &&
-                          user.user != null &&
-                          user.user!.email == "chb263@msstate.edu")
+                          user.user != null && 
+                          user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com")
                       ? DraggableAdminPanel(
                           onButton1Pressed: triggerFigureDecay,
                           onButton2Pressed: triggerUserReset,
