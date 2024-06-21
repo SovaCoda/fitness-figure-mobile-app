@@ -163,6 +163,24 @@ class _DashboardState extends State<Dashboard> {
   void triggerUserReset() {
     auth?.userReset(Provider.of<UserModel>(context, listen: false).user!);
   }
+  Stream<FigureModel> _figureStream() async* {
+  // Replace with your actual data source logic
+    while (true) {
+      await Future<void>.delayed(const Duration(seconds: 3)); 
+      if(mounted){
+        Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+          Routes.FigureInstance(
+            userEmail: Provider.of<UserModel>(context, listen: false).user?.email,
+            figureName: Provider.of<UserModel>(context, listen: false).user?.curFigure));
+      
+        if(mounted){
+          Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
+          yield Provider.of<FigureModel>(context, listen: false);
+        }
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +198,7 @@ class _DashboardState extends State<Dashboard> {
                       String suffix;
 
                       // Implemented logic for determining the robot's happiness or sadness
-                      // TODO(Eric Duncan) Query to the server for robotCharge instead of constant int value
+
                       if (figure.figure?.charge != null) {
                         if (figure.figure!.charge.toInt() >= 0 &&
                             figure.figure!.charge.toInt() <= 20) {
@@ -207,11 +225,16 @@ class _DashboardState extends State<Dashboard> {
                 Positioned(
                     top: 40,
                     left: 160,
-                    child: RobotDialogBox(
-                      dialogOptions:
-                          robotDialog.getDashboardDialog(robotCharge),
-                      width: 200,
-                      height: 40,
+                    child: Consumer<FigureModel>(
+                      builder: (context, figure, child){
+                      return RobotDialogBox(
+                        dialogOptions:
+                            // Dialog options now pulls from the server value
+                            figure.figure?.charge != null ? robotDialog.getDashboardDialog(figure.figure!.charge.toInt()) : robotDialog.getDashboardDialog(0),
+                        width: 200,
+                        height: 40,
+                        );
+                      }
                     )),
                 Consumer<UserModel>(
                   builder: (context, user, child) => (user != null &&
@@ -272,16 +295,32 @@ class _DashboardState extends State<Dashboard> {
 
             //imported from progress bar component
 
-            Consumer<FigureModel>(builder: (context, figure, child) {
-              if (figure.figure == null) {
-                return CircularProgressIndicator();
-              }
-              return ProgressBar(
-                  progressPercent:
-                      figure.figure!.charge.toDouble() / 100 ?? 0.0,
+            StreamBuilder<FigureModel>(
+              stream: _figureStream(),
+              builder: (context, snapshot) {
+                if(!mounted){
+                  return Text('Widget is no longer active');
+                }
+                else if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator(); // Show a loading indicator
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (!snapshot.hasData) {
+                  return Text('No data available');
+                }
+
+                final figure = snapshot.data!;
+                if(figure.figure?.charge == null){
+                  return const CircularProgressIndicator();
+                }
+                return ProgressBar(
+                  progressPercent: figure.figure!.charge.toDouble() / 100 ?? 0.0,
                   barWidth: 320,
-                  fillColor: Theme.of(context).colorScheme.primary);
-            }),
+                  fillColor: Theme.of(context).colorScheme.primary,
+                );
+              },
+            ),
+
 
             const SizedBox(
               height: 20,
