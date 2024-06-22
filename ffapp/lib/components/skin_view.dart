@@ -14,7 +14,7 @@ class SkinViewer extends StatefulWidget {
   final List<Routes.SkinInstance> listOfSkinInstances;
   final figureName;
 
-  SkinViewer({required this.listOfSkins, required this.listOfSkinInstances, required this.figureName, required this.listOfFigureInstances});
+  const SkinViewer({super.key, required this.listOfSkins, required this.listOfSkinInstances, required this.figureName, required this.listOfFigureInstances});
 
   @override
   _SkinViewerState createState() => _SkinViewerState();
@@ -24,6 +24,7 @@ class _SkinViewerState extends State<SkinViewer> {
   late AuthService auth;
   late UserModel userModel;
   
+  @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
@@ -38,14 +39,14 @@ class _SkinViewerState extends State<SkinViewer> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
               ),
             ),
@@ -56,25 +57,25 @@ class _SkinViewerState extends State<SkinViewer> {
 
     Overlay.of(context).insert(overlayEntry);
 
-    Future.delayed(Duration(seconds: 2)).then((_) => overlayEntry.remove());
+    Future.delayed(const Duration(seconds: 2)).then((_) => overlayEntry.remove());
   }
 
   void viewSkin(BuildContext context, String skinName) {
   }
 
   void equipSkin(BuildContext context, String figureName, String skinName) {
-
     Provider.of<FigureInstancesProvider>(context, listen: false).setFigureInstanceCurSkin(figureName, skinName);
+    Provider.of<FigureModel>(context, listen: false).setFigureSkin(skinName.substring(4));
     auth.updateFigureInstance(Routes.FigureInstance(figureName: figureName, curSkin: skinName.substring(4), userEmail: userModel.user?.email));
   }
 
   void purchaseSkin(BuildContext context, int price, String skinSkinName, String figureSkinName, bool owned) async {
     String currency = Provider.of<CurrencyModel>(context, listen: false).currency;
-    int cur_currency = int.parse(currency);
-    if (cur_currency >= price && owned == false) {
-      Provider.of<CurrencyModel>(context, listen: false).setCurrency((cur_currency - price).toString());
+    int curCurrency = int.parse(currency);
+    if (curCurrency >= price && owned == false) {
+      Provider.of<CurrencyModel>(context, listen: false).setCurrency((curCurrency - price).toString());
       await auth.createSkinInstance(Routes.SkinInstance(userEmail: userModel.user?.email, skinName: skinSkinName, figureName: figureSkinName));
-      Provider.of<UserModel>(context, listen: false).user?.currency = Int64(cur_currency - price); 
+      Provider.of<UserModel>(context, listen: false).user?.currency = Int64(curCurrency - price); 
       await auth.updateUserDBInfo(userModel.user!);
       
       showOverlayAlert(context, "Skin purchased!", Colors.green, 73);

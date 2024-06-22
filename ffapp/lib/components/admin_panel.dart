@@ -7,12 +7,13 @@ class DraggableAdminPanel extends StatefulWidget {
   final String button1Text;
   final String button2Text;
 
-  DraggableAdminPanel({required this.onButton1Pressed, required this.onButton2Pressed, required this.button1Text, required this.button2Text});
+  const DraggableAdminPanel({super.key, required this.onButton1Pressed, required this.onButton2Pressed, required this.button1Text, required this.button2Text});
+  @override
   _DraggableAdminPanelState createState() => _DraggableAdminPanelState();
 }
 
 class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
-  Offset offset = Offset(0.0, 0.0);
+  Offset offset = const Offset(0.0, 0.0);
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +34,12 @@ class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
 
   Widget adminPanel() {
     return Card(
-      child: Container(
+      child: SizedBox(
         width: 200,
         height: 200,
         child: Column(
           children: <Widget>[
-            Text('Admin Panel'),
+            const Text('Admin Panel'),
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[

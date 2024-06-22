@@ -61,7 +61,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         _timegoal = timegoal * 60; //convert to seconds
       }
     });
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         time++;
       });
@@ -92,8 +92,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         await auth.getFigure(Figure(figureName: figureInstance.figureName));
     int currency =
         int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
-    int addable_currency = _timePassed.toInt() ~/ 10;
-    currency += addable_currency;
+    int addableCurrency = _timePassed.toInt() ~/ 10;
+    currency += addableCurrency;
 
     int figureEV = figure.baseEvGain;
     double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
@@ -133,7 +133,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         prefs.getBool("hasSurveyed") == false) {
       showDialog(
         context: context,
-        builder: (context) => PopupWidget(
+        builder: (context) => const PopupWidget(
           message:
               'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',
         ),
@@ -222,8 +222,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           await auth.getFigure(Figure(figureName: figureInstance.figureName));
       int currency = int.parse(
           Provider.of<CurrencyModel>(context, listen: false).currency);
-      int addable_currency = time.toInt() ~/ 10;
-      currency += addable_currency;
+      int addableCurrency = time.toInt() ~/ 10;
+      currency += addableCurrency;
 
       var user = Provider.of<UserModel>(context, listen: false).user;
 
@@ -232,7 +232,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       int ev = figureEV + eVConcistencyBonus.toInt();
 
       int charge = 0;
-      if (user!.weekComplete <= user.weekGoal) {
+      if (user.weekComplete <= user.weekGoal) {
         int figureCharge = 5; // needs to be replaced with the figure provider.
         double chargeConcistencyBonus =
             (figureCharge * 0.01) * user.weekComplete.toInt();
@@ -245,8 +245,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               title: const Text("Are you sure?"),
               content: Center(
                   child: Column(children: [
-                Text("You've met your goal!"),
-                SizedBox(height: 8),
+                const Text("You've met your goal!"),
+                const SizedBox(height: 8),
                 Column(
                   children: [
                     Column(
@@ -279,7 +279,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Column(
                       children: [
                         ProgressBar(
@@ -298,7 +298,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary)),
-                            Text(addable_currency.toString(),
+                            Text(addableCurrency.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall!
@@ -310,7 +310,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Column(
                       children: [
                         ProgressBar(
@@ -414,13 +414,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Text(
                   "Time Elapsed:",
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 5),
                 Text(
                   formatSeconds(time.toInt()),
                   style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
@@ -484,9 +484,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         left: 65,
                         top: 0,
                         child: FloatingText(
-                          text: "^ " +
-                              (scoreIncrement * 20)
-                                  .toStringAsPrecision(sigfigs),
+                          text: "^ ${(scoreIncrement * 20)
+                                  .toStringAsPrecision(sigfigs)}",
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
@@ -518,9 +517,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         left: 65,
                         top: 0,
                         child: FloatingText(
-                          text: "^ " +
-                              (scoreIncrement * 40)
-                                  .toStringAsPrecision(sigfigs),
+                          text: "^ ${(scoreIncrement * 40)
+                                  .toStringAsPrecision(sigfigs)}",
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
                       ),

@@ -6,12 +6,10 @@ import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart' as store;
 import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/google/protobuf/empty.pb.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -19,7 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key});
+  const Dashboard({super.key});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -65,7 +63,7 @@ class _DashboardState extends State<Dashboard> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Skin View"),
-          content: Container(
+          content: SizedBox(
             height: 1000, // Set the height to 80% of the screen height
             child: ChangeNotifierProvider(
                 create: (context) => store.FigureInstancesProvider(),
@@ -91,7 +89,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void initialize() async {
-    Routes.User? databaseUser = await auth?.getUserDBInfo();
+    Routes.User? databaseUser = await auth.getUserDBInfo();
     Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
         Routes.FigureInstance(
             userEmail: databaseUser?.email,
@@ -99,16 +97,16 @@ class _DashboardState extends State<Dashboard> {
     Routes.Figure? figure =
         await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
     List<int> figureCutoffs = [];
-    figureCutoffs.add(figure?.stage1EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage2EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage3EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage4EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage5EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage6EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage7EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage8EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage9EvCutoff ?? 0);
-    figureCutoffs.add(figure?.stage10EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage1EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage2EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage3EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage4EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage5EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage6EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage7EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage8EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage9EvCutoff ?? 0);
+    figureCutoffs.add(figure.stage10EvCutoff ?? 0);
 
     Provider.of<FigureModel>(context, listen: false).figureCutoffs = figureCutoffs;
 
@@ -134,7 +132,7 @@ class _DashboardState extends State<Dashboard> {
         //logic for display sad character... theres nothing stopping this from
         //display a broken url rn though
         if (robotCharge < 30) {
-          figureURL = curFigure + "_sad";
+          figureURL = "${curFigure}_sad";
         } else {
           figureURL = curFigure;
         }
@@ -157,11 +155,11 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void triggerFigureDecay() {
-    auth?.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
+    auth.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
   }
 
   void triggerUserReset() {
-    auth?.userReset(Provider.of<UserModel>(context, listen: false).user!);
+    auth.userReset(Provider.of<UserModel>(context, listen: false).user!);
   }
 
   @override
@@ -196,7 +194,7 @@ class _DashboardState extends State<Dashboard> {
                       }
                       return RobotImageHolder(
                         url: (figure.figure != null)
-                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped${suffix}")
+                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped$suffix")
                             : "robot1/robot1_skin0_evo0_cropped_happy",
                         height: 400,
                         width: 600,
@@ -214,8 +212,7 @@ class _DashboardState extends State<Dashboard> {
                       height: 40,
                     )),
                 Consumer<UserModel>(
-                  builder: (context, user, child) => (user != null &&
-                          user.user != null &&
+                  builder: (context, user, child) => (user.user != null &&
                           user.user!.email == "chb263@msstate.edu")
                       ? DraggableAdminPanel(
                           onButton1Pressed: triggerFigureDecay,
@@ -231,8 +228,8 @@ class _DashboardState extends State<Dashboard> {
             Center(
                 child: ElevatedButton.icon(
                     onPressed: onViewSkins,
-                    icon: Icon(Icons.swap_calls),
-                    label: Text("Skins"))),
+                    icon: const Icon(Icons.swap_calls),
+                    label: const Text("Skins"))),
             const SizedBox(height: 5),
 
             Center(
@@ -251,13 +248,13 @@ class _DashboardState extends State<Dashboard> {
             //Text underneath the robot
             Text("Train consistently to power your Fitness Figure!",
                 style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     )),
             const SizedBox(height: 15),
 
             Consumer<UserModel>(builder: (context, user, child) {
               if (user.user == null) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }
               return WorkoutNumbersRow(
                 weeklyCompleted: user.user!.weekComplete.toInt(),
@@ -274,7 +271,7 @@ class _DashboardState extends State<Dashboard> {
 
             Consumer<FigureModel>(builder: (context, figure, child) {
               if (figure.figure == null) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }
               return ProgressBar(
                   progressPercent:
@@ -331,7 +328,7 @@ class WorkoutNumbersRow extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )),
           ]),
-          DoubleLineDivider(),
+          const DoubleLineDivider(),
           Column(children: [
             Text(weeklyCompleted.toString(),
                 style: Theme.of(context).textTheme.headlineSmall!.copyWith(

@@ -27,7 +27,7 @@ class InventoryItem extends StatelessWidget {
         children: [
           const SizedBox(height: 25),
           Image.asset(
-            "lib/assets/" + photoPath + ".gif",
+            "lib/assets/$photoPath.gif",
             height: 170.0,
             width: 170.0,
           ),
@@ -69,7 +69,7 @@ class GreyedEquipButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.inversePrimary),
+        backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.inversePrimary),
       ),
       onPressed: () => {},
       child: const Text("Training"));

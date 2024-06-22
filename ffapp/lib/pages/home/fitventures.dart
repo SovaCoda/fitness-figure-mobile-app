@@ -1,10 +1,5 @@
-import 'dart:math';
-import 'dart:ui';
 
-import 'package:ffapp/components/robot_image_holder.dart';
-import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 
 // IMPORTANT NOTE: This code is currently not being used in the app in favor of a simpler less graphically intense version, code is saved for future reference
@@ -29,7 +24,7 @@ class HoleClipper extends CustomClipper<Path> {
 }
 
 class Fitventures extends StatefulWidget {
-  const Fitventures({Key? key}) : super(key: key);
+  const Fitventures({super.key});
   @override
   _FitventuresState createState() => _FitventuresState();
 }
@@ -63,7 +58,7 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
     // figure animations
     figureAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
     figureAnimation = Tween<double>(begin: 200, end: 0).animate(figureAnimationController)
     ..addListener(() { 
@@ -116,7 +111,7 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
   void showMissionsMenu()
   {
     print('Showing Missions');
-    final holeRect = Rect.fromCenter(center: Offset(200, 200), width: 100, height: 100);
+    final holeRect = Rect.fromCenter(center: const Offset(200, 200), width: 100, height: 100);
     showDialog(
       context: context,
       barrierColor: Colors.transparent,
@@ -132,8 +127,8 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
               width: 400,
               child: Column(
                 children: [
-                  Text('Missions'),
-                  ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text('Close')),
+                  const Text('Missions'),
+                  ElevatedButton(onPressed: () {Navigator.pop(context);}, child: const Text('Close')),
                 ],
               ),
             ),
@@ -189,7 +184,7 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
                         ),
                       ),
                     CustomPaint(
-                      size: Size(400, 400),
+                      size: const Size(400, 400),
                       painter: TreasureMapPainter(),
                     ),
             
@@ -203,8 +198,8 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Center(child: ElevatedButton(onPressed: showFiguresMenu, child: Text('___Figures___'),)),
-            Center(child: ElevatedButton(onPressed: showMissionsMenu, child: Text('___Missions___'))),
+            Center(child: ElevatedButton(onPressed: showFiguresMenu, child: const Text('___Figures___'),)),
+            Center(child: ElevatedButton(onPressed: showMissionsMenu, child: const Text('___Missions___'))),
           ],
         ),
       ]

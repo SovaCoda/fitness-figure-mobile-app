@@ -36,7 +36,7 @@ class MissionListWidget extends StatefulWidget {
   int seconds;
   final VoidCallback onStart;
 
-  MissionListWidget({
+  MissionListWidget({super.key, 
     required this.missionName,
     required this.url,
     required this.moneyReward,
@@ -67,7 +67,7 @@ class _MissionState extends State<MissionListWidget> {
       seconds: widget.seconds,
       onStart: widget.onStart,
     ));
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         widget.seconds--;
         if (widget.seconds == 0) {
@@ -106,7 +106,7 @@ class _MissionState extends State<MissionListWidget> {
     return Consumer<FL.FitventuresMissionManagerProvider>(
       builder: (context, missionManager, child) {
         return Opacity(
-          opacity: (missionManager.currentMission?.missionName == widget.missionName || missionManager.currentMission?.missionName == "null") ? 1 : 0.5,
+          opacity: (missionManager.currentMission.missionName == widget.missionName || missionManager.currentMission.missionName == "null") ? 1 : 0.5,
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -117,7 +117,7 @@ class _MissionState extends State<MissionListWidget> {
                   color: Theme.of(context).colorScheme.onPrimary,
                   blurRadius: 10,
                   spreadRadius: 5,
-                  offset: Offset(0, 0),
+                  offset: const Offset(0, 0),
                 ),
               ],
             ),
@@ -165,16 +165,16 @@ class _MissionState extends State<MissionListWidget> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text(formatSeconds(widget.seconds), style: TextStyle(fontSize: 30)),
-                    missionManager.currentMission?.missionName == widget.missionName ?
+                    Text(formatSeconds(widget.seconds), style: const TextStyle(fontSize: 30)),
+                    missionManager.currentMission.missionName == widget.missionName ?
                       ElevatedButton(
                         onPressed: onMissionCancel,
-                        child: Text("Cancel", style: TextStyle(fontSize: 20)),
+                        child: const Text("Cancel", style: TextStyle(fontSize: 20)),
                       )
                       : 
                       ElevatedButton(
                         onPressed: startTimer,
-                        child: Text("Start", style: TextStyle(fontSize: 20)),
+                        child: const Text("Start", style: TextStyle(fontSize: 20)),
                       ),
                     
                   ],
@@ -191,7 +191,7 @@ class _MissionState extends State<MissionListWidget> {
 class MissionList extends StatelessWidget {
   final List<MissionListWidget> missions;
 
-  MissionList({required this.missions});
+  const MissionList({super.key, required this.missions});
 
   @override
   Widget build(BuildContext context) {

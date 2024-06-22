@@ -1,7 +1,5 @@
 
-import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class FigureStoreSkinItem extends StatefulWidget {
   final String photoPath;

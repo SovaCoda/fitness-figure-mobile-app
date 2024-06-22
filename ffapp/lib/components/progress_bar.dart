@@ -23,7 +23,7 @@ class ProgressBar extends StatelessWidget {
             height: 40.0,
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
               color: fillColor,
               boxShadow: [
                 BoxShadow(
@@ -36,26 +36,26 @@ class ProgressBar extends StatelessWidget {
               width: barWidth - 10,
               height: 42,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               child: Row(
                   children: [
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
 
                     Container(
                       width: barWidth - 90,
                       height: 10.0,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
                         color: Theme.of(context).colorScheme.inverseSurface,
                       ),
                       child: Container(
                         width: (barWidth - 90) * (progressPercent.clamp(0, 1)),
                         height: 10,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
                           color: fillColor,
                           boxShadow: [
                           BoxShadow(
@@ -67,7 +67,7 @@ class ProgressBar extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
 
                     Text(
                       "${(progressPercent * 100).toStringAsFixed(0)}%",

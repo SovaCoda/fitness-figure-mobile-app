@@ -52,6 +52,11 @@ class FigureModel extends ChangeNotifier {
     figure = newFigure;
     notifyListeners();
   }
+  
+  void setFigureSkin(String newValue) {
+    figure?.curSkin = newValue;
+    notifyListeners();
+  }
 
   void setFigureLevel(int newValue) {
     if(newValue <= 7){
@@ -129,7 +134,7 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
   GoRoute(
       name: 'AvatarSelection',
       path: '/avatar_selection',
-      builder: (context, state) => AvatarSelection()),
+      builder: (context, state) => const AvatarSelection()),
   GoRoute(
       name: 'SkinStore',
       path: '/store',
@@ -142,17 +147,17 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
   GoRoute(
     name: 'Subscribe', 
     path: '/subscribe', 
-    builder: (context, state) => SubscribePage()
+    builder: (context, state) => const SubscribePage()
   ),
   GoRoute(
     name: 'Survey',
     path: '/survey',
-    builder: (context, state) => SurveyWidget(),
+    builder: (context, state) => const SurveyWidget(),
   ),
   GoRoute(
     name: 'Evolution',
     path: '/evolution',
-    builder: (context, state) => EvolutionPage(),
+    builder: (context, state) => const EvolutionPage(),
   )
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
@@ -164,7 +169,7 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
 ]);
 
 class MyApp extends StatelessWidget {
-  const MyApp();
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -177,7 +182,7 @@ class MyApp extends StatelessWidget {
 
         // Define the default brightness and colors.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(46, 207, 13, 1),
+          seedColor: const Color.fromRGBO(46, 207, 13, 1),
           // ···
           brightness: Brightness.dark,
           
@@ -239,7 +244,7 @@ class TestApp extends StatelessWidget {
 
         // Define the default brightness and colors.
       ),
-      home: SignIn(),
+      home: const SignIn(),
     );
   }
 }

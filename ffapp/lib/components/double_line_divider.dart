@@ -8,7 +8,7 @@ class DoubleLineDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         VerticalDivider(
           color: Theme.of(context).colorScheme.onSurfaceVariant,
           width: 4,
@@ -19,7 +19,7 @@ class DoubleLineDivider extends StatelessWidget {
           width: 4,
           thickness: 1,
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
     ],);
   }
 }

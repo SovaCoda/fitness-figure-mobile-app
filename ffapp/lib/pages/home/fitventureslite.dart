@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 
 class FitVenturesLite extends StatefulWidget {
-  const FitVenturesLite({Key? key}) : super(key: key);
+  const FitVenturesLite({super.key});
 
   @override
   _FitVenturesLiteState createState() => _FitVenturesLiteState();

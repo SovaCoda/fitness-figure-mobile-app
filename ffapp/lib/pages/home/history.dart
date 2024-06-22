@@ -1,13 +1,11 @@
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
-import 'package:firebase_auth/firebase_auth.dart' as FB;
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class History extends StatefulWidget {
-  const History({Key? key}) : super(key: key);
+  const History({super.key});
 
   @override
   State<History> createState() => HistoryState();
@@ -58,7 +56,7 @@ class HistoryState extends State<History> {
             itemBuilder: (context, index) {
               Routes.Workout? workout = snapshot.data?[index];
               return ListTile(
-                title: Text(workout!.startDate, style: TextStyle(color: Theme.of(context).colorScheme.onBackground),),
+                title: Text(workout!.startDate, style: TextStyle(color: Theme.of(context).colorScheme.onSurface),),
                 subtitle: 
                 DefaultTextStyle(
                   style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary),
@@ -77,7 +75,7 @@ class HistoryState extends State<History> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
       },
     );

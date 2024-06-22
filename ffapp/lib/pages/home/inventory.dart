@@ -11,7 +11,7 @@ import 'package:ffapp/services/routes.pb.dart' as Routes;
 
 
 class Inventory extends StatefulWidget {
-  const Inventory({Key? key}) : super(key: key);
+  const Inventory({super.key});
 
   @override
   State<Inventory> createState() => _InventoryState();
@@ -30,6 +30,7 @@ class _InventoryState extends State<Inventory> {
   late List<Routes.FigureInstance>  figureInstancesList = List.empty();
   late List<Routes.Figure> figureList = List.empty();
 
+  @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
@@ -132,7 +133,7 @@ class _InventoryState extends State<Inventory> {
         children: [
           Text("Figure Inventory",
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   )),
           const SizedBox(height: 10),
           Column(

@@ -60,7 +60,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text("Select your weekly workout goal: ",
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
               )
           ),
 
@@ -77,7 +77,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     initValue: 4,
                     selectedNumberStyle: TextStyle(
                       fontSize: 28,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.none,
                     ),
                     unSelectedNumberStyle: TextStyle(
@@ -96,7 +96,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                   const SizedBox(height: 60,),
                   Text("Select your minutes per workout goal: ",
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.onBackground,
+                              color: Theme.of(context).colorScheme.onSurface,
                       )
                   ),
                   const SizedBox(height: 30),
@@ -107,7 +107,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     initValue: 30,
                     selectedNumberStyle: TextStyle(
                       fontSize: 28,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.none,
                     ),
                     unSelectedNumberStyle: TextStyle(
@@ -128,12 +128,12 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                       onPressed: closeSlider, child: const Text("Close Slider"))
                 ])
               : Column(children: [
-                  Container(
+                  SizedBox(
                     height: 100,
                     width: 150,
                     child: ElevatedButton(
                         onPressed: displaySlider,
-                        child: Text(_nCurrentValue.toString() + " days\n" + _mCurrentValue.toString() + " mins",
+                        child: Text("$_nCurrentValue days\n$_mCurrentValue mins",
                             style: const TextStyle(fontSize: 22))),
                   ),
                   const SizedBox(height: 60),

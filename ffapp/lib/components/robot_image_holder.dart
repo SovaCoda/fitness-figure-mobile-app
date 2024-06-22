@@ -17,10 +17,10 @@ class RobotImageHolder extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
-            center: Alignment(0, 0),
+            center: const Alignment(0, 0),
             colors: [
-              Theme.of(context).colorScheme.onBackground.withOpacity(1),
-              Theme.of(context).colorScheme.onBackground.withOpacity(0),
+              Theme.of(context).colorScheme.onSurface.withOpacity(1),
+              Theme.of(context).colorScheme.onSurface.withOpacity(0),
             ],
             radius: .48,
           ),

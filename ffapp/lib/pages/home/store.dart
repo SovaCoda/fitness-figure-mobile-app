@@ -44,6 +44,7 @@ class _StoreState extends State<Store> {
   late AuthService auth;
   late int currency = 0;
 
+  @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
@@ -59,10 +60,10 @@ class _StoreState extends State<Store> {
         .getFigureInstances(databaseUser!)
         .then((value) => value.figureInstances);
     listOfSkinInstances = await auth
-        .getSkinInstances(databaseUser!)
+        .getSkinInstances(databaseUser)
         .then((value) => value.skinInstances);
 
-    String stringCur = databaseUser?.currency.toString() ?? "0";
+    String stringCur = databaseUser.currency.toString() ?? "0";
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
     setState(() {
@@ -76,7 +77,7 @@ class _StoreState extends State<Store> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Skin View"),
-          content: Container(
+          content: SizedBox(
             height: MediaQuery.of(context).size.height *
                 1, // Set the height to 80% of the screen height
             child: ChangeNotifierProvider(
@@ -116,7 +117,7 @@ class _StoreState extends State<Store> {
     if (updateCurrency < 0) {
       logger.i("Not enough currency to complete transaction.");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
             content: Text("Not enough currency to complete this purchase!")),
       );
       return;
@@ -138,7 +139,7 @@ class _StoreState extends State<Store> {
           child: Text(
             'FF',
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
           ),
         ),
@@ -159,14 +160,14 @@ class _StoreState extends State<Store> {
                               .headlineLarge!
                               .copyWith(
                                 color:
-                                    Theme.of(context).colorScheme.onBackground,
+                                    Theme.of(context).colorScheme.onSurface,
                               ));
                     },
                   ),
-                  SizedBox(width: 10.0),
+                  const SizedBox(width: 10.0),
                   Icon(
                     Icons.currency_exchange,
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ],
               ),
@@ -195,9 +196,9 @@ class _StoreState extends State<Store> {
                   },
               child: Row(
                 children: [
-                  SizedBox(width: 10.0),
+                  const SizedBox(width: 10.0),
                   Icon(Icons.question_mark,
-                      color: Theme.of(context).colorScheme.onBackground),
+                      color: Theme.of(context).colorScheme.onSurface),
                   const SizedBox(width: 4.0),
                 ],
               ))
@@ -207,12 +208,12 @@ class _StoreState extends State<Store> {
       body: SingleChildScrollView(
         child: (Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             Text("Figure Store",
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     )),
             const SizedBox(height: 10),
             Column(

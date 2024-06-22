@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SubscribePage extends StatelessWidget {
+  const SubscribePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +25,7 @@ class SubscribePage extends StatelessWidget {
                 Icons.add,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              Padding(padding: EdgeInsets.only(left: 100.0)),
+              const Padding(padding: EdgeInsets.only(left: 100.0)),
             ],
           ),
         ),    
@@ -88,7 +90,7 @@ class SubscribePage extends StatelessWidget {
               )
             ],
           ),
-          SizedBox(height: 100.0),
+          const SizedBox(height: 100.0),
           Positioned(left:30, child: ElevatedButton(onPressed: () => {context.goNamed("Home")}, child: Text("Back", style: Theme.of(context).textTheme.displaySmall!.copyWith(color: Theme.of(context).buttonTheme.colorScheme!.primary),),)),
         ],
         

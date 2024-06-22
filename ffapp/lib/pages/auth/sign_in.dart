@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/foundation.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -92,7 +91,7 @@ class _SignInState extends State<SignIn> {
   void showSnackBar(BuildContext context, String text) {
     final snackBar = SnackBar(
       content: Text(text),
-      duration: Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }

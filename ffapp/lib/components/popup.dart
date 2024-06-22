@@ -4,22 +4,22 @@ import 'package:go_router/go_router.dart';
 class PopupWidget extends StatelessWidget {
   final String message;
 
-  PopupWidget({required this.message});
+  const PopupWidget({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Survey'),
+      title: const Text('Survey'),
       content: Text(message),
       actions: [
         TextButton(
-          child: Text('Sure!'),
+          child: const Text('Sure!'),
           onPressed: () {
             context.goNamed('Survey');
           },
         ),
         TextButton(
-          child: Text('Close'),
+          child: const Text('Close'),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -33,7 +33,7 @@ class GenericPopupWidget extends StatelessWidget {
   final String message;
   final String title;
 
-  GenericPopupWidget({required this.message, required this.title});
+  const GenericPopupWidget({super.key, required this.message, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class GenericPopupWidget extends StatelessWidget {
       content: Text(message),
       actions: [
         TextButton(
-          child: Text('Close'),
+          child: const Text('Close'),
           onPressed: () {
             Navigator.of(context).pop();
           },

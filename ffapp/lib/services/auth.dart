@@ -23,13 +23,13 @@ class AuthService {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      FB.FirebaseAuth _auth = FB.FirebaseAuth.instance;
+      FB.FirebaseAuth auth = FB.FirebaseAuth.instance;
 
       await RoutesService.instance.init();
       logger.i("RoutesService initialized");
-      RoutesService _routes = RoutesService.instance;
+      RoutesService routes = RoutesService.instance;
 
-      _instance = AuthService._(_auth, _routes);
+      _instance = AuthService._(auth, routes);
     }
     return _instance!;
   }
@@ -88,7 +88,7 @@ class AuthService {
   Future<Routes.User?> getUserDBInfo() async {
     FB.User? currentUser = _auth.currentUser;
     Routes.User user = Routes.User(email: currentUser!.email);
-    return await _routes.routesClient.getUser(user);
+    return  await _routes.routesClient.getUser(user);
   }
 
   Future<Routes.User> updateUserDBInfo(Routes.User user) async {

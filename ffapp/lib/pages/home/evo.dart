@@ -2,10 +2,11 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class EvolutionPage extends StatefulWidget {
-  EvolutionPage({Key? key}) : super(key: key);
+  const EvolutionPage({super.key});
 
   @override
   _EvolutionPageState createState() => _EvolutionPageState();
@@ -16,7 +17,7 @@ class _EvolutionPageState extends State<EvolutionPage> {
 
   void evolveFigure() {
     Provider.of<FigureModel>(context, listen: false).setFigureLevel(
-        Provider.of<FigureModel>(context, listen: false).EVLevel! + 1);
+        Provider.of<FigureModel>(context, listen: false).EVLevel + 1);
   }
 
   @override
@@ -26,7 +27,7 @@ class _EvolutionPageState extends State<EvolutionPage> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text('Evolution Page'),
+            const Text('Evolution Page'),
             RobotImageHolder(
               url: (figure.figure != null)
                   ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped")
@@ -38,7 +39,13 @@ class _EvolutionPageState extends State<EvolutionPage> {
               onPressed: () {
                 evolveFigure();
               },
-              child: Text('Evolve Figure'),
+              child: const Text('Evolve Figure'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.goNamed("Home");
+              },
+              child: const Text('Back'),
             ),
           ],
         );

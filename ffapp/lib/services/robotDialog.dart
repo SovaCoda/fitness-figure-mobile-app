@@ -3,7 +3,6 @@
 //it contains methods that can be called that return the respective list of
 //quotes
 
-import 'dart:ffi';
 
 class RobotDialog {
   final _robotDialog = {

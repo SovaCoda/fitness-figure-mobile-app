@@ -3,7 +3,6 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/flutterUser.dart';
-import "package:ffapp/services/routes.pb.dart" as Routes;
 import 'package:ffapp/services/auth.dart';
 
 class FigureDetails extends StatefulWidget {
@@ -37,17 +36,17 @@ class _FigureDetails extends State<FigureDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               RobotImageHolder(url: widget.figureUrl!, height: 300, width: 300),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               EvBar(currentXp: 10, maxXp: 45, currentLvl: 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
-              SizedBox(height: 40,),
-              ElevatedButton(onPressed: () => {context.goNamed("Home")}, child: Text("Go Back"))
+              const SizedBox(height: 40,),
+              ElevatedButton(onPressed: () => {context.goNamed("Home")}, child: const Text("Go Back"))
             ],
           ),
         ),

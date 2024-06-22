@@ -29,7 +29,7 @@ class EvBar extends StatelessWidget {
               width: barWidth,
               height: 5,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                  borderRadius: const BorderRadius.all(Radius.circular(2)),
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   boxShadow: [
                     BoxShadow(
@@ -44,7 +44,7 @@ class EvBar extends StatelessWidget {
                   width: (currentXp/maxXp).clamp(0, 1) * barWidth,
                   height: 5,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                      borderRadius: const BorderRadius.all(Radius.circular(2)),
                       color: fillColor,
                       boxShadow: [
                         BoxShadow(
@@ -56,9 +56,9 @@ class EvBar extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 5,),
+            const SizedBox(width: 5,),
             Padding(
-              padding: EdgeInsets.only(bottom: 4),
+              padding: const EdgeInsets.only(bottom: 4),
               child: GestureDetector(
                 onTap: () {
                   context.goNamed('Subscribe');
@@ -68,16 +68,16 @@ class EvBar extends StatelessWidget {
             ),
           ],
       ),
-      SizedBox(height: 3,),
+      const SizedBox(height: 3,),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [ 
-          Text(currentLvl > 10 ? "Level MAX      " : "Level " + currentLvl.toString() + "      ",
+          Text(currentLvl > 10 ? "Level MAX      " : "Level $currentLvl      ",
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant
             ),
           ),
-          Text(currentXp.toString() + " / " + maxXp.toString() + " EV",
+          Text("$currentXp / $maxXp EV",
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant
             ),

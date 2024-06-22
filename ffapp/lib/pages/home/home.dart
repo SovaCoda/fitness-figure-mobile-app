@@ -12,7 +12,7 @@ import 'package:go_router/go_router.dart';
 
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -24,7 +24,7 @@ class _DashboardPageState extends State<DashboardPage> {
     const Dashboard(),
     const Inventory(),
     const WorkoutAdder(),
-    History(),
+    const History(),
     const Profile(),
     const FitVenturesLite()
   ];
@@ -62,14 +62,14 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
 
         //permanent top bar if we want it
         appBar: AppBar(
           title: Text(
             'FF', 
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -86,15 +86,15 @@ class _DashboardPageState extends State<DashboardPage> {
                         return Text(
                           currencyModel.currency,
                           style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           )
                         );
                       },
                     ),
-                    SizedBox(width: 10.0),
+                    const SizedBox(width: 10.0),
                     Icon(
                       Icons.currency_exchange,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ],
                 ),
@@ -108,7 +108,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(width: 10.0),
+                    const SizedBox(width: 10.0),
                     Text(
                       'FF',
                       style: Theme.of(context).textTheme.headlineLarge!.copyWith(
@@ -137,7 +137,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     actions: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop();;
+                          Navigator.of(context).pop();
                         },
                       child: const Text("Get Fit")
                       ),
@@ -148,8 +148,8 @@ class _DashboardPageState extends State<DashboardPage> {
               },
               child: Row(
                 children: [
-                  SizedBox(width: 10.0),
-                  Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onBackground),
+                  const SizedBox(width: 10.0),
+                  Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onSurface),
                   const SizedBox(width: 4.0),
                 ],
               )
@@ -169,7 +169,7 @@ class _DashboardPageState extends State<DashboardPage> {
           Theme(
             data: Theme.of(context).copyWith(
                // sets the background color of the `BottomNavigationBar`
-              canvasColor: Theme.of(context).colorScheme.surfaceVariant,
+              canvasColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               
             ),
             

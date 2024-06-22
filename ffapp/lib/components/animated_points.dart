@@ -1,11 +1,10 @@
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 
 class FloatingText extends StatefulWidget {
   final String text;
   final Color color;
 
-  FloatingText({required this.text, required this.color});
+  const FloatingText({super.key, required this.text, required this.color});
   @override
   _FloatingTextState createState() => _FloatingTextState();
 }
@@ -31,8 +30,8 @@ class _FloatingTextState extends State<FloatingText>
     ).animate(_controller);
 
     _positionAnimation = Tween<Offset>(
-      begin: Offset(0, 0),
-      end: Offset(0, -1),
+      begin: const Offset(0, 0),
+      end: const Offset(0, -1),
     ).animate(_controller);
   }
 

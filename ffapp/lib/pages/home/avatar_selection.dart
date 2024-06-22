@@ -51,7 +51,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -61,14 +61,14 @@ class _AvatarSelectionState extends State<AvatarSelection> {
               Text(
                 "Pick your:",
                 style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                 )
               ),
 
               Text(
                 "Fitness Figure",
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                 )
               ),
 
@@ -79,7 +79,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                 height: 260.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 child: Center(
                   child: SizedBox(
@@ -100,7 +100,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                 height: 260.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 child: Center(
                   child: SizedBox(

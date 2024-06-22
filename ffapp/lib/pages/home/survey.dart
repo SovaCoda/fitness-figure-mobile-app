@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SurveyWidget extends StatefulWidget {
-  const SurveyWidget({Key? key}) : super(key: key);
+  const SurveyWidget({super.key});
 
   @override
   _SurveyWidgetState createState() => _SurveyWidgetState();
@@ -99,7 +99,7 @@ class _SurveyWidgetState extends State<SurveyWidget> {
               ),
               
             ),
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
             ElevatedButton(
               onPressed: submitSurvey,
               child: const Text('Submit'),
@@ -116,7 +116,7 @@ class OneThroughFiveSelector extends StatefulWidget {
   int answer;
   final question;
   void Function(int) setAnswer;
-  OneThroughFiveSelector({Key? key, required this.question, required this.setAnswer}) : answer = 0, super(key: key);
+  OneThroughFiveSelector({super.key, required this.question, required this.setAnswer}) : answer = 0;
 
   @override
   _OneThroughFiveSelectorState createState() => _OneThroughFiveSelectorState();

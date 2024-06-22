@@ -28,6 +28,7 @@ class _ProfileState extends State<Profile> {
   late int weeklyGoal = 0;
   late String manageSub = "Loading...";
 
+  @override
   void initState() {
     super.initState();
     initialize();
@@ -66,7 +67,7 @@ class _ProfileState extends State<Profile> {
         Text(
           "Profile",
           style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               )
         ),
         const SizedBox(height: 20),
@@ -113,13 +114,13 @@ class _ProfileState extends State<Profile> {
         ),
         TextButton(
           style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+            foregroundColor: WidgetStateProperty.all<Color>(Colors.blue),
           ),
           onPressed: () {
             signOut();
             context.goNamed('SignIn');
           },
-          child: Text('Sign Out'),
+          child: const Text('Sign Out'),
         ),
       ],
     );
@@ -148,7 +149,7 @@ class SettingsBar extends StatelessWidget {
             final result = await showDialog<String>(
               context: context,
               builder: (BuildContext context) {
-                return InputDialog();
+                return const InputDialog();
               },
             );
             if (result != null) {
@@ -162,8 +163,8 @@ class SettingsBar extends StatelessWidget {
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              border: Border(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              border: const Border(
                 bottom: BorderSide(color: Colors.black),
                 top: BorderSide(color: Colors.black),
               )),
@@ -191,27 +192,29 @@ class SettingsBar extends StatelessWidget {
 // When tapped, opens a dialogue box to allow user to input text
 
 class InputDialog extends StatelessWidget {
+  const InputDialog({super.key});
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController _controller = TextEditingController();
+    TextEditingController controller = TextEditingController();
 
     return AlertDialog(
-      title: Text('Enter New Value'),
+      title: const Text('Enter New Value'),
       content: TextField(
         autofocus: true,
-        controller: _controller,
+        controller: controller,
       ),
       actions: <Widget>[
         TextButton(
-          child: Text('Cancel'),
+          child: const Text('Cancel'),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: Text('Save'),
+          child: const Text('Save'),
           onPressed: () {
-            Navigator.of(context).pop(_controller.text);
+            Navigator.of(context).pop(controller.text);
           },
         ),
       ],
