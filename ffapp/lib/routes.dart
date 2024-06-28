@@ -3,9 +3,13 @@ import 'package:grpc/grpc.dart';
 import 'package:ffapp/services/routes.pbgrpc.dart';
 
 class RoutesService {
-
+  //For Cloud Run
+  // String baseUrl = "grpcserver-uu2jutxfza-ue.a.run.app";
+  // int port = 443;
+  
   //works for android
   String baseUrl = "10.0.2.2";
+  int port = 8080;
 
   //works for ios/macos
   // String baseUrl = "0.0.0.0";
@@ -32,7 +36,7 @@ class RoutesService {
   void _createChannel() {
     final channel = ClientChannel(
       baseUrl,
-      port: 8080,
+      port: port,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
     this.channel = channel;

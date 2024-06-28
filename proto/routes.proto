@@ -94,6 +94,7 @@ message FigureInstance {
     int32 Charge = 6;
     int32 Mood = 7;
     string Last_Reset = 8;
+    int32 Ev_Level = 9;
 }
 
 message MultiFigureInstance {

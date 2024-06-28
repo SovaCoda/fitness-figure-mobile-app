@@ -17,6 +17,7 @@ import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -98,22 +99,7 @@ class _DashboardState extends State<Dashboard> {
             figureName: databaseUser?.curFigure));
     Routes.Figure? figure =
         await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
-    List<int> figureCutoffs = [];
-    figureCutoffs.add(figure.stage1EvCutoff);
-    figureCutoffs.add(figure.stage2EvCutoff);
-    figureCutoffs.add(figure.stage3EvCutoff);
-    figureCutoffs.add(figure.stage4EvCutoff);
-    figureCutoffs.add(figure.stage5EvCutoff);
-    figureCutoffs.add(figure.stage6EvCutoff);
-    figureCutoffs.add(figure.stage7EvCutoff);
-    figureCutoffs.add(figure.stage8EvCutoff);
-    figureCutoffs.add(figure.stage9EvCutoff);
-    figureCutoffs.add(figure.stage10EvCutoff);
 
-    Provider.of<FigureModel>(context, listen: false).figureCutoffs = figureCutoffs;
-
-    Map<String, int> curEVData =
-        displayEVPointsAndMax(databaseFigure.evPoints, figureCutoffs);
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
@@ -124,9 +110,8 @@ class _DashboardState extends State<Dashboard> {
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
     Provider.of<FigureModel>(context, listen: false)
-        .setFigureLevel(curEVData['level']! - 1);
+        .setFigureLevel(databaseFigure!.evLevel ?? 0);
     setState(() {
-      evData = curEVData;
       charge = curWeekly / curGoal;
       email = curEmail;
       weeklyGoal = curGoal;
@@ -147,19 +132,6 @@ class _DashboardState extends State<Dashboard> {
     });
     logger.i(figureURL);
     }
-  }
-
-  Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
-      FigureModel figureModel = Provider.of<FigureModel>(context, listen: false);
-      int displayPoints = eVPoints;
-      int maxPoints = figureModel.figureCutoffs[figureModel.EVLevel];
-
-    return {
-      'displayPoints': displayPoints,
-      'maxPoints': maxPoints,
-      'readyToEvolve': displayPoints >= maxPoints ? 1 : 0,
-      'level': figureModel.EVLevel + 1,
-    };
   }
 
   void triggerFigureDecay(){
@@ -186,10 +158,6 @@ class _DashboardState extends State<Dashboard> {
         );
 
         figureModel.setFigure(databaseFigure);
-        evData = displayEVPointsAndMax(
-        figureModel.figure?.evPoints ?? 0,
-        figureModel.figureCutoffs,
-        );
           yield figureModel;
       }
     } catch (e) {
@@ -233,7 +201,7 @@ class _DashboardState extends State<Dashboard> {
                       }
                       return RobotImageHolder(
                         url: (figure.figure != null)
-                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped$suffix")
+                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
                             : "robot1/robot1_skin0_evo0_cropped_happy",
                         height: 400,
                         width: 600,
@@ -292,15 +260,14 @@ class _DashboardState extends State<Dashboard> {
                   return const Text('No data available');
                 }
                 final figure = snapshot.data!;
-                displayEVPointsAndMax(figure.figure?.evPoints ?? 0, figure.figureCutoffs);
                 return Center(
-                  child:  evData['readyToEvolve'] == 1 ? 
+                  child:  figure.figure!.evPoints >= figure1.EvCutoffs[figure.EVLevel] ? 
                   ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           color: Theme.of(context).colorScheme.tertiary)))
                   : EvBar(
-                      currentXp: evData['displayPoints'] ?? 0,
-                      maxXp: evData['maxPoints'] ?? 0,
-                      currentLvl: evData['level'] ?? 1,
+                      currentXp: figure.figure?.evPoints ?? 0,
+                      maxXp: figure1.EvCutoffs[figure.EVLevel],
+                      currentLvl: figure.EVLevel + 1 ?? 1,
                       fillColor: Theme.of(context).colorScheme.tertiary,
                       barWidth: 200),
                 );

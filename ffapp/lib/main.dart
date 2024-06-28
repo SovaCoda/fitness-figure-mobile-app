@@ -45,8 +45,7 @@ class UserModel extends ChangeNotifier {
 class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure;
   int EVLevel = 0;
-  List<int> figureCutoffs = [];
-  int totalEVForNext = 0;
+  bool readyToEvolve = false;
   
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
@@ -56,6 +55,7 @@ class FigureModel extends ChangeNotifier {
   void setFigureLevel(int newValue) {
     if(newValue <= 7){
       EVLevel = newValue;
+      figure?.evLevel = newValue;
       notifyListeners();
     }
   }

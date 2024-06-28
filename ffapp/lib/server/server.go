@@ -210,7 +210,7 @@ func (s *server) DeleteWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var figureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE User_Email = ? AND Figure_Name = ?", in.User_Email, in.Figure_Name).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset, Ev_Level FROM figure_instances WHERE User_Email = ? AND Figure_Name = ?", in.User_Email, in.Figure_Name).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset, &figureInstance.Ev_Level)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstance: %v", err)
 	}
@@ -221,7 +221,7 @@ func (s *server) GetFigureInstance(ctx context.Context, in *pb.FigureInstance) (
 func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var existingFigureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE Figure_Name = ? AND User_Email = ?", in.Figure_Name, in.User_Email).Scan(&existingFigureInstance.Figure_Name, &existingFigureInstance.User_Email, &existingFigureInstance.Cur_Skin, &existingFigureInstance.Ev_Points, &existingFigureInstance.Charge, &existingFigureInstance.Mood, &existingFigureInstance.Last_Reset)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset, Ev_Level FROM figure_instances WHERE Figure_Name = ? AND User_Email = ?", in.Figure_Name, in.User_Email).Scan(&existingFigureInstance.Figure_Name, &existingFigureInstance.User_Email, &existingFigureInstance.Cur_Skin, &existingFigureInstance.Ev_Points, &existingFigureInstance.Charge, &existingFigureInstance.Mood, &existingFigureInstance.Last_Reset, &existingFigureInstance.Ev_Level)
 	if err != nil {
 		return nil, fmt.Errorf("could not get existing figureInstance: %v", err)
 	}
@@ -268,11 +268,25 @@ func (s *server) UpdateFigureInstance(ctx context.Context, in *pb.FigureInstance
 		}
 	}
 
+	if in.Last_Reset != "" && in.Last_Reset != existingFigureInstance.Last_Reset {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET Last_Reset = ? WHERE Figure_Name = ? AND User_Email = ?", in.Last_Reset, existingFigureInstance.Figure_Name, existingFigureInstance.User_Email)
+		if err != nil {
+			return nil, fmt.Errorf("could not update Last_Reset: %v", err)
+		}
+	}
+
+	if in.Ev_Level != 0 && in.Ev_Level != existingFigureInstance.Ev_Level {
+		_, err = s.db.ExecContext(ctx, "UPDATE figure_instances SET Ev_Level = ? WHERE Figure_Name = ? AND User_Email = ?", in.Ev_Level, existingFigureInstance.Figure_Name, existingFigureInstance.User_Email)
+		if err != nil {
+			return nil, fmt.Errorf("could not update Ev_Level: %v", err)
+		}
+	}
+
 	return in, nil
 }
 
 func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
-	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset) VALUES (?, ?, ?, ?, ?, ?, ?)", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Mood, in.Last_Reset)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO figure_instances (Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset, Ev_Level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", in.Figure_Name, in.User_Email, in.Cur_Skin, in.Ev_Points, in.Charge, in.Mood, in.Last_Reset, in.Ev_Level)
 	if err != nil {
 		return nil, fmt.Errorf("could not create figureInstance: %v", err)
 	}
@@ -283,7 +297,7 @@ func (s *server) CreateFigureInstance(ctx context.Context, in *pb.FigureInstance
 func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance) (*pb.FigureInstance, error) {
 	var figureInstance pb.FigureInstance
 
-	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE Figure_Id = ?", in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset)
+	err := s.db.QueryRowContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset, Ev_Level FROM figure_instances WHERE Figure_Id = ?", in.Figure_Id).Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset, &figureInstance.Ev_Level)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figure_instances: %v", err)
 	}
@@ -299,7 +313,7 @@ func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance
 func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.MultiFigureInstance, error) {
 	figureInstances := &pb.MultiFigureInstance{} // Initialize figureInstances
 
-	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset FROM figure_instances WHERE User_Email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset, Ev_Level FROM figure_instances WHERE User_Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstances: %v", err)
 	}
@@ -307,7 +321,7 @@ func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.Multi
 
 	for rows.Next() {
 		var figureInstance pb.FigureInstance
-		err := rows.Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset)
+		err := rows.Scan(&figureInstance.Figure_Id, &figureInstance.Figure_Name, &figureInstance.User_Email, &figureInstance.Cur_Skin, &figureInstance.Ev_Points, &figureInstance.Charge, &figureInstance.Mood, &figureInstance.Last_Reset, &figureInstance.Ev_Level)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan figureInstance: %v", err)
 		}
