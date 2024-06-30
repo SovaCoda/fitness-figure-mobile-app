@@ -97,15 +97,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     int figureEV = figure.baseEvGain;
     double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
-    int ev = figureEV + eVConcistencyBonus.toInt();
+    int addableEV = _timePassed.toInt() ~/ 10;
+    int ev = figureEV + eVConcistencyBonus.toInt() + addableEV;
 
-    int charge = 0;
-    if (!weeklyGoalMet) {
-      int figureCharge = 5; // needs to be replaced with the figure provider.
-      double chargeConcistencyBonus =
-          (figureCharge * 0.01) * user.weekComplete.toInt();
-      charge = figureCharge + chargeConcistencyBonus.toInt();
-    }
+    int figureCharge = 5; // needs to be replaced with the figure provider.
+    double chargeConcistencyBonus = (figureCharge * 0.1) * user.weekComplete.toInt();
+    int addableCharge = _timePassed.toInt() ~/ user.workoutMinTime.toInt();
+    int charge = figureCharge + chargeConcistencyBonus.toInt() + addableCharge;
 
     await auth.updateUserDBInfo(Routes.User(
         email: user.email,
@@ -117,20 +115,26 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     Provider.of<FigureModel>(context, listen: false)
         .setFigureEv(figureInstance.evPoints + ev);
     Provider.of<FigureModel>(context, listen: false)
-        .setFigureCharge(figureInstance.charge + charge);
+        .setFigureCharge(!weeklyGoalMet ? ((figureInstance.charge + charge) > 100) ? 100 : figureInstance.charge + charge : figureInstance.charge);
     Provider.of<UserModel>(context, listen: false)
         .setUserWeekCompleted(Int64(user.weekComplete.toInt() + 1));
-
+    figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
+    user = Provider.of<UserModel>(context, listen: false).user!;
     await auth.updateFigureInstance(FigureInstance(
         figureId: figureInstance.figureId,
         userEmail: user.email,
         figureName: figureInstance.figureName,
         charge: (figureInstance.charge).toInt(),
         evPoints: (figureInstance.evPoints).toInt()));
+    // Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+    //       Routes.FigureInstance(
+    //         userEmail: Provider.of<UserModel>(context, listen: false).user?.email,
+    //         figureName: Provider.of<UserModel>(context, listen: false).user?.curFigure));
+    // Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
 
     final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
-        prefs.getBool("hasSurveyed") == false) {
+        prefs.getBool("hasSurveyed") == true) {
       showDialog(
         context: context,
         builder: (context) => const PopupWidget(
@@ -529,7 +533,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             ),
           ),
           Consumer<UserModel>(builder: (context, user, _) {
-            return user.user?.email == "chb263@msstate.edu"
+            return user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com"
                 ? DraggableAdminPanel(
                     onButton1Pressed: add5Minutes,
                     onButton2Pressed: add10Minutes,

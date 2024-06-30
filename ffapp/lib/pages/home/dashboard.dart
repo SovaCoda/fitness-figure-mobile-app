@@ -15,6 +15,7 @@ import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -40,9 +41,9 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-
     initialize();
   }
+  
 
   void onViewSkins() async {
     Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(
@@ -96,71 +97,75 @@ class _DashboardState extends State<Dashboard> {
             figureName: databaseUser?.curFigure));
     Routes.Figure? figure =
         await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
-    List<int> figureCutoffs = [];
-    figureCutoffs.add(figure.stage1EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage2EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage3EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage4EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage5EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage6EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage7EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage8EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage9EvCutoff ?? 0);
-    figureCutoffs.add(figure.stage10EvCutoff ?? 0);
 
-    Provider.of<FigureModel>(context, listen: false).figureCutoffs = figureCutoffs;
-
-    Map<String, int> curEVData =
-        displayEVPointsAndMax(databaseFigure.evPoints ?? 0, figureCutoffs);
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
+    if(mounted){
     Provider.of<CurrencyModel>(context, listen: false)
         .setCurrency(databaseUser?.currency.toString() ?? "0000");
     Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
     Provider.of<FigureModel>(context, listen: false)
-        .setFigureLevel(curEVData['level']! - 1);
+        .setFigureLevel(databaseFigure!.evLevel ?? 0);
     setState(() {
-      evData = curEVData;
       charge = curWeekly / curGoal;
       email = curEmail;
       weeklyGoal = curGoal;
       weeklyCompleted = curWeekly;
-      if (curFigure != "none") {
+
+      if (curFigure != "none" && Provider.of<FigureModel>(context, listen: false).figure?.charge != null) {
         //logic for display sad character... theres nothing stopping this from
         //display a broken url rn though
-        if (robotCharge < 30) {
+        if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 20) {
           figureURL = "${curFigure}_sad";
-        } else {
+        } else if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 50) {
           figureURL = curFigure;
+        }
+        else {
+          figureURL = "${curFigure}_happy";
         }
       }
     });
     logger.i(figureURL);
+    }
   }
 
-  Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
-    FigureModel figureModel = Provider.of<FigureModel>(context, listen: false);
-    int displayPoints = eVPoints;
-    int maxPoints = figureModel.figureCutoffs[figureModel.EVLevel];
-
-    return {
-      'displayPoints': displayPoints,
-      'maxPoints': maxPoints,
-      'readyToEvolve': displayPoints >= maxPoints ? 1 : 0,
-      'level': figureModel.EVLevel + 1,
-    };
-  }
-
-  void triggerFigureDecay() {
+  void triggerFigureDecay(){
     auth.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
   }
 
   void triggerUserReset() {
     auth.userReset(Provider.of<UserModel>(context, listen: false).user!);
   }
+  Stream<FigureModel> _figureStream() async* {
+  while (mounted) {
+    try {
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      final figureModel = Provider.of<FigureModel>(context, listen: false);
+      final userEmail = userModel.user?.email;
+      final curFigure = userModel.user?.curFigure;
+
+      if (userEmail != null && curFigure != null) {
+        Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+          Routes.FigureInstance(
+            userEmail: userEmail,
+            figureName: curFigure,
+          ),
+        );
+
+        figureModel.setFigure(databaseFigure);
+          yield figureModel;
+      }
+    } catch (e) {
+      logger.e(e);
+    }
+
+    await Future<void>.delayed(const Duration(seconds: 1));
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +183,7 @@ class _DashboardState extends State<Dashboard> {
                       String suffix;
 
                       // Implemented logic for determining the robot's happiness or sadness
-                      // TODO(Eric Duncan) Query to the server for robotCharge instead of constant int value
+
                       if (figure.figure?.charge != null) {
                         if (figure.figure!.charge.toInt() >= 0 &&
                             figure.figure!.charge.toInt() <= 20) {
@@ -194,7 +199,7 @@ class _DashboardState extends State<Dashboard> {
                       }
                       return RobotImageHolder(
                         url: (figure.figure != null)
-                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(evData["level"] != null) ? evData["level"]! - 1 : 0}_cropped$suffix")
+                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
                             : "robot1/robot1_skin0_evo0_cropped_happy",
                         height: 400,
                         width: 600,
@@ -205,15 +210,23 @@ class _DashboardState extends State<Dashboard> {
                 Positioned(
                     top: 40,
                     left: 160,
-                    child: RobotDialogBox(
-                      dialogOptions:
-                          robotDialog.getDashboardDialog(robotCharge),
-                      width: 200,
-                      height: 40,
-                    )),
+                    child: 
+                        
+                      RobotDialogBox(
+                        dialogOptions:
+                            // Dialog options now pulls from the server value
+                            
+                            Provider.of<FigureModel>(context, listen: false).figure?.charge != null ? robotDialog.getDashboardDialog(Provider.of<FigureModel>(context, listen: false).figure!.charge) : robotDialog.getDashboardDialog(0),
+                        width: 200,
+                        height: 40,
+                        ),
+                        
+                    ),
+                
                 Consumer<UserModel>(
-                  builder: (context, user, child) => (user.user != null &&
-                          user.user!.email == "chb263@msstate.edu")
+                  builder: (context, user, child) => (
+                          user.user != null && 
+                          user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com")
                       ? DraggableAdminPanel(
                           onButton1Pressed: triggerFigureDecay,
                           onButton2Pressed: triggerUserReset,
@@ -231,18 +244,32 @@ class _DashboardState extends State<Dashboard> {
                     icon: const Icon(Icons.swap_calls),
                     label: const Text("Skins"))),
             const SizedBox(height: 5),
-
-            Center(
-             
-              child:  evData['readyToEvolve'] == 1 ? 
-              ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.tertiary)))
-              : EvBar(
-                  currentXp: evData['displayPoints'] ?? 0,
-                  maxXp: evData['maxPoints'] ?? 0,
-                  currentLvl: evData['level'] ?? 1,
-                  fillColor: Theme.of(context).colorScheme.tertiary,
-                  barWidth: 200),
+            StreamBuilder<FigureModel>(
+              stream: _figureStream(),
+              builder: (context, snapshot) {
+                if(!mounted){
+                  return const Text('Widget is no longer active');
+                }
+                else if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // Show a loading indicator
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (!snapshot.hasData) {
+                  return const Text('No data available');
+                }
+                final figure = snapshot.data!;
+                return Center(
+                  child:  figure.figure!.evPoints >= figure1.EvCutoffs[figure.EVLevel] ? 
+                  ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          color: Theme.of(context).colorScheme.tertiary)))
+                  : EvBar(
+                      currentXp: figure.figure?.evPoints ?? 0,
+                      maxXp: figure1.EvCutoffs[figure.EVLevel],
+                      currentLvl: figure.EVLevel + 1 ?? 1,
+                      fillColor: Theme.of(context).colorScheme.tertiary,
+                      barWidth: 200),
+                );
+              }
             ),
 
             //Text underneath the robot
@@ -253,6 +280,7 @@ class _DashboardState extends State<Dashboard> {
             const SizedBox(height: 15),
 
             Consumer<UserModel>(builder: (context, user, child) {
+              user = Provider.of<UserModel>(context, listen: true);
               if (user.user == null) {
                 return const CircularProgressIndicator();
               }
@@ -269,16 +297,29 @@ class _DashboardState extends State<Dashboard> {
 
             //imported from progress bar component
 
-            Consumer<FigureModel>(builder: (context, figure, child) {
-              if (figure.figure == null) {
-                return const CircularProgressIndicator();
-              }
-              return ProgressBar(
-                  progressPercent:
-                      figure.figure!.charge.toDouble() / 100 ?? 0.0,
+            StreamBuilder<FigureModel>(
+              stream: _figureStream(),
+              builder: (context, snapshot) {
+                if (!mounted) {
+                  return const Text('Widget is no longer active');
+                } else if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // Show a loading indicator
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (!snapshot.hasData) {
+                  return const Text('No data available');
+                }
+            
+                final figure = snapshot.data!;
+                // Assuming figure.figure?.charge being null is handled as an error or invalid state elsewhere
+                return ProgressBar(
+                  progressPercent: figure.figure!.charge.toDouble() / 100,
                   barWidth: 320,
-                  fillColor: Theme.of(context).colorScheme.primary);
-            }),
+                  fillColor: Theme.of(context).colorScheme.primary,
+                );
+              },
+            ),
+
 
             const SizedBox(
               height: 20,
