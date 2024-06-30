@@ -39,7 +39,7 @@ class _EvolutionPageState extends State<EvolutionPage>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _flashController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -78,7 +78,8 @@ class _EvolutionPageState extends State<EvolutionPage>
       Provider.of<FigureModel>(context, listen: false).setFigureLevel(
           Provider.of<FigureModel>(context, listen: false).figure!.evLevel + 1);
       _isEvolved = true;
-      auth.updateFigureInstance(Provider.of<FigureModel>(context, listen: false).figure!);
+      auth.updateFigureInstance(
+          Provider.of<FigureModel>(context, listen: false).figure!);
     });
     await Future.delayed(Duration(seconds: 1));
     await _controller.reverse();
@@ -102,8 +103,9 @@ class _EvolutionPageState extends State<EvolutionPage>
               return Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                
                   Container(
-                    height: 100,
+                    height: 150,
                     child: Opacity(
                       opacity: _opacityAnimation.value ?? 0,
                       child: !_isEvolved

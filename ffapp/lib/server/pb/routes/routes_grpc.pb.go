@@ -58,6 +58,13 @@ type RoutesClient interface {
 	CreateSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
 	DeleteSkin(ctx context.Context, in *Skin, opts ...grpc.CallOption) (*Skin, error)
 	GetSkins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MultiSkin, error)
+	// SURVEY ROUTES //
+	GetSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error)
+	UpdateSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error)
+	CreateSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error)
+	DeleteSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error)
+	GetSurveyResponses(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiSurveyResponse, error)
+	CreateSurveyResponseMulti(ctx context.Context, in *MultiSurveyResponse, opts ...grpc.CallOption) (*MultiSurveyResponse, error)
 	// SERVER ACTIONS //
 	FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error)
 	UserWeeklyReset(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericStringResponse, error)
@@ -332,6 +339,60 @@ func (c *routesClient) GetSkins(ctx context.Context, in *emptypb.Empty, opts ...
 	return out, nil
 }
 
+func (c *routesClient) GetSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error) {
+	out := new(SurveyResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetSurveyResponse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UpdateSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error) {
+	out := new(SurveyResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateSurveyResponse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) CreateSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error) {
+	out := new(SurveyResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/CreateSurveyResponse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) DeleteSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error) {
+	out := new(SurveyResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/DeleteSurveyResponse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) GetSurveyResponses(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiSurveyResponse, error) {
+	out := new(MultiSurveyResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetSurveyResponses", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) CreateSurveyResponseMulti(ctx context.Context, in *MultiSurveyResponse, opts ...grpc.CallOption) (*MultiSurveyResponse, error) {
+	out := new(MultiSurveyResponse)
+	err := c.cc.Invoke(ctx, "/routes.Routes/CreateSurveyResponseMulti", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *routesClient) FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error) {
 	out := new(GenericStringResponse)
 	err := c.cc.Invoke(ctx, "/routes.Routes/FigureDecay", in, out, opts...)
@@ -389,6 +450,13 @@ type RoutesServer interface {
 	CreateSkin(context.Context, *Skin) (*Skin, error)
 	DeleteSkin(context.Context, *Skin) (*Skin, error)
 	GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error)
+	// SURVEY ROUTES //
+	GetSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error)
+	UpdateSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error)
+	CreateSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error)
+	DeleteSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error)
+	GetSurveyResponses(context.Context, *User) (*MultiSurveyResponse, error)
+	CreateSurveyResponseMulti(context.Context, *MultiSurveyResponse) (*MultiSurveyResponse, error)
 	// SERVER ACTIONS //
 	FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error)
 	UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error)
@@ -485,6 +553,24 @@ func (UnimplementedRoutesServer) DeleteSkin(context.Context, *Skin) (*Skin, erro
 }
 func (UnimplementedRoutesServer) GetSkins(context.Context, *emptypb.Empty) (*MultiSkin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSkins not implemented")
+}
+func (UnimplementedRoutesServer) GetSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSurveyResponse not implemented")
+}
+func (UnimplementedRoutesServer) UpdateSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSurveyResponse not implemented")
+}
+func (UnimplementedRoutesServer) CreateSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSurveyResponse not implemented")
+}
+func (UnimplementedRoutesServer) DeleteSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSurveyResponse not implemented")
+}
+func (UnimplementedRoutesServer) GetSurveyResponses(context.Context, *User) (*MultiSurveyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSurveyResponses not implemented")
+}
+func (UnimplementedRoutesServer) CreateSurveyResponseMulti(context.Context, *MultiSurveyResponse) (*MultiSurveyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSurveyResponseMulti not implemented")
 }
 func (UnimplementedRoutesServer) FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FigureDecay not implemented")
@@ -1027,6 +1113,114 @@ func _Routes_GetSkins_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_GetSurveyResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SurveyResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetSurveyResponse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetSurveyResponse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetSurveyResponse(ctx, req.(*SurveyResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UpdateSurveyResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SurveyResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UpdateSurveyResponse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UpdateSurveyResponse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UpdateSurveyResponse(ctx, req.(*SurveyResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_CreateSurveyResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SurveyResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).CreateSurveyResponse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/CreateSurveyResponse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).CreateSurveyResponse(ctx, req.(*SurveyResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_DeleteSurveyResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SurveyResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).DeleteSurveyResponse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/DeleteSurveyResponse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).DeleteSurveyResponse(ctx, req.(*SurveyResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_GetSurveyResponses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetSurveyResponses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetSurveyResponses",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetSurveyResponses(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_CreateSurveyResponseMulti_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiSurveyResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).CreateSurveyResponseMulti(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/CreateSurveyResponseMulti",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).CreateSurveyResponseMulti(ctx, req.(*MultiSurveyResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Routes_FigureDecay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FigureInstance)
 	if err := dec(in); err != nil {
@@ -1185,6 +1379,30 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSkins",
 			Handler:    _Routes_GetSkins_Handler,
+		},
+		{
+			MethodName: "GetSurveyResponse",
+			Handler:    _Routes_GetSurveyResponse_Handler,
+		},
+		{
+			MethodName: "UpdateSurveyResponse",
+			Handler:    _Routes_UpdateSurveyResponse_Handler,
+		},
+		{
+			MethodName: "CreateSurveyResponse",
+			Handler:    _Routes_CreateSurveyResponse_Handler,
+		},
+		{
+			MethodName: "DeleteSurveyResponse",
+			Handler:    _Routes_DeleteSurveyResponse_Handler,
+		},
+		{
+			MethodName: "GetSurveyResponses",
+			Handler:    _Routes_GetSurveyResponses_Handler,
+		},
+		{
+			MethodName: "CreateSurveyResponseMulti",
+			Handler:    _Routes_CreateSurveyResponseMulti_Handler,
 		},
 		{
 			MethodName: "FigureDecay",

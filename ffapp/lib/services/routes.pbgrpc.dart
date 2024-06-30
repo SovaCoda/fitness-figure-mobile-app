@@ -138,6 +138,30 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/GetSkins',
       ($1.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.MultiSkin.fromBuffer(value));
+  static final _$getSurveyResponse = $grpc.ClientMethod<$0.SurveyResponse, $0.SurveyResponse>(
+      '/routes.Routes/GetSurveyResponse',
+      ($0.SurveyResponse value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value));
+  static final _$updateSurveyResponse = $grpc.ClientMethod<$0.SurveyResponse, $0.SurveyResponse>(
+      '/routes.Routes/UpdateSurveyResponse',
+      ($0.SurveyResponse value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value));
+  static final _$createSurveyResponse = $grpc.ClientMethod<$0.SurveyResponse, $0.SurveyResponse>(
+      '/routes.Routes/CreateSurveyResponse',
+      ($0.SurveyResponse value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value));
+  static final _$deleteSurveyResponse = $grpc.ClientMethod<$0.SurveyResponse, $0.SurveyResponse>(
+      '/routes.Routes/DeleteSurveyResponse',
+      ($0.SurveyResponse value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value));
+  static final _$getSurveyResponses = $grpc.ClientMethod<$0.User, $0.MultiSurveyResponse>(
+      '/routes.Routes/GetSurveyResponses',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiSurveyResponse.fromBuffer(value));
+  static final _$createSurveyResponseMulti = $grpc.ClientMethod<$0.MultiSurveyResponse, $0.MultiSurveyResponse>(
+      '/routes.Routes/CreateSurveyResponseMulti',
+      ($0.MultiSurveyResponse value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiSurveyResponse.fromBuffer(value));
   static final _$figureDecay = $grpc.ClientMethod<$0.FigureInstance, $0.GenericStringResponse>(
       '/routes.Routes/FigureDecay',
       ($0.FigureInstance value) => value.writeToBuffer(),
@@ -267,6 +291,30 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.MultiSkin> getSkins($1.Empty request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getSkins, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SurveyResponse> getSurveyResponse($0.SurveyResponse request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSurveyResponse, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SurveyResponse> updateSurveyResponse($0.SurveyResponse request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateSurveyResponse, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SurveyResponse> createSurveyResponse($0.SurveyResponse request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createSurveyResponse, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SurveyResponse> deleteSurveyResponse($0.SurveyResponse request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteSurveyResponse, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiSurveyResponse> getSurveyResponses($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSurveyResponses, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiSurveyResponse> createSurveyResponseMulti($0.MultiSurveyResponse request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createSurveyResponseMulti, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.GenericStringResponse> figureDecay($0.FigureInstance request, {$grpc.CallOptions? options}) {
@@ -486,6 +534,48 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $1.Empty.fromBuffer(value),
         ($0.MultiSkin value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SurveyResponse, $0.SurveyResponse>(
+        'GetSurveyResponse',
+        getSurveyResponse_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value),
+        ($0.SurveyResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SurveyResponse, $0.SurveyResponse>(
+        'UpdateSurveyResponse',
+        updateSurveyResponse_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value),
+        ($0.SurveyResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SurveyResponse, $0.SurveyResponse>(
+        'CreateSurveyResponse',
+        createSurveyResponse_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value),
+        ($0.SurveyResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SurveyResponse, $0.SurveyResponse>(
+        'DeleteSurveyResponse',
+        deleteSurveyResponse_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SurveyResponse.fromBuffer(value),
+        ($0.SurveyResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.MultiSurveyResponse>(
+        'GetSurveyResponses',
+        getSurveyResponses_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.MultiSurveyResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.MultiSurveyResponse, $0.MultiSurveyResponse>(
+        'CreateSurveyResponseMulti',
+        createSurveyResponseMulti_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.MultiSurveyResponse.fromBuffer(value),
+        ($0.MultiSurveyResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.GenericStringResponse>(
         'FigureDecay',
         figureDecay_Pre,
@@ -618,6 +708,30 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return getSkins(call, await request);
   }
 
+  $async.Future<$0.SurveyResponse> getSurveyResponse_Pre($grpc.ServiceCall call, $async.Future<$0.SurveyResponse> request) async {
+    return getSurveyResponse(call, await request);
+  }
+
+  $async.Future<$0.SurveyResponse> updateSurveyResponse_Pre($grpc.ServiceCall call, $async.Future<$0.SurveyResponse> request) async {
+    return updateSurveyResponse(call, await request);
+  }
+
+  $async.Future<$0.SurveyResponse> createSurveyResponse_Pre($grpc.ServiceCall call, $async.Future<$0.SurveyResponse> request) async {
+    return createSurveyResponse(call, await request);
+  }
+
+  $async.Future<$0.SurveyResponse> deleteSurveyResponse_Pre($grpc.ServiceCall call, $async.Future<$0.SurveyResponse> request) async {
+    return deleteSurveyResponse(call, await request);
+  }
+
+  $async.Future<$0.MultiSurveyResponse> getSurveyResponses_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return getSurveyResponses(call, await request);
+  }
+
+  $async.Future<$0.MultiSurveyResponse> createSurveyResponseMulti_Pre($grpc.ServiceCall call, $async.Future<$0.MultiSurveyResponse> request) async {
+    return createSurveyResponseMulti(call, await request);
+  }
+
   $async.Future<$0.GenericStringResponse> figureDecay_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
     return figureDecay(call, await request);
   }
@@ -655,6 +769,12 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.Skin> createSkin($grpc.ServiceCall call, $0.Skin request);
   $async.Future<$0.Skin> deleteSkin($grpc.ServiceCall call, $0.Skin request);
   $async.Future<$0.MultiSkin> getSkins($grpc.ServiceCall call, $1.Empty request);
+  $async.Future<$0.SurveyResponse> getSurveyResponse($grpc.ServiceCall call, $0.SurveyResponse request);
+  $async.Future<$0.SurveyResponse> updateSurveyResponse($grpc.ServiceCall call, $0.SurveyResponse request);
+  $async.Future<$0.SurveyResponse> createSurveyResponse($grpc.ServiceCall call, $0.SurveyResponse request);
+  $async.Future<$0.SurveyResponse> deleteSurveyResponse($grpc.ServiceCall call, $0.SurveyResponse request);
+  $async.Future<$0.MultiSurveyResponse> getSurveyResponses($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.MultiSurveyResponse> createSurveyResponseMulti($grpc.ServiceCall call, $0.MultiSurveyResponse request);
   $async.Future<$0.GenericStringResponse> figureDecay($grpc.ServiceCall call, $0.FigureInstance request);
   $async.Future<$0.GenericStringResponse> userWeeklyReset($grpc.ServiceCall call, $0.User request);
 }

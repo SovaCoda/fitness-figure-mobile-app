@@ -237,3 +237,32 @@ const MultiSkin$json = {
 final $typed_data.Uint8List multiSkinDescriptor = $convert.base64Decode(
     'CglNdWx0aVNraW4SIgoFc2tpbnMYASADKAsyDC5yb3V0ZXMuU2tpblIFc2tpbnM=');
 
+@$core.Deprecated('Use surveyResponseDescriptor instead')
+const SurveyResponse$json = {
+  '1': 'SurveyResponse',
+  '2': [
+    {'1': 'Email', '3': 1, '4': 1, '5': 9, '10': 'Email'},
+    {'1': 'Question', '3': 2, '4': 1, '5': 9, '10': 'Question'},
+    {'1': 'Answer', '3': 3, '4': 1, '5': 9, '10': 'Answer'},
+    {'1': 'Date', '3': 4, '4': 1, '5': 9, '10': 'Date'},
+  ],
+};
+
+/// Descriptor for `SurveyResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List surveyResponseDescriptor = $convert.base64Decode(
+    'Cg5TdXJ2ZXlSZXNwb25zZRIUCgVFbWFpbBgBIAEoCVIFRW1haWwSGgoIUXVlc3Rpb24YAiABKA'
+    'lSCFF1ZXN0aW9uEhYKBkFuc3dlchgDIAEoCVIGQW5zd2VyEhIKBERhdGUYBCABKAlSBERhdGU=');
+
+@$core.Deprecated('Use multiSurveyResponseDescriptor instead')
+const MultiSurveyResponse$json = {
+  '1': 'MultiSurveyResponse',
+  '2': [
+    {'1': 'surveyResponses', '3': 1, '4': 3, '5': 11, '6': '.routes.SurveyResponse', '10': 'surveyResponses'},
+  ],
+};
+
+/// Descriptor for `MultiSurveyResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiSurveyResponseDescriptor = $convert.base64Decode(
+    'ChNNdWx0aVN1cnZleVJlc3BvbnNlEkAKD3N1cnZleVJlc3BvbnNlcxgBIAMoCzIWLnJvdXRlcy'
+    '5TdXJ2ZXlSZXNwb25zZVIPc3VydmV5UmVzcG9uc2Vz');
+

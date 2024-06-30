@@ -47,6 +47,14 @@ service Routes {
     rpc DeleteSkin(Skin) returns (Skin) {}
     rpc GetSkins(google.protobuf.Empty) returns (MultiSkin) {}
 
+    // SURVEY ROUTES //
+    rpc GetSurveyResponse(SurveyResponse) returns (SurveyResponse) {}
+    rpc UpdateSurveyResponse(SurveyResponse) returns (SurveyResponse) {}
+    rpc CreateSurveyResponse(SurveyResponse) returns (SurveyResponse) {}
+    rpc DeleteSurveyResponse(SurveyResponse) returns (SurveyResponse) {}
+    rpc GetSurveyResponses(User) returns (MultiSurveyResponse) {}
+    rpc CreateSurveyResponseMulti(MultiSurveyResponse) returns (MultiSurveyResponse) {}
+    
     // SERVER ACTIONS //
     rpc FigureDecay(FigureInstance) returns (GenericStringResponse) {}
     rpc UserWeeklyReset(User) returns (GenericStringResponse) {}
@@ -141,4 +149,15 @@ message Skin {
 
 message MultiSkin {
     repeated Skin skins = 1;
+}
+
+message SurveyResponse {
+    string Email = 1;
+    string Question = 2;
+    string Answer = 3;
+    string Date = 4; 
+}
+
+message MultiSurveyResponse {
+    repeated SurveyResponse surveyResponses = 1;
 }

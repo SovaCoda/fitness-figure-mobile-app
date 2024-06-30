@@ -134,7 +134,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
-        prefs.getBool("hasSurveyed") == false) {
+        prefs.getBool("hasSurveyed") == true) {
       showDialog(
         context: context,
         builder: (context) => PopupWidget(

@@ -1174,6 +1174,142 @@ class MultiSkin extends $pb.GeneratedMessage {
   $core.List<Skin> get skins => $_getList(0);
 }
 
+class SurveyResponse extends $pb.GeneratedMessage {
+  factory SurveyResponse({
+    $core.String? email,
+    $core.String? question,
+    $core.String? answer,
+    $core.String? date,
+  }) {
+    final $result = create();
+    if (email != null) {
+      $result.email = email;
+    }
+    if (question != null) {
+      $result.question = question;
+    }
+    if (answer != null) {
+      $result.answer = answer;
+    }
+    if (date != null) {
+      $result.date = date;
+    }
+    return $result;
+  }
+  SurveyResponse._() : super();
+  factory SurveyResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SurveyResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SurveyResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'Email', protoName: 'Email')
+    ..aOS(2, _omitFieldNames ? '' : 'Question', protoName: 'Question')
+    ..aOS(3, _omitFieldNames ? '' : 'Answer', protoName: 'Answer')
+    ..aOS(4, _omitFieldNames ? '' : 'Date', protoName: 'Date')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SurveyResponse clone() => SurveyResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SurveyResponse copyWith(void Function(SurveyResponse) updates) => super.copyWith((message) => updates(message as SurveyResponse)) as SurveyResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SurveyResponse create() => SurveyResponse._();
+  SurveyResponse createEmptyInstance() => create();
+  static $pb.PbList<SurveyResponse> createRepeated() => $pb.PbList<SurveyResponse>();
+  @$core.pragma('dart2js:noInline')
+  static SurveyResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SurveyResponse>(create);
+  static SurveyResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get question => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set question($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasQuestion() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearQuestion() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get answer => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set answer($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasAnswer() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAnswer() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get date => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set date($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasDate() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDate() => clearField(4);
+}
+
+class MultiSurveyResponse extends $pb.GeneratedMessage {
+  factory MultiSurveyResponse({
+    $core.Iterable<SurveyResponse>? surveyResponses,
+  }) {
+    final $result = create();
+    if (surveyResponses != null) {
+      $result.surveyResponses.addAll(surveyResponses);
+    }
+    return $result;
+  }
+  MultiSurveyResponse._() : super();
+  factory MultiSurveyResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiSurveyResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiSurveyResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<SurveyResponse>(1, _omitFieldNames ? '' : 'surveyResponses', $pb.PbFieldType.PM, protoName: 'surveyResponses', subBuilder: SurveyResponse.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiSurveyResponse clone() => MultiSurveyResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiSurveyResponse copyWith(void Function(MultiSurveyResponse) updates) => super.copyWith((message) => updates(message as MultiSurveyResponse)) as MultiSurveyResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiSurveyResponse create() => MultiSurveyResponse._();
+  MultiSurveyResponse createEmptyInstance() => create();
+  static $pb.PbList<MultiSurveyResponse> createRepeated() => $pb.PbList<MultiSurveyResponse>();
+  @$core.pragma('dart2js:noInline')
+  static MultiSurveyResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiSurveyResponse>(create);
+  static MultiSurveyResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<SurveyResponse> get surveyResponses => $_getList(0);
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

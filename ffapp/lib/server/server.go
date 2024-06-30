@@ -572,6 +572,112 @@ func (s *server) DeleteSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) 
 	return &skin, nil
 }
 
+// END SKIN METHODS //
+// BEGIN SURVEY METHODS //
+
+func (s *server) GetSurveyResponse(ctx context.Context, in *pb.SurveyResponse) (*pb.SurveyResponse, error) {
+	var surveyResponse pb.SurveyResponse
+
+	err := s.db.QueryRowContext(ctx, "SELECT Email, Question, Answer, Date FROM survey_responses WHERE Email = ? AND Question = ? AND Date = ?", in.Email, in.Question, in.Date).Scan(&surveyResponse.Email, &surveyResponse.Question, &surveyResponse.Answer, &surveyResponse.Date)
+	if err != nil {
+		return nil, fmt.Errorf("could not get survey response: %v", err)
+	}
+
+	return &surveyResponse, nil
+}
+
+func (s *server) UpdateSurveyResponse(ctx context.Context, in *pb.SurveyResponse) (*pb.SurveyResponse, error) {
+	var surveyResponse pb.SurveyResponse
+
+	_, err := s.db.ExecContext(ctx, "UPDATE survey_responses SET Answer = ? WHERE Email = ? AND Question = ? AND Date = ?", in.Answer, in.Email, in.Question, in.Date)
+	if err != nil {
+		log.Printf("Failed to update survey response: %v", err)
+		return nil, err
+	}
+
+	surveyResponse.Email = in.Email
+	surveyResponse.Question = in.Question
+	surveyResponse.Answer = in.Answer
+	surveyResponse.Date = in.Date
+
+	return &surveyResponse, nil
+}
+
+func (s *server) CreateSurveyResponse(ctx context.Context, in *pb.SurveyResponse) (*pb.SurveyResponse, error) {
+	var surveyResponse pb.SurveyResponse
+
+	_, err := s.db.ExecContext(ctx, "INSERT INTO survey_responses (Email, Question, Answer, Date) VALUES (?, ?, ?, ?)", in.Email, in.Question, in.Answer, in.Date)
+	if err != nil {
+		log.Printf("Failed to create survey response: %v", err)
+		return nil, err
+	}
+
+	surveyResponse.Email = in.Email
+	surveyResponse.Question = in.Question
+	surveyResponse.Answer = in.Answer
+	surveyResponse.Date = in.Date
+
+	return &surveyResponse, nil
+}
+
+func (s *server) DeleteSurveyResponse(ctx context.Context, in *pb.SurveyResponse) (*pb.SurveyResponse, error) {
+	var surveyResponse pb.SurveyResponse
+
+	err := s.db.QueryRowContext(ctx, "SELECT Email, Question, Answer, Date FROM survey_responses WHERE Email = ? AND Question = ? AND Date = ?", in.Email, in.Question, in.Date).Scan(&surveyResponse.Email, &surveyResponse.Question, &surveyResponse.Answer, &surveyResponse.Date)
+	if err != nil {
+		return nil, fmt.Errorf("could not get survey response: %v", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, "DELETE FROM survey_responses WHERE Email = ? AND Question = ? AND Date = ?", in.Email, in.Question, in.Date)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete survey response: %v", err)
+	}
+
+	return &surveyResponse, nil
+}
+
+func (s *server) GetSurveyResponses(ctx context.Context, in *pb.User) (*pb.MultiSurveyResponse, error) {
+	surveyResponses := &pb.MultiSurveyResponse{}
+
+	rows, err := s.db.QueryContext(ctx, "SELECT Email, Question, Answer, Date FROM survey_responses WHERE Email = ?", in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not get survey responses: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var surveyResponse pb.SurveyResponse
+		err := rows.Scan(&surveyResponse.Email, &surveyResponse.Question, &surveyResponse.Answer, &surveyResponse.Date)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan survey response: %v", err)
+		}
+		surveyResponses.SurveyResponses = append(surveyResponses.SurveyResponses, &surveyResponse)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("could not iterate over survey responses: %v", err)
+	}
+
+	return surveyResponses, nil
+}
+
+func (s *server) CreateSurveyResponseMulti(ctx context.Context, in *pb.MultiSurveyResponse) (*pb.MultiSurveyResponse, error) {
+	responses := []*pb.SurveyResponse{}
+	
+	for _, response := range in.SurveyResponses {
+		createdResponse, err := s.CreateSurveyResponse(ctx, response)
+		if err != nil {
+			return nil, err
+		}
+		responses = append(responses, createdResponse)
+	}
+	
+	return &pb.MultiSurveyResponse{SurveyResponses: responses}, nil
+}
+
+// END SURVEY METHODS //
+// BEGIN SERVER ACTIONS //
+
 func (s *server) FigureDecay(ctx context.Context, in  *pb.FigureInstance) (*pb.GenericStringResponse, error) {
 	fmt.Println("Applying Figure Charge Decay")
 	rows, err := s.db.Query("CALL sp_figureDecaySingle(?)", in.User_Email)

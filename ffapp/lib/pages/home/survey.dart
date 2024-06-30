@@ -1,5 +1,11 @@
+import 'package:ffapp/main.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/routes.pb.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SurveyWidget extends StatefulWidget {
@@ -11,27 +17,45 @@ class SurveyWidget extends StatefulWidget {
 }
 
 class _SurveyWidgetState extends State<SurveyWidget> {
-  List<int> answers = List.filled(10, 0);
+  late AuthService auth;
 
-  final List<String> questions = [
-    'The figures I buy are cool and fun to collect.',
-    'The evolutions are rewarding and diverse.',
-    'The rewards are worth the time and effort.',
-    'The game is easy to understand and play.',
-    'The game is fun and engaging.',
-    'The game is fair and balanced.',
-    'The game is worth spending money on.',
-    'The game is worth spending time on.',
-    'The game is worth recommending to friends.',
-    'The game is worth coming back to play again.',
-  ];
+  final Map<String, String> questions = {
+    'The figures I buy are cool and fun to collect.': '',
+    'The evolutions are meaningful and rewarding.': '',
+    'My figure and the app keep me coming back to workout.': '',
+    'The app is easy to use and navigate.': '',
+    'The app is visually appealing.': '',
+    'Currency is rewarding': '',
+  };
 
-  void setAnswer(int index, int answer) {
-    answers[index] = answer;
+  @override
+  void initState() {
+    super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
+  }
+
+  // Function that takes in a map of Strings to Strings and stores them as survey responses
+  bool storeSurveyAnswers(Map<String, String> answers) {
+    List<SurveyResponse> responses = [];
+    answers.forEach((key, value) {
+      SurveyResponse response = SurveyResponse();
+      response.question = key;
+      response.answer = value;
+      response.email = Provider.of<UserModel>(context, listen: false).user?.email ?? '';
+      response.date = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      responses.add(response);
+    });
+    MultiSurveyResponse response = MultiSurveyResponse(surveyResponses: responses);
+    auth.createSurveyResponseMulti(response);
+    return false;
+  }
+
+  void setAnswer(String question, String answer) {
+    questions[question] = answer;
   }
 
   void submitSurvey() {
-    if (answers.contains(0)) {
+    if (questions.containsValue('')) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -51,7 +75,6 @@ class _SurveyWidgetState extends State<SurveyWidget> {
       );
       return;
     }
-    print(answers); // Send answers to server
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -61,6 +84,7 @@ class _SurveyWidgetState extends State<SurveyWidget> {
             actions: [
               TextButton(
                 onPressed: () async {
+                  storeSurveyAnswers(questions);
                   context.goNamed('Home');
                   final SharedPreferences prefs = await SharedPreferences.getInstance();
                   prefs.setBool('hasSurveyed', true);
@@ -91,8 +115,8 @@ class _SurveyWidgetState extends State<SurveyWidget> {
                   itemBuilder: (context, index) {
                   return Column(
                     children: [
-                      Text(questions[index]),
-                      OneThroughFiveSelector(question: questions[index], setAnswer: (int answer) => setAnswer(index, answer))
+                      Text(questions.keys.elementAt(index)),
+                      OneThroughFiveSelector(question: questions[index], setAnswer: (String answer) => setAnswer(questions.keys.elementAt(index), answer))
                     ],
                   );
                 },
@@ -113,10 +137,11 @@ class _SurveyWidgetState extends State<SurveyWidget> {
 }
 
 class OneThroughFiveSelector extends StatefulWidget {
-  int answer;
+  String answer;
+  int _answer;
   final question;
-  void Function(int) setAnswer;
-  OneThroughFiveSelector({Key? key, required this.question, required this.setAnswer}) : answer = 0, super(key: key);
+  void Function(String) setAnswer;
+  OneThroughFiveSelector({Key? key, required this.question, required this.setAnswer}) : _answer = 0, answer = '', super(key: key);
 
   @override
   _OneThroughFiveSelectorState createState() => _OneThroughFiveSelectorState();
@@ -132,12 +157,12 @@ class _OneThroughFiveSelectorState extends State<OneThroughFiveSelector> {
           for (int i = 1; i <= 5; i++)
             Center(
               child: Opacity(
-                opacity: widget.answer == i ? 1 : 0.5,
+                opacity: widget._answer == i ? 1 : 0.5,
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      widget.answer = i;
-                      widget.setAnswer(i);
+                      widget._answer = i;
+                      widget.setAnswer(i.toString());
                     });
                   },
                   child: Text(
