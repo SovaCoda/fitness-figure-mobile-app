@@ -68,7 +68,7 @@ class FigureStoreItem extends StatelessWidget {
                   )
                 : ElevatedButton(
                     onPressed: () => onOpenSkin(context, itemPrice, null),
-                    child: const Text("Buy Skin"),
+                    child: const Text("Buy Figure"),
                   ),
             const SizedBox(height: 5),
           ],

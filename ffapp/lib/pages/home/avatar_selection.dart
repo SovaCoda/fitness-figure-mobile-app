@@ -40,6 +40,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
         curFigure: figureUrl));
 
     await auth.createFigureInstance(Routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
+    await auth.createSkinInstance(Routes.SkinInstance(skinName:'0', userEmail: curEmail, figureName: figureUrl));
     
     if (await user.getWorkoutGoal() == 0 || await user.getWorkoutMinTime() == 0) {
       context.goNamed('WorkoutFrequencySelection');

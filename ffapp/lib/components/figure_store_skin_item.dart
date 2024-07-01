@@ -1,5 +1,9 @@
 
+import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class FigureStoreSkinItem extends StatefulWidget {
   final String photoPath;
@@ -44,7 +48,8 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.sizeOf(context).width * 0.4,
+      width: MediaQuery.sizeOf(context).width * 0.8,
+      height: 900,
       decoration: BoxDecoration(
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
@@ -59,8 +64,8 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
 
           Image.asset(
             "lib/assets/${widget.photoPath}.gif",
-            height: 150.0,
-            width: 150.0,
+            height: 400.0,
+            width: 400.0,
           ),
 
           Text(
@@ -69,15 +74,7 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
               color: Theme.of(context).colorScheme.onSecondaryContainer,
             ),
           ),
-
-
-          ElevatedButton(
-            onPressed: () {
-              widget.onViewSkin(context, widget.skinName);
-            },
-            child: const Text("View Skin"),
-          ),
-
+          stateowned ? 
           equipped
               ? ElevatedButton(
                   onPressed: () {
@@ -94,13 +91,17 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
                     setState(() {
                       equipped = true;
                     });
+                    context.goNamed('Home');
                   },
                   child: const Text("Equip"),
-                ),
+                ) : ElevatedButton(
+                  onPressed: () {
+                  },
+                  child: const Text("Not Owned"),),
           Opacity(
             opacity: !stateowned ? 1.0 : 0.5,
             child: ElevatedButton(
-              onPressed: () => {widget.onPurchaseSkin(context, widget.itemPrice, widget.skinName, widget.figureName, stateowned), setState(() {stateowned = true;})},
+              onPressed: () => {widget.onPurchaseSkin(context, widget.itemPrice, widget.skinName, widget.figureName, stateowned), setState(() { if(Provider.of<UserModel>(context, listen: false).user!.currency.toInt() >= widget.itemPrice)   {stateowned = true;}})},
               child: !stateowned ? const Text("Buy Skin") : const Text("Owned"),
             ),
           ),

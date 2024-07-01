@@ -255,6 +255,7 @@ class _StoreState extends State<Store> {
                                           onOpenSkin:
                                               (context, price, skinSkinName) {
                                             subtractCurrency(context, price);
+                                            if(userModel.user!.currency >= price){
                                             auth.createFigureInstance(
                                                 Routes.FigureInstance(
                                               figureName:
@@ -265,7 +266,7 @@ class _StoreState extends State<Store> {
                                               lastReset: "2001-09-04 19:21:00",
                                               evPoints: 0,
                                               charge: 70,
-                                            ));
+                                            ));}
                                           },
                                           onViewSkin: (context, figureName) {
                                             showSkinView(
@@ -293,6 +294,7 @@ class _StoreState extends State<Store> {
                                           onOpenSkin:
                                               (context, price, skinSkinName) {
                                             subtractCurrency(context, price);
+                                            if(userModel.user!.currency >= price){
                                              auth.createFigureInstance(
                                                 Routes.FigureInstance(
                                               figureName:
@@ -303,7 +305,7 @@ class _StoreState extends State<Store> {
                                               lastReset: "2001-09-04 19:21:00",
                                               evPoints: 0,
                                               charge: 70,
-                                            ));
+                                            ));}
                                           },
                                           onViewSkin: (context, skinName) {
                                             showSkinView(

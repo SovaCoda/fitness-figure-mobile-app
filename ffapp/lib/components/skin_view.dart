@@ -95,12 +95,11 @@ class _SkinViewerState extends State<SkinViewer> {
             child: CarouselSlider(
               options: CarouselOptions(
                 enlargeStrategy: CenterPageEnlargeStrategy.height,
-                aspectRatio: 1.4,
-                viewportFraction: 1.0,
+                aspectRatio: 0.6,
+                viewportFraction: 0.8,
               ),
               items: widget.listOfSkins.where((element) => element.figureName == widget.figureName,).map((skin) {
                 bool owned = widget.listOfSkinInstances.any((element) => element.skinName == skin.skinName);
-                bool equipped = widget.listOfFigureInstances.any((element) => element.figureName == skin.figureName && element.curSkin == skin.skinName.substring(4));
 
                 return FigureStoreSkinItem(
                   figureName: skin.figureName,
@@ -111,7 +110,7 @@ class _SkinViewerState extends State<SkinViewer> {
                   onPurchaseSkin: (context, price, skinSkinName, figureSkinName, owned) => purchaseSkin(context, skin.price, skin.skinName, skin.figureName, owned),
                   onEquipSkin: (context, figureName, skinName) => equipSkin(context, figureName, skinName),
                   owned: owned,
-                  equipped: equipped,
+                  equipped: equippedSkin.listOfFigureInstances.any((element)=> element.figureName == skin.figureName && element.curSkin == skin.skinName.substring(4)),
                 );
               }).toList(),
             ),
