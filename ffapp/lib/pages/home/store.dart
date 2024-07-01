@@ -43,7 +43,6 @@ class _StoreState extends State<Store> {
 
   late AuthService auth;
   late int currency = 0;
-
   @override
   void initState() {
     super.initState();
@@ -63,12 +62,15 @@ class _StoreState extends State<Store> {
         .getSkinInstances(databaseUser)
         .then((value) => value.skinInstances);
 
-    String stringCur = databaseUser.currency.toString() ?? "0";
+    String stringCur = databaseUser.currency.toString();
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
-    setState(() {
-      listOfFigures = listOfFigures;
-    });
+    // Check to see if mounted to prevent crash from exiting menu too fast
+    if(mounted) {
+      setState(() {
+        listOfFigures = listOfFigures;
+      });
+    }
   }
 
   void showSkinView(String figureName) {
@@ -116,16 +118,20 @@ class _StoreState extends State<Store> {
     int updateCurrency = currentCurrency - subtractCurrency;
     if (updateCurrency < 0) {
       logger.i("Not enough currency to complete transaction.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Not enough currency to complete this purchase!")),
-      );
+      if (mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Not enough currency to complete this purchase!")),    
+        );
       return;
+      }
     }
     databaseUser.currency = Int64(updateCurrency);
     await auth.updateUserDBInfo(databaseUser);
-    Provider.of<CurrencyModel>(context, listen: false)
-        .setCurrency(updateCurrency.toString());
+    if(mounted){
+      Provider.of<CurrencyModel>(context, listen: false)
+          .setCurrency(updateCurrency.toString());
+      }
   }
 
   @override

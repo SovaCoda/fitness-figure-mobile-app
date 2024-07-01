@@ -347,6 +347,61 @@ class AuthService {
     }
   }
   // END SKIN METHODS //
+  // BEGIN SURVEY METHODS //
+  Future<Routes.SurveyResponse> getSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+    try {
+      return await _routes.routesClient.getSurveyResponse(surveyResponse);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get survey response");
+    }
+  }
+
+  Future<Routes.SurveyResponse> updateSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+    try {
+      return await _routes.routesClient.updateSurveyResponse(surveyResponse);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update survey response");
+    }
+  }
+
+  Future<Routes.SurveyResponse> createSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+    try {
+      return await _routes.routesClient.createSurveyResponse(surveyResponse);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create survey response");
+    }
+  }
+
+  Future<Routes.SurveyResponse> deleteSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+    try {
+      return await _routes.routesClient.deleteSurveyResponse(surveyResponse);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete survey response");
+    }
+  }
+
+  Future<Routes.MultiSurveyResponse> getSurveyResponses(Routes.User user) async {
+    try {
+      return await _routes.routesClient.getSurveyResponses(user);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get survey responses");
+    }
+  }
+
+  Future<Routes.MultiSurveyResponse> createSurveyResponseMulti(Routes.MultiSurveyResponse multiSurveyResponse) async {
+    try {
+      return await _routes.routesClient.createSurveyResponseMulti(multiSurveyResponse);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create survey responses");
+    }
+  }
+  // END SURVEY METHODS //
   // BEGIN SERVER ACTIONS //
   Future<Routes.GenericStringResponse> figureDecay(
       Routes.FigureInstance figure) async {

@@ -7,9 +7,26 @@
 class RobotDialog {
   final _robotDialog = {
     'dashboard': {
-      'low': ["I'm dying without battery :(", "I'm low on battery!"],
-      'medium': ["We're doing alright right now.", "Keep working out, you're doing good!"],
-      'high': ["This is going great!", "You're a super fitness figure."]
+      'low': [
+       "Warning: Energy reserves critically low. Let’s power up with some squats!",
+       "Running on fumes! Push-ups will recharge our circuits!",
+       "Warning: Critical charge level. Let’s finish strong with a sprint!",
+       "Emergency charge needed. Channel your inner sprinter!",
+       "Low charge remaining. Let's not give up now!",
+       "Low battery remaining. Let's workout so we can both get stronger!"
+       ],
+      'medium': [
+                 "We're doing alright right now. Keep at it!",
+                 "Keep working out, you're doing great!"
+              
+                ],
+      'high': [
+               "Power levels soaring! You've almost reached your goal!",
+               "You've almost reached your goal! Finish it off!",
+               "You're a super fitness figure.",
+               "Smooth sailing from here! Keep at it!",
+               "You're almost there! Just a little more to reach your goal!"
+              ]
     },
     'logger': {
       'start': ["Starting is always the hardest part!", "This is going to be a great workout."],

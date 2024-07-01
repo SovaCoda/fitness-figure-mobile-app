@@ -107,6 +107,7 @@ const FigureInstance$json = {
     {'1': 'Charge', '3': 6, '4': 1, '5': 5, '10': 'Charge'},
     {'1': 'Mood', '3': 7, '4': 1, '5': 5, '10': 'Mood'},
     {'1': 'Last_Reset', '3': 8, '4': 1, '5': 9, '10': 'LastReset'},
+    {'1': 'Ev_Level', '3': 9, '4': 1, '5': 5, '10': 'EvLevel'},
   ],
 };
 
@@ -116,7 +117,7 @@ final $typed_data.Uint8List figureInstanceDescriptor = $convert.base64Decode(
     '9OYW1lGAIgASgJUgpGaWd1cmVOYW1lEh0KClVzZXJfRW1haWwYAyABKAlSCVVzZXJFbWFpbBIZ'
     'CghDdXJfU2tpbhgEIAEoCVIHQ3VyU2tpbhIbCglFdl9Qb2ludHMYBSABKAVSCEV2UG9pbnRzEh'
     'YKBkNoYXJnZRgGIAEoBVIGQ2hhcmdlEhIKBE1vb2QYByABKAVSBE1vb2QSHQoKTGFzdF9SZXNl'
-    'dBgIIAEoCVIJTGFzdFJlc2V0');
+    'dBgIIAEoCVIJTGFzdFJlc2V0EhkKCEV2X0xldmVsGAkgASgFUgdFdkxldmVs');
 
 @$core.Deprecated('Use multiFigureInstanceDescriptor instead')
 const MultiFigureInstance$json = {
@@ -235,4 +236,33 @@ const MultiSkin$json = {
 /// Descriptor for `MultiSkin`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List multiSkinDescriptor = $convert.base64Decode(
     'CglNdWx0aVNraW4SIgoFc2tpbnMYASADKAsyDC5yb3V0ZXMuU2tpblIFc2tpbnM=');
+
+@$core.Deprecated('Use surveyResponseDescriptor instead')
+const SurveyResponse$json = {
+  '1': 'SurveyResponse',
+  '2': [
+    {'1': 'Email', '3': 1, '4': 1, '5': 9, '10': 'Email'},
+    {'1': 'Question', '3': 2, '4': 1, '5': 9, '10': 'Question'},
+    {'1': 'Answer', '3': 3, '4': 1, '5': 9, '10': 'Answer'},
+    {'1': 'Date', '3': 4, '4': 1, '5': 9, '10': 'Date'},
+  ],
+};
+
+/// Descriptor for `SurveyResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List surveyResponseDescriptor = $convert.base64Decode(
+    'Cg5TdXJ2ZXlSZXNwb25zZRIUCgVFbWFpbBgBIAEoCVIFRW1haWwSGgoIUXVlc3Rpb24YAiABKA'
+    'lSCFF1ZXN0aW9uEhYKBkFuc3dlchgDIAEoCVIGQW5zd2VyEhIKBERhdGUYBCABKAlSBERhdGU=');
+
+@$core.Deprecated('Use multiSurveyResponseDescriptor instead')
+const MultiSurveyResponse$json = {
+  '1': 'MultiSurveyResponse',
+  '2': [
+    {'1': 'surveyResponses', '3': 1, '4': 3, '5': 11, '6': '.routes.SurveyResponse', '10': 'surveyResponses'},
+  ],
+};
+
+/// Descriptor for `MultiSurveyResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiSurveyResponseDescriptor = $convert.base64Decode(
+    'ChNNdWx0aVN1cnZleVJlc3BvbnNlEkAKD3N1cnZleVJlc3BvbnNlcxgBIAMoCzIWLnJvdXRlcy'
+    '5TdXJ2ZXlSZXNwb25zZVIPc3VydmV5UmVzcG9uc2Vz');
 
