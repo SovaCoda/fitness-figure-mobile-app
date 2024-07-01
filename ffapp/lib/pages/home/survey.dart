@@ -141,7 +141,8 @@ class OneThroughFiveSelector extends StatefulWidget {
   int _answer;
   final question;
   void Function(String) setAnswer;
-  OneThroughFiveSelector({Key? key, required this.question, required this.setAnswer}) : _answer = 0, answer = '', super(key: key);
+  bool columned;
+  OneThroughFiveSelector({Key? key, required this.question, required this.setAnswer}) : _answer = 0, answer = '', columned=false, super(key: key);
 
   @override
   _OneThroughFiveSelectorState createState() => _OneThroughFiveSelectorState();
@@ -151,7 +152,7 @@ class _OneThroughFiveSelectorState extends State<OneThroughFiveSelector> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Row(
+      child: widget.columned ? Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           for (int i = 1; i <= 5; i++)
@@ -171,7 +172,34 @@ class _OneThroughFiveSelectorState extends State<OneThroughFiveSelector> {
                     i == 3 ? 'Neutral' :
                     i == 4 ? 'Yes' :
                     'V. Yes',
-                   style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Theme.of(context).colorScheme.primary),),
+                   style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).colorScheme.primary),),
+                ),
+              ),
+            ),
+        ],
+      ) : 
+      Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (int i = 1; i <= 5; i++)
+            Center(
+              child: Opacity(
+                opacity: widget._answer == i ? 1 : 0.5,
+                child: ElevatedButton(
+                  
+                  onPressed: () {
+                    setState(() {
+                      widget._answer = i;
+                      widget.setAnswer(i.toString());
+                    });
+                  },
+                  child: Text(
+                    i == 1 ? 'V. No' :
+                    i == 2 ? 'No' :
+                    i == 3 ? 'Neutral' :
+                    i == 4 ? 'Yes' :
+                    'V. Yes',
+                   style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).colorScheme.primary),),
                 ),
               ),
             ),

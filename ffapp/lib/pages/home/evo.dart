@@ -1,9 +1,12 @@
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/pages/home/survey.dart';
 
 class EvolutionPage extends StatefulWidget {
   const EvolutionPage({super.key});
@@ -60,7 +63,7 @@ class _EvolutionPageState extends State<EvolutionPage>
       end: Colors.green,
     ).animate(_controller);
 
-    _sizeAnimation = Tween<double>(begin: 400, end: 700).animate(_controller);
+    _sizeAnimation = Tween<double>(begin: 400, end: 600).animate(_controller);
 
     _opacityAnimation = Tween<double>(begin: 1, end: 0).animate(_controller);
   }
@@ -89,8 +92,68 @@ class _EvolutionPageState extends State<EvolutionPage>
     });
   }
 
+
+  Map<String, String> evoQuestions = {'Do you think that this evolution is significant enough visually?' : ''};
+
+  void setAnswer(String question, String answer) {
+    evoQuestions[question] = answer;
+  }
+
+  bool storeSurveyAnswers(Map<String, String> answers) {
+    List<SurveyResponse> responses = [];
+    answers.forEach((key, value) {
+      SurveyResponse response = SurveyResponse();
+      response.question = key;
+      response.answer = value;
+      response.email = Provider.of<UserModel>(context, listen: false).user?.email ?? '';
+      response.date = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      responses.add(response);
+    });
+    MultiSurveyResponse response = MultiSurveyResponse(surveyResponses: responses);
+    auth.createSurveyResponseMulti(response);
+    return false;
+  }
+
   void viewRewards() {
-    context.goNamed("Home");
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Survey'),
+            content: Container(
+              width: 400,
+              height:500,
+              child: Column(
+                children: [
+                  ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: evoQuestions.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        Text(evoQuestions.keys.elementAt(index)),
+                        OneThroughFiveSelector(question: evoQuestions.keys.elementAt(index), setAnswer: (String answer) => setAnswer(evoQuestions.keys.elementAt(index), answer))
+                      ],
+                    );
+                  },
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  storeSurveyAnswers(evoQuestions);
+                  context.goNamed('Home');
+                  Navigator.of(context).pop();
+                  
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          );
+        },
+      );
   }
 
   @override
