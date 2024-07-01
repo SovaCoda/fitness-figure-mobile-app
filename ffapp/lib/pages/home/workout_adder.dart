@@ -529,7 +529,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             ),
           ),
           Consumer<UserModel>(builder: (context, user, _) {
-            return user.user?.email == "chb263@msstate.edu"
+            return (user.user?.email == "chb263@msstate.edu" || user.user?.email == "wreckage118@gmail.com")
                 ? DraggableAdminPanel(
                     onButton1Pressed: add5Minutes,
                     onButton2Pressed: add10Minutes,

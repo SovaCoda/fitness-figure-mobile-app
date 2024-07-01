@@ -7,7 +7,7 @@
 class RobotDialog {
   final _robotDialog = {
     'dashboard': {
-      'low': ["I'm dying without battery :(", "Please help me."],
+      'low': ["I'm dying without battery :(", "I'm low on battery!"],
       'medium': ["We're doing alright right now.", "Keep working out, you're doing good!"],
       'high': ["This is going great!", "You're a super fitness figure."]
     },

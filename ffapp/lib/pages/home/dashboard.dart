@@ -31,7 +31,7 @@ class _DashboardState extends State<Dashboard> {
   late int weeklyCompleted = 0;
   late String figureURL = "robot1";
   late double charge = 0;
-  final int robotCharge = 20;
+  final int robotCharge = 100;
   late Map<String, int> evData = {};
   late Figure figure = Figure();
   RobotDialog robotDialog = RobotDialog();
@@ -213,7 +213,7 @@ class _DashboardState extends State<Dashboard> {
                     )),
                 Consumer<UserModel>(
                   builder: (context, user, child) => (user.user != null &&
-                          user.user!.email == "chb263@msstate.edu")
+                          (user.user!.email == "chb263@msstate.edu") || (user.user!.email == "wreckage118@gmail.com"))
                       ? DraggableAdminPanel(
                           onButton1Pressed: triggerFigureDecay,
                           onButton2Pressed: triggerUserReset,
@@ -237,12 +237,13 @@ class _DashboardState extends State<Dashboard> {
               child:  evData['readyToEvolve'] == 1 ? 
               ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
                       color: Theme.of(context).colorScheme.tertiary)))
-              : EvBar(
-                  currentXp: evData['displayPoints'] ?? 0,
+              : Consumer<FigureModel>(
+                    builder: (context, figure, child) {return EvBar(
+                  currentXp: figure.figure?.evPoints ?? 0,
                   maxXp: evData['maxPoints'] ?? 0,
                   currentLvl: evData['level'] ?? 1,
                   fillColor: Theme.of(context).colorScheme.tertiary,
-                  barWidth: 200),
+                  barWidth: 200);})
             ),
 
             //Text underneath the robot
