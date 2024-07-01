@@ -41,7 +41,21 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+    _refreshController.addListener(refreshListener);
     initialize();
+  }
+
+  @override
+  void dispose(){
+    _refreshController.removeListener(refreshListener);
+    _refreshController.dispose();
+    super.dispose();
+  }
+
+  void refreshListener()
+  {
+    print(_refreshController.offset);
+    if (_refreshController.offset < -80) {print('homing'); initialize();}; 
   }
   
 
@@ -166,11 +180,12 @@ class _DashboardState extends State<Dashboard> {
   }
 }
 
-
+ScrollController _refreshController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
+        controller: _refreshController,
         child: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
