@@ -186,172 +186,165 @@ ScrollController _refreshController = ScrollController();
     return SafeArea(
       child: SingleChildScrollView(
         controller: _refreshController,
-        child: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              children: [
-                Center(
-                  child: Consumer<FigureModel>(
-                    builder: (context, figure, child) {
-                      String suffix;
-
-                      // Implemented logic for determining the robot's happiness or sadness
-
-                      if (figure.figure?.charge != null) {
-                        if (figure.figure!.charge.toInt() >= 0 &&
-                            figure.figure!.charge.toInt() <= 20) {
-                          suffix = "_sad";
-                        } else if (figure.figure!.charge.toInt() >= 51 &&
-                            figure.figure!.charge.toInt() <= 100) {
-                          suffix = "_happy";
+        child: Container(
+          height: MediaQuery.sizeOf(context).height * 1.01 - 103 - 93,
+          child: Center(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Consumer<UserModel>(builder: (context, user, child) {
+                user = Provider.of<UserModel>(context, listen: true);
+                if (user.user == null) {
+                  return const CircularProgressIndicator();
+                }
+                return WorkoutNumbersRow(
+                  weeklyCompleted: user.user!.weekComplete.toInt(),
+                  weeklyGoal: user.user!.weekGoal.toInt(),
+                  lifeTimeCompleted: 10,
+                );
+              }),
+              Stack(
+                children: [
+                  Center(
+                    child: Consumer<FigureModel>(
+                      builder: (context, figure, child) {
+                        String suffix;
+          
+                        // Implemented logic for determining the robot's happiness or sadness
+          
+                        if (figure.figure?.charge != null) {
+                          if (figure.figure!.charge.toInt() >= 0 &&
+                              figure.figure!.charge.toInt() <= 20) {
+                            suffix = "_sad";
+                          } else if (figure.figure!.charge.toInt() >= 51 &&
+                              figure.figure!.charge.toInt() <= 100) {
+                            suffix = "_happy";
+                          } else {
+                            suffix = "";
+                          }
                         } else {
                           suffix = "";
                         }
-                      } else {
-                        suffix = "";
-                      }
-                      return RobotImageHolder(
-                        url: (figure.figure != null)
-                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
-                            : "robot1/robot1_skin0_evo0_cropped_happy",
-                        height: 400,
-                        width: 600,
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                    top: 40,
-                    left: 160,
-                    child: 
-                        
-                      RobotDialogBox(
-                        dialogOptions:
-                            // Dialog options now pulls from the server value
-                            
-                            Provider.of<FigureModel>(context, listen: false).figure?.charge != null ? robotDialog.getDashboardDialog(Provider.of<FigureModel>(context, listen: false).figure!.charge) : robotDialog.getDashboardDialog(0),
-                        width: 200,
-                        height: 40,
-                        ),
-                        
+                        return RobotImageHolder(
+                          url: (figure.figure != null)
+                              ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
+                              : "robot1/robot1_skin0_evo0_cropped_happy",
+                          height: 400,
+                          width: 600,
+                        );
+                      },
                     ),
-                
-                Consumer<UserModel>(
-                  builder: (context, user, child) => (
-                          user.user != null && 
-                          user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com")
-                      ? DraggableAdminPanel(
-                          onButton1Pressed: triggerFigureDecay,
-                          onButton2Pressed: triggerUserReset,
-                          button1Text: "Daily Decay Figure",
-                          button2Text: "Weekly Reset User",
-                        )
-                      : Container(),
-                )
-              ],
-            ),
-
-            Center(
-                child: ElevatedButton.icon(
-                    onPressed: onViewSkins,
-                    icon: const Icon(Icons.swap_calls),
-                    label: const Text("Skins"))),
-            const SizedBox(height: 5),
-            StreamBuilder<FigureModel>(
-              stream: _figureStream(),
-              builder: (context, snapshot) {
-                if(!mounted){
-                  return const Text('Widget is no longer active');
-                }
-                else if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // Show a loading indicator
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (!snapshot.hasData) {
-                  return const Text('No data available');
-                }
-                final figure = snapshot.data!;
-                return Center(
-                  child:  figure.figure!.evPoints >= figure1.EvCutoffs[figure.EVLevel] ? 
-                  ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                          color: Theme.of(context).colorScheme.tertiary)))
-                  : EvBar(
-                      currentXp: figure.figure?.evPoints ?? 0,
-                      maxXp: figure1.EvCutoffs[figure.EVLevel],
-                      currentLvl: figure.EVLevel + 1 ?? 1,
-                      fillColor: Theme.of(context).colorScheme.tertiary,
-                      barWidth: 200),
-                );
-              }
-            ),
-
-            //Text underneath the robot
-            Text("Train consistently to power your Fitness Figure!",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    )),
-            const SizedBox(height: 15),
-
-            Consumer<UserModel>(builder: (context, user, child) {
-              user = Provider.of<UserModel>(context, listen: true);
-              if (user.user == null) {
-                return const CircularProgressIndicator();
-              }
-              return WorkoutNumbersRow(
-                weeklyCompleted: user.user!.weekComplete.toInt(),
-                weeklyGoal: user.user!.weekGoal.toInt(),
-                lifeTimeCompleted: 10,
-              );
-            }),
-
-            const SizedBox(
-              height: 20,
-            ),
-
-            //imported from progress bar component
-
-            StreamBuilder<FigureModel>(
-              stream: _figureStream(),
-              builder: (context, snapshot) {
-                if (!mounted) {
-                  return const Text('Widget is no longer active');
-                } else if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // Show a loading indicator
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (!snapshot.hasData) {
-                  return const Text('No data available');
-                }
-            
-                final figure = snapshot.data!;
-                // Assuming figure.figure?.charge being null is handled as an error or invalid state elsewhere
-                return ProgressBar(
-                  progressPercent: figure.figure!.charge.toDouble() / 100,
-                  barWidth: 320,
-                  fillColor: Theme.of(context).colorScheme.primary,
-                );
-              },
-            ),
-
-
-            const SizedBox(
-              height: 20,
-            ),
-
-            //progress explanation text
-            Text(
-              "*Your figures battery is calculated by looking at your current week progress as well as past weeks",
-              style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 50)
-          ],
-        )),
+                  Positioned(
+                      top: 40,
+                      left: 160,
+                      child: 
+                          
+                        RobotDialogBox(
+                          dialogOptions:
+                              // Dialog options now pulls from the server value
+                              
+                              Provider.of<FigureModel>(context, listen: false).figure?.charge != null ? robotDialog.getDashboardDialog(Provider.of<FigureModel>(context, listen: false).figure!.charge) : robotDialog.getDashboardDialog(0),
+                          width: 200,
+                          height: 40,
+                          ),
+                          
+                      ),
+          
+                  Positioned(
+                    bottom: 40,
+                    left: MediaQuery.sizeOf(context).width/2 - 50,
+                    child: Center(
+                    child: ElevatedButton.icon(
+                        onPressed: onViewSkins,
+                        icon: const Icon(Icons.swap_calls),
+                        label: const Text("Skins"))),
+                  ),
+                  
+                  Consumer<UserModel>(
+                    builder: (context, user, child) => (
+                            user.user != null && 
+                            user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com")
+                        ? DraggableAdminPanel(
+                            onButton1Pressed: triggerFigureDecay,
+                            onButton2Pressed: triggerUserReset,
+                            button1Text: "Daily Decay Figure",
+                            button2Text: "Weekly Reset User",
+                          )
+                        : Container(),
+                  )
+                ],
+              ),
+          
+          
+              StreamBuilder<FigureModel>(
+                stream: _figureStream(),
+                builder: (context, snapshot) {
+                  if(!mounted){
+                    return const Text('Widget is no longer active');
+                  }
+                  else if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator(); // Show a loading indicator
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData) {
+                    return const Text('No data available');
+                  }
+                  final figure = snapshot.data!;
+                  return Center(
+                    child:  figure.figure!.evPoints >= figure1.EvCutoffs[figure.EVLevel] ? 
+                    ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary)))
+                    : EvBar(
+                        currentXp: figure.figure?.evPoints ?? 0,
+                        maxXp: figure1.EvCutoffs[figure.EVLevel],
+                        currentLvl: figure.EVLevel + 1 ?? 1,
+                        fillColor: Theme.of(context).colorScheme.tertiary,
+                        barWidth: 200),
+                  );
+                }
+              ),
+          
+              //Text underneath the robot
+          
+          
+          
+          
+              const SizedBox(
+                height: 10,
+              ),
+          
+              //imported from progress bar component
+          
+              StreamBuilder<FigureModel>(
+                stream: _figureStream(),
+                builder: (context, snapshot) {
+                  if (!mounted) {
+                    return const Text('Widget is no longer active');
+                  } else if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator(); // Show a loading indicator
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData) {
+                    return const Text('No data available');
+                  }
+              
+                  final figure = snapshot.data!;
+                  // Assuming figure.figure?.charge being null is handled as an error or invalid state elsewhere
+                  return ProgressBar(
+                    progressPercent: figure.figure!.charge.toDouble() / 100,
+                    barWidth: 320,
+                    fillColor: Theme.of(context).colorScheme.primary,
+                  );
+                },
+              ),
+          
+          
+          
+              const SizedBox(height: 50)
+            ],
+          )),
+        ),
       ),
     );
   }

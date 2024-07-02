@@ -47,7 +47,7 @@ class _FloatingTextState extends State<FloatingText>
               widget.text,
               style: Theme.of(context)
                   .textTheme
-                  .headlineSmall!
+                  .displaySmall!
                   .copyWith(color: widget.color),
             ),
           ),

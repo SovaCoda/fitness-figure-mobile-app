@@ -414,12 +414,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           width: 180,
                           height: 45)),
                 ]),
-                const SizedBox(height: 20),
-                Text(
-                  "Time Elapsed:",
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface),
-                ),
+
                 const SizedBox(height: 5),
                 Text(
                   formatSeconds(time.toInt()),
@@ -434,22 +429,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Center(
                   child: Stack(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ProgressBar(
-                            progressPercent:
-                                time.toDouble() / (_timegoal.toDouble()),
-                            fillColor: Theme.of(context).colorScheme.primary,
-                            barWidth: 240,
-                          ),
-                          const SizedBox(width: 20),
-                          Icon(
-                            Icons.battery_charging_full,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 34,
-                          ),
-                        ],
+                      Container(
+                        height: 50,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ProgressBar(
+                              progressPercent:
+                                  time.toDouble() / (_timegoal.toDouble()),
+                              fillColor: Theme.of(context).colorScheme.primary,
+                              barWidth: 240,
+                            ),
+                            const SizedBox(width: 20),
+                            Icon(
+                              Icons.battery_charging_full,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 34,
+                            ),
+                          ],
+                        ),
                       ),
                       Positioned(
                         left: 65,
@@ -467,22 +465,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Center(
                   child: Stack(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ProgressBar(
-                            progressPercent:
-                                time.toDouble() / (_timegoal.toDouble()) * 2,
-                            fillColor: Theme.of(context).colorScheme.secondary,
-                            barWidth: 240,
-                          ),
-                          const SizedBox(width: 20),
-                          Icon(
-                            Icons.currency_exchange,
-                            color: Theme.of(context).colorScheme.secondary,
-                            size: 34,
-                          ),
-                        ],
+                      Container(
+                        height: 50,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ProgressBar(
+                              progressPercent:
+                                  time.toDouble() / (_timegoal.toDouble()) * 2,
+                              fillColor: Theme.of(context).colorScheme.secondary,
+                              barWidth: 240,
+                            ),
+                            const SizedBox(width: 20),
+                            Icon(
+                              Icons.currency_exchange,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 34,
+                            ),
+                          ],
+                        ),
                       ),
                       Positioned(
                         left: 65,
@@ -500,22 +501,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Center(
                   child: Stack(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ProgressBar(
-                            progressPercent:
-                                time.toDouble() / (_timegoal.toDouble()) * 4,
-                            fillColor: Theme.of(context).colorScheme.tertiary,
-                            barWidth: 240,
-                          ),
-                          const SizedBox(width: 20),
-                          Icon(
-                            Icons.upgrade,
-                            color: Theme.of(context).colorScheme.tertiary,
-                            size: 34,
-                          ),
-                        ],
+                      Container(
+                        height: 50,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ProgressBar(
+                              progressPercent:
+                                  time.toDouble() / (_timegoal.toDouble()) * 4,
+                              fillColor: Theme.of(context).colorScheme.tertiary,
+                              barWidth: 240,
+                            ),
+                            const SizedBox(width: 20),
+                            Icon(
+                              Icons.upgrade,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              size: 34,
+                            ),
+                          ],
+                        ),
                       ),
                       Positioned(
                         left: 65,

@@ -207,12 +207,12 @@ class MyApp extends StatelessWidget {
           ),
           //page titles
           headlineMedium: GoogleFonts.orbitron(
-            fontSize: 26,
+            fontSize: 36,
             fontWeight: FontWeight.bold,
           ),
           //less important big stuff, ex. numbers in the dashboard
           headlineSmall: GoogleFonts.orbitron(
-            fontSize: 20,
+            fontSize: 48,
           ),
           //medium title ex. frequency selection prompt
           titleMedium: GoogleFonts.roboto(
@@ -224,6 +224,9 @@ class MyApp extends StatelessWidget {
           labelMedium: GoogleFonts.roboto(
             fontSize: 12,
           ),
+          labelSmall: GoogleFonts.roboto(
+            fontSize: 16
+          )
         ),
       ),
       debugShowCheckedModeBanner: false,

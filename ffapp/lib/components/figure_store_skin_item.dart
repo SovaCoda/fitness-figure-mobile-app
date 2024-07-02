@@ -64,8 +64,8 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
 
           Image.asset(
             "lib/assets/${widget.photoPath}.gif",
-            height: 400.0,
-            width: 400.0,
+            height: 380.0,
+            width: 380.0,
           ),
 
           Text(

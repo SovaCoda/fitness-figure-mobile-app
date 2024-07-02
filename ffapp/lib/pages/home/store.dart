@@ -78,7 +78,7 @@ class _StoreState extends State<Store> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Skin View"),
+          title: const Text("Skins"),
           content: SizedBox(
             height: MediaQuery.of(context).size.height *
                 1, // Set the height to 80% of the screen height
