@@ -32,6 +32,14 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
     curEmail = await user.getEmail();
   }
 
+  void showSnackBar(BuildContext context, String text) {
+    final snackBar = SnackBar(
+      content: Text(text),
+      duration: const Duration(seconds: 1),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void displaySlider() {
     setState(() {
       _sliderDisplayed = true;
@@ -45,6 +53,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
   }
 
   void submitFrequency() {
+    if (_mCurrentValue == 0 || _nCurrentValue ==0) {return;}
     user.updateUser(Routes.User(
         weekGoal: _nCurrentValue,
         email: curEmail,
@@ -88,6 +97,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     currentIndex: _nCurrentValue.toInt(),
                     onValueChanged: (val) {
                       setState(() {
+                        if(_nCurrentValue == 0) {showSnackBar(context, 'Workout weekly goal cannot be zero');}
                         _nCurrentValue = Int64(val.toInt());
                       });
                     },
@@ -102,9 +112,11 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                   const SizedBox(height: 30),
                   WheelSlider.number( // Added another WheelSlider for minutes selection
                     allowPointerTappable: true,
-                    perspective: 0.01,
+                    perspective: 0.0015,
                     totalCount: 60,
                     initValue: 30,
+                    itemSize: 50,
+                    interval: 5,
                     selectedNumberStyle: TextStyle(
                       fontSize: 28,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -118,6 +130,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     currentIndex: _mCurrentValue.toInt(),
                     onValueChanged: (val) {
                       setState(() {
+                        if(_mCurrentValue == 0) {showSnackBar(context, 'Workout time cannot be zero');}
                         _mCurrentValue = Int64(val.toInt());
                       });
                     },

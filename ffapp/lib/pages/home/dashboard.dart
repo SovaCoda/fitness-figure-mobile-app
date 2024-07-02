@@ -77,7 +77,7 @@ class _DashboardState extends State<Dashboard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Skin View"),
+          title: const Text("Skins"),
           content: SizedBox(
             height: 1000, // Set the height to 80% of the screen height
             child: ChangeNotifierProvider(
@@ -304,10 +304,6 @@ ScrollController _refreshController = ScrollController();
                   );
                 }
               ),
-          
-              //Text underneath the robot
-          
-          
           
           
               const SizedBox(

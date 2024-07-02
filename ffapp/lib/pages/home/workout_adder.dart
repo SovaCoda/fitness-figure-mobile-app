@@ -246,11 +246,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text("Are you sure?"),
+              title: Text("Goal Reached!", style: Theme.of(context).textTheme.displaySmall),
               content: Center(
                   child: Column(children: [
-                const Text("You've met your goal!"),
-                const SizedBox(height: 8),
                 Column(
                   children: [
                     Column(
@@ -266,7 +264,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             Text('Charge: ',
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headlineSmall!
+                                    .displaySmall!
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -274,7 +272,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             Text(charge.toString(),
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headlineSmall!
+                                    .displaySmall!
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -297,7 +295,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             Text('Currency: ',
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headlineSmall!
+                                    .displaySmall!
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -305,7 +303,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             Text(addableCurrency.toString(),
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headlineSmall!
+                                    .displaySmall!
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -328,7 +326,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             Text('EV: ',
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headlineSmall!
+                                    .displaySmall!
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -336,7 +334,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             Text(ev.toString(),
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headlineSmall!
+                                    .displaySmall!
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -350,8 +348,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         return RobotImageHolder(
                           url:
                               ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
-                          height: 250,
-                          width: 250,
+                          height: 200,
+                          width: 200,
                         );
                       },
                     ),
