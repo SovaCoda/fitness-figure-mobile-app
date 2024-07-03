@@ -62,7 +62,7 @@ class HistoryState extends State<History> {
               return WorkoutHistoryView(
                 robotUrl: "lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif",
                 dateTime: workout?.startDate ?? "",
-                elapsedTime: workout?.elapsed.toInt() ?? 0,
+                elapsedTime: formatSeconds(workout!.elapsed.toInt()) ?? '00:00:00',
                 chargeGain: workout?.chargeAdd.toInt() ?? 0,
                 evoGain: 0, // needs hookup
                 currencyGain: workout?.currencyAdd.toInt() ?? 0,
