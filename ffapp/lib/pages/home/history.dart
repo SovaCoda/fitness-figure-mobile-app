@@ -1,5 +1,8 @@
+import 'package:ffapp/components/workout_history_view.dart';
+import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -52,23 +55,17 @@ class HistoryState extends State<History> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
-            itemCount: snapshot.data?.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               Routes.Workout? workout = snapshot.data?[index];
-              return ListTile(
-                title: Text(workout!.startDate, style: TextStyle(color: Theme.of(context).colorScheme.onSurface),),
-                subtitle: 
-                DefaultTextStyle(
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Elapsed time: ${formatSeconds(workout.elapsed.toInt())}'),
-                      Text('Charge gained: ${workout.chargeAdd}'),
-                      Text('Currency gained: ${workout.currencyAdd}'),
-                    ],
-                  )
-                ),
+              
+              return WorkoutHistoryView(
+                robotUrl: "lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif",
+                dateTime: workout?.startDate ?? "",
+                elapsedTime: workout?.elapsed.toInt() ?? 0,
+                chargeGain: workout?.chargeAdd.toInt() ?? 0,
+                evoGain: 0, // needs hookup
+                currencyGain: workout?.currencyAdd.toInt() ?? 0,
               );
             },
           );
