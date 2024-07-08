@@ -5,6 +5,9 @@ PODS:
   - AppAuth/Core (1.7.5)
   - AppAuth/ExternalUserAgent (1.7.5):
     - AppAuth/Core
+  - awesome_notifications (0.9.3):
+    - Flutter
+    - IosAwnCore (~> 0.9.3)
   - Firebase/Auth (10.25.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 10.25.0)
@@ -53,6 +56,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 7.8)
     - nanopb (< 2.30911.0, >= 2.30908.0)
   - Flutter (1.0.0)
+  - flutter_local_notifications (0.0.1):
+    - Flutter
   - google_sign_in_ios (0.0.1):
     - AppAuth (>= 1.7.4)
     - Flutter
@@ -100,6 +105,7 @@ PODS:
   - GTMSessionFetcher/Core (3.4.1)
   - GTMSessionFetcher/Full (3.4.1):
     - GTMSessionFetcher/Core
+  - IosAwnCore (0.9.3)
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
     - nanopb/encode (= 2.30910.0)
@@ -115,10 +121,12 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -138,11 +146,14 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - IosAwnCore
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
 
 EXTERNAL SOURCES:
+  awesome_notifications:
+    :path: ".symlinks/plugins/awesome_notifications/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -151,6 +162,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_local_notifications:
+    :path: ".symlinks/plugins/flutter_local_notifications/ios"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
   path_provider_foundation:
@@ -160,6 +173,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
+  awesome_notifications: 66d28ab7174ca2823b04d275cb043e0a4a3eb9cf
   Firebase: 0312a2352584f782ea56f66d91606891d4607f06
   firebase_auth: 5719ddc9f654b813405899480e84971bd8e61235
   firebase_core: a626d00494efa398e7c54f25f1454a64c8abf197
@@ -171,12 +185,14 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 60c1d3bc1beef809fd1ad1189a8057a040c59f2e
   FirebaseMessaging: 88950ba9485052891ebe26f6c43a52bb62248952
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 8000756fc1c19d2e5697b90311f7832d2e33f6cd
+  IosAwnCore: b8601fbb37f7b3560f31b84ebf55a72f65812e05
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47

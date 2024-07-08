@@ -6,6 +6,7 @@ import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart' as store;
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
@@ -334,6 +335,8 @@ ScrollController _refreshController = ScrollController();
                   );
                 },
               ),
+
+              ElevatedButton(onPressed: () => LocalNotificationService().showNotification(title: 'sup loser', body: 'this is a notifiaction'), child: Text('send test notification')),
           
           
           

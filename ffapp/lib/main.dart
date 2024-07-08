@@ -21,6 +21,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 
+
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
   void setCurrency(String newCurrency) {
@@ -76,6 +77,10 @@ class FigureModel extends ChangeNotifier {
   }
 }
 
+// Notification Stuff //
+
+
+
 // Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 //   // If you're going to use other Firebase services in the background, such as Firestore,
 //   // make sure you call `initializeApp` before using other Firebase services.
@@ -87,6 +92,7 @@ class FigureModel extends ChangeNotifier {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();
