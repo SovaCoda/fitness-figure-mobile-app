@@ -79,7 +79,8 @@ class _DashboardState extends State<Dashboard> {
         return AlertDialog(
           title: const Text("Skins"),
           content: SizedBox(
-            height: 1000, // Set the height to 80% of the screen height
+            //height: 1000, // Set the height to 80% of the screen height
+            height: MediaQuery.of(context).size.height * 0.8,
             child: ChangeNotifierProvider(
                 create: (context) => store.FigureInstancesProvider(),
                 child: SkinViewer(
