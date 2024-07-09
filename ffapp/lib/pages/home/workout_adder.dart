@@ -9,6 +9,7 @@ import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -43,6 +44,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final double OFFSET = 250 / 4;
   late double scoreIncrement;
   final int sigfigs = 2;
+  bool _goalMet = false;
 
   @override
   void initState() {
@@ -64,6 +66,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         time++;
+        if(time == _timegoal) {
+          _goalMet = true;
+          LocalNotificationService().showNotification(
+            id: 0,
+            title: "Goal Met!",
+            body: "You have met your workout goal.",
+          );
+          logger.i('Goal met, sending user notification');
+        }
       });
     });
   }
@@ -191,9 +202,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: const Text("No I'll Keep At It!"));
   }
 
-  add5Minutes() {
+  add30Seconds() {
     setState(() {
-      time += Int64(300);
+      time += Int64(30);
     });
   }
 
@@ -537,9 +548,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           Consumer<UserModel>(builder: (context, user, _) {
             return user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com"
                 ? DraggableAdminPanel(
-                    onButton1Pressed: add5Minutes,
+                    onButton1Pressed: add30Seconds,
                     onButton2Pressed: add10Minutes,
-                    button1Text: "Add 5 Minutes",
+                    button1Text: "Add 30 Seconds",
                     button2Text: "Add 10 Minutes")
                 : Container();
           })

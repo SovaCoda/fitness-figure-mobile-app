@@ -5,6 +5,7 @@ import 'package:ffapp/pages/home/history.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
+import 'package:ffapp/services/local_notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +41,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    LocalNotificationService().initNotifications();
     initialize();
   }
 

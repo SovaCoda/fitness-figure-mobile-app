@@ -336,7 +336,6 @@ ScrollController _refreshController = ScrollController();
                 },
               ),
 
-              ElevatedButton(onPressed: () => LocalNotificationService().showNotification(title: 'sup loser', body: 'this is a notifiaction'), child: Text('send test notification')),
           
           
           

@@ -2,7 +2,7 @@
     <application
         android:label="ffapp"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/fflogo">
         <activity
             android:name=".MainActivity"
             android:exported="true"

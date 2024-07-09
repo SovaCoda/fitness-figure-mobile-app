@@ -17,7 +17,7 @@ class LocalNotificationService {
   }
 
   notificationDetails () {
-    return const NotificationDetails(android: AndroidNotificationDetails('channelId', 'channelName'), iOS: DarwinNotificationDetails());
+    return const NotificationDetails(android: AndroidNotificationDetails('channelId', 'channelName', importance: Importance.max), iOS: DarwinNotificationDetails());
   }
 
   Future showNotification ({int id = 0, String? title, String? body, String? payload}) async {
