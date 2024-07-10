@@ -1,4 +1,6 @@
 
+import 'package:dart_openai/dart_openai.dart';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/pages/home/evo.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
@@ -14,6 +16,7 @@ import 'package:ffapp/services/firebaseApi.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +95,8 @@ class FigureModel extends ChangeNotifier {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  // await dotenv.load(fileName: ".env");
+  OpenAI.apiKey = "sk-proj-QpCgg3HzPQvHSRjXu9HRT3BlbkFJ4aGGyeCD6DyYcw1qx1w7";
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();

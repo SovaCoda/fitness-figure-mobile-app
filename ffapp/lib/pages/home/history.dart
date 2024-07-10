@@ -32,7 +32,6 @@ class HistoryState extends State<History> {
       recievedWorkouts = await auth.getWorkouts();
       for (var workout in recievedWorkouts.workouts) {
         workouts.add(workout);
-        logger.i(workout);
       }
     } catch (e) {
       logger.e(e);

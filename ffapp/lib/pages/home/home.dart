@@ -1,4 +1,5 @@
 import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/fitventureslite.dart';
 import 'package:ffapp/pages/home/history.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -27,7 +27,8 @@ class _DashboardPageState extends State<DashboardPage> {
     const WorkoutAdder(),
     const History(),
     const Profile(),
-    const FitVenturesLite()
+    const FitVenturesLite(),
+    const ChatPage(),
   ];
 
   int _selectedIndex = 0;
@@ -69,10 +70,10 @@ class _DashboardPageState extends State<DashboardPage> {
         //permanent top bar if we want it
         appBar: AppBar(
           title: Text(
-            'FF', 
+            'FF',
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
           ),
           backgroundColor: Colors.transparent,
           actions: [
@@ -85,12 +86,14 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Consumer<CurrencyModel>(
                       builder: (context, currencyModel, child) {
-                        return Text(
-                          currencyModel.currency,
-                          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          )
-                        );
+                        return Text(currencyModel.currency,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineLarge!
+                                .copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ));
                       },
                     ),
                     const SizedBox(width: 10.0),
@@ -113,9 +116,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(width: 10.0),
                     Text(
                       'FF',
-                      style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineLarge!.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                     ),
                     Icon(
                       Icons.add,
@@ -128,34 +132,32 @@ class _DashboardPageState extends State<DashboardPage> {
 
             //question mark area that displays an alert on tap
             InkWell(
-              onTap:() => {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                  return AlertDialog(
-                    title: const Text("Questions?"),
-                    content: const Text(
-                        '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      child: const Text("Get Fit")
-                      ),
-                    ],
-                    );
-                  }
-                )
-              },
-              child: Row(
-                children: [
-                  const SizedBox(width: 10.0),
-                  Icon(Icons.question_mark, color: Theme.of(context).colorScheme.onSurface),
-                  const SizedBox(width: 4.0),
-                ],
-              )
-            )
+                onTap: () => {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Questions?"),
+                              content: const Text(
+                                  '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
+                              actions: [
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Get Fit")),
+                              ],
+                            );
+                          })
+                    },
+                child: Row(
+                  children: [
+                    const SizedBox(width: 10.0),
+                    Icon(Icons.question_mark,
+                        color: Theme.of(context).colorScheme.onSurface),
+                    const SizedBox(width: 4.0),
+                  ],
+                ))
           ],
         ),
 
@@ -167,47 +169,43 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
 
         //permanent footer navigation that changes the page index state to switch displays
-        bottomNavigationBar: 
-          Theme(
+        bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
-               // sets the background color of the `BottomNavigationBar`
-              canvasColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              
+              // sets the background color of the `BottomNavigationBar`
+              canvasColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
-            
             child: BottomNavigationBar(
-              unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              selectedItemColor: Theme.of(context).colorScheme.primary,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Dashboard',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.shop),
-                  label: 'Inventory',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.add),
-                  label: 'Add Workout',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.history_outlined),
-                  label: 'History',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Profile',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.map_outlined), 
-                  label: 'Fitventures')
-              ],
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped)
-        )
-              
-    );
-          
+                unselectedItemColor:
+                    Theme.of(context).colorScheme.onSurfaceVariant,
+                selectedItemColor: Theme.of(context).colorScheme.primary,
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Dashboard',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.shop),
+                    label: 'Inventory',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.add),
+                    label: 'Add Workout',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.history_outlined),
+                    label: 'History',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.map_outlined), label: 'Fitventures'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.chat), label: 'Chat'),
+                ],
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped)));
   }
 }
