@@ -48,44 +48,42 @@ class _AnimatedOverlayWidgetState extends State<AnimatedOverlayWidget>
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Positioned(
-        child: OverflowBox(
-          maxHeight: MediaQuery.of(context).size.height * 2.5,
-          maxWidth: MediaQuery.of(context).size.width * 2.5,
-          child: AnimatedContainer(
-              width: _width,
-              height: _height,
-              duration: Duration(seconds: 1),
-              curve: Curves.fastOutSlowIn,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.primary),
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _opacityAnimation.value,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('3213'),
-                              Icon(Icons.currency_exchange_outlined)
-                            ],
-                          ),
-                          Text('Core'),
-                          ElevatedButton(
-                              onPressed: () => {},
-                              child: Text('Convert Currency To Evo')),
-                          ElevatedButton(
-                              onPressed: _unanimate, child: Text('back'))
-                        ]),
-                  );
-                },
-              )),
-        ),
+      child: OverflowBox(
+        maxHeight: MediaQuery.of(context).size.height * 2.5,
+        maxWidth: MediaQuery.of(context).size.width * 2.5,
+        child: AnimatedContainer(
+            width: _width,
+            height: _height,
+            duration: Duration(seconds: 1),
+            curve: Curves.fastOutSlowIn,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.primary),
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Opacity(
+                  opacity: _opacityAnimation.value,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('3213'),
+                            Icon(Icons.currency_exchange_outlined)
+                          ],
+                        ),
+                        Text('Core'),
+                        ElevatedButton(
+                            onPressed: () => {},
+                            child: Text('Convert Currency To Evo')),
+                        ElevatedButton(
+                            onPressed: _unanimate, child: Text('back'))
+                      ]),
+                );
+              },
+            )),
       ),
     );
   }

@@ -35,14 +35,14 @@ class WorkoutHistoryView extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Opacity(
-                  opacity: 0.5,
-                  child: Positioned(
-                      bottom: 0,
-                      left: 0,
-                      child: Image.asset(robotUrl,
-                          width: MediaQuery.sizeOf(context).width * 0.2,
-                          height: 300, fit: BoxFit.none,))),
+              // Opacity(
+              //     opacity: 0.5,
+              //     child: Positioned(
+              //         bottom: 0,
+              //         left: 0,
+              //         child: Image.asset(robotUrl,
+              //             width: MediaQuery.sizeOf(context).width * 0.2,
+              //             height: 300, fit: BoxFit.none,))),
               
               Column(
                 children: [
