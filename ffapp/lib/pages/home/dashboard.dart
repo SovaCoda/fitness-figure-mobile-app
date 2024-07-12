@@ -2,8 +2,10 @@ import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/components/robot_response.dart';
 import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/store.dart' as store;
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
@@ -37,28 +39,36 @@ class _DashboardState extends State<Dashboard> {
   late Map<String, int> evData = {};
   late Figure figure = Figure();
   RobotDialog robotDialog = RobotDialog();
+  bool chatEnabled = false;
+  String loginMessage = "Hey i would like to speak with you";
+  late AppBarAndBottomNavigationBarModel appBarAndBottomNavigationBar;
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+
     _refreshController.addListener(refreshListener);
     initialize();
+    appBarAndBottomNavigationBar =
+        Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false);
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _refreshController.removeListener(refreshListener);
     _refreshController.dispose();
     super.dispose();
   }
 
-  void refreshListener()
-  {
+  void refreshListener() {
     print(_refreshController.offset);
-    if (_refreshController.offset < -80) {print('homing'); initialize();}; 
+    if (_refreshController.offset < -80) {
+      print('homing');
+      initialize();
+    }
+    ;
   }
-  
 
   void onViewSkins() async {
     Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(
@@ -117,155 +127,237 @@ class _DashboardState extends State<Dashboard> {
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
-    if(mounted){
-    Provider.of<CurrencyModel>(context, listen: false)
-        .setCurrency(databaseUser?.currency.toString() ?? "0000");
-    Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
-    Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
-    Provider.of<FigureModel>(context, listen: false)
-        .setFigureLevel(databaseFigure!.evLevel ?? 0);
-    setState(() {
-      charge = curWeekly / curGoal;
-      email = curEmail;
-      weeklyGoal = curGoal;
-      weeklyCompleted = curWeekly;
+    if (mounted) {
+      Provider.of<CurrencyModel>(context, listen: false)
+          .setCurrency(databaseUser?.currency.toString() ?? "0000");
+      Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+      Provider.of<FigureModel>(context, listen: false)
+          .setFigure(databaseFigure);
+      Provider.of<FigureModel>(context, listen: false)
+          .setFigureLevel(databaseFigure!.evLevel ?? 0);
+      setState(() {
+        charge = curWeekly / curGoal;
+        email = curEmail;
+        weeklyGoal = curGoal;
+        weeklyCompleted = curWeekly;
 
-      if (curFigure != "none" && Provider.of<FigureModel>(context, listen: false).figure?.charge != null) {
-        //logic for display sad character... theres nothing stopping this from
-        //display a broken url rn though
-        if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 20) {
-          figureURL = "${curFigure}_sad";
-        } else if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 50) {
-          figureURL = curFigure;
+        if (curFigure != "none" &&
+            Provider.of<FigureModel>(context, listen: false).figure?.charge !=
+                null) {
+          //logic for display sad character... theres nothing stopping this from
+          //display a broken url rn though
+          if (Provider.of<FigureModel>(context, listen: false).figure!.charge <
+              20) {
+            figureURL = "${curFigure}_sad";
+          } else if (Provider.of<FigureModel>(context, listen: false)
+                  .figure!
+                  .charge <
+              50) {
+            figureURL = curFigure;
+          } else {
+            figureURL = "${curFigure}_happy";
+          }
         }
-        else {
-          figureURL = "${curFigure}_happy";
-        }
-      }
-    });
-    logger.i(figureURL);
+      });
+      logger.i(figureURL);
     }
   }
 
-  void triggerFigureDecay(){
+  void triggerFigureDecay() {
     auth.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
   }
 
   void triggerUserReset() {
     auth.userReset(Provider.of<UserModel>(context, listen: false).user!);
   }
+
   Stream<FigureModel> _figureStream() async* {
-  while (mounted) {
-    try {
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      final figureModel = Provider.of<FigureModel>(context, listen: false);
-      final userEmail = userModel.user?.email;
-      final curFigure = userModel.user?.curFigure;
+    while (mounted) {
+      try {
+        final userModel = Provider.of<UserModel>(context, listen: false);
+        final figureModel = Provider.of<FigureModel>(context, listen: false);
+        final userEmail = userModel.user?.email;
+        final curFigure = userModel.user?.curFigure;
 
-      if (userEmail != null && curFigure != null) {
-        Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
-          Routes.FigureInstance(
-            userEmail: userEmail,
-            figureName: curFigure,
-          ),
-        );
+        if (userEmail != null && curFigure != null) {
+          Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+            Routes.FigureInstance(
+              userEmail: userEmail,
+              figureName: curFigure,
+            ),
+          );
 
-        figureModel.setFigure(databaseFigure);
+          figureModel.setFigure(databaseFigure);
           yield figureModel;
+        }
+      } catch (e) {
+        logger.e(e);
       }
-    } catch (e) {
-      logger.e(e);
+
+      await Future<void>.delayed(const Duration(seconds: 1));
     }
-
-    await Future<void>.delayed(const Duration(seconds: 1));
   }
-}
 
-ScrollController _refreshController = ScrollController();
+  void toggleChatMode() {
+    setState(() {
+      if (chatEnabled) {
+        chatEnabled = false;
+      } else {
+        chatEnabled = true;
+      }
+    });
+  }
+
+  ScrollController _refreshController = ScrollController();
   @override
   Widget build(BuildContext context) {
+    var usableScreenHeight;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final appBarHeight =
+          appBarAndBottomNavigationBar.appBarKey.currentContext?.size?.height;
+      final bottomNavBarHeight = appBarAndBottomNavigationBar
+          .bottomNavBarKey.currentContext?.size?.height;
+      usableScreenHeight = MediaQuery.sizeOf(context).height -
+          (appBarHeight ?? 0) -
+          (bottomNavBarHeight ?? 0);
+    });
     return SafeArea(
       child: SingleChildScrollView(
         controller: _refreshController,
         child: Container(
-          height: MediaQuery.sizeOf(context).height * 1.01 - 103 - 93,
+          height: usableScreenHeight,
           child: Center(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Consumer<UserModel>(builder: (context, user, child) {
-                user = Provider.of<UserModel>(context, listen: true);
-                if (user.user == null) {
-                  return const CircularProgressIndicator();
-                }
-                return WorkoutNumbersRow(
-                  weeklyCompleted: user.user!.weekComplete.toInt(),
-                  weeklyGoal: user.user!.weekGoal.toInt(),
-                  lifeTimeCompleted: 10,
-                );
-              }),
+              Visibility(
+                visible: !chatEnabled,
+                child: Consumer<UserModel>(builder: (context, user, child) {
+                  user = Provider.of<UserModel>(context, listen: true);
+                  if (user.user == null) {
+                    return const CircularProgressIndicator();
+                  }
+                  return WorkoutNumbersRow(
+                    weeklyCompleted: user.user!.weekComplete.toInt(),
+                    weeklyGoal: user.user!.weekGoal.toInt(),
+                    lifeTimeCompleted: 10,
+                  );
+                }),
+              ),
+
               Stack(
+                alignment: chatEnabled
+                    ? AlignmentDirectional.centerEnd
+                    : AlignmentDirectional.center,
                 children: [
-                  Center(
-                    child: Consumer<FigureModel>(
-                      builder: (context, figure, child) {
-                        String suffix;
-          
-                        // Implemented logic for determining the robot's happiness or sadness
-          
-                        if (figure.figure?.charge != null) {
-                          if (figure.figure!.charge.toInt() >= 0 &&
-                              figure.figure!.charge.toInt() <= 20) {
-                            suffix = "_sad";
-                          } else if (figure.figure!.charge.toInt() >= 51 &&
-                              figure.figure!.charge.toInt() <= 100) {
-                            suffix = "_happy";
-                          } else {
-                            suffix = "";
-                          }
+                  Consumer<FigureModel>(
+                    builder: (context, figure, child) {
+                      String suffix;
+
+                      // Implemented logic for determining the robot's happiness or sadness
+
+                      if (figure.figure?.charge != null) {
+                        if (figure.figure!.charge.toInt() >= 0 &&
+                            figure.figure!.charge.toInt() <= 20) {
+                          suffix = "_sad";
+                        } else if (figure.figure!.charge.toInt() >= 51 &&
+                            figure.figure!.charge.toInt() <= 100) {
+                          suffix = "_happy";
                         } else {
                           suffix = "";
                         }
-                        return RobotImageHolder(
-                          url: (figure.figure != null)
-                              ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
-                              : "robot1/robot1_skin0_evo0_cropped_happy",
-                          height: 400,
-                          width: 600,
-                        );
-                      },
-                    ),
+                      } else {
+                        suffix = "";
+                      }
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          AnimatedContainer(
+                            alignment: chatEnabled
+                                ? Alignment.centerLeft
+                                : Alignment.center,
+                            duration: const Duration(milliseconds: 500),
+                            child: RobotImageHolder(
+                              url: (figure.figure != null)
+                                  ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
+                                  : "robot1/robot1_skin0_evo0_cropped_happy",
+                              height: chatEnabled ? 125 : 400,
+                              width: chatEnabled ? 125 : 400,
+                            ),
+                          ),
+                          Visibility(
+                            visible: chatEnabled,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                RobotResponse(
+                                    text: "Hey I wanted to talk to you",
+                                    figure_url: (figure.figure != null)
+                                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
+                                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                                    datetime: "now",
+                                    isInitialChat: true),
+                              ],
+                            ),
+                          ),
+                          Visibility(
+                              visible: chatEnabled,
+                              child: Column(
+                                children: [
+                                  Container(height: 400, child: ChatPage()),
+                                  ElevatedButton(
+                                    onPressed: toggleChatMode,
+                                    child: const Text("Close Chat"),
+                                  ),
+                                ],
+                              ))
+                        ],
+                      );
+                    },
                   ),
-                  Positioned(
+                  Visibility(
+                    visible: !chatEnabled,
+                    child: Positioned(
                       top: 40,
                       left: 160,
-                      child: 
-                          
-                        RobotDialogBox(
+                      child: GestureDetector(
+                        onTap: toggleChatMode,
+                        child: RobotDialogBox(
                           dialogOptions:
                               // Dialog options now pulls from the server value
-                              
-                              Provider.of<FigureModel>(context, listen: false).figure?.charge != null ? robotDialog.getDashboardDialog(Provider.of<FigureModel>(context, listen: false).figure!.charge) : robotDialog.getDashboardDialog(0),
+
+                              Provider.of<FigureModel>(context, listen: false)
+                                          .figure
+                                          ?.charge !=
+                                      null
+                                  ? robotDialog.getDashboardDialog(
+                                      Provider.of<FigureModel>(context,
+                                              listen: false)
+                                          .figure!
+                                          .charge)
+                                  : robotDialog.getDashboardDialog(0),
                           width: 200,
                           height: 40,
-                          ),
-                          
+                        ),
                       ),
-          
-                  Positioned(
-                    bottom: 40,
-                    left: MediaQuery.sizeOf(context).width/2 - 50,
-                    child: Center(
-                    child: ElevatedButton.icon(
-                        onPressed: onViewSkins,
-                        icon: const Icon(Icons.swap_calls),
-                        label: const Text("Skins"))),
+                    ),
                   ),
-                  
+                  Visibility(
+                    visible: !chatEnabled,
+                    child: Positioned(
+                      bottom: 40,
+                      left: MediaQuery.sizeOf(context).width / 2 - 50,
+                      child: Center(
+                          child: ElevatedButton.icon(
+                              onPressed: onViewSkins,
+                              icon: const Icon(Icons.swap_calls),
+                              label: const Text("Skins"))),
+                    ),
+                  ),
                   Consumer<UserModel>(
-                    builder: (context, user, child) => (
-                            user.user != null && 
-                            user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com")
+                    builder: (context, user, child) => (user.user != null &&
+                                user.user?.email == "chb263@msstate.ed" ||
+                            user.user?.email == "blizard265@gmail.com")
                         ? DraggableAdminPanel(
                             onButton1Pressed: triggerFigureDecay,
                             onButton2Pressed: triggerUserReset,
@@ -276,69 +368,78 @@ ScrollController _refreshController = ScrollController();
                   )
                 ],
               ),
-          
-          
-              StreamBuilder<FigureModel>(
-                stream: _figureStream(),
-                builder: (context, snapshot) {
-                  if(!mounted){
-                    return const Text('Widget is no longer active');
-                  }
-                  else if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator(); // Show a loading indicator
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData) {
-                    return const Text('No data available');
-                  }
-                  final figure = snapshot.data!;
-                  return Center(
-                    child:  figure.figure!.evPoints >= figure1.EvCutoffs[figure.EVLevel] ? 
-                    ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary)))
-                    : EvBar(
-                        currentXp: figure.figure?.evPoints ?? 0,
-                        maxXp: figure1.EvCutoffs[figure.EVLevel],
-                        currentLvl: figure.EVLevel + 1 ?? 1,
-                        fillColor: Theme.of(context).colorScheme.tertiary,
-                        barWidth: 200),
-                  );
-                }
-              ),
-          
-          
-              const SizedBox(
-                height: 10,
-              ),
-          
-              //imported from progress bar component
-          
-              StreamBuilder<FigureModel>(
-                stream: _figureStream(),
-                builder: (context, snapshot) {
-                  if (!mounted) {
-                    return const Text('Widget is no longer active');
-                  } else if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator(); // Show a loading indicator
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData) {
-                    return const Text('No data available');
-                  }
-              
-                  final figure = snapshot.data!;
-                  // Assuming figure.figure?.charge being null is handled as an error or invalid state elsewhere
-                  return ProgressBar(
-                    progressPercent: figure.figure!.charge.toDouble() / 100,
-                    barWidth: 320,
-                    fillColor: Theme.of(context).colorScheme.primary,
-                  );
-                },
+
+              Visibility(
+                visible: !chatEnabled,
+                child: StreamBuilder<FigureModel>(
+                    stream: _figureStream(),
+                    builder: (context, snapshot) {
+                      if (!mounted) {
+                        return const Text('Widget is no longer active');
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator(); // Show a loading indicator
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData) {
+                        return const Text('No data available');
+                      }
+                      final figure = snapshot.data!;
+                      return Center(
+                        child: figure.figure!.evPoints >=
+                                figure1.EvCutoffs[figure.EVLevel]
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  context.goNamed('Evolution');
+                                },
+                                child: Text('Ready to Evolve!',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary)))
+                            : EvBar(
+                                currentXp: figure.figure?.evPoints ?? 0,
+                                maxXp: figure1.EvCutoffs[figure.EVLevel],
+                                currentLvl: figure.EVLevel + 1 ?? 1,
+                                fillColor:
+                                    Theme.of(context).colorScheme.tertiary,
+                                barWidth: 200),
+                      );
+                    }),
               ),
 
-          
-          
-          
+              //imported from progress bar component
+
+              Visibility(
+                visible: !chatEnabled,
+                child: StreamBuilder<FigureModel>(
+                  stream: _figureStream(),
+                  builder: (context, snapshot) {
+                    if (!mounted) {
+                      return const Text('Widget is no longer active');
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator(); // Show a loading indicator
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData) {
+                      return const Text('No data available');
+                    }
+
+                    final figure = snapshot.data!;
+                    // Assuming figure.figure?.charge being null is handled as an error or invalid state elsewhere
+                    return ProgressBar(
+                      progressPercent: figure.figure!.charge.toDouble() / 100,
+                      barWidth: 320,
+                      fillColor: Theme.of(context).colorScheme.primary,
+                    );
+                  },
+                ),
+              ),
+
               const SizedBox(height: 50)
             ],
           )),

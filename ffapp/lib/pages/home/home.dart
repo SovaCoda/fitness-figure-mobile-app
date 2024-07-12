@@ -12,6 +12,8 @@ import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
+
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -20,6 +22,9 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  //keys to access height of the appbar and bottom navbar throughout the app
+  final GlobalKey _appBarKey = GlobalKey();
+  final GlobalKey _bottomNavBarKey = GlobalKey();
   //acts as a directory of the widgets that the navbar can route to and render
   static final List<Widget> _pages = <Widget>[
     const Dashboard(),
@@ -60,6 +65,8 @@ class _DashboardPageState extends State<DashboardPage> {
     } catch (e) {
       print("Error initializing currency: $e");
     }
+    Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false).setAppBarKey(_appBarKey);
+    Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false).setBottomNavBarKey(_bottomNavBarKey);
   }
 
   @override
@@ -69,6 +76,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
         //permanent top bar if we want it
         appBar: AppBar(
+          key: _appBarKey,
           title: Text(
             'FF',
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
@@ -176,6 +184,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
             child: BottomNavigationBar(
+                key: _bottomNavBarKey,
                 unselectedItemColor:
                     Theme.of(context).colorScheme.onSurfaceVariant,
                 selectedItemColor: Theme.of(context).colorScheme.primary,

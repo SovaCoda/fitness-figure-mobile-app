@@ -8,6 +8,7 @@ class RobotResponse extends StatelessWidget {
   final String text;
   final String figure_url;
   final String datetime;
+  final bool isInitialChat;
 
   final double ROBOT_IMAGE_SIZE = 100;
 
@@ -15,7 +16,8 @@ class RobotResponse extends StatelessWidget {
       {Key? key,
       required this.text,
       required this.figure_url,
-      required this.datetime})
+      required this.datetime,
+      this.isInitialChat = false})
       : super(key: key);
 
   @override
@@ -26,7 +28,9 @@ class RobotResponse extends StatelessWidget {
         children: [
           Container(
             width: MediaQuery.of(context).size.width - ROBOT_IMAGE_SIZE,
-            margin: EdgeInsets.only(bottom: ROBOT_IMAGE_SIZE),
+            margin: isInitialChat!
+                ? const EdgeInsets.only(top: 0)
+                : EdgeInsets.only(top: ROBOT_IMAGE_SIZE),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.secondary,
@@ -59,14 +63,17 @@ class RobotResponse extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-              left: 0,
-              bottom: 0,
-              child: RobotImageHolder(
-                url: figure_url,
-                height: ROBOT_IMAGE_SIZE + 25,
-                width: ROBOT_IMAGE_SIZE + 25,
-              ))
+          Visibility(
+            visible: !isInitialChat!,
+            child: Positioned(
+                left: 0,
+                top: 0,
+                child: RobotImageHolder(
+                  url: figure_url,
+                  height: ROBOT_IMAGE_SIZE + 25,
+                  width: ROBOT_IMAGE_SIZE + 25,
+                )),
+          )
         ],
       ),
     );

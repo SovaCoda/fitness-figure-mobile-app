@@ -24,7 +24,8 @@ class _RobotImageHolderState extends State<RobotImageHolder> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(

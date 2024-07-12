@@ -1,4 +1,3 @@
-
 import 'package:dart_openai/dart_openai.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/pages/home/evo.dart';
@@ -23,7 +22,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
-
 
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
@@ -50,19 +48,19 @@ class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure;
   int EVLevel = 0;
   bool readyToEvolve = false;
-  
+
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
     notifyListeners();
   }
-  
+
   void setFigureSkin(String newValue) {
     figure?.curSkin = newValue;
     notifyListeners();
   }
 
   void setFigureLevel(int newValue) {
-    if(newValue <= 7){
+    if (newValue <= 7) {
       EVLevel = newValue;
       figure?.evLevel = newValue;
       notifyListeners();
@@ -76,6 +74,25 @@ class FigureModel extends ChangeNotifier {
 
   void setFigureCharge(int newValue) {
     figure?.charge = newValue;
+    notifyListeners();
+  }
+}
+
+//provider class that provides the keys to other widgets for the app bar and navigation bar
+class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
+  GlobalKey _appBarKey = GlobalKey();
+  GlobalKey _bottomNavBarKey = GlobalKey();
+
+  GlobalKey get appBarKey => _appBarKey;
+  GlobalKey get bottomNavBarKey => _bottomNavBarKey;
+
+  void setAppBarKey(GlobalKey newKey) {
+    _appBarKey = newKey;
+    notifyListeners();
+  }
+
+  void setBottomNavBarKey(GlobalKey newKey) {
+    _bottomNavBarKey = newKey;
     notifyListeners();
   }
 }
@@ -100,6 +117,9 @@ Future<void> main() async {
       ),
       ChangeNotifierProvider(
         create: (context) => FigureModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => AppBarAndBottomNavigationBarModel(),
       ),
     ], child: const MyApp()),
   );
@@ -142,10 +162,9 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     builder: (context, state) => const Fitventures(),
   ),
   GoRoute(
-    name: 'Subscribe', 
-    path: '/subscribe', 
-    builder: (context, state) => const SubscribePage()
-  ),
+      name: 'Subscribe',
+      path: '/subscribe',
+      builder: (context, state) => const SubscribePage()),
   GoRoute(
     name: 'Survey',
     path: '/survey',
@@ -175,14 +194,12 @@ class MyApp extends StatelessWidget {
       title: 'Fitness Figure',
       theme: ThemeData(
         useMaterial3: true,
-        
 
         // Define the default brightness and colors.
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromRGBO(46, 207, 13, 1),
           // ···
           brightness: Brightness.dark,
-          
         ),
 
         // Define the default `TextTheme`. Use this to specify the default
@@ -191,40 +208,37 @@ class MyApp extends StatelessWidget {
         // though because adding more might change the display of default
         // stuff like buttons and popups - Reese
         textTheme: TextTheme(
-          //really big things like the timer counter
-          displayMedium: GoogleFonts.orbitron(
-            fontSize: 30,
-            fontStyle: FontStyle.italic,
-          ),
-          //top bar
-          headlineLarge: GoogleFonts.oswald(
-            fontSize: 26,
-            fontStyle: FontStyle.italic,
-            letterSpacing: 2.0,
-          ),
-          //page titles
-          headlineMedium: GoogleFonts.orbitron(
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-          ),
-          //less important big stuff, ex. numbers in the dashboard
-          headlineSmall: GoogleFonts.orbitron(
-            fontSize: 48,
-          ),
-          //medium title ex. frequency selection prompt
-          titleMedium: GoogleFonts.roboto(
-              fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: .1),
-          //small titles, ex. dashboard message and settings
-          titleSmall: GoogleFonts.roboto(
-              fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),
-          //small labels, ex. shop labels and dashboard disclaimer
-          labelMedium: GoogleFonts.roboto(
-            fontSize: 12,
-          ),
-          labelSmall: GoogleFonts.roboto(
-            fontSize: 16
-          )
-        ),
+            //really big things like the timer counter
+            displayMedium: GoogleFonts.orbitron(
+              fontSize: 30,
+              fontStyle: FontStyle.italic,
+            ),
+            //top bar
+            headlineLarge: GoogleFonts.oswald(
+              fontSize: 26,
+              fontStyle: FontStyle.italic,
+              letterSpacing: 2.0,
+            ),
+            //page titles
+            headlineMedium: GoogleFonts.orbitron(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+            //less important big stuff, ex. numbers in the dashboard
+            headlineSmall: GoogleFonts.orbitron(
+              fontSize: 48,
+            ),
+            //medium title ex. frequency selection prompt
+            titleMedium: GoogleFonts.roboto(
+                fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: .1),
+            //small titles, ex. dashboard message and settings
+            titleSmall: GoogleFonts.roboto(
+                fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),
+            //small labels, ex. shop labels and dashboard disclaimer
+            labelMedium: GoogleFonts.roboto(
+              fontSize: 12,
+            ),
+            labelSmall: GoogleFonts.roboto(fontSize: 16)),
       ),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
