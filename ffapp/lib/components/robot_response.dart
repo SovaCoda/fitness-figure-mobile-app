@@ -9,16 +9,17 @@ class RobotResponse extends StatelessWidget {
   final String figure_url;
   final String datetime;
   final bool isInitialChat;
+  final double width;
 
   final double ROBOT_IMAGE_SIZE = 100;
 
   const RobotResponse(
-      {Key? key,
+      {super.key,
       required this.text,
       required this.figure_url,
       required this.datetime,
-      this.isInitialChat = false})
-      : super(key: key);
+      this.isInitialChat = false,
+      this.width = 100});
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +27,10 @@ class RobotResponse extends StatelessWidget {
       child: Stack(
         alignment: AlignmentDirectional.centerEnd,
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width - ROBOT_IMAGE_SIZE,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            width:
+                (MediaQuery.of(context).size.width - ROBOT_IMAGE_SIZE),
             margin: isInitialChat!
                 ? const EdgeInsets.only(top: 0)
                 : EdgeInsets.only(top: ROBOT_IMAGE_SIZE),

@@ -1,5 +1,6 @@
 import 'package:dart_openai/dart_openai.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/evo.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
@@ -121,6 +122,9 @@ Future<void> main() async {
       ChangeNotifierProvider(
         create: (context) => AppBarAndBottomNavigationBarModel(),
       ),
+      ChangeNotifierProvider(
+        create: (context) => MessageProvider()
+      ),
     ], child: const MyApp()),
   );
 }
@@ -210,9 +214,14 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(
             //really big things like the timer counter
             displayMedium: GoogleFonts.orbitron(
-              fontSize: 30,
+              fontSize: 22,
               fontStyle: FontStyle.italic,
             ),
+            displaySmall: GoogleFonts.orbitron(
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+            ),
+
             //top bar
             headlineLarge: GoogleFonts.oswald(
               fontSize: 26,

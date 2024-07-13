@@ -28,48 +28,25 @@ class _RobotImageHolderState extends State<RobotImageHolder> {
           duration: const Duration(milliseconds: 500),
           width: widget.width,
           height: widget.height,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              center: const Alignment(0, 0),
-              colors: [
-                Theme.of(context).colorScheme.onSurface.withOpacity(1),
-                Theme.of(context).colorScheme.onSurface.withOpacity(0),
+          child: Center(
+            child: Stack(
+              children: [
+                OverflowBox(
+                  maxHeight: double.infinity,
+                  maxWidth: double.infinity,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      height: widget.height,
+                      width: widget.width,
+                      child: Image.asset("lib/assets/${widget.url}.gif",
+                          scale: 0.8,
+                          height: widget.height * 2,
+                          width: widget.width * 2),
+                    ),
+                  ),
+                ),
               ],
-              radius: .48,
-            ),
-          ),
-          child: OverflowBox(
-            maxHeight: 1000,
-            maxWidth: 1000,
-            child: Center(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Image.asset(
-                      "lib/assets/${widget.url}.gif",
-                      height: widget.height <= 400
-                          ? widget.height * (5 / 8)
-                          : widget.height * (3 / 4),
-                      width: widget.width <= 400
-                          ? widget.width * (5 / 8)
-                          : widget.width * (3 / 4),
-                    ),
-                  ),
-                  Center(
-                    child: Opacity(
-                      opacity: 0,
-                      child: SizedBox(
-                          height: 75,
-                          width: 75,
-                          child: OverflowBox(
-                              maxHeight: 1000,
-                              maxWidth: 1000,
-                              child: ExpandableCore(isExpanded: true))),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ),
