@@ -3,6 +3,7 @@ import 'package:ffapp/components/charge_bar_vertical.dart';
 import 'package:ffapp/components/dashboard/workout_numbers.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ev_bar_vertical.dart';
+import 'package:ffapp/components/message_sender.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/robot_response.dart';
@@ -55,10 +56,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   late AnimationController _phase2Controller;
   late Animation<double> _phase2Animation;
 
+  late ScrollController _chatScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+
+    _chatScrollController = ScrollController();
 
     _refreshController.addListener(refreshListener);
     _controller = AnimationController(
@@ -85,7 +90,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   void dispose() {
     _refreshController.removeListener(refreshListener);
     _refreshController.dispose();
+    _controller.dispose();
+    _phase2Controller.dispose();
+    _chatScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    _chatScrollController.animateTo(
+      _chatScrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOut,
+    );
+  }
+
+  Future<void> _scrollToTop() async {
+    _chatScrollController.animateTo(
+      _chatScrollController.position.minScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOut,
+    );
   }
 
   void refreshListener() {
@@ -226,22 +250,44 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void toggleChatMode() async {
-    _controller.forward();
-    await Future.delayed(const Duration(milliseconds: 500));
-    setState(() {
-      if (chatEnabled) {
+    if (chatEnabled) {
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      await _scrollToTop();
+      _controller.reverse();
+      _phase2Controller.reverse();
+
+      setState(() {
         chatEnabled = false;
-      } else {
+      });
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      setState(() {
+        showInteractions = false;
+      });
+    } else {
+      _scrollToBottom();
+      _controller.forward();
+      setState(() {
         chatEnabled = true;
         showInteractions = true;
-        _phase2Controller.forward();
-        showInteractions = true;
-      }
-    });
-    await Future.delayed(const Duration(milliseconds: 500));
-    setState(() {
-      showInteractions = true;
-    });
+      });
+      _phase2Controller.forward();
+    }
+
+    // setState(() {
+    //   if (chatEnabled) {
+    //     chatEnabled = false;
+    //     showInteractions = false;
+    //     _controller.reverse();
+    //   } else {
+    //     _controller.forward();
+    //     chatEnabled = true;
+    //     showInteractions = true;
+    //     _phase2Controller.forward();
+    //     showInteractions = true;
+    //   }
+    // });
   }
 
   ScrollController _refreshController = ScrollController();
@@ -259,6 +305,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     });
     Map<RobotResponse, UserMessage?> interactions =
         MessageProvider().getInteractions();
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -351,126 +398,174 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   suffix = "";
                                 }
                                 return Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    AnimatedContainer(
-                                      padding: chatEnabled
-                                          ? const EdgeInsets.only(top: 0)
-                                          : const EdgeInsets.only(top: 100),
-                                      duration:
-                                          const Duration(milliseconds: 500),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Consumer<MessageProvider>(
-                                              builder: (_, interactions, __) {
-                                            return Container(
-                                              constraints: BoxConstraints(
-                                                  maxHeight:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .height -
-                                                          500,
-                                                  minHeight:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .height -
-                                                          500),
-                                              child: ListView.builder(
-                                                  shrinkWrap: false,
-                                                  itemCount: interactions
-                                                      .getInteractions()
-                                                      .length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    if (index == 0) {
-                                                      return Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          RobotImageHolder(
-                                                            url: (figure.figure !=
-                                                                    null)
-                                                                ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
-                                                                : "robot1/robot1_skin0_evo0_cropped_happy",
-                                                            height: chatEnabled
-                                                                ? 75
-                                                                : 300,
-                                                            width: chatEnabled
-                                                                ? 75
-                                                                : 300,
-                                                          ),
-                                                          Opacity(
-                                                            opacity:
-                                                                _phase2Animation
-                                                                    .value,
-                                                            child: Visibility(
-                                                              visible:
-                                                                  showInteractions,
-                                                              child: RobotResponse(
-                                                                  isInitialChat:
-                                                                      true,
-                                                                  text:
-                                                                      "Hey what do you want to talk about today?",
-                                                                  figure_url: (figure
-                                                                              .figure !=
-                                                                          null)
-                                                                      ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
-                                                                      : "robot1/robot1_skin0_evo0_cropped_happy",
-                                                                  datetime:
-                                                                      "now"),
+                                    Flexible(
+                                      flex: 1,
+                                      child: AnimatedContainer(
+                                        padding: chatEnabled
+                                            ? const EdgeInsets.only(top: 0)
+                                            : const EdgeInsets.only(top: 100),
+                                        duration:
+                                            const Duration(milliseconds: 500),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Consumer<MessageProvider>(
+                                                builder: (_, interactions, __) {
+                                              WidgetsBinding.instance
+                                                  .addPostFrameCallback((_) {
+                                                _scrollToBottom();
+                                              });
+                                              return Container(
+                                                constraints: BoxConstraints(
+                                                    maxHeight:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height -
+                                                            500,
+                                                    minHeight: 0),
+                                                child: ListView.builder(
+                                                    controller:
+                                                        _chatScrollController,
+                                                    shrinkWrap: false,
+                                                    itemCount: interactions
+                                                        .getInteractions()
+                                                        .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      if (index == 0) {
+                                                        return Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            RobotImageHolder(
+                                                              url: (figure.figure !=
+                                                                      null)
+                                                                  ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
+                                                                  : "robot1/robot1_skin0_evo0_cropped_happy",
+                                                              height:
+                                                                  chatEnabled
+                                                                      ? 75
+                                                                      : 300,
+                                                              width: chatEnabled
+                                                                  ? 75
+                                                                  : 300,
                                                             ),
-                                                          )
-                                                        ],
-                                                      );
-                                                    }
-                                                    return interactions
-                                                                .getInteractions()
-                                                                .values
-                                                                .elementAt(
-                                                                    index) ==
-                                                            null
-                                                        ? SizedBox(
-                                                            width: MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width,
-                                                            child: interactions
-                                                                .getInteractions()
-                                                                .keys
-                                                                .elementAt(
-                                                                    index))
-                                                        : Column(
-                                                            children: [
-                                                              SizedBox(
-                                                                  width: MediaQuery
-                                                                          .sizeOf(
-                                                                              context)
-                                                                      .width,
-                                                                  child: interactions
-                                                                      .getInteractions()
-                                                                      .values
-                                                                      .elementAt(
-                                                                          index)),
-                                                              SizedBox(
-                                                                  width: MediaQuery
-                                                                          .sizeOf(
-                                                                              context)
-                                                                      .width,
-                                                                  child: interactions
-                                                                      .getInteractions()
-                                                                      .keys
-                                                                      .elementAt(
-                                                                          index)!)
-                                                            ],
-                                                          );
-                                                  }),
-                                            );
-                                          }),
-                                        ],
+                                                            Opacity(
+                                                              opacity:
+                                                                  _phase2Animation
+                                                                      .value,
+                                                              child: Visibility(
+                                                                visible:
+                                                                    showInteractions,
+                                                                child: RobotResponse(
+                                                                    isInitialChat:
+                                                                        true,
+                                                                    text:
+                                                                        "Hey what do you want to talk about today?",
+                                                                    figure_url: (figure.figure !=
+                                                                            null)
+                                                                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
+                                                                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                                                                    datetime:
+                                                                        "now"),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        );
+                                                      }
+                                                      return interactions
+                                                                  .getInteractions()
+                                                                  .values
+                                                                  .elementAt(
+                                                                      index) ==
+                                                              null
+                                                          ? SizedBox(
+                                                              width: MediaQuery
+                                                                      .sizeOf(
+                                                                          context)
+                                                                  .width,
+                                                              child: interactions
+                                                                  .getInteractions()
+                                                                  .keys
+                                                                  .elementAt(
+                                                                      index))
+                                                          : Opacity(
+                                                              opacity:
+                                                                  _phase2Animation
+                                                                      .value,
+                                                              child: Visibility(
+                                                                visible:
+                                                                    showInteractions,
+                                                                child: Column(
+                                                                  children: [
+                                                                    SizedBox(
+                                                                        width: MediaQuery.sizeOf(context)
+                                                                            .width,
+                                                                        child: interactions
+                                                                            .getInteractions()
+                                                                            .values
+                                                                            .elementAt(index)),
+                                                                    SizedBox(
+                                                                        width: MediaQuery.sizeOf(context)
+                                                                            .width,
+                                                                        child: interactions
+                                                                            .getInteractions()
+                                                                            .keys
+                                                                            .elementAt(index)!)
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            );
+                                                    }),
+                                              );
+                                            }),
+                                          ],
+                                        ),
                                       ),
                                     ),
+                                    Visibility(
+                                        visible: chatEnabled,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () => {
+                                                _scrollToTop(),
+                                                toggleChatMode()
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .outline,
+                                                    width: 2,
+                                                  ),
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
+                                                ),
+                                                width: 50,
+                                                height: 50,
+                                                child: const Icon(
+                                                  Icons.home,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    50,
+                                                child: const MessageSender()),
+                                          ],
+                                        )),
                                   ],
                                 );
                               },

@@ -29,11 +29,8 @@ class RobotResponse extends StatelessWidget {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
-            width:
-                (MediaQuery.of(context).size.width - ROBOT_IMAGE_SIZE),
-            margin: isInitialChat!
-                ? const EdgeInsets.only(top: 0)
-                : EdgeInsets.only(top: ROBOT_IMAGE_SIZE),
+            width: (MediaQuery.of(context).size.width - ROBOT_IMAGE_SIZE),
+            margin: const EdgeInsets.only(top: 0),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.secondary,
@@ -70,11 +67,10 @@ class RobotResponse extends StatelessWidget {
             visible: !isInitialChat!,
             child: Positioned(
                 left: 0,
-                top: 0,
                 child: RobotImageHolder(
                   url: figure_url,
-                  height: ROBOT_IMAGE_SIZE + 25,
-                  width: ROBOT_IMAGE_SIZE + 25,
+                  height: ROBOT_IMAGE_SIZE,
+                  width: ROBOT_IMAGE_SIZE,
                 )),
           )
         ],

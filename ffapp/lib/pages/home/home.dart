@@ -12,8 +12,6 @@ import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
-
-
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -33,7 +31,6 @@ class _DashboardPageState extends State<DashboardPage> {
     const History(),
     const Profile(),
     const FitVenturesLite(),
-    const ChatPage(),
   ];
 
   int _selectedIndex = 0;
@@ -65,8 +62,10 @@ class _DashboardPageState extends State<DashboardPage> {
     } catch (e) {
       print("Error initializing currency: $e");
     }
-    Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false).setAppBarKey(_appBarKey);
-    Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false).setBottomNavBarKey(_bottomNavBarKey);
+    Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false)
+        .setAppBarKey(_appBarKey);
+    Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false)
+        .setBottomNavBarKey(_bottomNavBarKey);
   }
 
   @override
@@ -211,8 +210,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.map_outlined), label: 'Fitventures'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.chat), label: 'Chat'),
                 ],
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped)));
