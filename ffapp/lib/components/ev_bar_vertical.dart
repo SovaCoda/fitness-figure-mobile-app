@@ -1,3 +1,4 @@
+import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +8,7 @@ class EvBarVertical extends StatelessWidget {
   final int currentLvl;
   final Color fillColor;
   final double barHeight;
+  final double barWidth;
 
   const EvBarVertical(
       {super.key,
@@ -14,38 +16,31 @@ class EvBarVertical extends StatelessWidget {
       required this.maxXp,
       required this.currentLvl,
       required this.fillColor,
-      required this.barHeight});
+      required this.barHeight,
+      required this.barWidth
+      });
 
   @override
   Widget build(BuildContext context) {
     bool isReadyToEvolve = currentXp >= maxXp;
+    double innerBarWidth = barWidth/2;
     return Column(children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 10,
+            width: barWidth,
             height: barHeight,
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                boxShadow: [
-                  BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow,
-                      spreadRadius: .1,
-                      blurRadius: 1)
-                ]),
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
             child: Align(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.topCenter,
               child: Container(
-                width: 10,
+                width: innerBarWidth,
                 height: (currentXp / maxXp).clamp(0, 1) * barHeight,
-                decoration: BoxDecoration(color: fillColor, boxShadow: [
-                  BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow,
-                      spreadRadius: .1,
-                      blurRadius: 1)
-                ]),
+                decoration: BoxDecoration(color: fillColor),
               ),
             ),
           ),
@@ -60,53 +55,62 @@ class EvBarVertical extends StatelessWidget {
               width: 10,
               height: 50,
               child: OverflowBox(
-                alignment: Alignment.topLeft,
+                maxHeight: 50,
                 maxWidth: 150,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: isReadyToEvolve
-                          ? Theme.of(context).colorScheme.tertiary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Theme.of(context).colorScheme.shadow,
-                            spreadRadius: .1,
-                            blurRadius: 1)
-                      ]),
-                  child: Center(
-                      child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text("$currentXp/",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium!
-                                  .copyWith(
-                                    color: Colors.black,
-                                  )),
-                          Text("${maxXp}EV",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall!
-                                  .copyWith(
-                                    color: Colors.black,
-                                  )),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text("Evolution $currentLvl",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall!
-                                  .copyWith(
-                                    color: Colors.black,
-                                  )),
-                        ],
-                      )
-                    ],
-                  )),
+                alignment: Alignment.topLeft,
+                child: ClipPath(
+                  clipper: EvBarClipper(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Theme.of(context).colorScheme.secondary,
+                              Theme.of(context).colorScheme.secondaryFixed,
+                            ]),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Theme.of(context).colorScheme.shadow,
+                              spreadRadius: .1,
+                              blurRadius: 1)
+                        ]),
+                    child: Center(
+                        child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text("$currentXp/",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(
+                                      color: Colors.black,
+                                    )),
+                            Text("${maxXp}EV",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall!
+                                    .copyWith(
+                                      color: Colors.black,
+                                    )),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text("Evolution $currentLvl",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall!
+                                    .copyWith(
+                                      color: Colors.black,
+                                    )),
+                          ],
+                        )
+                      ],
+                    )),
+                  ),
                 ),
               ),
             ),

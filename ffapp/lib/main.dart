@@ -122,9 +122,7 @@ Future<void> main() async {
       ChangeNotifierProvider(
         create: (context) => AppBarAndBottomNavigationBarModel(),
       ),
-      ChangeNotifierProvider(
-        create: (context) => MessageProvider()
-      ),
+      ChangeNotifierProvider(create: (context) => MessageProvider()),
     ], child: const MyApp()),
   );
 }
@@ -200,10 +198,22 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
 
         // Define the default brightness and colors.
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromRGBO(46, 207, 13, 1),
-          // ···
-          brightness: Brightness.dark,
+        colorScheme: const ColorScheme(
+          primary: Color.fromARGB(126, 31, 255, 60),
+          brightness: Brightness.light,
+          onPrimary: Color.fromRGBO(31, 112, 41, 1),
+          onPrimaryContainer: Color.fromRGBO(31, 255, 61, 1),
+          primaryFixedDim: Color.fromRGBO(0, 29, 1, 1),
+          secondary: Color.fromRGBO(203, 222, 50, 1),
+          onSecondary: Color.fromRGBO(52, 71, 6, 1),
+          secondaryFixed: Color.fromRGBO(30, 157, 60, 1),
+          error: Colors.red,
+          onError: Colors.black,
+          surface: Color.fromRGBO(239, 255, 239, 1),
+          onSurface: Color.fromRGBO(226, 255, 227, 0.345),
+          surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
+          surfaceBright: Color.fromRGBO(76, 117, 18, 1), // Alert Dialog
+          surfaceDim: Color.fromRGBO(59, 64, 13, 1) // Alert Dialog
         ),
 
         // Define the default `TextTheme`. Use this to specify the default

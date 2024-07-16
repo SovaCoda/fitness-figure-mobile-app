@@ -18,34 +18,34 @@ class WorkoutNumbersRow extends StatelessWidget {
       child: Row(
         children: [
           Column(children: [
-            Text(weeklyGoal.toString(),
+            Text(weeklyCompleted.toString(),
                 style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     )),
             Text("Weekly",
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     )),
             Text("Complete",
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     )),
           ]),
-          const DoubleLineDivider(),
+          const DoubleLineDivider(spacing: 30),
           Column(children: [
-            Text(weeklyCompleted.toString(),
+            Text(weeklyGoal.toString(),
                 style: Theme.of(context).textTheme.displayLarge!.copyWith(
                       color: weeklyCompleted >= weeklyGoal
                           ? Theme.of(context).colorScheme.tertiary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                          : Theme.of(context).colorScheme.onPrimaryContainer,
                     )),
             Text("Weekly",
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     )),
             Text("Goal",
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     )),
           ]),
         ],

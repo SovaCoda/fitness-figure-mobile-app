@@ -16,6 +16,7 @@ class ChargeBarVertical extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double internalBarWidth = barWidth - 10;
     return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -25,25 +26,70 @@ class ChargeBarVertical extends StatelessWidget {
             width: barWidth,
             height: barHeight,
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                boxShadow: [
-                  BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow,
-                      spreadRadius: .1,
-                      blurRadius: 1)
-                ]),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Container(
-                width: barWidth,
-                height: (currentCharge / 100).clamp(0, 1) * barHeight,
-                decoration: BoxDecoration(color: fillColor, boxShadow: [
-                  BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow,
-                      spreadRadius: .1,
-                      blurRadius: 1)
-                ]),
-              ),
+              gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.fromRGBO(49, 89, 21, 1),
+                    Color.fromRGBO(0, 0, 0, 0)
+                  ]),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: internalBarWidth,
+                    height: 4,
+                    decoration:
+                        BoxDecoration(color: fillColor, boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromARGB(127, 31, 255, 60),
+                        offset: Offset(0.0, 0.0),
+                        blurRadius: 10.0,
+                      )
+                    ]),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: internalBarWidth,
+                    height: 8,
+                    decoration:
+                        BoxDecoration(color: fillColor, boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromARGB(127, 31, 255, 60),
+                        offset: Offset(0.0, 0.0),
+                        blurRadius: 10.0,
+                      )
+                    ]),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: internalBarWidth,
+                    height: (currentCharge / 100).clamp(0, 1) * barHeight,
+                    decoration:
+                        BoxDecoration(color: fillColor, boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromARGB(127, 31, 255, 60),
+                        offset: Offset(0.0, 0.0),
+                        blurRadius: 10.0,
+                      )
+                    ]),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -64,8 +110,16 @@ class ChargeBarVertical extends StatelessWidget {
                 maxHeight: 150,
                 maxWidth: 150,
                 child: Container(
-                    decoration:
-                        BoxDecoration(shape: BoxShape.circle, color: fillColor),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: fillColor,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color.fromARGB(127, 31, 255, 60),
+                            offset: Offset(0.0, 0.0),
+                            blurRadius: 15.0,
+                          )
+                        ]),
                     height: 75,
                     width: 75,
                     child: Center(

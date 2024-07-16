@@ -1,3 +1,4 @@
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
@@ -71,7 +72,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
 
         //permanent top bar if we want it
         appBar: AppBar(
@@ -79,10 +80,10 @@ class _DashboardPageState extends State<DashboardPage> {
           title: Text(
             'FF',
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.surface,
                 ),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -98,15 +99,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                 .textTheme
                                 .headlineLarge!
                                 .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(context).colorScheme.surface,
                                 ));
                       },
                     ),
                     const SizedBox(width: 10.0),
                     Icon(
                       Icons.currency_exchange,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                   ],
                 ),
@@ -125,12 +125,12 @@ class _DashboardPageState extends State<DashboardPage> {
                       'FF',
                       style:
                           Theme.of(context).textTheme.headlineLarge!.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).colorScheme.surface,
                               ),
                     ),
                     Icon(
                       Icons.add,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                   ],
                 ),
@@ -143,25 +143,14 @@ class _DashboardPageState extends State<DashboardPage> {
                       showDialog(
                           context: context,
                           builder: (context) {
-                            return AlertDialog(
-                              title: const Text("Questions?"),
-                              content: const Text(
-                                  '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
-                              actions: [
-                                ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Get Fit")),
-                              ],
-                            );
+                            return FfAlertDialog();
                           })
                     },
                 child: Row(
                   children: [
                     const SizedBox(width: 10.0),
                     Icon(Icons.question_mark,
-                        color: Theme.of(context).colorScheme.onSurface),
+                        color: Theme.of(context).colorScheme.surface),
                     const SizedBox(width: 4.0),
                   ],
                 ))
@@ -170,23 +159,72 @@ class _DashboardPageState extends State<DashboardPage> {
 
         //renders the page that the nav bar has currently selected
         //indexed stack allows pages to retain their state when switching between them
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _pages,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black,
+                Color.fromRGBO(16, 118, 0, 1),
+              ],
+            ),
+          ),
+          child: Stack(children: [
+            Center(
+              child: Container(
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 3.0,
+                      colors: [
+                        Theme.of(context).colorScheme.surface.withAlpha(0),
+                        Theme.of(context).colorScheme.onSurface,
+                      ],
+                    ),
+                    border: Border(
+                        left: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(80),
+                            width: 5),
+                        right: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(80),
+                            width: 5)),
+                  )),
+            ),
+            IndexedStack(
+              index: _selectedIndex,
+              children: _pages,
+            )
+          ]),
         ),
 
         //permanent footer navigation that changes the page index state to switch displays
         bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
               // sets the background color of the `BottomNavigationBar`
-              canvasColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+              canvasColor: Theme.of(context).colorScheme.primaryFixedDim,
             ),
             child: BottomNavigationBar(
                 key: _bottomNavBarKey,
+                iconSize: 30,
+                showSelectedLabels: false,
+                selectedIconTheme: IconThemeData(size: 40, shadows: [
+                  BoxShadow(
+                      color: Theme.of(context).colorScheme.secondary,
+                      offset: Offset(0, 0),
+                      blurRadius: 20)
+                ]),
                 unselectedItemColor:
-                    Theme.of(context).colorScheme.onSurfaceVariant,
-                selectedItemColor: Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                selectedItemColor: Theme.of(context).colorScheme.secondary,
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: Icon(Icons.home),
