@@ -43,7 +43,7 @@ func newServer(db *sql.DB) *server {
 func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset, premium FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset, &user.Premium)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -53,7 +53,7 @@ func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, DefaultLastReset)
+	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, DefaultLastReset, false)
 
 	return &user, nil
 }
@@ -62,7 +62,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	var user pb.User
 
 	// Retrieve existing user information
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset, premium FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset, &user.Premium)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -92,9 +92,12 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	if in.LastReset != "" {
 		user.LastReset = in.LastReset
 	}
+	if in.Premium {
+		user.Premium = in.Premium
+	}
 
 	// Update the user in the database
-	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ?, workout_min_time = ?, last_reset = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.WorkoutMinTime, user.LastReset, user.Email)
+	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ?, workout_min_time = ?, last_reset = ?, premium = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.WorkoutMinTime, user.LastReset, user.Premium, user.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not update user: %v", err)
 	}
@@ -105,7 +108,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset, premium FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset, &user.Premium)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}

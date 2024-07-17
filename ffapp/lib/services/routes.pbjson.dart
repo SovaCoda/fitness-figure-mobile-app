@@ -71,6 +71,7 @@ const User$json = {
     {'1': 'cur_workout', '3': 7, '4': 1, '5': 9, '10': 'curWorkout'},
     {'1': 'workout_min_time', '3': 8, '4': 1, '5': 3, '10': 'workoutMinTime'},
     {'1': 'last_reset', '3': 9, '4': 1, '5': 9, '10': 'lastReset'},
+    {'1': 'premium', '3': 10, '4': 1, '5': 8, '10': 'premium'},
   ],
 };
 
@@ -81,7 +82,7 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'd2Vla19jb21wbGV0ZRgFIAEoA1IMd2Vla0NvbXBsZXRlEhsKCXdlZWtfZ29hbBgGIAEoA1IId2'
     'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQSKAoQd29ya291dF9taW5f'
     'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWUSHQoKbGFzdF9yZXNldBgJIAEoCVIJbGFzdFJlc2'
-    'V0');
+    'V0EhgKB3ByZW1pdW0YCiABKAhSB3ByZW1pdW0=');
 
 @$core.Deprecated('Use multiUserDescriptor instead')
 const MultiUser$json = {

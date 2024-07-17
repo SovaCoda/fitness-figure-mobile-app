@@ -30,6 +30,7 @@ class _DashboardState extends State<Dashboard> {
   late String email = "Loading...";
   late int weeklyGoal = 0;
   late int weeklyCompleted = 0;
+  late bool isPremium = false;
   late String figureURL = "robot1";
   late double charge = 0;
   final int robotCharge = 100;
@@ -46,18 +47,20 @@ class _DashboardState extends State<Dashboard> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _refreshController.removeListener(refreshListener);
     _refreshController.dispose();
     super.dispose();
   }
 
-  void refreshListener()
-  {
+  void refreshListener() {
     print(_refreshController.offset);
-    if (_refreshController.offset < -80) {print('homing'); initialize();}; 
+    if (_refreshController.offset < -80) {
+      print('homing');
+      initialize();
+    }
+    ;
   }
-  
 
   void onViewSkins() async {
     Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(
@@ -117,71 +120,78 @@ class _DashboardState extends State<Dashboard> {
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
-    if(mounted){
-    Provider.of<CurrencyModel>(context, listen: false)
-        .setCurrency(databaseUser?.currency.toString() ?? "0000");
-    Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
-    Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
-    Provider.of<FigureModel>(context, listen: false)
-        .setFigureLevel(databaseFigure!.evLevel ?? 0);
-    setState(() {
-      charge = curWeekly / curGoal;
-      email = curEmail;
-      weeklyGoal = curGoal;
-      weeklyCompleted = curWeekly;
+    if (mounted) {
+      Provider.of<CurrencyModel>(context, listen: false)
+          .setCurrency(databaseUser?.currency.toString() ?? "0000");
+      Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+      Provider.of<FigureModel>(context, listen: false)
+          .setFigure(databaseFigure);
+      Provider.of<FigureModel>(context, listen: false)
+          .setFigureLevel(databaseFigure!.evLevel ?? 0);
+      setState(() {
+        charge = curWeekly / curGoal;
+        email = curEmail;
+        weeklyGoal = curGoal;
+        weeklyCompleted = curWeekly;
 
-      if (curFigure != "none" && Provider.of<FigureModel>(context, listen: false).figure?.charge != null) {
-        //logic for display sad character... theres nothing stopping this from
-        //display a broken url rn though
-        if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 20) {
-          figureURL = "${curFigure}_sad";
-        } else if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 50) {
-          figureURL = curFigure;
+        if (curFigure != "none" &&
+            Provider.of<FigureModel>(context, listen: false).figure?.charge !=
+                null) {
+          //logic for display sad character... theres nothing stopping this from
+          //display a broken url rn though
+          if (Provider.of<FigureModel>(context, listen: false).figure!.charge <
+              20) {
+            figureURL = "${curFigure}_sad";
+          } else if (Provider.of<FigureModel>(context, listen: false)
+                  .figure!
+                  .charge <
+              50) {
+            figureURL = curFigure;
+          } else {
+            figureURL = "${curFigure}_happy";
+          }
         }
-        else {
-          figureURL = "${curFigure}_happy";
-        }
-      }
-    });
-    logger.i(figureURL);
+      });
+      logger.i(figureURL);
     }
   }
 
-  void triggerFigureDecay(){
+  void triggerFigureDecay() {
     auth.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
   }
 
   void triggerUserReset() {
     auth.userReset(Provider.of<UserModel>(context, listen: false).user!);
   }
+
   Stream<FigureModel> _figureStream() async* {
-  while (mounted) {
-    try {
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      final figureModel = Provider.of<FigureModel>(context, listen: false);
-      final userEmail = userModel.user?.email;
-      final curFigure = userModel.user?.curFigure;
+    while (mounted) {
+      try {
+        final userModel = Provider.of<UserModel>(context, listen: false);
+        final figureModel = Provider.of<FigureModel>(context, listen: false);
+        final userEmail = userModel.user?.email;
+        final curFigure = userModel.user?.curFigure;
 
-      if (userEmail != null && curFigure != null) {
-        Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
-          Routes.FigureInstance(
-            userEmail: userEmail,
-            figureName: curFigure,
-          ),
-        );
+        if (userEmail != null && curFigure != null) {
+          Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+            Routes.FigureInstance(
+              userEmail: userEmail,
+              figureName: curFigure,
+            ),
+          );
 
-        figureModel.setFigure(databaseFigure);
+          figureModel.setFigure(databaseFigure);
           yield figureModel;
+        }
+      } catch (e) {
+        logger.e(e);
       }
-    } catch (e) {
-      logger.e(e);
+
+      await Future<void>.delayed(const Duration(seconds: 1));
     }
-
-    await Future<void>.delayed(const Duration(seconds: 1));
   }
-}
 
-ScrollController _refreshController = ScrollController();
+  ScrollController _refreshController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -210,9 +220,9 @@ ScrollController _refreshController = ScrollController();
                     child: Consumer<FigureModel>(
                       builder: (context, figure, child) {
                         String suffix;
-          
+
                         // Implemented logic for determining the robot's happiness or sadness
-          
+
                         if (figure.figure?.charge != null) {
                           if (figure.figure!.charge.toInt() >= 0 &&
                               figure.figure!.charge.toInt() <= 20) {
@@ -237,35 +247,39 @@ ScrollController _refreshController = ScrollController();
                     ),
                   ),
                   Positioned(
-                      top: 40,
-                      left: 160,
-                      child: 
-                          
-                        RobotDialogBox(
-                          dialogOptions:
-                              // Dialog options now pulls from the server value
-                              
-                              Provider.of<FigureModel>(context, listen: false).figure?.charge != null ? robotDialog.getDashboardDialog(Provider.of<FigureModel>(context, listen: false).figure!.charge) : robotDialog.getDashboardDialog(0),
-                          width: 200,
-                          height: 40,
-                          ),
-                          
-                      ),
-          
+                    top: 40,
+                    left: 160,
+                    child: RobotDialogBox(
+                      dialogOptions:
+                          // Dialog options now pulls from the server value
+
+                          Provider.of<FigureModel>(context, listen: false)
+                                      .figure
+                                      ?.charge !=
+                                  null
+                              ? robotDialog.getDashboardDialog(
+                                  Provider.of<FigureModel>(context,
+                                          listen: false)
+                                      .figure!
+                                      .charge)
+                              : robotDialog.getDashboardDialog(0),
+                      width: 200,
+                      height: 40,
+                    ),
+                  ),
                   Positioned(
                     bottom: 40,
-                    left: MediaQuery.sizeOf(context).width/2 - 50,
+                    left: MediaQuery.sizeOf(context).width / 2 - 50,
                     child: Center(
-                    child: ElevatedButton.icon(
-                        onPressed: onViewSkins,
-                        icon: const Icon(Icons.swap_calls),
-                        label: const Text("Skins"))),
+                        child: ElevatedButton.icon(
+                            onPressed: onViewSkins,
+                            icon: const Icon(Icons.swap_calls),
+                            label: const Text("Skins"))),
                   ),
-                  
                   Consumer<UserModel>(
-                    builder: (context, user, child) => (
-                            user.user != null && 
-                            user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com")
+                    builder: (context, user, child) => (user.user != null &&
+                                user.user?.email == "chb263@msstate.edu" ||
+                            user.user?.email == "blizard265@gmail.com")
                         ? DraggableAdminPanel(
                             onButton1Pressed: triggerFigureDecay,
                             onButton2Pressed: triggerUserReset,
@@ -276,56 +290,65 @@ ScrollController _refreshController = ScrollController();
                   )
                 ],
               ),
-          
-          
+
               StreamBuilder<FigureModel>(
-                stream: _figureStream(),
-                builder: (context, snapshot) {
-                  if(!mounted){
-                    return const Text('Widget is no longer active');
-                  }
-                  else if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator(); // Show a loading indicator
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData) {
-                    return const Text('No data available');
-                  }
-                  final figure = snapshot.data!;
-                  return Center(
-                    child:  figure.figure!.evPoints >= figure1.EvCutoffs[figure.EVLevel] ? 
-                    ElevatedButton(onPressed: () {context.goNamed('Evolution');}, child: Text('Ready to Evolve!', style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary)))
-                    : EvBar(
-                        currentXp: figure.figure?.evPoints ?? 0,
-                        maxXp: figure1.EvCutoffs[figure.EVLevel],
-                        currentLvl: figure.EVLevel + 1 ?? 1,
-                        fillColor: Theme.of(context).colorScheme.tertiary,
-                        barWidth: 200),
-                  );
-                }
-              ),
-          
-          
+                  stream: _figureStream(),
+                  builder: (context, snapshot) {
+                    if (!mounted) {
+                      return const Text('Widget is no longer active');
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator(); // Show a loading indicator
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData) {
+                      return const Text('No data available');
+                    }
+                    final figure = snapshot.data!;
+                    return Center(
+                      child: figure.figure!.evPoints >=
+                              figure1.EvCutoffs[figure.EVLevel]
+                          ? ElevatedButton(
+                              onPressed: () {
+                                context.goNamed('Evolution');
+                              },
+                              child: Text('Ready to Evolve!',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary)))
+                          : EvBar(
+                              currentXp: figure.figure?.evPoints ?? 0,
+                              maxXp: figure1.EvCutoffs[figure.EVLevel],
+                              currentLvl: figure.EVLevel + 1 ?? 1,
+                              fillColor: Theme.of(context).colorScheme.tertiary,
+                              barWidth: 200),
+                    );
+                  }),
+
               const SizedBox(
                 height: 10,
               ),
-          
+
               //imported from progress bar component
-          
+
               StreamBuilder<FigureModel>(
                 stream: _figureStream(),
                 builder: (context, snapshot) {
                   if (!mounted) {
                     return const Text('Widget is no longer active');
-                  } else if (snapshot.connectionState == ConnectionState.waiting) {
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return const CircularProgressIndicator(); // Show a loading indicator
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (!snapshot.hasData) {
                     return const Text('No data available');
                   }
-              
+
                   final figure = snapshot.data!;
                   // Assuming figure.figure?.charge being null is handled as an error or invalid state elsewhere
                   return ProgressBar(
@@ -335,9 +358,7 @@ ScrollController _refreshController = ScrollController();
                   );
                 },
               ),
-          
-          
-          
+
               const SizedBox(height: 50)
             ],
           )),

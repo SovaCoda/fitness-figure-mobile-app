@@ -87,6 +87,7 @@ message User {
     string cur_workout = 7;
     int64 workout_min_time = 8;
     string last_reset = 9;
+    bool premium = 10;
 }
 
 message MultiUser {

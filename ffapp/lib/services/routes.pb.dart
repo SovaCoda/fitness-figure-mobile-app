@@ -239,6 +239,7 @@ class User extends $pb.GeneratedMessage {
     $core.String? curWorkout,
     $fixnum.Int64? workoutMinTime,
     $core.String? lastReset,
+    $core.bool? premium,
   }) {
     final $result = create();
     if (email != null) {
@@ -268,6 +269,9 @@ class User extends $pb.GeneratedMessage {
     if (lastReset != null) {
       $result.lastReset = lastReset;
     }
+    if (premium != null) {
+      $result.premium = premium;
+    }
     return $result;
   }
   User._() : super();
@@ -284,6 +288,7 @@ class User extends $pb.GeneratedMessage {
     ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
     ..aInt64(8, _omitFieldNames ? '' : 'workoutMinTime')
     ..aOS(9, _omitFieldNames ? '' : 'lastReset')
+    ..aOB(10, _omitFieldNames ? '' : 'premium')
     ..hasRequiredFields = false
   ;
 
@@ -388,6 +393,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasLastReset() => $_has(8);
   @$pb.TagNumber(9)
   void clearLastReset() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.bool get premium => $_getBF(9);
+  @$pb.TagNumber(10)
+  set premium($core.bool v) { $_setBool(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasPremium() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearPremium() => clearField(10);
 }
 
 class MultiUser extends $pb.GeneratedMessage {

@@ -93,16 +93,29 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     int currency =
         int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
     int addableCurrency = _timePassed.toInt() ~/ 10;
+    // if user is premium, double the currency
+    if(user.premium){
+      addableCurrency = addableCurrency * 2;
+    }
     currency += addableCurrency;
 
     int figureEV = figure.baseEvGain;
     double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
     int addableEV = _timePassed.toInt() ~/ 10;
+    // if user is premium, add 50% more EV
+    if (user.premium) {
+      addableEV = (addableEV * 1.5).toInt();
+    }
+
     int ev = figureEV + eVConcistencyBonus.toInt() + addableEV;
 
     int figureCharge = 5; // needs to be replaced with the figure provider.
     double chargeConcistencyBonus = (figureCharge * 0.1) * user.weekComplete.toInt();
     int addableCharge = _timePassed.toInt() ~/ user.workoutMinTime.toInt();
+    // if user is premium, add 10% more charge
+    if (user.premium) {
+      addableCharge = (addableCharge * 1.1).toInt();
+    }
     int charge = figureCharge + chargeConcistencyBonus.toInt() + addableCharge;
 
     await auth.updateUserDBInfo(Routes.User(

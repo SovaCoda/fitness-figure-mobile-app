@@ -1,48 +1,47 @@
-// import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ffapp/services/auth.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class SubscribePage extends StatefulWidget {
-  const SubscribePage({super.key});
-
-  @override
-  SubscribePageState createState() => SubscribePageState();
-}
-
-class SubscribePageState extends State<SubscribePage> {
-  Map<String, dynamic>? paymentIntent;
-  bool _isMounted = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _isMounted = true;
-  }
-
-  @override
-  void dispose() {
-    _isMounted = false;
-    super.dispose();
-  }
-
-  void _safeSetState(VoidCallback callback) {
-    if (_isMounted) {
-      setState(callback);
-    }
-  }
+class SubscribePage extends StatelessWidget {
+  const SubscribePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      elevation: 0, // Remove shadow
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Match background color
+    return ChangeNotifierProvider(
+      create: (_) => SubscribePageModel(context),
+      child: const _SubscribePageContent(),
+    );
+  }
+}
+
+class _SubscribePageContent extends StatelessWidget {
+  const _SubscribePageContent();
+
+  @override
+  Widget build(BuildContext context) {
+    final model = Provider.of<SubscribePageModel>(context);
+
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: model.isLoading
+          ? _buildSkeletonLoader()
+          : model.user?.premium == true
+              ? _buildSubscribedContent(context)
+              : _buildSubscriptionOptions(context, model),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
         onPressed: () => context.goNamed("Home"),
@@ -53,9 +52,9 @@ class SubscribePageState extends State<SubscribePage> {
           Text(
             'FF',
             style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontStyle: FontStyle.italic,
-            ),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontStyle: FontStyle.italic,
+                ),
           ),
           Icon(
             Icons.add,
@@ -64,161 +63,177 @@ class SubscribePageState extends State<SubscribePage> {
           ),
         ],
       ),
-      actions: [
-        // Add a dummy action to balance the leading icon
-        SizedBox(width: 48),
-      ],
+      actions: const [SizedBox(width: 48)],
       centerTitle: true,
-    ),
-    body: Consumer<UserModel>(
-      builder: (context, userModel, child) {
-        // Uncomment this when ready to differentiate between subscribed and non-subscribed users
-        /*
-        if (userModel.user?.premium ?? false) {
-          return _buildSubscribedContent(context);
-        } else {
-          return _buildSubscriptionOptions(context);
-        }
-        */
-        return _buildSubscriptionOptions(context);
-      },
-    ),
-  );
-}
-Widget _buildSubscriptionOptions(BuildContext context) {
-  return SingleChildScrollView(
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            "Upgrade to Fitness Figure Plus!",
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildFeatureItem(context, Icons.bolt, "+10% Charge Rate", Theme.of(context).colorScheme.primary),
-                  _buildFeatureItem(context, Icons.trending_up, "+50% EVO Gain", Theme.of(context).colorScheme.tertiary),
-                  _buildFeatureItem(context, Icons.monetization_on, "+100% Currency Gain", Theme.of(context).colorScheme.secondary),
-                  _buildFeatureItem(context, Icons.style, "Exclusive Figure Cosmetics", Theme.of(context).colorScheme.primary),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
+    );
+  }
 
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => makePayment(),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+  Widget _buildSkeletonLoader() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildSubscriptionOptions(BuildContext context, SubscribePageModel model) {
+    return RefreshIndicator(
+      onRefresh: model.refreshUserData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Upgrade to Fitness Figure Plus!",
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                textAlign: TextAlign.center,
               ),
-            ),
-            child: Text(
-              "Subscribe Now - \$1.99/month",
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              _buildFeatureCard(context),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: model.makePayment,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  "Subscribe Now - \$1.99/month",
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
-            ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => context.goNamed("Home"),
+                child: Text(
+                  "Maybe Later",
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          TextButton(
-            onPressed: () => context.goNamed("Home"),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildFeatureItem(context, Icons.bolt, "+10% Charge Rate", Theme.of(context).colorScheme.primary),
+            _buildFeatureItem(context, Icons.trending_up, "+50% EVO Gain", Theme.of(context).colorScheme.tertiary),
+            _buildFeatureItem(context, Icons.monetization_on, "+100% Currency Gain", Theme.of(context).colorScheme.secondary),
+            _buildFeatureItem(context, Icons.style, "Exclusive Figure Cosmetics", Theme.of(context).colorScheme.primary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(BuildContext context, IconData icon, String text, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
             child: Text(
-              "Maybe Later",
+              text,
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-              ),
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
         ],
       ),
-    ),
-  );
-}
-
-Widget _buildFeatureItem(BuildContext context, IconData icon, String text, Color color) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSubscribedContent(BuildContext context) {
-  return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "You're already subscribed to Fitness Figure Plus!",
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            color: Theme.of(context).colorScheme.primary,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "You're already subscribed to Fitness Figure Plus!",
+            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 20),
-        Text(
-          "Enjoy your premium benefits!",
-          style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 40),
-        ElevatedButton(
-          onPressed: () => context.goNamed("Home"),
-          child: const Text("Return to Home"),
-        ),
-      ],
-    ),
-  );
+          const SizedBox(height: 20),
+          Text(
+            "Enjoy your premium benefits!",
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 40),
+          ElevatedButton(
+            onPressed: () => context.goNamed("Home"),
+            child: const Text("Return to Home"),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
+class SubscribePageModel with ChangeNotifier {
+  final BuildContext context;
+  User? user;
+  bool isLoading = true;
+  Map<String, dynamic>? paymentIntent;
+
+  SubscribePageModel(this.context) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    await refreshUserData();
+  }
+
+  Future<void> refreshUserData() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final auth = Provider.of<AuthService>(context, listen: false);
+      user = await auth.getUserDBInfo();
+    } catch (e) {
+      logger.e('Error fetching user data: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> makePayment() async {
-     if (!_isMounted) return;
+    if (user?.premium == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You are already subscribed!')),
+      );
+      return;
+    }
 
     try {
       paymentIntent = await createPaymentIntent('1.99', 'USD');
-      /*
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      
-      if (userModel.user?.premium ?? false) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You are already subscribed!')),
-        );
-        return;
-      }
-      */
       await stripe.Stripe.instance.initPaymentSheet(
         paymentSheetParameters: stripe.SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntent!['client_secret'],
@@ -226,41 +241,44 @@ Widget _buildFeatureItem(BuildContext context, IconData icon, String text, Color
           merchantDisplayName: 'Fitness Figure Plus',
         ),
       );
-    if(_isMounted) {
-      displayPaymentSheet();
-    }
+      await displayPaymentSheet();
     } catch (e) {
-      print('Error: $e');
+      logger.e('Error: $e');
     }
   }
-// To simulate a purchase, use the card number 4242 4242 4242 4242 and any future expiration date and CVC
+
   Future<void> displayPaymentSheet() async {
     try {
       await stripe.Stripe.instance.presentPaymentSheet();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Payment successful')),
       );
-      // Here you would typically update the user's subscription status but not working right now
-      // Provider.of<UserModel>(context, listen: false).updateUserPremium(true);
-      if (!_isMounted) return;
+
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      userModel.setPremium(true);
+      await Provider.of<AuthService>(context, listen: false).updateUserDBInfo(userModel.user!);
+      await refreshUserData();
     } on stripe.StripeException catch (e) {
-      String displayMessage;
-      if (e.error.code == stripe.FailureCode.Canceled) {
-        displayMessage = 'Payment canceled';
-      } else if (e.error.localizedMessage != null) {
-        displayMessage = e.error.localizedMessage!;
-      } else if (e.error.message != null) {
-        displayMessage = e.error.message!;
-      } else {
-        displayMessage = 'An error occurred during payment';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(displayMessage)),
-      );
+      _handleStripeError(e);
+    } catch (e) {
+      logger.e('Unexpected error: $e');
     }
-    catch (e) {
-      print('Unexpected error: $e');
+  }
+
+  void _handleStripeError(stripe.StripeException e) {
+    String displayMessage;
+    if (e.error.code == stripe.FailureCode.Canceled) {
+      displayMessage = 'Payment canceled';
+    } else if (e.error.localizedMessage != null) {
+      displayMessage = e.error.localizedMessage!;
+    } else if (e.error.message != null) {
+      displayMessage = e.error.message!;
+    } else {
+      displayMessage = 'An error occurred during payment';
     }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(displayMessage)),
+    );
   }
 
   Future<Map<String, dynamic>> createPaymentIntent(String amount, String currency) async {
@@ -285,10 +303,4 @@ Widget _buildFeatureItem(BuildContext context, IconData icon, String text, Color
       throw Exception(err.toString());
     }
   }
-
-  String calculateAmount(String amount) {
-    final calculatedAmount = (int.parse(amount)) * 100;
-    return calculatedAmount.toString();
-  }
 }
-

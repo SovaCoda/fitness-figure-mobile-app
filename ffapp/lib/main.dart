@@ -1,4 +1,3 @@
-
 import 'package:ffapp/pages/home/evo.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
@@ -43,26 +42,29 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
+  Future<void> setPremium(bool premium) async {
+    user?.premium = premium;
+    notifyListeners();
+  }
 }
 
 class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure;
   int EVLevel = 0;
   bool readyToEvolve = false;
-  
+
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
     notifyListeners();
   }
-  
+
   void setFigureSkin(String newValue) {
     figure?.curSkin = newValue;
     notifyListeners();
   }
 
   void setFigureLevel(int newValue) {
-    if(newValue <= 7){
+    if (newValue <= 7) {
       EVLevel = newValue;
       figure?.evLevel = newValue;
       notifyListeners();
@@ -78,7 +80,6 @@ class FigureModel extends ChangeNotifier {
     figure?.charge = newValue;
     notifyListeners();
   }
-  
 }
 
 // Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -88,7 +89,6 @@ class FigureModel extends ChangeNotifier {
 
 //   print("Handling a background message: ${message.messageId}");
 // }
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -153,10 +153,9 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     builder: (context, state) => const Fitventures(),
   ),
   GoRoute(
-    name: 'Subscribe', 
-    path: '/subscribe', 
-    builder: (context, state) => const SubscribePage()
-  ),
+      name: 'Subscribe',
+      path: '/subscribe',
+      builder: (context, state) => const SubscribePage()),
   GoRoute(
     name: 'Survey',
     path: '/survey',
@@ -186,14 +185,12 @@ class MyApp extends StatelessWidget {
       title: 'Fitness Figure',
       theme: ThemeData(
         useMaterial3: true,
-        
 
         // Define the default brightness and colors.
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromRGBO(46, 207, 13, 1),
           // ···
           brightness: Brightness.dark,
-          
         ),
 
         // Define the default `TextTheme`. Use this to specify the default
@@ -202,40 +199,37 @@ class MyApp extends StatelessWidget {
         // though because adding more might change the display of default
         // stuff like buttons and popups - Reese
         textTheme: TextTheme(
-          //really big things like the timer counter
-          displayMedium: GoogleFonts.orbitron(
-            fontSize: 30,
-            fontStyle: FontStyle.italic,
-          ),
-          //top bar
-          headlineLarge: GoogleFonts.oswald(
-            fontSize: 26,
-            fontStyle: FontStyle.italic,
-            letterSpacing: 2.0,
-          ),
-          //page titles
-          headlineMedium: GoogleFonts.orbitron(
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-          ),
-          //less important big stuff, ex. numbers in the dashboard
-          headlineSmall: GoogleFonts.orbitron(
-            fontSize: 48,
-          ),
-          //medium title ex. frequency selection prompt
-          titleMedium: GoogleFonts.roboto(
-              fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: .1),
-          //small titles, ex. dashboard message and settings
-          titleSmall: GoogleFonts.roboto(
-              fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),
-          //small labels, ex. shop labels and dashboard disclaimer
-          labelMedium: GoogleFonts.roboto(
-            fontSize: 12,
-          ),
-          labelSmall: GoogleFonts.roboto(
-            fontSize: 16
-          )
-        ),
+            //really big things like the timer counter
+            displayMedium: GoogleFonts.orbitron(
+              fontSize: 30,
+              fontStyle: FontStyle.italic,
+            ),
+            //top bar
+            headlineLarge: GoogleFonts.oswald(
+              fontSize: 26,
+              fontStyle: FontStyle.italic,
+              letterSpacing: 2.0,
+            ),
+            //page titles
+            headlineMedium: GoogleFonts.orbitron(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+            //less important big stuff, ex. numbers in the dashboard
+            headlineSmall: GoogleFonts.orbitron(
+              fontSize: 48,
+            ),
+            //medium title ex. frequency selection prompt
+            titleMedium: GoogleFonts.roboto(
+                fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: .1),
+            //small titles, ex. dashboard message and settings
+            titleSmall: GoogleFonts.roboto(
+                fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),
+            //small labels, ex. shop labels and dashboard disclaimer
+            labelMedium: GoogleFonts.roboto(
+              fontSize: 12,
+            ),
+            labelSmall: GoogleFonts.roboto(fontSize: 16)),
       ),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
