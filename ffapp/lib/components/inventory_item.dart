@@ -16,14 +16,22 @@ class InventoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: MediaQuery.of(context).size.width * 0.45,
+      height: 310,
       decoration: BoxDecoration(
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline,
-            width: 2,
+          border: Border(
+            left: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+              width: 2,
+            ),
+            right: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+              width: 2,
+            ),
           ),
-          borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).colorScheme.secondaryContainer),
+          color: Theme.of(context).colorScheme.primaryFixedDim),
       child: (Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           const SizedBox(height: 25),
           Image.asset(
@@ -32,12 +40,31 @@ class InventoryItem extends StatelessWidget {
             width: 170.0,
           ),
           const SizedBox(height: 10),
-          ElevatedButton(
+          Container(
+            margin: const EdgeInsets.only(top: 10, bottom: 10),
+            padding: const EdgeInsets.all(1),
+            height: 30,
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.secondary.withAlpha(127),
+                  width: 2,
+                  strokeAlign: BorderSide.strokeAlignInside),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                  shape: WidgetStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4))),
+                  backgroundColor: WidgetStateProperty.all<Color>(
+                      Theme.of(context).colorScheme.secondary)),
+              child: Text("View Details",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.primaryFixedDim)),
               onPressed: () => onViewDetails(context),
-              child: const Text("View Details")),
-          const SizedBox(height: 5),
+            ),
+          ),
           equiped ? const GreyedEquipButton() : EquipButton(onEquip: onEquip),
-          const SizedBox(height: 10,)
         ],
       )),
     );
@@ -54,24 +81,56 @@ class EquipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 10),
+      padding: const EdgeInsets.all(1),
+      height: 30,
+      decoration: BoxDecoration(
+        border: Border.all(
+            color: Theme.of(context).colorScheme.secondary.withAlpha(127),
+            width: 2,
+            strokeAlign: BorderSide.strokeAlignInside),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: ElevatedButton(
+        style: ButtonStyle(
+            shape: WidgetStateProperty.all<OutlinedBorder>(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+            backgroundColor: WidgetStateProperty.all<Color>(
+                Theme.of(context).colorScheme.secondary)),
+        child: Text("Train",
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primaryFixedDim)),
         onPressed: () => onEquip(context),
-        child: const Text("Train"));
+      ),
+    );
   }
 }
 
 class GreyedEquipButton extends StatelessWidget {
-  const GreyedEquipButton({
-    super.key
-  });
+  const GreyedEquipButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.inversePrimary),
-      ),
-      onPressed: () => {},
-      child: const Text("Training"));
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 50,
+            child: ElevatedButton(
+                style: ButtonStyle(
+                    shape: WidgetStateProperty.all<OutlinedBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(0))),
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                        Theme.of(context).colorScheme.secondary)),
+                onPressed: () => {},
+                child: Text("- Active - ",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primaryFixedDim))),
+          ),
+        ),
+      ],
+    );
   }
 }

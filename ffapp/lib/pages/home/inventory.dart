@@ -9,7 +9,6 @@ import 'package:ffapp/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 
-
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
 
@@ -27,7 +26,7 @@ class _InventoryState extends State<Inventory> {
   late AuthService auth;
   late int currency = 0;
 
-  late List<Routes.FigureInstance>  figureInstancesList = List.empty();
+  late List<Routes.FigureInstance> figureInstancesList = List.empty();
   late List<Routes.Figure> figureList = List.empty();
 
   @override
@@ -43,23 +42,26 @@ class _InventoryState extends State<Inventory> {
     String stringCur = databaseUser?.currency.toString() ?? "0";
     currency = int.parse(stringCur);
     await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
-      figureInstancesList = value.figureInstances;
-    }));
+          figureInstancesList = value.figureInstances;
+        }));
     await auth.getFigures().then((value) => setState(() {
-      figureList = value.figures;
-    }));
+          figureList = value.figures;
+        }));
   }
 
   void equipNew(String newFigureName) {
     Provider.of<UserModel>(context, listen: false).setUser(Routes.User(
-        email: Provider.of<UserModel>(context, listen: false).user?.email,
-        currency: Provider.of<UserModel>(context, listen: false).user?.currency,
-        weekGoal: Provider.of<UserModel>(context, listen: false).user?.weekGoal,
-        weekComplete: Provider.of<UserModel>(context, listen: false).user?.weekComplete,
-        curFigure: newFigureName,
+      email: Provider.of<UserModel>(context, listen: false).user?.email,
+      currency: Provider.of<UserModel>(context, listen: false).user?.currency,
+      weekGoal: Provider.of<UserModel>(context, listen: false).user?.weekGoal,
+      weekComplete:
+          Provider.of<UserModel>(context, listen: false).user?.weekComplete,
+      curFigure: newFigureName,
     ));
     auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
-    Provider.of<FigureModel>(context, listen: false).setFigure(figureInstancesList.firstWhere((element) => element.figureName == newFigureName));
+    Provider.of<FigureModel>(context, listen: false).setFigure(
+        figureInstancesList
+            .firstWhere((element) => element.figureName == newFigureName));
   }
 
   Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
@@ -87,18 +89,25 @@ class _InventoryState extends State<Inventory> {
   void showFigureDetailsDialog(BuildContext context, String? figureName) {
     List<int> eVCutoffs = [];
     Figure figure = figureList.firstWhere((x) => x.figureName == figureName);
-    eVCutoffs.add(figure.stage1EvCutoff); // why did we decide to repersent this in the database this way it leads to a lot of code duplication
+    eVCutoffs.add(figure
+        .stage1EvCutoff); // why did we decide to repersent this in the database this way it leads to a lot of code duplication
     eVCutoffs.add(figure.stage2EvCutoff);
     eVCutoffs.add(figure.stage3EvCutoff);
     eVCutoffs.add(figure.stage4EvCutoff);
-    eVCutoffs.add(figure.stage5EvCutoff);// this is a lot of code duplication
-    eVCutoffs.add(figure.stage6EvCutoff); 
-    eVCutoffs.add(figure.stage7EvCutoff); // we could have just made a list of the stage ev cutoffs
+    eVCutoffs.add(figure.stage5EvCutoff); // this is a lot of code duplication
+    eVCutoffs.add(figure.stage6EvCutoff);
+    eVCutoffs.add(figure
+        .stage7EvCutoff); // we could have just made a list of the stage ev cutoffs
     eVCutoffs.add(figure.stage8EvCutoff);
-    eVCutoffs.add(figure.stage9EvCutoff); // and then looped through them to get the max points
+    eVCutoffs.add(figure
+        .stage9EvCutoff); // and then looped through them to get the max points
     eVCutoffs.add(figure.stage10EvCutoff); // this would have been a lot cleaner
     // :(
-    Map<String, int> displayPointsAndMax = displayEVPointsAndMax(figureInstancesList.firstWhere((x) => x.figureName == figureName).evPoints, eVCutoffs);
+    Map<String, int> displayPointsAndMax = displayEVPointsAndMax(
+        figureInstancesList
+            .firstWhere((x) => x.figureName == figureName)
+            .evPoints,
+        eVCutoffs);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -110,12 +119,29 @@ class _InventoryState extends State<Inventory> {
               builder: (context, figureModel, _) {
                 return Column(
                   children: [
-                    const SizedBox(height: 10,),
-                    RobotImageHolder(url: ("$figureName/${figureName}_skin0_evo${displayPointsAndMax['level']! - 1}_cropped_happy"), height: 300, width: 300),
-                    const SizedBox(height: 10,),
-                    EvBar(currentXp: displayPointsAndMax['displayPoints'] ?? 0 , maxXp: displayPointsAndMax['maxPoints'] ?? 0, currentLvl: displayPointsAndMax['level'] ?? 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
-                    const SizedBox(height: 40,),
-                    ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("Close"))
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    RobotImageHolder(
+                        url:
+                            ("$figureName/${figureName}_skin0_evo${displayPointsAndMax['level']! - 1}_cropped_happy"),
+                        height: 300,
+                        width: 300),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    EvBar(
+                        currentXp: displayPointsAndMax['displayPoints'] ?? 0,
+                        maxXp: displayPointsAndMax['maxPoints'] ?? 0,
+                        currentLvl: displayPointsAndMax['level'] ?? 1,
+                        fillColor: Theme.of(context).colorScheme.tertiary,
+                        barWidth: 200),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Close"))
                   ],
                 );
               },
@@ -128,54 +154,94 @@ class _InventoryState extends State<Inventory> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: (Column(
-        children: [
-          Text("Figure Inventory",
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  )),
-          const SizedBox(height: 10),
-          Column(
-            // generates the store as a bunch of rows with 2 elements each from the array above
-            // TO DO: if there are an odd number of skins it wont render the last one rn
-            children: List.generate(
-                (figureInstancesList.length / 2).ceil(),
-                (index) => Column(children: [
-                      const SizedBox(height: 15),
-                      Consumer<UserModel>(
-                        builder: (context, userModel, _) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(width: 5),
-                              InventoryItem(
-                                photoPath: ("${figureInstancesList[index * 2].figureName}/${figureInstancesList[index * 2].figureName}_skin0_evo0_cropped_happy"),
-                                onViewDetails: (context) => {showFigureDetailsDialog(context, (figureInstancesList[index * 2].figureName.toString()))},
-                                equiped: figureInstancesList[index * 2].figureName.toString() == userModel.user?.curFigure,
-                                onEquip: (context) => {equipNew(figureInstancesList[index * 2].figureName.toString())}
-                              ),
-                              const SizedBox(width: 15),
-                              index * 2 + 1 >= figureInstancesList.length ? Container() : //Conditional to check if we have a last skin to render
-                              InventoryItem(
-                                photoPath: ("${figureInstancesList[index * 2 + 1].figureName}/${figureInstancesList[index * 2 + 1].figureName}_skin0_evo0_cropped_happy"),
-                                onViewDetails: (context) => {showFigureDetailsDialog(context, (figureInstancesList[index * 2 + 1].figureName.toString()))},
-                                equiped: figureInstancesList[index * 2 + 1].figureName.toString() == userModel.user?.curFigure,
-                                onEquip: (context) => {equipNew(figureInstancesList[index * 2 + 1].figureName.toString())},
-                              ),
-                              const SizedBox(width: 5),
-                            ],
-                          );
-                        },
-                      ),
-            ])),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-              onPressed: () => context.goNamed('SkinStore'),
-              child: const Text("Buy More")),
-        ],
-      )),
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black,
+            Color.fromRGBO(16, 118, 0, 1),
+          ],
+        ),
+      ),
+      child: SingleChildScrollView(
+        child: (Column(
+          children: [
+            const SizedBox(height: 10),
+            Column(
+              children: List.generate(
+                  (figureInstancesList.length / 2).ceil(),
+                  (index) => Column(children: [
+                        const SizedBox(height: 15),
+                        Consumer<UserModel>(
+                          builder: (context, userModel, _) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 5),
+                                InventoryItem(
+                                    photoPath:
+                                        ("${figureInstancesList[index * 2].figureName}/${figureInstancesList[index * 2].figureName}_skin0_evo0_cropped_happy"),
+                                    onViewDetails: (context) => {
+                                          showFigureDetailsDialog(
+                                              context,
+                                              (figureInstancesList[index * 2]
+                                                  .figureName
+                                                  .toString()))
+                                        },
+                                    equiped: figureInstancesList[index * 2]
+                                            .figureName
+                                            .toString() ==
+                                        userModel.user?.curFigure,
+                                    onEquip: (context) => {
+                                          equipNew(
+                                              figureInstancesList[index * 2]
+                                                  .figureName
+                                                  .toString())
+                                        }),
+                                const SizedBox(width: 15),
+                                index * 2 + 1 >= figureInstancesList.length
+                                    ? Container()
+                                    : //Conditional to check if we have a last skin to render
+                                    InventoryItem(
+                                        photoPath:
+                                            ("${figureInstancesList[index * 2 + 1].figureName}/${figureInstancesList[index * 2 + 1].figureName}_skin0_evo0_cropped_happy"),
+                                        onViewDetails: (context) => {
+                                          showFigureDetailsDialog(
+                                              context,
+                                              (figureInstancesList[
+                                                      index * 2 + 1]
+                                                  .figureName
+                                                  .toString()))
+                                        },
+                                        equiped:
+                                            figureInstancesList[index * 2 + 1]
+                                                    .figureName
+                                                    .toString() ==
+                                                userModel.user?.curFigure,
+                                        onEquip: (context) => {
+                                          equipNew(
+                                              figureInstancesList[index * 2 + 1]
+                                                  .figureName
+                                                  .toString())
+                                        },
+                                      ),
+                                const SizedBox(width: 5),
+                              ],
+                            );
+                          },
+                        ),
+                      ])),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+                onPressed: () => context.goNamed('SkinStore'),
+                child: const Text("Buy More")),
+          ],
+        )),
+      ),
     );
   }
 }
