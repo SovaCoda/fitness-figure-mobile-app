@@ -215,7 +215,20 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
 
+  bool _isProcessing = false;
+  Timer? _debounceTimer;
+
   void showConfirmationBox() async {
+    if (_isProcessing) {
+      return;
+    }
+    _isProcessing = true;
+    if (_debounceTimer != null) {
+      _debounceTimer!.cancel();
+    }
+    _debounceTimer = Timer(const Duration(seconds: 2), () {
+      _isProcessing = false;
+    });
     if (time < _timegoal.toInt()) {
       showDialog(
           context: context,
