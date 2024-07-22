@@ -1,3 +1,5 @@
+import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/inventory_item.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
@@ -156,13 +158,13 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
             Colors.black,
-            Color.fromRGBO(16, 118, 0, 1),
+            Theme.of(context).colorScheme.primary,
           ],
         ),
       ),
@@ -236,9 +238,13 @@ class _InventoryState extends State<Inventory> {
                       ])),
             ),
             const SizedBox(height: 30),
-            ElevatedButton(
-                onPressed: () => context.goNamed('SkinStore'),
-                child: const Text("Buy More")),
+            FfButton(
+                text: "Buy More",
+                height: 50,
+                textColor: Theme.of(context).colorScheme.primaryFixedDim,
+                backgroundColor:
+                    Theme.of(context).colorScheme.onPrimaryContainer,
+                onPressed: () => context.goNamed('SkinStore')),
           ],
         )),
       ),

@@ -143,7 +143,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       showDialog(
                           context: context,
                           builder: (context) {
-                            return FfAlertDialog();
+                            return FfAlertDialog(
+                              child: Text('no content'),
+                            );
                           })
                     },
                 child: Row(
@@ -160,45 +162,45 @@ class _DashboardPageState extends State<DashboardPage> {
         //renders the page that the nav bar has currently selected
         //indexed stack allows pages to retain their state when switching between them
         body: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
                 Colors.black,
-                Color.fromRGBO(16, 118, 0, 1),
+                Theme.of(context).colorScheme.primary,
               ],
             ),
           ),
           child: Stack(children: [
-            Center(
-              child: Container(
-                  width: MediaQuery.of(context).size.width / 2.5,
-                  height: MediaQuery.of(context).size.height,
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: Alignment.center,
-                      radius: 3.0,
-                      colors: [
-                        Theme.of(context).colorScheme.surface.withAlpha(0),
-                        Theme.of(context).colorScheme.onSurface,
-                      ],
-                    ),
-                    border: Border(
-                        left: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surface
-                                .withAlpha(80),
-                            width: 5),
-                        right: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surface
-                                .withAlpha(80),
-                            width: 5)),
-                  )),
-            ),
+            // Center(
+            //   child: Container(
+            //       width: MediaQuery.of(context).size.width / 2.5,
+            //       height: MediaQuery.of(context).size.height,
+            //       decoration: BoxDecoration(
+            //         gradient: RadialGradient(
+            //           center: Alignment.center,
+            //           radius: 3.0,
+            //           colors: [
+            //             Theme.of(context).colorScheme.surface.withAlpha(0),
+            //             Theme.of(context).colorScheme.onSurface,
+            //           ],
+            //         ),
+            //         border: Border(
+            //             left: BorderSide(
+            //                 color: Theme.of(context)
+            //                     .colorScheme
+            //                     .surface
+            //                     .withAlpha(80),
+            //                 width: 5),
+            //             right: BorderSide(
+            //                 color: Theme.of(context)
+            //                     .colorScheme
+            //                     .surface
+            //                     .withAlpha(80),
+            //                 width: 5)),
+            //       )),
+            // ),
             IndexedStack(
               index: _selectedIndex,
               children: _pages,

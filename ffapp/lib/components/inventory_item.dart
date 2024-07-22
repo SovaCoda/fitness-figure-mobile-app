@@ -30,43 +30,69 @@ class InventoryItem extends StatelessWidget {
             ),
           ),
           color: Theme.of(context).colorScheme.primaryFixedDim),
-      child: (Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          const SizedBox(height: 25),
-          Image.asset(
-            "lib/assets/$photoPath.gif",
-            height: 170.0,
-            width: 170.0,
+          Center(
+            child: Container(
+                width: MediaQuery.of(context).size.width * 0.15,
+                height: 310,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: Alignment.center,
+                    radius: 3.0,
+                    colors: [
+                      Theme.of(context).colorScheme.primaryFixedDim,
+                      Theme.of(context).colorScheme.onPrimary,
+                    ],
+                  ),
+                )),
           ),
-          const SizedBox(height: 10),
-          Container(
-            margin: const EdgeInsets.only(top: 10, bottom: 10),
-            padding: const EdgeInsets.all(1),
-            height: 30,
-            decoration: BoxDecoration(
-              border: Border.all(
-                  color: Theme.of(context).colorScheme.secondary.withAlpha(127),
-                  width: 2,
-                  strokeAlign: BorderSide.strokeAlignInside),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: ElevatedButton(
-              style: ButtonStyle(
-                  shape: WidgetStateProperty.all<OutlinedBorder>(
-                      RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4))),
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      Theme.of(context).colorScheme.secondary)),
-              child: Text("View Details",
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.primaryFixedDim)),
-              onPressed: () => onViewDetails(context),
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const SizedBox(height: 25),
+              Image.asset(
+                "lib/assets/$photoPath.gif",
+                height: 170.0,
+                width: 170.0,
+              ),
+              const SizedBox(height: 10),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                padding: const EdgeInsets.all(1),
+                height: 30,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withAlpha(127),
+                      width: 2,
+                      strokeAlign: BorderSide.strokeAlignInside),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4))),
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.secondary)),
+                  child: Text("View Details",
+                      style: TextStyle(
+                          color:
+                              Theme.of(context).colorScheme.primaryFixedDim)),
+                  onPressed: () => onViewDetails(context),
+                ),
+              ),
+              equiped
+                  ? const GreyedEquipButton()
+                  : EquipButton(onEquip: onEquip),
+            ],
           ),
-          equiped ? const GreyedEquipButton() : EquipButton(onEquip: onEquip),
         ],
-      )),
+      ),
     );
   }
 }

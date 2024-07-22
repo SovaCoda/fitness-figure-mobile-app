@@ -55,6 +55,14 @@ class FigureModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  String composeFigureUrl() {
+    if (figure == null) {
+      return "robot1/robot1_skin0_evo0_cropped_happy";
+    } else {
+      return "${figure!.figureName}/${figure!.figureName}_skin${figure!.curSkin}_evo${figure!.evLevel}_cropped_happy";
+    }
+  }
+
   void setFigureSkin(String newValue) {
     figure?.curSkin = newValue;
     notifyListeners();
@@ -197,7 +205,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
 
-        // Define the default brightness and colors.
+        // Default green theme
         colorScheme: const ColorScheme(
           primary: Color.fromARGB(126, 31, 255, 60),
           brightness: Brightness.light,
@@ -213,8 +221,29 @@ class MyApp extends StatelessWidget {
           onSurface: Color.fromRGBO(226, 255, 227, 0.345),
           surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
           surfaceBright: Color.fromRGBO(76, 117, 18, 1), // Alert Dialog
-          surfaceDim: Color.fromRGBO(59, 64, 13, 1) // Alert Dialog
+          surfaceDim: Color.fromRGBO(59, 64, 13, 1), // Alert
+          tertiary: Color.fromRGBO(28, 206, 255, 1),
+          tertiaryFixedDim: Color.fromRGBO(10, 93, 101, 1),
         ),
+
+        // A blue theme
+        // colorScheme: const ColorScheme(
+        //     primary: Color.fromARGB(125, 31, 236, 255),
+        //     brightness: Brightness.light,
+        //     onPrimary: Color.fromRGBO(31, 101, 112, 1),
+        //     onPrimaryContainer: Color.fromRGBO(31, 255, 255, 1),
+        //     primaryFixedDim: Color.fromRGBO(0, 29, 29, 1),
+        //     secondary: Color.fromRGBO(27, 218, 225, 1),
+        //     onSecondary: Color.fromRGBO(6, 71, 44, 1),
+        //     secondaryFixed: Color.fromRGBO(30, 146, 157, 1),
+        //     error: Colors.red,
+        //     onError: Colors.black,
+        //     surface: Color.fromRGBO(239, 255, 239, 1),
+        //     onSurface: Color.fromRGBO(226, 255, 227, 0.345),
+        //     surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
+        //     surfaceBright: Color.fromRGBO(18, 117, 81, 1), // Alert Dialog
+        //     surfaceDim: Color.fromRGBO(13, 55, 64, 1) // Alert Dialog
+        //     ),
 
         // Define the default `TextTheme`. Use this to specify the default
         // text styling for headlines, titles, bodies of text, and more.

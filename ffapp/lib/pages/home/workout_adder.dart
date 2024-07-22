@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_points.dart';
+import 'package:ffapp/components/backed_figure_holder.dart';
+import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/popup.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
@@ -66,7 +69,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         time++;
-        if(time == _timegoal) {
+        if (time == _timegoal) {
           _goalMet = true;
           LocalNotificationService().showNotification(
             id: 0,
@@ -112,7 +115,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     int ev = figureEV + eVConcistencyBonus.toInt() + addableEV;
 
     int figureCharge = 5; // needs to be replaced with the figure provider.
-    double chargeConcistencyBonus = (figureCharge * 0.1) * user.weekComplete.toInt();
+    double chargeConcistencyBonus =
+        (figureCharge * 0.1) * user.weekComplete.toInt();
     int addableCharge = _timePassed.toInt() ~/ user.workoutMinTime.toInt();
     int charge = figureCharge + chargeConcistencyBonus.toInt() + addableCharge;
 
@@ -126,7 +130,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     Provider.of<FigureModel>(context, listen: false)
         .setFigureEv(figureInstance.evPoints + ev);
     Provider.of<FigureModel>(context, listen: false)
-        .setFigureCharge(!weeklyGoalMet ? ((figureInstance.charge + charge) > 100) ? 100 : figureInstance.charge + charge : figureInstance.charge);
+        .setFigureCharge(!weeklyGoalMet
+            ? ((figureInstance.charge + charge) > 100)
+                ? 100
+                : figureInstance.charge + charge
+            : figureInstance.charge);
     Provider.of<UserModel>(context, listen: false)
         .setUserWeekCompleted(Int64(user.weekComplete.toInt() + 1));
     figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
@@ -186,20 +194,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   Widget imSureButton() {
-    return ElevatedButton(
+    return FfButton(
         onPressed: () {
           Navigator.of(context).pop();
           endLogging();
         },
-        child: const Text("I'm Sure"));
+        text: "I'm Sure",
+        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        textColor: Theme.of(context).colorScheme.primaryFixedDim);
   }
 
   Widget noIllKeepAtIt() {
-    return ElevatedButton(
+    return FfButton(
         onPressed: () {
           Navigator.of(context).pop();
+          endLogging();
         },
-        child: const Text("No I'll Keep At It!"));
+        text: "No, I'll keep at it!",
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        textColor: Theme.of(context).colorScheme.primaryFixedDim);
   }
 
   add30Seconds() {
@@ -214,20 +227,42 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-
   void showConfirmationBox() async {
     if (time < _timegoal.toInt()) {
       showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              title: const Text("Are you sure?"),
-              content: Text(
-                  "You haven't worked out at least as long as ${formatSeconds(_timegoal.toInt())}, if you stop now this workout will be logged, but you will only gain currency and EV points. Are you sure you want to stop?"),
-              actions: [
-                imSureButton(),
-                noIllKeepAtIt(),
-              ],
+            return FfAlertDialog(
+              child: Column(
+                children: [
+                  Text(
+                    "Are you sure?",
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.surface),
+                  ),
+                  Text(
+                    "You haven't worked out at least as long as ${formatSeconds(_timegoal.toInt())}, if you stop now this workout will be logged, but you will only gain currency and EV points. Are you sure you want to stop?",
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.surface),
+                  ),
+                  FfButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        endLogging();
+                      },
+                      text: "I'm Sure",
+                      backgroundColor:
+                          Theme.of(context).colorScheme.onPrimaryContainer,
+                      textColor: Theme.of(context).colorScheme.primaryFixedDim),
+                  FfButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      text: "No, I'll keep at it!",
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      textColor: Theme.of(context).colorScheme.primaryFixedDim),
+                ],
+              ),
             );
           });
     } else {
@@ -256,15 +291,19 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              title: Text("Goal Reached!", style: Theme.of(context).textTheme.displaySmall),
-              content: Center(
+            return FfAlertDialog(
+              child: Center(
                   child: Column(children: [
                 Column(
                   children: [
                     Column(
                       children: [
                         ProgressBar(
+                          icon: Icon(
+                            Icons.battery_charging_full,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 40,
+                          ),
                           progressPercent: 1,
                           fillColor: Theme.of(context).colorScheme.primary,
                           barWidth: 240,
@@ -296,6 +335,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     Column(
                       children: [
                         ProgressBar(
+                          icon: Icon(
+                            Icons.currency_franc_sharp,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 40,
+                          ),
                           progressPercent: 1,
                           fillColor: Theme.of(context).colorScheme.secondary,
                           barWidth: 240,
@@ -327,6 +371,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     Column(
                       children: [
                         ProgressBar(
+                          icon: Icon(
+                            Icons.ev_station,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            size: 40,
+                          ),
                           progressPercent: 1,
                           fillColor: Theme.of(context).colorScheme.tertiary,
                           barWidth: 240,
@@ -354,23 +403,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         ),
                       ],
                     ),
-                    Consumer<FigureModel>(
-                      builder: (context, figureModel, _) {
-                        return RobotImageHolder(
-                          url:
-                              ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
-                          height: 200,
-                          width: 200,
-                        );
-                      },
-                    ),
+                    FfButton(
+                        text: "Awesome!",
+                        textColor: Theme.of(context).colorScheme.onError,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.onPrimaryContainer,
+                        onPressed: () {
+                          Navigator.pop(context);
+                          endLogging();
+                        }),
                   ],
                 ),
               ])),
-              actions: [
-                imSureButton(),
-                noIllKeepAtIt(),
-              ],
             );
           });
     }
@@ -389,12 +433,16 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-                onPressed: () {
-                  startLogging();
-                  startTimer();
-                },
-                child: const Text("Log a Workout"))
+            FfButton(
+              text: "Log a Workout",
+              height: 50,
+              textColor: Theme.of(context).colorScheme.primaryFixedDim,
+              backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              onPressed: () {
+                startLogging();
+                startTimer();
+              },
+            )
           ],
         ),
       );
@@ -408,55 +456,52 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Stack(children: [
                   Consumer<FigureModel>(
                     builder: (context, figureModel, _) {
-                      return RobotImageHolder(
-                        url:
-                            ("${figureModel.figure!.figureName}/${figureModel.figure!.figureName}_skin${figureModel.figure!.curSkin}_evo${figureModel.EVLevel}_cropped_happy"),
-                        height: 250,
-                        width: 250,
-                      );
+                      return BackedFigureHolder(
+                          height: 350,
+                          width: 250,
+                          figureUrl: figureModel.composeFigureUrl());
                     },
                   ),
-                  Positioned(
-                      child: RobotDialogBox(
-                          dialogOptions: robotDialog.getLoggerDialog(
-                              _timePassed.toInt(), 1800),
-                          width: 180,
-                          height: 45)),
                 ]),
-
-                const SizedBox(height: 5),
-                Text(
-                  formatSeconds(time.toInt()),
-                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: showConfirmationBox,
-                    child: const Text("End Workout")),
-                const SizedBox(height: 20),
                 Center(
                   child: Stack(
                     children: [
-                      Container(
-                        height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ProgressBar(
-                              progressPercent:
-                                  time.toDouble() / (_timegoal.toDouble()),
-                              fillColor: Theme.of(context).colorScheme.primary,
-                              barWidth: 240,
-                            ),
-                            const SizedBox(width: 20),
-                            Icon(
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          ProgressBar(
+                            icon: Icon(
                               Icons.battery_charging_full,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 34,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 40,
                             ),
-                          ],
-                        ),
+                            progressPercent:
+                                time.toDouble() / (_timegoal.toDouble()),
+                            fillColor: Theme.of(context).colorScheme.secondary,
+                            barWidth: 300,
+                            gradientColor:
+                                Theme.of(context).colorScheme.surfaceDim,
+                          ),
+                          ProgressBar(
+                            icon: Icon(
+                              Icons.upgrade,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              size: 40,
+                            ),
+                            progressPercent:
+                                time.toDouble() / (_timegoal.toDouble()),
+                            fillColor: Theme.of(context).colorScheme.tertiary,
+                            barWidth: 300,
+                            gradientColor:
+                                Theme.of(context).colorScheme.tertiaryFixedDim,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                        ],
                       ),
                       Positioned(
                         left: 65,
@@ -470,83 +515,45 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ProgressBar(
-                              progressPercent:
-                                  time.toDouble() / (_timegoal.toDouble()) * 2,
-                              fillColor: Theme.of(context).colorScheme.secondary,
-                              barWidth: 240,
-                            ),
-                            const SizedBox(width: 20),
-                            Icon(
-                              Icons.currency_exchange,
-                              color: Theme.of(context).colorScheme.secondary,
-                              size: 34,
-                            ),
-                          ],
+                Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.onPrimary),
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 15,
                         ),
-                      ),
-                      Positioned(
-                        left: 65,
-                        top: 0,
-                        child: FloatingText(
-                          text: "^ ${(scoreIncrement * 20)
-                                  .toStringAsPrecision(sigfigs)}",
-                          color: Theme.of(context).colorScheme.secondary,
+                        Text(
+                          formatSeconds(time.toInt()),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayMedium!
+                              .copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ProgressBar(
-                              progressPercent:
-                                  time.toDouble() / (_timegoal.toDouble()) * 4,
-                              fillColor: Theme.of(context).colorScheme.tertiary,
-                              barWidth: 240,
-                            ),
-                            const SizedBox(width: 20),
-                            Icon(
-                              Icons.upgrade,
-                              color: Theme.of(context).colorScheme.tertiary,
-                              size: 34,
-                            ),
-                          ],
+                        const SizedBox(
+                          height: 15,
                         ),
-                      ),
-                      Positioned(
-                        left: 65,
-                        top: 0,
-                        child: FloatingText(
-                          text: "^ ${(scoreIncrement * 40)
-                                  .toStringAsPrecision(sigfigs)}",
-                          color: Theme.of(context).colorScheme.tertiary,
+                        FfButton(
+                            text: "End Workout",
+                            textColor:
+                                Theme.of(context).colorScheme.primaryFixedDim,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                            onPressed: showConfirmationBox),
+                        const SizedBox(
+                          height: 15,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                      ],
+                    ))
               ],
             ),
           ),
           Consumer<UserModel>(builder: (context, user, _) {
-            return user.user?.email == "chb263@msstate.edu" || user.user?.email == "blizard265@gmail.com"
+            return user.user?.email == "chb263@msstate.edu" ||
+                    user.user?.email == "blizard265@gmail.com"
                 ? DraggableAdminPanel(
                     onButton1Pressed: add30Seconds,
                     onButton2Pressed: add10Minutes,

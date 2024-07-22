@@ -103,7 +103,7 @@ class ChargeBarVertical extends StatelessWidget {
             height: barWidth,
             margin: EdgeInsets.only(bottom: 27),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceBright,
               shape: BoxShape.rectangle,
             ),
             child: OverflowBox(
@@ -113,9 +113,9 @@ class ChargeBarVertical extends StatelessWidget {
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: fillColor,
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Color.fromARGB(127, 31, 255, 60),
+                            color: Theme.of(context).colorScheme.surfaceBright,
                             offset: Offset(0.0, 0.0),
                             blurRadius: 15.0,
                           )

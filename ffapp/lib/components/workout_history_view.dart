@@ -43,71 +43,108 @@ class WorkoutHistoryView extends StatelessWidget {
               //         child: Image.asset(robotUrl,
               //             width: MediaQuery.sizeOf(context).width * 0.2,
               //             height: 300, fit: BoxFit.none,))),
-              
+
               Column(
                 children: [
-                  Text('$dateTime', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.lime[800]),),
-                  Text('$elapsedTime', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white),),
+                  Text(
+                    '$dateTime',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineLarge
+                        ?.copyWith(color: Colors.lime[800]),
+                  ),
+                  Text(
+                    '$elapsedTime',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineLarge
+                        ?.copyWith(color: Colors.white),
+                  ),
                   const SizedBox(height: 5),
                   Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ProgressBar(
-                              progressPercent:
-                                  1,
-                              fillColor: Theme.of(context).colorScheme.primary,
-                              barWidth: 140,
-                            ),
-                            const SizedBox(width: 5),
-                            Text('$chargeGain', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.green),),
-                            Icon(
-                              Icons.battery_charging_full,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 34,
-                            ),
-                          ],
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProgressBar(
+                        icon: Icon(
+                          Icons.battery_charging_full,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ProgressBar(
-                              progressPercent:
-                                  1,
-                              fillColor: Theme.of(context).colorScheme.secondary,
-                              barWidth: 140,
-                            ),
-                            const SizedBox(width: 5),
-                              Text('$currencyGain', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white,)),
-                              const SizedBox(width: 5),
-                            Icon(
-                              Icons.currency_exchange,
-                              color: Theme.of(context).colorScheme.secondary,
-                              size: 34,
-                            ),
-                          ],
+                        progressPercent: 1,
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        barWidth: 140,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        '$chargeGain',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineLarge
+                            ?.copyWith(color: Colors.green),
+                      ),
+                      Icon(
+                        Icons.battery_charging_full,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 34,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProgressBar(
+                        icon: Icon(
+                          Icons.ev_station,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ProgressBar(
-                              progressPercent:
-                                  1,
-                              fillColor: Theme.of(context).colorScheme.tertiary,
-                              barWidth: 140,
-                            ),
-                            const SizedBox(width: 5),
-                            Text('30', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.cyan,)),
-                            Icon(
-                              Icons.upgrade,
-                              color: Theme.of(context).colorScheme.tertiary,
-                              size: 34,
-                            ),
-
-                          ],
+                        progressPercent: 1,
+                        fillColor: Theme.of(context).colorScheme.secondary,
+                        barWidth: 140,
+                      ),
+                      const SizedBox(width: 5),
+                      Text('$currencyGain',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                              )),
+                      const SizedBox(width: 5),
+                      Icon(
+                        Icons.currency_exchange,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 34,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProgressBar(
+                        icon: Icon(
+                          Icons.upgrade,
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
+                        progressPercent: 1,
+                        fillColor: Theme.of(context).colorScheme.tertiary,
+                        barWidth: 140,
+                      ),
+                      const SizedBox(width: 5),
+                      Text('30',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge
+                              ?.copyWith(
+                                color: Colors.cyan,
+                              )),
+                      Icon(
+                        Icons.upgrade,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        size: 34,
+                      ),
+                    ],
+                  ),
                 ],
               ),
-
             ],
           )),
     );

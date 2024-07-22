@@ -309,208 +309,247 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return SizedBox(
-          height: usableScreenHeight,
-          width: MediaQuery.sizeOf(context).width,
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primaryFixedDim
-                      .withAlpha(200),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Consumer<UserModel>(builder: (context, user, child) {
-                      if (user.user == null) {
-                        return const CircularProgressIndicator();
-                      }
-                      return Container(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10, bottom: 10),
-                          child: WorkoutNumbersRow(
-                            weeklyCompleted: user.user!.weekComplete.toInt(),
-                            weeklyGoal: user.user!.weekGoal.toInt(),
-                            lifeTimeCompleted: 10,
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Evolution bar
-                    Visibility(
-                      visible: !chatEnabled,
-                      child: Opacity(
-                        opacity: _sizeAnimation.value,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: SizedBox(
-                            width: MediaQuery.sizeOf(context).width / 8,
-                            child: Consumer<FigureModel>(
-                              builder: (context, figure, child) {
-                                if (figure.figure == null) {
-                                  return const CircularProgressIndicator();
-                                }
-                                return Center(
-                                    child: EvBarVertical(
-                                        currentXp: figure.figure?.evPoints ?? 0,
-                                        maxXp:
-                                            figure1.EvCutoffs[figure.EVLevel],
-                                        currentLvl: figure.EVLevel + 1 ?? 1,
-                                        fillColor: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
-                                        barHeight:
-                                            ((usableScreenHeight) ?? 800) * 0.5,
-                                        barWidth: 30));
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
+        return Stack(
+          children: [
+            Center(
+              child: Container(
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 3.0,
+                      colors: [
+                        Theme.of(context).colorScheme.surface.withAlpha(0),
+                        Theme.of(context).colorScheme.onSurface,
+                      ],
                     ),
-                    // end evolution bar
-                    // figure display
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Consumer<FigureModel>(
-                            builder: (context, figure, child) {
-                              String suffix;
-
-                              // Implemented logic for determining the robot's happiness or sadness
-
-                              if (figure.figure?.charge != null) {
-                                if (figure.figure!.charge.toInt() >= 0 &&
-                                    figure.figure!.charge.toInt() <= 20) {
-                                  suffix = "_sad";
-                                } else if (figure.figure!.charge.toInt() >=
-                                        51 &&
-                                    figure.figure!.charge.toInt() <= 100) {
-                                  suffix = "_happy";
-                                } else {
-                                  suffix = "";
-                                }
-                              } else {
-                                suffix = "";
-                              }
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  RobotImageHolder(
-                                    url: (figure.figure != null)
-                                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
-                                        : "robot1/robot1_skin0_evo0_cropped_happy",
-                                    height: chatEnabled ? 75 : 400,
-                                    width: chatEnabled ? 75 : 400,
-                                  )
-                                ],
-                              );
-                            },
-                          ),
-                          Visibility(
-                            visible: !chatEnabled,
-                            child: Positioned(
-                              top: 20,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: toggleChatMode,
-                                child: Opacity(
-                                  opacity: _sizeAnimation.value,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outline,
-                                        width: 2,
-                                      ),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerHighest,
-                                    ),
-                                    width: 50,
-                                    height: 50,
-                                    child: const Icon(
-                                      Icons.chat_bubble,
-                                      color: Colors.green,
-                                    ),
-                                  ),
+                    border: Border(
+                        left: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(80),
+                            width: 5),
+                        right: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(80),
+                            width: 5)),
+                  )),
+            ),
+            SizedBox(
+              height: usableScreenHeight,
+              width: MediaQuery.sizeOf(context).width,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryFixedDim
+                          .withAlpha(200),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Consumer<UserModel>(builder: (context, user, child) {
+                          if (user.user == null) {
+                            return const CircularProgressIndicator();
+                          }
+                          return Container(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 10, bottom: 10),
+                              child: WorkoutNumbersRow(
+                                weeklyCompleted:
+                                    user.user!.weekComplete.toInt(),
+                                weeklyGoal: user.user!.weekGoal.toInt(),
+                                lifeTimeCompleted: 10,
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Evolution bar
+                        Visibility(
+                          visible: !chatEnabled,
+                          child: Opacity(
+                            opacity: _sizeAnimation.value,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: SizedBox(
+                                width: MediaQuery.sizeOf(context).width / 8,
+                                child: Consumer<FigureModel>(
+                                  builder: (context, figure, child) {
+                                    if (figure.figure == null) {
+                                      return const CircularProgressIndicator();
+                                    }
+                                    return Center(
+                                        child: EvBarVertical(
+                                            currentXp:
+                                                figure.figure?.evPoints ?? 0,
+                                            maxXp: figure1
+                                                .EvCutoffs[figure.EVLevel],
+                                            currentLvl: figure.EVLevel + 1 ?? 1,
+                                            fillColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            barHeight:
+                                                ((usableScreenHeight) ?? 800) *
+                                                    0.5,
+                                            barWidth: 30));
+                                  },
                                 ),
                               ),
                             ),
                           ),
-                          // Visibility(
-                          //   visible: !chatEnabled,
-                          //   child: Positioned(
-                          //     bottom: 40,
-                          //     left: MediaQuery.sizeOf(context).width / 2 - 50,
-                          //     child: Center(
-                          //         child: ElevatedButton.icon(
-                          //             onPressed: onViewSkins,
-                          //             icon: const Icon(Icons.swap_calls),
-                          //             label: const Text("Skins"))),
-                          //   ),
-                          // ),
-                          Consumer<UserModel>(
-                            builder: (context, user, child) => (user.user !=
-                                            null &&
+                        ),
+                        // end evolution bar
+                        // figure display
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              Consumer<FigureModel>(
+                                builder: (context, figure, child) {
+                                  String suffix;
+
+                                  // Implemented logic for determining the robot's happiness or sadness
+
+                                  if (figure.figure?.charge != null) {
+                                    if (figure.figure!.charge.toInt() >= 0 &&
+                                        figure.figure!.charge.toInt() <= 20) {
+                                      suffix = "_sad";
+                                    } else if (figure.figure!.charge.toInt() >=
+                                            51 &&
+                                        figure.figure!.charge.toInt() <= 100) {
+                                      suffix = "_happy";
+                                    } else {
+                                      suffix = "";
+                                    }
+                                  } else {
+                                    suffix = "";
+                                  }
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      RobotImageHolder(
+                                        url: (figure.figure != null)
+                                            ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped$suffix")
+                                            : "robot1/robot1_skin0_evo0_cropped_happy",
+                                        height: chatEnabled ? 75 : 400,
+                                        width: chatEnabled ? 75 : 400,
+                                      )
+                                    ],
+                                  );
+                                },
+                              ),
+                              Visibility(
+                                visible: !chatEnabled,
+                                child: Positioned(
+                                  top: 20,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: toggleChatMode,
+                                    child: Opacity(
+                                      opacity: _sizeAnimation.value,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outline,
+                                            width: 2,
+                                          ),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHighest,
+                                        ),
+                                        width: 50,
+                                        height: 50,
+                                        child: const Icon(
+                                          Icons.chat_bubble,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Visibility(
+                              //   visible: !chatEnabled,
+                              //   child: Positioned(
+                              //     bottom: 40,
+                              //     left: MediaQuery.sizeOf(context).width / 2 - 50,
+                              //     child: Center(
+                              //         child: ElevatedButton.icon(
+                              //             onPressed: onViewSkins,
+                              //             icon: const Icon(Icons.swap_calls),
+                              //             label: const Text("Skins"))),
+                              //   ),
+                              // ),
+                              Consumer<UserModel>(
+                                builder: (context, user, child) => (user.user !=
+                                                null &&
+                                            user.user?.email ==
+                                                "chb263@msstate.ed" ||
                                         user.user?.email ==
-                                            "chb263@msstate.ed" ||
-                                    user.user?.email == "blizard265@gmail.com")
-                                ? DraggableAdminPanel(
-                                    onButton1Pressed: triggerFigureDecay,
-                                    onButton2Pressed: triggerUserReset,
-                                    button1Text: "Daily Decay Figure",
-                                    button2Text: "Weekly Reset User",
-                                  )
-                                : Container(),
-                          )
-                        ],
-                      ),
-                    ),
-                    Visibility(
-                      visible: !chatEnabled,
-                      child: Opacity(
-                        opacity: _sizeAnimation.value,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: SizedBox(
-                            width: MediaQuery.sizeOf(context).width / 8,
-                            child: Consumer<FigureModel>(
-                              builder: (context, figure, child) {
-                                if (figure == null) {
-                                  return const Text('No data available');
-                                }
-                                return ChargeBarVertical(
-                                  currentCharge: figure.figure?.charge ?? 0,
-                                  fillColor: Color.fromARGB(255, 111, 209, 109),
-                                  barHeight:
-                                      ((usableScreenHeight) ?? 800) * 0.5,
-                                  barWidth: 30,
-                                );
-                              },
+                                            "blizard265@gmail.com")
+                                    ? DraggableAdminPanel(
+                                        onButton1Pressed: triggerFigureDecay,
+                                        onButton2Pressed: triggerUserReset,
+                                        button1Text: "Daily Decay Figure",
+                                        button2Text: "Weekly Reset User",
+                                      )
+                                    : Container(),
+                              )
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                          visible: !chatEnabled,
+                          child: Opacity(
+                            opacity: _sizeAnimation.value,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: SizedBox(
+                                width: MediaQuery.sizeOf(context).width / 8,
+                                child: Consumer<FigureModel>(
+                                  builder: (context, figure, child) {
+                                    if (figure == null) {
+                                      return const Text('No data available');
+                                    }
+                                    return ChargeBarVertical(
+                                      currentCharge: figure.figure?.charge ?? 0,
+                                      fillColor: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                      barHeight:
+                                          ((usableScreenHeight) ?? 800) * 0.5,
+                                      barWidth: 30,
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              //imported from progress bar component
-            ],
-          ),
+                  //imported from progress bar component
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
