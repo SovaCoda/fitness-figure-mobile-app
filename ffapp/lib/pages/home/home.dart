@@ -1,6 +1,7 @@
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/chat.dart';
+import 'package:ffapp/pages/home/core.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/fitventureslite.dart';
 import 'package:ffapp/pages/home/history.dart';
@@ -32,6 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
     const History(),
     const Profile(),
     const FitVenturesLite(),
+    const Core(),
   ];
 
   int _selectedIndex = 0;
@@ -250,6 +252,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.map_outlined), label: 'Fitventures'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.map_outlined), label: 'Coreß'),
                 ],
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped)));

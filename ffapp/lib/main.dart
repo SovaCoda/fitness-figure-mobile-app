@@ -30,6 +30,13 @@ class CurrencyModel extends ChangeNotifier {
     currency = newCurrency;
     notifyListeners();
   }
+
+  void addToCurrency(int numberToAdd) {
+    int currentCurrency = int.parse(currency);
+    String newCurrency =  (currentCurrency + numberToAdd).toString();
+    currency = newCurrency;
+    notifyListeners();
+  }
 }
 
 class UserModel extends ChangeNotifier {
@@ -184,7 +191,7 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     name: 'Evolution',
     path: '/evolution',
     builder: (context, state) => const EvolutionPage(),
-  )
+  ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',
