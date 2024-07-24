@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/flutterUser.dart';
+import 'package:provider/provider.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/main.dart';
+import 'package:fixnum/fixnum.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -15,12 +19,12 @@ class _ProfileState extends State<Profile> {
   void emptyFunction() {}
 
   late AuthService auth;
-
+/*
   Future<void> initAuthService() async {
     auth = await AuthService.instance;
     logger.i("AuthService initialized");
   }
-
+*/
   FlutterUser user = FlutterUser();
   late String name = "Loading...";
   late String email = "Loading...";
@@ -31,20 +35,31 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
     initialize();
   }
 
   void initialize() async {
-    await initAuthService();
-    await user.initAuthService();
-    await user.checkUser();
-    String usrName = await user.getName();
-    int usrGoal = await user.getWorkoutGoal();
+    Routes.User? databaseUser = await auth.getUserDBInfo();
+    if (mounted) {
+      Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+    }
+    String curName = databaseUser?.name ?? "Loading...";
+    if (curName == "") {
+      curName = "No name given";
+    }
+    String curEmail = databaseUser?.email ?? "Loading...";
+    int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
+//  Remove comment when premium is added
+//  bool premiumStatus = databaseUser?.premium ?? false;
     setState(() {
-      name = usrName;
+      name = curName;
+      email = curEmail;
       password = "*******";
-      weeklyGoal = usrGoal;
+      weeklyGoal = curGoal;
       manageSub = "Subscription Tier 1";
+//    Remove comment when premium is added
+//    manageSub = premiumStatus ? "Subscription Tier 1" : "Regular"
     });
   }
 
@@ -58,6 +73,7 @@ class _ProfileState extends State<Profile> {
 
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
+    Provider.of<UserModel>(context, listen: false).setUserWeekGoal(Int64(goal));
   }
 
   @override
@@ -106,10 +122,30 @@ class _ProfileState extends State<Profile> {
             updateWeeklyGoal(weeklyGoal);
           },
         ),
-        SettingsBar(
-          onTapFunction: emptyFunction,
-          name: "Subscription: $manageSub",
-        ),
+        Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: 50,
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black),
+                  top: BorderSide(color: Colors.black),
+                )),
+            child: Center(
+              child: Text(
+                "Subscription: $manageSub",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall!
+                    .copyWith(color: Theme.of(context).colorScheme.onError),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        // SettingsBar(
+        //   onTapFunction: emptyFunction,
+        //   name: "Subscription: $manageSub",
+        // ),
         GestureDetector(
           onTap: () {
             signOut();

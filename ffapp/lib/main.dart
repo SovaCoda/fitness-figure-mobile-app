@@ -43,6 +43,11 @@ class UserModel extends ChangeNotifier {
     user?.weekComplete = newValue;
     notifyListeners();
   }
+
+  void setUserWeekGoal(Int64 newValue) {
+    user?.weekGoal = newValue;
+    notifyListeners();
+  }
 }
 
 class FigureModel extends ChangeNotifier {
