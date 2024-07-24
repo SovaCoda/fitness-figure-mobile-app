@@ -88,7 +88,7 @@ class AuthService {
   Future<Routes.User?> getUserDBInfo() async {
     FB.User? currentUser = _auth.currentUser;
     Routes.User user = Routes.User(email: currentUser!.email);
-    return  await _routes.routesClient.getUser(user);
+    return await _routes.routesClient.getUser(user);
   }
 
   Future<Routes.User> updateUserDBInfo(Routes.User user) async {
@@ -346,9 +346,11 @@ class AuthService {
       throw Exception("Failed to get skin instances");
     }
   }
+
   // END SKIN METHODS //
   // BEGIN SURVEY METHODS //
-  Future<Routes.SurveyResponse> getSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+  Future<Routes.SurveyResponse> getSurveyResponse(
+      Routes.SurveyResponse surveyResponse) async {
     try {
       return await _routes.routesClient.getSurveyResponse(surveyResponse);
     } catch (e) {
@@ -357,7 +359,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SurveyResponse> updateSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+  Future<Routes.SurveyResponse> updateSurveyResponse(
+      Routes.SurveyResponse surveyResponse) async {
     try {
       return await _routes.routesClient.updateSurveyResponse(surveyResponse);
     } catch (e) {
@@ -366,7 +369,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SurveyResponse> createSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+  Future<Routes.SurveyResponse> createSurveyResponse(
+      Routes.SurveyResponse surveyResponse) async {
     try {
       return await _routes.routesClient.createSurveyResponse(surveyResponse);
     } catch (e) {
@@ -375,7 +379,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.SurveyResponse> deleteSurveyResponse(Routes.SurveyResponse surveyResponse) async {
+  Future<Routes.SurveyResponse> deleteSurveyResponse(
+      Routes.SurveyResponse surveyResponse) async {
     try {
       return await _routes.routesClient.deleteSurveyResponse(surveyResponse);
     } catch (e) {
@@ -384,7 +389,8 @@ class AuthService {
     }
   }
 
-  Future<Routes.MultiSurveyResponse> getSurveyResponses(Routes.User user) async {
+  Future<Routes.MultiSurveyResponse> getSurveyResponses(
+      Routes.User user) async {
     try {
       return await _routes.routesClient.getSurveyResponses(user);
     } catch (e) {
@@ -393,15 +399,50 @@ class AuthService {
     }
   }
 
-  Future<Routes.MultiSurveyResponse> createSurveyResponseMulti(Routes.MultiSurveyResponse multiSurveyResponse) async {
+  Future<Routes.MultiSurveyResponse> createSurveyResponseMulti(
+      Routes.MultiSurveyResponse multiSurveyResponse) async {
     try {
-      return await _routes.routesClient.createSurveyResponseMulti(multiSurveyResponse);
+      return await _routes.routesClient
+          .createSurveyResponseMulti(multiSurveyResponse);
     } catch (e) {
       logger.e(e);
       throw Exception("Failed to create survey responses");
     }
   }
   // END SURVEY METHODS //
+
+  // BEGIN OFFLINE DATE TIME METHODS //
+  Future<Routes.OfflineDateTime> getOfflineDateTime(
+      Routes.OfflineDateTime offlineDateTime) async {
+    try {
+      return await _routes.routesClient.getOfflineDateTime(offlineDateTime);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get offline date time");
+    }
+  }
+
+  Future<Routes.OfflineDateTime> updateOfflineDateTime(
+      Routes.OfflineDateTime offlineDateTime) async {
+    try {
+      return await _routes.routesClient.updateOfflineDateTime(offlineDateTime);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update offline date time");
+    }
+  }
+
+  Future<Routes.OfflineDateTime> deleteOfflineDateTime(
+      Routes.OfflineDateTime offlineDateTime) async {
+    try {
+      return await _routes.routesClient.deleteOfflineDateTime(offlineDateTime);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete offline date time");
+    }
+  }
+  // END OFFLINE DATE TIME METHODS //
+
   // BEGIN SERVER ACTIONS //
   Future<Routes.GenericStringResponse> figureDecay(
       Routes.FigureInstance figure) async {

@@ -162,6 +162,18 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/CreateSurveyResponseMulti',
       ($0.MultiSurveyResponse value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.MultiSurveyResponse.fromBuffer(value));
+  static final _$getOfflineDateTime = $grpc.ClientMethod<$0.OfflineDateTime, $0.OfflineDateTime>(
+      '/routes.Routes/GetOfflineDateTime',
+      ($0.OfflineDateTime value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value));
+  static final _$updateOfflineDateTime = $grpc.ClientMethod<$0.OfflineDateTime, $0.OfflineDateTime>(
+      '/routes.Routes/UpdateOfflineDateTime',
+      ($0.OfflineDateTime value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value));
+  static final _$deleteOfflineDateTime = $grpc.ClientMethod<$0.OfflineDateTime, $0.OfflineDateTime>(
+      '/routes.Routes/DeleteOfflineDateTime',
+      ($0.OfflineDateTime value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value));
   static final _$figureDecay = $grpc.ClientMethod<$0.FigureInstance, $0.GenericStringResponse>(
       '/routes.Routes/FigureDecay',
       ($0.FigureInstance value) => value.writeToBuffer(),
@@ -315,6 +327,18 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.MultiSurveyResponse> createSurveyResponseMulti($0.MultiSurveyResponse request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$createSurveyResponseMulti, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.OfflineDateTime> getOfflineDateTime($0.OfflineDateTime request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getOfflineDateTime, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.OfflineDateTime> updateOfflineDateTime($0.OfflineDateTime request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateOfflineDateTime, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.OfflineDateTime> deleteOfflineDateTime($0.OfflineDateTime request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteOfflineDateTime, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.GenericStringResponse> figureDecay($0.FigureInstance request, {$grpc.CallOptions? options}) {
@@ -576,6 +600,27 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.MultiSurveyResponse.fromBuffer(value),
         ($0.MultiSurveyResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.OfflineDateTime, $0.OfflineDateTime>(
+        'GetOfflineDateTime',
+        getOfflineDateTime_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value),
+        ($0.OfflineDateTime value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.OfflineDateTime, $0.OfflineDateTime>(
+        'UpdateOfflineDateTime',
+        updateOfflineDateTime_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value),
+        ($0.OfflineDateTime value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.OfflineDateTime, $0.OfflineDateTime>(
+        'DeleteOfflineDateTime',
+        deleteOfflineDateTime_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value),
+        ($0.OfflineDateTime value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.GenericStringResponse>(
         'FigureDecay',
         figureDecay_Pre,
@@ -732,6 +777,18 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return createSurveyResponseMulti(call, await request);
   }
 
+  $async.Future<$0.OfflineDateTime> getOfflineDateTime_Pre($grpc.ServiceCall call, $async.Future<$0.OfflineDateTime> request) async {
+    return getOfflineDateTime(call, await request);
+  }
+
+  $async.Future<$0.OfflineDateTime> updateOfflineDateTime_Pre($grpc.ServiceCall call, $async.Future<$0.OfflineDateTime> request) async {
+    return updateOfflineDateTime(call, await request);
+  }
+
+  $async.Future<$0.OfflineDateTime> deleteOfflineDateTime_Pre($grpc.ServiceCall call, $async.Future<$0.OfflineDateTime> request) async {
+    return deleteOfflineDateTime(call, await request);
+  }
+
   $async.Future<$0.GenericStringResponse> figureDecay_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
     return figureDecay(call, await request);
   }
@@ -775,6 +832,9 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.SurveyResponse> deleteSurveyResponse($grpc.ServiceCall call, $0.SurveyResponse request);
   $async.Future<$0.MultiSurveyResponse> getSurveyResponses($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.MultiSurveyResponse> createSurveyResponseMulti($grpc.ServiceCall call, $0.MultiSurveyResponse request);
+  $async.Future<$0.OfflineDateTime> getOfflineDateTime($grpc.ServiceCall call, $0.OfflineDateTime request);
+  $async.Future<$0.OfflineDateTime> updateOfflineDateTime($grpc.ServiceCall call, $0.OfflineDateTime request);
+  $async.Future<$0.OfflineDateTime> deleteOfflineDateTime($grpc.ServiceCall call, $0.OfflineDateTime request);
   $async.Future<$0.GenericStringResponse> figureDecay($grpc.ServiceCall call, $0.FigureInstance request);
   $async.Future<$0.GenericStringResponse> userWeeklyReset($grpc.ServiceCall call, $0.User request);
 }

@@ -1310,6 +1310,70 @@ class MultiSurveyResponse extends $pb.GeneratedMessage {
   $core.List<SurveyResponse> get surveyResponses => $_getList(0);
 }
 
+class OfflineDateTime extends $pb.GeneratedMessage {
+  factory OfflineDateTime({
+    $core.String? email,
+    $core.String? currency,
+  }) {
+    final $result = create();
+    if (email != null) {
+      $result.email = email;
+    }
+    if (currency != null) {
+      $result.currency = currency;
+    }
+    return $result;
+  }
+  OfflineDateTime._() : super();
+  factory OfflineDateTime.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OfflineDateTime.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OfflineDateTime', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'Email', protoName: 'Email')
+    ..aOS(2, _omitFieldNames ? '' : 'Currency', protoName: 'Currency')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OfflineDateTime clone() => OfflineDateTime()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OfflineDateTime copyWith(void Function(OfflineDateTime) updates) => super.copyWith((message) => updates(message as OfflineDateTime)) as OfflineDateTime;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OfflineDateTime create() => OfflineDateTime._();
+  OfflineDateTime createEmptyInstance() => create();
+  static $pb.PbList<OfflineDateTime> createRepeated() => $pb.PbList<OfflineDateTime>();
+  @$core.pragma('dart2js:noInline')
+  static OfflineDateTime getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OfflineDateTime>(create);
+  static OfflineDateTime? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get currency => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set currency($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasCurrency() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCurrency() => clearField(2);
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

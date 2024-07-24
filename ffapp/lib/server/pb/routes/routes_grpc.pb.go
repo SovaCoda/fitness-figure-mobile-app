@@ -65,6 +65,10 @@ type RoutesClient interface {
 	DeleteSurveyResponse(ctx context.Context, in *SurveyResponse, opts ...grpc.CallOption) (*SurveyResponse, error)
 	GetSurveyResponses(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiSurveyResponse, error)
 	CreateSurveyResponseMulti(ctx context.Context, in *MultiSurveyResponse, opts ...grpc.CallOption) (*MultiSurveyResponse, error)
+	// GENERATION ROUTES //
+	GetOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error)
+	UpdateOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error)
+	DeleteOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error)
 	// SERVER ACTIONS //
 	FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error)
 	UserWeeklyReset(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericStringResponse, error)
@@ -393,6 +397,33 @@ func (c *routesClient) CreateSurveyResponseMulti(ctx context.Context, in *MultiS
 	return out, nil
 }
 
+func (c *routesClient) GetOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error) {
+	out := new(OfflineDateTime)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetOfflineDateTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UpdateOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error) {
+	out := new(OfflineDateTime)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateOfflineDateTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) DeleteOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error) {
+	out := new(OfflineDateTime)
+	err := c.cc.Invoke(ctx, "/routes.Routes/DeleteOfflineDateTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *routesClient) FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error) {
 	out := new(GenericStringResponse)
 	err := c.cc.Invoke(ctx, "/routes.Routes/FigureDecay", in, out, opts...)
@@ -457,6 +488,10 @@ type RoutesServer interface {
 	DeleteSurveyResponse(context.Context, *SurveyResponse) (*SurveyResponse, error)
 	GetSurveyResponses(context.Context, *User) (*MultiSurveyResponse, error)
 	CreateSurveyResponseMulti(context.Context, *MultiSurveyResponse) (*MultiSurveyResponse, error)
+	// GENERATION ROUTES //
+	GetOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error)
+	UpdateOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error)
+	DeleteOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error)
 	// SERVER ACTIONS //
 	FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error)
 	UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error)
@@ -571,6 +606,15 @@ func (UnimplementedRoutesServer) GetSurveyResponses(context.Context, *User) (*Mu
 }
 func (UnimplementedRoutesServer) CreateSurveyResponseMulti(context.Context, *MultiSurveyResponse) (*MultiSurveyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSurveyResponseMulti not implemented")
+}
+func (UnimplementedRoutesServer) GetOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOfflineDateTime not implemented")
+}
+func (UnimplementedRoutesServer) UpdateOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOfflineDateTime not implemented")
+}
+func (UnimplementedRoutesServer) DeleteOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOfflineDateTime not implemented")
 }
 func (UnimplementedRoutesServer) FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FigureDecay not implemented")
@@ -1221,6 +1265,60 @@ func _Routes_CreateSurveyResponseMulti_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_GetOfflineDateTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OfflineDateTime)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetOfflineDateTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetOfflineDateTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetOfflineDateTime(ctx, req.(*OfflineDateTime))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UpdateOfflineDateTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OfflineDateTime)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UpdateOfflineDateTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UpdateOfflineDateTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UpdateOfflineDateTime(ctx, req.(*OfflineDateTime))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_DeleteOfflineDateTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OfflineDateTime)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).DeleteOfflineDateTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/DeleteOfflineDateTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).DeleteOfflineDateTime(ctx, req.(*OfflineDateTime))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Routes_FigureDecay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FigureInstance)
 	if err := dec(in); err != nil {
@@ -1403,6 +1501,18 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateSurveyResponseMulti",
 			Handler:    _Routes_CreateSurveyResponseMulti_Handler,
+		},
+		{
+			MethodName: "GetOfflineDateTime",
+			Handler:    _Routes_GetOfflineDateTime_Handler,
+		},
+		{
+			MethodName: "UpdateOfflineDateTime",
+			Handler:    _Routes_UpdateOfflineDateTime_Handler,
+		},
+		{
+			MethodName: "DeleteOfflineDateTime",
+			Handler:    _Routes_DeleteOfflineDateTime_Handler,
 		},
 		{
 			MethodName: "FigureDecay",

@@ -676,6 +676,61 @@ func (s *server) CreateSurveyResponseMulti(ctx context.Context, in *pb.MultiSurv
 }
 
 // END SURVEY METHODS //
+
+// BEGIN OFFLINE DATE TIME METHODS //
+
+func (s *server) GetOfflineDateTime(ctx context.Context, in *pb.OfflineDateTime) (*pb.OfflineDateTime, error) {
+	// Implement logic to retrieve offline date time for the given email
+	var offlineDateTime pb.OfflineDateTime
+
+	err := s.db.QueryRowContext(ctx, "SELECT Email, Currency FROM offline_date_times WHERE Email = ?", in.Email).Scan(&offlineDateTime.Email, &offlineDateTime.Currency)
+	if err != nil {
+		return nil, fmt.Errorf("could not get offline date time: %v", err)
+	}
+
+	return &offlineDateTime, nil
+}
+
+func (s *server) UpdateOfflineDateTime(ctx context.Context, in *pb.OfflineDateTime) (*pb.OfflineDateTime, error) {
+	// Implement logic to update offline date time for the given email
+	var offlineDateTime pb.OfflineDateTime
+
+	_, err := s.db.ExecContext(ctx, "UPDATE offline_date_times SET Currency = ? WHERE Email = ?", in.Currency, in.Email)
+	if err != nil {
+		log.Printf("Failed to update offline date time: %v", err)
+		// If not found, create a new offline date time
+		_, err = s.db.ExecContext(ctx, "INSERT INTO offline_date_times (Email, Currency) VALUES (?, ?)", in.Email, in.Currency)
+		if err != nil {
+			log.Printf("Failed to create offline date time: %v", err)
+			return nil, err
+		}
+	}
+
+	offlineDateTime.Email = in.Email
+	offlineDateTime.Currency = in.Currency
+
+	return &offlineDateTime, nil
+}
+
+func (s *server) DeleteOfflineDateTime(ctx context.Context, in *pb.OfflineDateTime) (*pb.OfflineDateTime, error) {
+	// Implement logic to delete offline date time for the given email
+	var offlineDateTime pb.OfflineDateTime
+
+	err := s.db.QueryRowContext(ctx, "SELECT Email, Currency FROM offline_date_time WHERE Email = ?", in.Email).Scan(&offlineDateTime.Email, &offlineDateTime.Currency)
+	if err != nil {
+		return nil, fmt.Errorf("could not get offline date time: %v", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, "DELETE FROM offline_date_time WHERE Email = ?", in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete offline date time: %v", err)
+	}
+
+	return &offlineDateTime, nil
+}
+
+// END OFFLINE DATE TIME METHODS //
+
 // BEGIN SERVER ACTIONS //
 
 func (s *server) FigureDecay(ctx context.Context, in  *pb.FigureInstance) (*pb.GenericStringResponse, error) {
