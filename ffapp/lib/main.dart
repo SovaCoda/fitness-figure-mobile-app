@@ -207,7 +207,7 @@ class MyApp extends StatelessWidget {
 
         // Default green theme
         colorScheme: const ColorScheme(
-          primary: Color.fromARGB(126, 31, 255, 60),
+          primary: Color.fromARGB(255, 31, 255, 61),
           brightness: Brightness.light,
           onPrimary: Color.fromRGBO(31, 112, 41, 1),
           onPrimaryContainer: Color.fromRGBO(31, 255, 61, 1),

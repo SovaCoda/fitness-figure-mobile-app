@@ -64,12 +64,10 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          "Profile",
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              )
-        ),
+        Text("Profile",
+            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withAlpha(255),
+                )),
         const SizedBox(height: 20),
         SettingsBar(
           name: "Name: $name",
@@ -112,16 +110,31 @@ class _ProfileState extends State<Profile> {
           onTapFunction: emptyFunction,
           name: "Subscription: $manageSub",
         ),
-        TextButton(
-          style: ButtonStyle(
-            foregroundColor: WidgetStateProperty.all<Color>(Colors.blue),
-          ),
-          onPressed: () {
+        GestureDetector(
+          onTap: () {
             signOut();
-            context.goNamed('SignIn');
+            GoRouter.of(context).go("/");
           },
-          child: const Text('Sign Out'),
-        ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: 50,
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black),
+                  top: BorderSide(color: Colors.black),
+                )),
+            child: Center(
+              child: Text(
+                'Sign Out',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall!
+                    .copyWith(color: Theme.of(context).colorScheme.onError),
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
@@ -159,29 +172,32 @@ class SettingsBar extends StatelessWidget {
             onTapFunction();
           }
         },
-        child: Container(
-          width: double.infinity,
-          height: 50,
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              border: const Border(
-                bottom: BorderSide(color: Colors.black),
-                top: BorderSide(color: Colors.black),
-              )),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant
+        child: Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: 50,
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black),
+                  top: BorderSide(color: Colors.black),
+                )),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall!
+                    .copyWith(color: Theme.of(context).colorScheme.onError),
               ),
-            ),
-            const SizedBox(width: 10),
-            Icon(
-              Icons.edit,
-              color: Theme.of(context).colorScheme.primary,
-            )
-          ]),
+              const SizedBox(width: 10),
+              Icon(
+                Icons.edit,
+                color: Theme.of(context).colorScheme.primary,
+              )
+            ]),
+          ),
         ),
       ),
       const SizedBox(height: 5)
