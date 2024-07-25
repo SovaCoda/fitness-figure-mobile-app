@@ -685,9 +685,18 @@ func (s *server) GetOfflineDateTime(ctx context.Context, in *pb.OfflineDateTime)
 
 	err := s.db.QueryRowContext(ctx, "SELECT Email, Currency FROM offline_date_times WHERE Email = ?", in.Email).Scan(&offlineDateTime.Email, &offlineDateTime.Currency)
 	if err != nil {
-		return nil, fmt.Errorf("could not get offline date time: %v", err)
-	}
+		_, err = s.db.ExecContext(ctx, "INSERT INTO offline_date_times (Email, Currency) VALUES (?, CURRENT_TIMESTAMP)", in.Email)
+		if err != nil {
+			log.Printf("Failed to create offline date time: %v", err)
+			return nil, err
+		}
 
+		err := s.db.QueryRowContext(ctx, "SELECT Email, Currency FROM offline_date_times WHERE Email = ?", in.Email).Scan(&offlineDateTime.Email, &offlineDateTime.Currency)
+		if err != nil {
+			return nil, fmt.Errorf("could not get offline date time: %v", err)
+		}
+		return &offlineDateTime, nil
+	}
 	return &offlineDateTime, nil
 }
 
