@@ -98,6 +98,7 @@ class AuthService {
 
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
+    await _routes.routesClient.deleteUser(Routes.User(email: _auth.currentUser!.email!));
   }
 
   Future<Routes.Workout> createWorkout(Routes.Workout workout) async {
@@ -126,8 +127,10 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> updateEmail(String email) async {
-    await _auth.currentUser?.updateEmail(email);
+  Future<void> updateEmail(String email, FB.AuthCredential credential) async {
+    FB.User? currentUser = _auth.currentUser;
+    await currentUser?.reauthenticateWithCredential(credential);
+    await _auth.currentUser?.verifyBeforeUpdateEmail(email);
   }
 
   Future<void> updatePassword(String password) async {

@@ -59,7 +59,7 @@ class _ProfileState extends State<Profile> {
       weeklyGoal = curGoal;
       manageSub = "Subscription Tier 1";
 //    Remove comment when premium is added
-//    manageSub = premiumStatus ? "Subscription Tier 1" : "Regular"
+//    manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User"
     });
   }
 
@@ -67,9 +67,42 @@ class _ProfileState extends State<Profile> {
     await auth.updateName(name);
   }
 
-  void updateEmail(String email) async {
-    await auth.updateEmail(email);
+  Future<void> updateEmail(String userEmail, String userPassword, String newEmail) async {
+  try {
+    // Step 1: Re-authenticate the user
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword);
+    await currentUser?.reauthenticateWithCredential(credential);
+
+    // Step 2: Get current user data
+    Routes.User? oldUserData = await auth.getUserDBInfo();
+
+    // Step 3: Create new account
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(email: newEmail, password: userPassword);
+
+    // Step 4: Sign in to the new account
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: newEmail, password: userPassword);
+
+    // Step 5: Update user data for the new account
+    Routes.User newUser = oldUserData!;
+    newUser.email = newEmail;
+    await auth.createUser(newEmail, userPassword);
+    await auth.updateUserDBInfo(newUser);
+
+    // Step 6: Delete the old account
+    await FirebaseAuth.instance.signOut();
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: userEmail, password: userPassword);
+    await FirebaseAuth.instance.currentUser?.delete();
+    await auth.deleteUser();
+
+    // Step 7: Sign back into the new account
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: newEmail, password: userPassword);
+
+  } catch (e) {
+    print("Error updating email: $e");
+    // Handle errors appropriately
   }
+}
 
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
@@ -99,12 +132,18 @@ class _ProfileState extends State<Profile> {
         SettingsBar(
           onTapFunction: emptyFunction,
           name: "Email: $email",
-          onInputChange: (newEmail) {
+          onInputChange: (newEmail) async {
+            final userPassword = await showDialog<String>(
+              context: context,
+              builder: (BuildContext context) {
+                return const getUserCredentials();
+              },
+            );
+            logger.i("Changing user name to $newEmail");
+            updateEmail(email, userPassword!, newEmail);
             setState(() {
               email = newEmail;
             });
-            logger.i("Changing user name to $email");
-            updateEmail(email);
           },
         ),
         SettingsBar(
@@ -123,25 +162,25 @@ class _ProfileState extends State<Profile> {
           },
         ),
         Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: 50,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: const Border(
-                  bottom: BorderSide(color: Colors.black),
-                  top: BorderSide(color: Colors.black),
-                )),
-            child: Center(
-              child: Text(
-                "Subscription: $manageSub",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: Theme.of(context).colorScheme.onError),
-              ),
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: 50,
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: const Border(
+                bottom: BorderSide(color: Colors.black),
+                top: BorderSide(color: Colors.black),
+              )),
+          child: Center(
+            child: Text(
+              "Subscription: $manageSub",
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall!
+                  .copyWith(color: Theme.of(context).colorScheme.onError),
             ),
           ),
-          const SizedBox(height: 20),
+        ),
+        const SizedBox(height: 20),
         // SettingsBar(
         //   onTapFunction: emptyFunction,
         //   name: "Subscription: $manageSub",
@@ -271,6 +310,39 @@ class InputDialog extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class getUserCredentials extends StatelessWidget {
+  const getUserCredentials({super.key});
+
+
+  @override
+  Widget build(BuildContext context) {
+    TextEditingController controller = TextEditingController();
+
+
+  return AlertDialog(
+    title: const Text('This requires extra authentication. Please enter your password.'),
+    content: TextField(
+      autofocus: true,
+      controller: controller,
+    ),
+    actions: <Widget>[
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('Continue'),
+          onPressed: () {
+            Navigator.of(context).pop(controller.text);
+          },
+        ),
+      ],
+  );
   }
 }
 
