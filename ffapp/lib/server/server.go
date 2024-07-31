@@ -12,9 +12,9 @@ import (
 	pb "server/pb/routes"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const (
@@ -113,6 +113,52 @@ func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	_, err = s.db.ExecContext(ctx, "DELETE FROM users WHERE email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not delete user: %v", err)
+	}
+
+	return &user, nil
+}
+
+func (s *server) UpdateUserEmail(ctx context.Context, in *pb.UpdateEmailRequest) (*pb.User, error) {
+	// Start a transaction
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("could not begin transaction: %v", err)
+	}
+	defer tx.Rollback() // Roll back the transaction if it's not committed
+
+	// Update the email in the users table
+	_, err = tx.ExecContext(ctx, "UPDATE users SET email = ? WHERE email = ?", in.NewEmail, in.OldEmail)
+	if err != nil {
+		return nil, fmt.Errorf("could not update user email: %v", err)
+	}
+
+	// Update the email in other related tables
+	tables := []string{"workouts", "figure_instances", "skin_instances", "survey_responses"}
+	for _, table := range tables {
+		if (table == "figure_instances") || (table == "skin_instances") {
+			_, err = tx.ExecContext(ctx, fmt.Sprintf("UPDATE %s SET user_email = ? WHERE user_email = ?", table), in.NewEmail, in.OldEmail)
+			if err != nil {
+				return nil, fmt.Errorf("could not update email in %s table: %v", table, err)
+			}
+		} else {
+			_, err = tx.ExecContext(ctx, fmt.Sprintf("UPDATE %s SET email = ? WHERE email = ?", table), in.NewEmail, in.OldEmail)
+			if err != nil {
+				return nil, fmt.Errorf("could not update email in %s table: %v", table, err)
+			}
+		}
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return nil, fmt.Errorf("could not commit transaction: %v", err)
+	}
+
+	// Fetch and return the updated user
+	var user pb.User
+	err = s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_reset FROM users WHERE email = ?", in.NewEmail).
+		Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastReset)
+	if err != nil {
+		return nil, fmt.Errorf("could not get updated user: %v", err)
 	}
 
 	return &user, nil
@@ -382,7 +428,7 @@ func (s *server) DeleteFigure(ctx context.Context, in *pb.Figure) (*pb.Figure, e
 	return &figure, nil
 }
 
-func (s *server) GetFigures(ctx context.Context, in *empty.Empty) (*pb.MultiFigure, error) {
+func (s *server) GetFigures(ctx context.Context, in *emptypb.Empty) (*pb.MultiFigure, error) {
 	figures := &pb.MultiFigure{} // Initialize figures
 
 	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Name, Base_Ev_Gain, Base_Currency_Gain, Price, Stage1_Ev_Cutoff, Stage2_Ev_Cutoff, Stage3_Ev_Cutoff, Stage4_Ev_Cutoff, Stage5_Ev_Cutoff, Stage6_Ev_Cutoff, Stage7_Ev_Cutoff, Stage8_Ev_Cutoff, Stage9_Ev_Cutoff, Stage10_Ev_Cutoff FROM figures")
@@ -507,7 +553,7 @@ func (s *server) GetSkin(ctx context.Context, in *pb.Skin) (*pb.Skin, error) {
 	return &skin, nil
 }
 
-func (s *server) GetSkins(ctx context.Context, in *empty.Empty) (*pb.MultiSkin, error) {
+func (s *server) GetSkins(ctx context.Context, in *emptypb.Empty) (*pb.MultiSkin, error) {
 	skins := &pb.MultiSkin{}
 
 	rows, err := s.db.QueryContext(ctx, "SELECT Skin_Name, Figure_Name, Price FROM skins")
@@ -663,7 +709,7 @@ func (s *server) GetSurveyResponses(ctx context.Context, in *pb.User) (*pb.Multi
 
 func (s *server) CreateSurveyResponseMulti(ctx context.Context, in *pb.MultiSurveyResponse) (*pb.MultiSurveyResponse, error) {
 	responses := []*pb.SurveyResponse{}
-	
+
 	for _, response := range in.SurveyResponses {
 		createdResponse, err := s.CreateSurveyResponse(ctx, response)
 		if err != nil {
@@ -671,14 +717,14 @@ func (s *server) CreateSurveyResponseMulti(ctx context.Context, in *pb.MultiSurv
 		}
 		responses = append(responses, createdResponse)
 	}
-	
+
 	return &pb.MultiSurveyResponse{SurveyResponses: responses}, nil
 }
 
 // END SURVEY METHODS //
 // BEGIN SERVER ACTIONS //
 
-func (s *server) FigureDecay(ctx context.Context, in  *pb.FigureInstance) (*pb.GenericStringResponse, error) {
+func (s *server) FigureDecay(ctx context.Context, in *pb.FigureInstance) (*pb.GenericStringResponse, error) {
 	fmt.Println("Applying Figure Charge Decay")
 	rows, err := s.db.Query("CALL sp_figureDecaySingle(?)", in.User_Email)
 	if err != nil {
@@ -704,7 +750,7 @@ func (s *server) FigureDecay(ctx context.Context, in  *pb.FigureInstance) (*pb.G
 	return &pb.GenericStringResponse{Message: "Decayed figures"}, nil
 }
 
-func (s *server) UserWeeklyReset(ctx context.Context, in  *pb.User) (*pb.GenericStringResponse, error) {
+func (s *server) UserWeeklyReset(ctx context.Context, in *pb.User) (*pb.GenericStringResponse, error) {
 	fmt.Println("Applying User Weekly Reset to User: ", in.Email)
 	rows, err := s.db.Query("CALL sp_userResetSingle(?)", in.Email)
 	if err != nil {
@@ -715,7 +761,7 @@ func (s *server) UserWeeklyReset(ctx context.Context, in  *pb.User) (*pb.Generic
 	return &pb.GenericStringResponse{Message: "Decayed Users"}, nil
 }
 
-func ServerInitiatedFigureDecay(db *sql.DB) (error) {
+func ServerInitiatedFigureDecay(db *sql.DB) error {
 	fmt.Println("Applying Figure Charge Decay")
 	rows, err := db.Query("CALL sp_figureDecay()")
 	if err != nil {
@@ -741,7 +787,7 @@ func ServerInitiatedFigureDecay(db *sql.DB) (error) {
 	return nil
 }
 
-func ServerIntiaitedUserDecay(db *sql.DB) (error) {
+func ServerIntiaitedUserDecay(db *sql.DB) error {
 	fmt.Println("Applying User Weekly Reset")
 	rows, err := db.Query("CALL sp_userReset()")
 	if err != nil {
@@ -767,7 +813,7 @@ func ServerIntiaitedUserDecay(db *sql.DB) (error) {
 	return nil
 }
 
-const resetTimer = 30  * time.Minute 
+const resetTimer = 30 * time.Minute
 
 func main() {
 	dbHost := os.Getenv("DB_HOST")
@@ -782,7 +828,7 @@ func main() {
 	defer db.Close()
 
 	resetticker := time.NewTicker(resetTimer)
-	
+
 	go func() {
 		for {
 			select {

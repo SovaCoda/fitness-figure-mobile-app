@@ -38,6 +38,10 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/DeleteUser',
       ($0.User value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$updateUserEmail = $grpc.ClientMethod<$0.UpdateEmailRequest, $0.User>(
+      '/routes.Routes/UpdateUserEmail',
+      ($0.UpdateEmailRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.User.fromBuffer(value));
   static final _$getWorkouts = $grpc.ClientMethod<$0.User, $0.MultiWorkout>(
       '/routes.Routes/GetWorkouts',
       ($0.User value) => value.writeToBuffer(),
@@ -191,6 +195,10 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.User> deleteUser($0.User request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$deleteUser, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.User> updateUserEmail($0.UpdateEmailRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateUserEmail, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.MultiWorkout> getWorkouts($0.User request, {$grpc.CallOptions? options}) {
@@ -358,6 +366,13 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         false,
         ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.UpdateEmailRequest, $0.User>(
+        'UpdateUserEmail',
+        updateUserEmail_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.UpdateEmailRequest.fromBuffer(value),
         ($0.User value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.User, $0.MultiWorkout>(
         'GetWorkouts',
@@ -608,6 +623,10 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return deleteUser(call, await request);
   }
 
+  $async.Future<$0.User> updateUserEmail_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateEmailRequest> request) async {
+    return updateUserEmail(call, await request);
+  }
+
   $async.Future<$0.MultiWorkout> getWorkouts_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
     return getWorkouts(call, await request);
   }
@@ -744,6 +763,7 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> deleteUser($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.User> updateUserEmail($grpc.ServiceCall call, $0.UpdateEmailRequest request);
   $async.Future<$0.MultiWorkout> getWorkouts($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.Workout> getWorkout($grpc.ServiceCall call, $0.Workout request);
   $async.Future<$0.Workout> createWorkout($grpc.ServiceCall call, $0.Workout request);

@@ -69,40 +69,27 @@ class _ProfileState extends State<Profile> {
 
   Future<void> updateEmail(String userEmail, String userPassword, String newEmail) async {
   try {
-    // Step 1: Re-authenticate the user
     User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      throw Exception("No user is currently signed in.");
+    }
+
     AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword);
-    await currentUser?.reauthenticateWithCredential(credential);
+    await currentUser.reauthenticateWithCredential(credential);
 
-    // Step 2: Get current user data
-    Routes.User? oldUserData = await auth.getUserDBInfo();
+    // Step 2: Update email in Firebase Authentication
+    await currentUser.verifyBeforeUpdateEmail(newEmail);
+    
 
-    // Step 3: Create new account
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(email: newEmail, password: userPassword);
-
-    // Step 4: Sign in to the new account
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: newEmail, password: userPassword);
-
-    // Step 5: Update user data for the new account
-    Routes.User newUser = oldUserData!;
-    newUser.email = newEmail;
-    await auth.createUser(newEmail, userPassword);
-    await auth.updateUserDBInfo(newUser);
-
-    // Step 6: Delete the old account
-    await FirebaseAuth.instance.signOut();
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: userEmail, password: userPassword);
-    await FirebaseAuth.instance.currentUser?.delete();
-    await auth.deleteUser();
-
-    // Step 7: Sign back into the new account
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: newEmail, password: userPassword);
+    // Step 3: Update email in your database
+    await auth.updateEmail(userEmail, newEmail);
 
   } catch (e) {
     print("Error updating email: $e");
     // Handle errors appropriately
   }
 }
+
 
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);

@@ -96,6 +96,18 @@ class AuthService {
     return await _routes.routesClient.updateUser(user);
   }
 
+  Future<void> updateEmail(String oldEmail, String newEmail) async {
+  try {
+    Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
+      Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail)
+    );
+    print("Email updated successfully to: ${updatedUser.email}");
+  } catch (e) {
+    print("Error updating email: $e");
+    rethrow;
+  }
+}
+
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
     await _routes.routesClient.deleteUser(Routes.User(email: _auth.currentUser!.email!));
@@ -127,11 +139,7 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> updateEmail(String email, FB.AuthCredential credential) async {
-    FB.User? currentUser = _auth.currentUser;
-    await currentUser?.reauthenticateWithCredential(credential);
-    await _auth.currentUser?.verifyBeforeUpdateEmail(email);
-  }
+
 
   Future<void> updatePassword(String password) async {
     await _auth.currentUser?.updatePassword(password);
