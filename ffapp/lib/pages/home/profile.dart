@@ -6,6 +6,7 @@ import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/main.dart';
+import "package:firebase_auth/firebase_auth.dart" as FB;
 import 'package:fixnum/fixnum.dart';
 
 class Profile extends StatefulWidget {
@@ -67,28 +68,32 @@ class _ProfileState extends State<Profile> {
     await auth.updateName(name);
   }
 
-  Future<void> updateEmail(String userEmail, String userPassword, String newEmail) async {
+Future<void> updateEmail(String userEmail, String userPassword, String newEmail) async {
   try {
-    User? currentUser = FirebaseAuth.instance.currentUser;
+    FB.User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       throw Exception("No user is currently signed in.");
     }
 
     AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword);
-    await currentUser.reauthenticateWithCredential(credential);
 
-    // Step 2: Update email in Firebase Authentication
-    await currentUser.verifyBeforeUpdateEmail(newEmail);
-    
 
-    // Step 3: Update email in your database
-    await auth.updateEmail(userEmail, newEmail);
+    // Update email in Firebase Authentication
+
+    // Reload user to reflect changes
+
+    // Update email in your database
+    await auth.updateEmail(userEmail, newEmail, credential);
+
+    signOut();
+    GoRouter.of(context).go("/");
 
   } catch (e) {
     print("Error updating email: $e");
     // Handle errors appropriately
   }
 }
+
 
 
   void updateWeeklyGoal(int goal) async {
