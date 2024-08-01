@@ -1,90 +1,111 @@
+import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class EvBar extends StatelessWidget {
-
   final int currentXp;
   final int maxXp;
-  final int currentLvl;
   final Color fillColor;
+  final double barHeight;
   final double barWidth;
+  final double innerBarPercentage;
+  final bool isVertical;
+  final bool showInfoBox;
 
-  const EvBar({
-    super.key,
-    required this.currentXp,
-    required this.maxXp,
-    required this.currentLvl,
-    required this.fillColor,
-    required this.barWidth
-  });
+  const EvBar(
+      {super.key,
+      required this.currentXp,
+      required this.maxXp,
+      required this.fillColor,
+      required this.barHeight,
+      required this.barWidth,
+      this.showInfoBox = false,
+      this.innerBarPercentage = 1,
+      this.isVertical = false});
 
   @override
   Widget build(BuildContext context) {
+    bool evoReady = currentXp >= maxXp;
     return Column(
+      mainAxisAlignment:
+          isVertical ? MainAxisAlignment.end : MainAxisAlignment.center,
+      crossAxisAlignment:
+          showInfoBox ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        if (!showInfoBox)
+          Text(currentXp.toString(),
+              style: Theme.of(context)
+                  .textTheme
+                  .displayMedium!
+                  .copyWith(color: Theme.of(context).colorScheme.secondary)),
+        Visibility(
+          visible: showInfoBox,
+          child: GestureDetector(
+            onTap: () {
+              GoRouter.of(context).go('/evolution');
+            },
+            child: Container(
+              height: barHeight,
+              width: barWidth * 0.5,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13),
+                color: evoReady
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.surface,
+              ),
+              child: Center(
+                child: evoReady
+                    ? Text('EVO Ready!',
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary))
+                    : Text('$currentXp/$maxXp EV',
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(
+                                color:
+                                    Theme.of(context).colorScheme.secondary)),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: showInfoBox ? 5 : 0,
+        ),
+        Stack(
+          alignment: isVertical ? Alignment.topCenter : Alignment.centerLeft,
           children: [
             Container(
               width: barWidth,
-              height: 5,
+              height:
+                  barHeight, // if vertical swap the width and height to reorient the bar
               decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(2)),
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow,
-                      spreadRadius: .1,
-                      blurRadius: 1
-                    )]
-                ),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  width: (currentXp/maxXp).clamp(0, 1) * barWidth,
-                  height: 5,
-                  decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      color: fillColor,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.shadow,
-                          spreadRadius: .1,
-                          blurRadius: 1
-                        )]
-                    ),
-                ),
+                borderRadius: BorderRadius.circular(10),
+                color: Theme.of(context).colorScheme.secondaryFixedDim,
               ),
-            ),
-            const SizedBox(width: 5,),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: GestureDetector(
-                onTap: () {
-                  context.goNamed('Subscribe');
-                },
-                child: Text("+?", style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: Theme.of(context).colorScheme.tertiary)),
+              child: Align(
+                alignment:
+                    isVertical ? Alignment.topCenter : Alignment.centerLeft,
+                child: Container(
+                  width: isVertical
+                      ? barWidth
+                      : (currentXp / maxXp).clamp(0, 1) * barWidth,
+                  height: isVertical
+                      ? (currentXp / maxXp).clamp(0, 1) * barHeight
+                      : barHeight,
+                  decoration: BoxDecoration(
+                      color: fillColor,
+                      borderRadius: BorderRadius.circular(10)),
+                ),
               ),
             ),
           ],
-      ),
-      const SizedBox(height: 3,),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [ 
-          Text(currentLvl > 10 ? "Level MAX      " : "Level $currentLvl      ",
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant
-            ),
-          ),
-          Text("$currentXp / $maxXp EV",
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant
-            ),
-          ),
-        ],
-      )
-      ]
+        ),
+      ],
     );
   }
 }

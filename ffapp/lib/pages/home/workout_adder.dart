@@ -154,13 +154,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
         prefs.getBool("hasSurveyed") == true) {
-      showDialog(
-        context: context,
-        builder: (context) => const PopupWidget(
-          message:
-              'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',
-        ),
-      );
+      // showDialog(
+      //   context: context,
+      //   builder: (context) => const PopupWidget(
+      //     message:
+      //         'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',
+      //   ),
+      // );
     }
   }
 
@@ -428,22 +428,28 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   @override
   Widget build(BuildContext context) {
+    double usableHeight = MediaQuery.of(context).size.height -
+        60 -
+        123.5; // height of app bar and bottom nav bar
     if (!_logging) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FfButton(
-              text: "Log a Workout",
-              height: 50,
-              textColor: Theme.of(context).colorScheme.primaryFixedDim,
-              backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-              onPressed: () {
-                startLogging();
-                startTimer();
-              },
-            )
-          ],
+        child: Container(
+          height: usableHeight,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FfButton(
+                text: "+ Start Workout",
+                height: 100,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                onPressed: () {
+                  startLogging();
+                  startTimer();
+                },
+              )
+            ],
+          ),
         ),
       );
     } else {

@@ -1,6 +1,5 @@
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/custom_button.dart';
-import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/inventory_item.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
@@ -66,188 +65,99 @@ class _InventoryState extends State<Inventory> {
             .firstWhere((element) => element.figureName == newFigureName));
   }
 
-  Map<String, int> displayEVPointsAndMax(int eVPoints, List<int> eVCutoffs) {
-    int displayPoints = eVPoints;
-    int maxPoints = eVCutoffs[0];
-    int level = 1;
-
-    for (int i = 0; i < eVCutoffs.length; i++) {
-      if (displayPoints > eVCutoffs[i]) {
-        displayPoints -= eVCutoffs[i];
-        maxPoints = eVCutoffs[i];
-        level++;
-      } else {
-        break;
-      }
-    }
-
-    return {
-      'displayPoints': displayPoints,
-      'maxPoints': maxPoints,
-      'level': level
-    };
-  }
-
-  void showFigureDetailsDialog(BuildContext context, String? figureName) {
-    List<int> eVCutoffs = [];
-    Figure figure = figureList.firstWhere((x) => x.figureName == figureName);
-    eVCutoffs.add(figure
-        .stage1EvCutoff); // why did we decide to repersent this in the database this way it leads to a lot of code duplication
-    eVCutoffs.add(figure.stage2EvCutoff);
-    eVCutoffs.add(figure.stage3EvCutoff);
-    eVCutoffs.add(figure.stage4EvCutoff);
-    eVCutoffs.add(figure.stage5EvCutoff); // this is a lot of code duplication
-    eVCutoffs.add(figure.stage6EvCutoff);
-    eVCutoffs.add(figure
-        .stage7EvCutoff); // we could have just made a list of the stage ev cutoffs
-    eVCutoffs.add(figure.stage8EvCutoff);
-    eVCutoffs.add(figure
-        .stage9EvCutoff); // and then looped through them to get the max points
-    eVCutoffs.add(figure.stage10EvCutoff); // this would have been a lot cleaner
-    // :(
-    Map<String, int> displayPointsAndMax = displayEVPointsAndMax(
-        figureInstancesList
-            .firstWhere((x) => x.figureName == figureName)
-            .evPoints,
-        eVCutoffs);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: SizedBox(
-            width: 300,
-            height: 500,
-            child: Consumer<FigureModel>(
-              builder: (context, figureModel, _) {
-                return Column(
-                  children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    RobotImageHolder(
-                        url:
-                            ("$figureName/${figureName}_skin0_evo${displayPointsAndMax['level']! - 1}_cropped_happy"),
-                        height: 300,
-                        width: 300),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    EvBar(
-                        currentXp: displayPointsAndMax['displayPoints'] ?? 0,
-                        maxXp: displayPointsAndMax['maxPoints'] ?? 0,
-                        currentLvl: displayPointsAndMax['level'] ?? 1,
-                        fillColor: Theme.of(context).colorScheme.tertiary,
-                        barWidth: 200),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("Close"))
-                  ],
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.black,
-            Theme.of(context).colorScheme.primary,
-          ],
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: (Column(
-          children: [
-            const SizedBox(height: 10),
-            Column(
-              children: List.generate(
-                  (figureInstancesList.length / 2).ceil(),
-                  (index) => Column(children: [
-                        const SizedBox(height: 15),
-                        Consumer<UserModel>(
-                          builder: (context, userModel, _) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const SizedBox(width: 5),
-                                InventoryItem(
-                                    photoPath:
-                                        ("${figureInstancesList[index * 2].figureName}/${figureInstancesList[index * 2].figureName}_skin0_evo0_cropped_happy"),
-                                    onViewDetails: (context) => {
-                                          showFigureDetailsDialog(
-                                              context,
-                                              (figureInstancesList[index * 2]
-                                                  .figureName
-                                                  .toString()))
-                                        },
-                                    equiped: figureInstancesList[index * 2]
-                                            .figureName
-                                            .toString() ==
-                                        userModel.user?.curFigure,
-                                    onEquip: (context) => {
-                                          equipNew(
-                                              figureInstancesList[index * 2]
-                                                  .figureName
-                                                  .toString())
-                                        }),
-                                const SizedBox(width: 15),
-                                index * 2 + 1 >= figureInstancesList.length
-                                    ? Container()
-                                    : //Conditional to check if we have a last skin to render
-                                    InventoryItem(
-                                        photoPath:
-                                            ("${figureInstancesList[index * 2 + 1].figureName}/${figureInstancesList[index * 2 + 1].figureName}_skin0_evo0_cropped_happy"),
-                                        onViewDetails: (context) => {
-                                          showFigureDetailsDialog(
-                                              context,
-                                              (figureInstancesList[
-                                                      index * 2 + 1]
-                                                  .figureName
-                                                  .toString()))
-                                        },
-                                        equiped:
-                                            figureInstancesList[index * 2 + 1]
-                                                    .figureName
-                                                    .toString() ==
-                                                userModel.user?.curFigure,
-                                        onEquip: (context) => {
-                                          equipNew(
-                                              figureInstancesList[index * 2 + 1]
-                                                  .figureName
-                                                  .toString())
+    double usableHeight = MediaQuery.of(context).size.height -
+        60 -
+        123.5; // height of app bar and bottom nav bar
+    return (Column(
+      children: [
+        Consumer<UserModel>(
+          builder: (context, userModel, _) {
+            return Column(
+              children: [
+                for (int i = 0; i <= 1; i++)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: usableHeight / 2,
+                          maxWidth: MediaQuery.of(context).size.width,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          margin: const EdgeInsets.all(4),
+                          height: usableHeight / 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: i * 2 >= figureInstancesList.length
+                                    ? InventoryItem(
+                                        figureInstance: null,
+                                        locked: true,
+                                        photoPath: "null",
+                                        equiped: false,
+                                        onEquip: (context) => {})
+                                    : Consumer<InventoryModel>(
+                                        builder: (_, inventory, __) {
+                                          return InventoryItem(
+                                              figureInstance:
+                                                  figureInstancesList[i * 2],
+                                              photoPath:
+                                                  ("${figureInstancesList[i * 2].figureName}/${figureInstancesList[i * 2].figureName}_skin${figureInstancesList[i * 2].curSkin}_evo${figureInstancesList[i * 2].evLevel}_cropped_happy"),
+                                              equiped:
+                                                  figureInstancesList[i * 2]
+                                                          .figureName
+                                                          .toString() ==
+                                                      userModel.user?.curFigure,
+                                              onEquip: (context) => {
+                                                    equipNew(
+                                                        figureInstancesList[
+                                                                i * 2]
+                                                            .figureName
+                                                            .toString())
+                                                  });
                                         },
                                       ),
-                                const SizedBox(width: 5),
-                              ],
-                            );
-                          },
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: i * 2 + 1 >= figureInstancesList.length
+                                    ? InventoryItem(
+                                        figureInstance: null,
+                                        locked: true,
+                                        photoPath: "null",
+                                        equiped: false,
+                                        onEquip: (context) => {})
+                                    : InventoryItem(
+                                        figureInstance:
+                                            figureInstancesList[i * 2 + 1],
+                                        photoPath:
+                                            ("${figureInstancesList[i * 2 + 1].figureName}/${figureInstancesList[i * 2 + 1].figureName}_skin0_evo0_cropped_happy"),
+                                        equiped: figureInstancesList[i * 2 + 1]
+                                                .figureName
+                                                .toString() ==
+                                            userModel.user?.curFigure,
+                                        onEquip: (context) => {
+                                              equipNew(
+                                                  figureInstancesList[i * 2 + 1]
+                                                      .figureName
+                                                      .toString())
+                                            }),
+                              ),
+                            ],
+                          ),
                         ),
-                      ])),
-            ),
-            const SizedBox(height: 30),
-            FfButton(
-                text: "Buy More",
-                height: 50,
-                textColor: Theme.of(context).colorScheme.primaryFixedDim,
-                backgroundColor:
-                    Theme.of(context).colorScheme.onPrimaryContainer,
-                onPressed: () => context.goNamed('SkinStore')),
-          ],
-        )),
-      ),
-    );
+                      ),
+                    ],
+                  ),
+              ],
+            );
+          },
+        )
+      ],
+    ));
   }
 }

@@ -23,17 +23,22 @@ class FfButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(1),
       height: height,
+      width: 370,
       decoration: BoxDecoration(
-        border: Border.all(
-            color: backgroundColor.withAlpha(127),
-            width: 2,
-            strokeAlign: BorderSide.strokeAlignInside),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(13),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor,
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: ElevatedButton(
         style: ButtonStyle(
           shape: WidgetStateProperty.all<OutlinedBorder>(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
           ),
           backgroundColor: WidgetStateProperty.all<Color>(backgroundColor),
         ),
@@ -44,10 +49,18 @@ class FfButton extends StatelessWidget {
                 children: [
                   Icon(icon, color: textColor),
                   const SizedBox(width: 4),
-                  Text(text, style: TextStyle(color: textColor)),
+                  Text(text,
+                      style: Theme.of(context)
+                          .textTheme
+                          .displayLarge!
+                          .copyWith(color: textColor)),
                 ],
               )
-            : Text(text, style: TextStyle(color: textColor)),
+            : Text(text,
+                style: Theme.of(context)
+                    .textTheme
+                    .displayMedium!
+                    .copyWith(color: textColor)),
       ),
     );
   }

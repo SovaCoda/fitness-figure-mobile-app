@@ -16,6 +16,7 @@ import 'package:ffapp/services/firebaseApi.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
@@ -33,7 +34,7 @@ class CurrencyModel extends ChangeNotifier {
 
   void addToCurrency(int numberToAdd) {
     int currentCurrency = int.parse(currency);
-    String newCurrency =  (currentCurrency + numberToAdd).toString();
+    String newCurrency = (currentCurrency + numberToAdd).toString();
     currency = newCurrency;
     notifyListeners();
   }
@@ -48,6 +49,16 @@ class UserModel extends ChangeNotifier {
 
   void setUserWeekCompleted(Int64 newValue) {
     user?.weekComplete = newValue;
+    notifyListeners();
+  }
+}
+
+class InventoryModel extends ChangeNotifier {
+  List<Routes.FigureInstance> figureInstancesList = List.empty();
+
+  void setFigureInstancesList(
+      List<Routes.FigureInstance> newFigureInstancesList) {
+    figureInstancesList = newFigureInstancesList;
     notifyListeners();
   }
 }
@@ -102,6 +113,8 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
   GlobalKey get appBarKey => _appBarKey;
   GlobalKey get bottomNavBarKey => _bottomNavBarKey;
 
+  double usableScreenHeight = 0;
+
   void setAppBarKey(GlobalKey newKey) {
     _appBarKey = newKey;
     notifyListeners();
@@ -109,6 +122,11 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
 
   void setBottomNavBarKey(GlobalKey newKey) {
     _bottomNavBarKey = newKey;
+    notifyListeners();
+  }
+
+  void setUsableScreenHeight(double newHeight) {
+    usableScreenHeight = newHeight;
     notifyListeners();
   }
 }
@@ -136,6 +154,9 @@ Future<void> main() async {
       ),
       ChangeNotifierProvider(
         create: (context) => AppBarAndBottomNavigationBarModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => InventoryModel(),
       ),
       ChangeNotifierProvider(create: (context) => MessageProvider()),
     ], child: const MyApp()),
@@ -213,24 +234,49 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
 
         // Default green theme
+        // colorScheme: const ColorScheme(
+        //   primary: Color.fromARGB(255, 0, 0, 0),
+        //   brightness: Brightness.light,
+        //   onPrimary: Color.fromRGBO(31, 112, 41, 1),
+        //   onPrimaryContainer: Color.fromRGBO(31, 255, 61, 1),
+        //   primaryFixedDim: Color.fromRGBO(0, 29, 1, 1),
+        //   secondary: Color.fromRGBO(203, 222, 50, 1),
+        //   onSecondary: Color.fromRGBO(52, 71, 6, 1),
+        //   secondaryFixed: Color.fromRGBO(30, 157, 60, 1),
+        //   error: Colors.red,
+        //   onError: Colors.black,
+        //   surface: Color.fromRGBO(239, 255, 239, 1),
+        //   onSurface: Color.fromRGBO(226, 255, 227, 0.345),
+        //   surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
+        //   surfaceBright: Color.fromRGBO(76, 117, 18, 1), // Alert Dialog
+        //   surfaceDim: Color.fromRGBO(59, 64, 13, 1), // Alert
+        //   tertiary: Color.fromRGBO(28, 206, 255, 1),
+        //   tertiaryFixedDim: Color.fromRGBO(10, 93, 101, 1),
+        // ),
+
         colorScheme: const ColorScheme(
-          primary: Color.fromARGB(255, 31, 255, 61),
-          brightness: Brightness.light,
-          onPrimary: Color.fromRGBO(31, 112, 41, 1),
-          onPrimaryContainer: Color.fromRGBO(31, 255, 61, 1),
-          primaryFixedDim: Color.fromRGBO(0, 29, 1, 1),
-          secondary: Color.fromRGBO(203, 222, 50, 1),
-          onSecondary: Color.fromRGBO(52, 71, 6, 1),
-          secondaryFixed: Color.fromRGBO(30, 157, 60, 1),
-          error: Colors.red,
-          onError: Colors.black,
-          surface: Color.fromRGBO(239, 255, 239, 1),
-          onSurface: Color.fromRGBO(226, 255, 227, 0.345),
+          brightness: Brightness.dark,
+
+          primary: Color.fromARGB(255, 89, 255, 0),
+          primaryContainer: Color.fromRGBO(0, 185, 27, 1),
+          onPrimary: Color.fromRGBO(0, 0, 0, 1),
+          primaryFixedDim: Color.fromRGBO(38, 64, 15, 1),
+
+          secondary: Color.fromRGBO(15, 213, 255, 1),
+          secondaryContainer: Color.fromRGBO(0, 141, 171, 1),
+          onSecondary: Color.fromRGBO(0, 0, 0, 1),
+          secondaryFixedDim: Color.fromRGBO(28, 112, 130, 1),
+
+          tertiary: Color.fromRGBO(255, 119, 0, 1),
+
+          surface: Color.fromRGBO(68, 68, 68, 1),
+          onSurface: Color.fromRGBO(255, 255, 255, 1),
           surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
           surfaceBright: Color.fromRGBO(76, 117, 18, 1), // Alert Dialog
           surfaceDim: Color.fromRGBO(59, 64, 13, 1), // Alert
-          tertiary: Color.fromRGBO(28, 206, 255, 1),
-          tertiaryFixedDim: Color.fromRGBO(10, 93, 101, 1),
+
+          error: Colors.red,
+          onError: Colors.black,
         ),
 
         // A blue theme
@@ -244,7 +290,6 @@ class MyApp extends StatelessWidget {
         //     onSecondary: Color.fromRGBO(6, 71, 44, 1),
         //     secondaryFixed: Color.fromRGBO(30, 146, 157, 1),
         //     error: Colors.red,
-        //     onError: Colors.black,
         //     surface: Color.fromRGBO(239, 255, 239, 1),
         //     onSurface: Color.fromRGBO(226, 255, 227, 0.345),
         //     surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
@@ -259,41 +304,38 @@ class MyApp extends StatelessWidget {
         // stuff like buttons and popups - Reese
         textTheme: TextTheme(
             //really big things like the timer counter
-            displayMedium: GoogleFonts.orbitron(
-              fontSize: 22,
-              fontStyle: FontStyle.italic,
+            displayLarge: GoogleFonts.novaSquare(
+              fontSize: 64,
             ),
-            displaySmall: GoogleFonts.orbitron(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
+            displayMedium: GoogleFonts.novaSquare(
+              fontSize: 20,
+            ),
+            displaySmall: GoogleFonts.novaSquare(
+              fontSize: 16,
             ),
 
             //top bar
-            headlineLarge: GoogleFonts.oswald(
+            headlineLarge: GoogleFonts.novaSquare(
               fontSize: 26,
-              fontStyle: FontStyle.italic,
               letterSpacing: 2.0,
             ),
             //page titles
-            headlineMedium: GoogleFonts.orbitron(
+            headlineMedium: GoogleFonts.novaSquare(
               fontSize: 36,
-              fontWeight: FontWeight.bold,
             ),
             //less important big stuff, ex. numbers in the dashboard
-            headlineSmall: GoogleFonts.orbitron(
+            headlineSmall: GoogleFonts.novaSquare(
               fontSize: 48,
             ),
             //medium title ex. frequency selection prompt
-            titleMedium: GoogleFonts.roboto(
-                fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: .1),
+            titleMedium: GoogleFonts.novaSquare(fontSize: 20),
             //small titles, ex. dashboard message and settings
-            titleSmall: GoogleFonts.roboto(
-                fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: .1),
+            titleSmall: GoogleFonts.novaSquare(fontSize: 14),
             //small labels, ex. shop labels and dashboard disclaimer
-            labelMedium: GoogleFonts.roboto(
+            labelMedium: GoogleFonts.novaSquare(
               fontSize: 12,
             ),
-            labelSmall: GoogleFonts.roboto(fontSize: 16)),
+            labelSmall: GoogleFonts.novaSquare(fontSize: 16)),
       ),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,

@@ -74,18 +74,19 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
+        backgroundColor: Theme.of(context).colorScheme.onError,
 
         //permanent top bar if we want it
         appBar: AppBar(
+          toolbarHeight: 60,
           key: _appBarKey,
           title: Text(
             'FF',
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
           ),
-          backgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
+          backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(127),
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -101,38 +102,15 @@ class _DashboardPageState extends State<DashboardPage> {
                                 .textTheme
                                 .headlineLarge!
                                 .copyWith(
-                                  color: Theme.of(context).colorScheme.surface,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ));
                       },
                     ),
                     const SizedBox(width: 10.0),
                     Icon(
                       Icons.currency_exchange,
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: InkWell(
-                onTap: () => context.goNamed('Subscribe'),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(width: 10.0),
-                    Text(
-                      'FF',
-                      style:
-                          Theme.of(context).textTheme.headlineLarge!.copyWith(
-                                color: Theme.of(context).colorScheme.surface,
-                              ),
-                    ),
-                    Icon(
-                      Icons.add,
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ],
                 ),
@@ -154,7 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     const SizedBox(width: 10.0),
                     Icon(Icons.question_mark,
-                        color: Theme.of(context).colorScheme.surface),
+                        color: Theme.of(context).colorScheme.onSurface),
                     const SizedBox(width: 4.0),
                   ],
                 ))
@@ -164,45 +142,7 @@ class _DashboardPageState extends State<DashboardPage> {
         //renders the page that the nav bar has currently selected
         //indexed stack allows pages to retain their state when switching between them
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black,
-                Theme.of(context).colorScheme.primary,
-              ],
-            ),
-          ),
           child: Stack(children: [
-            // Center(
-            //   child: Container(
-            //       width: MediaQuery.of(context).size.width / 2.5,
-            //       height: MediaQuery.of(context).size.height,
-            //       decoration: BoxDecoration(
-            //         gradient: RadialGradient(
-            //           center: Alignment.center,
-            //           radius: 3.0,
-            //           colors: [
-            //             Theme.of(context).colorScheme.surface.withAlpha(0),
-            //             Theme.of(context).colorScheme.onSurface,
-            //           ],
-            //         ),
-            //         border: Border(
-            //             left: BorderSide(
-            //                 color: Theme.of(context)
-            //                     .colorScheme
-            //                     .surface
-            //                     .withAlpha(80),
-            //                 width: 5),
-            //             right: BorderSide(
-            //                 color: Theme.of(context)
-            //                     .colorScheme
-            //                     .surface
-            //                     .withAlpha(80),
-            //                 width: 5)),
-            //       )),
-            // ),
             IndexedStack(
               index: _selectedIndex,
               children: _pages,
@@ -214,21 +154,21 @@ class _DashboardPageState extends State<DashboardPage> {
         bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
               // sets the background color of the `BottomNavigationBar`
-              canvasColor: Theme.of(context).colorScheme.primaryFixedDim,
+              canvasColor: Theme.of(context).colorScheme.surface,
             ),
             child: BottomNavigationBar(
+                
                 key: _bottomNavBarKey,
                 iconSize: 30,
                 showSelectedLabels: false,
                 selectedIconTheme: IconThemeData(size: 40, shadows: [
                   BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                       offset: Offset(0, 0),
                       blurRadius: 20)
                 ]),
-                unselectedItemColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                selectedItemColor: Theme.of(context).colorScheme.secondary,
+                unselectedItemColor: Theme.of(context).colorScheme.onSurface,
+                selectedItemColor: Theme.of(context).colorScheme.primary,
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: Icon(Icons.home),

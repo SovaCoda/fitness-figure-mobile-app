@@ -1,4 +1,3 @@
-import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -44,7 +43,6 @@ class _FigureDetails extends State<FigureDetails> {
               const SizedBox(height: 10,),
               RobotImageHolder(url: widget.figureUrl!, height: 300, width: 300),
               const SizedBox(height: 10,),
-              EvBar(currentXp: 10, maxXp: 45, currentLvl: 1, fillColor: Theme.of(context).colorScheme.tertiary, barWidth: 200),
               const SizedBox(height: 40,),
               ElevatedButton(onPressed: () => {context.goNamed("Home")}, child: const Text("Go Back"))
             ],

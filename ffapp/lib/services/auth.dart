@@ -98,6 +98,7 @@ class AuthService {
 
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
+    await _routes.routesClient.deleteUser(Routes.User(email: _auth.currentUser!.email!));
   }
 
   Future<Routes.Workout> createWorkout(Routes.Workout workout) async {
