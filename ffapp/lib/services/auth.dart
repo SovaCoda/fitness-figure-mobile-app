@@ -147,8 +147,10 @@ class AuthService {
 
 
 
-  Future<void> updatePassword(String password) async {
+  Future<void> updatePassword(String password, credential) async {
+    await _auth.currentUser?.reauthenticateWithCredential(credential);
     await _auth.currentUser?.updatePassword(password);
+    await _auth.currentUser?.reload();
   }
 
   Future<void> updateName(String name) async {

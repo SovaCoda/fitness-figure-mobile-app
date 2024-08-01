@@ -70,27 +70,38 @@ class _ProfileState extends State<Profile> {
 
 Future<void> updateEmail(String userEmail, String userPassword, String newEmail) async {
   try {
-    FB.User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      throw Exception("No user is currently signed in.");
-    }
-
+    // Create credential because updateEmail requires recent authorization
     AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword);
-
-
-    // Update email in Firebase Authentication
-
-    // Reload user to reflect changes
-
-    // Update email in your database
-    await auth.updateEmail(userEmail, newEmail, credential);
+    await auth.updateEmail(userEmail, newEmail, credential); // sends email to the new email to verify the change in email
 
     signOut();
     GoRouter.of(context).go("/");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Success! Please sign back in.")),
+    );
 
   } catch (e) {
-    print("Error updating email: $e");
-    // Handle errors appropriately
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.toString())),
+    );
+  }
+}
+
+Future<void> updatePassword(String userEmail, String userPassword, String newPassword) async {
+  // Create credential because updatePassword requires recent authorization
+  try {
+  AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword); 
+  await auth.updatePassword(newPassword, credential);
+  signOut();
+  GoRouter.of(context).go("/");
+  ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Success! Please sign back in.")),
+    );
+  }
+  catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.toString())),
+    );
   }
 }
 
@@ -141,6 +152,15 @@ Future<void> updateEmail(String userEmail, String userPassword, String newEmail)
         SettingsBar(
           onTapFunction: emptyFunction,
           name: "Password: $password",
+          onInputChange: (newPassword) async {
+            final userPassword = await showDialog<String>(
+              context: context,
+              builder: (BuildContext context) {
+                return const getUserCredentials();
+              },
+            );
+            updatePassword(email, userPassword!, newPassword);
+          }
         ),
         SettingsBar(
           onTapFunction: emptyFunction,
