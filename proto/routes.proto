@@ -11,6 +11,7 @@ service Routes {
     rpc CreateUser(User) returns (User) {}
     rpc UpdateUser(User) returns (User) {}
     rpc DeleteUser(User) returns (User) {}
+    rpc UpdateUserEmail(UpdateEmailRequest) returns (User) {}
 
     // WORKOUT ROUTES //
     rpc GetWorkouts(User) returns (MultiWorkout) {}
@@ -170,4 +171,9 @@ message MultiSurveyResponse {
 message OfflineDateTime { 
     string Email = 1;
     string Currency = 2;
+}
+
+message UpdateEmailRequest {
+    string old_email = 1;
+    string new_email = 2;
 }

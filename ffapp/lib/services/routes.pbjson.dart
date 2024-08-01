@@ -280,3 +280,17 @@ final $typed_data.Uint8List offlineDateTimeDescriptor = $convert.base64Decode(
     'Cg9PZmZsaW5lRGF0ZVRpbWUSFAoFRW1haWwYASABKAlSBUVtYWlsEhoKCEN1cnJlbmN5GAIgAS'
     'gJUghDdXJyZW5jeQ==');
 
+@$core.Deprecated('Use updateEmailRequestDescriptor instead')
+const UpdateEmailRequest$json = {
+  '1': 'UpdateEmailRequest',
+  '2': [
+    {'1': 'old_email', '3': 1, '4': 1, '5': 9, '10': 'oldEmail'},
+    {'1': 'new_email', '3': 2, '4': 1, '5': 9, '10': 'newEmail'},
+  ],
+};
+
+/// Descriptor for `UpdateEmailRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateEmailRequestDescriptor = $convert.base64Decode(
+    'ChJVcGRhdGVFbWFpbFJlcXVlc3QSGwoJb2xkX2VtYWlsGAEgASgJUghvbGRFbWFpbBIbCgluZX'
+    'dfZW1haWwYAiABKAlSCG5ld0VtYWls');
+
