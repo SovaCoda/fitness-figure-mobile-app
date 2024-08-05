@@ -1,6 +1,8 @@
 import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
+import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class EvBar extends StatelessWidget {
   final int currentXp;
@@ -11,6 +13,8 @@ class EvBar extends StatelessWidget {
   final double innerBarPercentage;
   final bool isVertical;
   final bool showInfoBox;
+  final bool areWeShadowing;
+  final bool simulateCurrentGains;
 
   const EvBar(
       {super.key,
@@ -19,13 +23,20 @@ class EvBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.areWeShadowing = false,
       this.showInfoBox = false,
       this.innerBarPercentage = 1,
-      this.isVertical = false});
+      this.isVertical = false,
+      this.simulateCurrentGains = false});
 
   @override
   Widget build(BuildContext context) {
     bool evoReady = currentXp >= maxXp;
+    int totalGains = 0;
+    if (simulateCurrentGains) {
+      totalGains = ((maxXp / 5).floor()) +
+          Provider.of<UserModel>(context, listen: false).streak * 10;
+    }
     return Column(
       mainAxisAlignment:
           isVertical ? MainAxisAlignment.end : MainAxisAlignment.center,
@@ -33,11 +44,16 @@ class EvBar extends StatelessWidget {
           showInfoBox ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         if (!showInfoBox)
-          Text(currentXp.toString(),
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.secondary)),
+          Consumer<UserModel>(
+            builder: (_, user, __) {
+              return Text(
+                  simulateCurrentGains
+                      ? "$currentXp + (${(maxXp / 5).floor()} | ${user.streak * 10}🔥)"
+                      : currentXp.toString(),
+                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.secondary));
+            },
+          ),
         Visibility(
           visible: showInfoBox,
           child: GestureDetector(
@@ -86,21 +102,61 @@ class EvBar extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Theme.of(context).colorScheme.secondaryFixedDim,
+                boxShadow: areWeShadowing
+                    ? const [
+                        BoxShadow(
+                            blurRadius: 4,
+                            color: Colors.black,
+                            offset: Offset(0, 4))
+                      ]
+                    : null,
               ),
-              child: Align(
-                alignment:
-                    isVertical ? Alignment.topCenter : Alignment.centerLeft,
-                child: Container(
-                  width: isVertical
-                      ? barWidth
-                      : (currentXp / maxXp).clamp(0, 1) * barWidth,
-                  height: isVertical
-                      ? (currentXp / maxXp).clamp(0, 1) * barHeight
-                      : barHeight,
-                  decoration: BoxDecoration(
-                      color: fillColor,
-                      borderRadius: BorderRadius.circular(10)),
-                ),
+              child: Row(
+                children: [
+                  Align(
+                    alignment:
+                        isVertical ? Alignment.topCenter : Alignment.centerLeft,
+                    child: Container(
+                      width: isVertical
+                          ? barWidth
+                          : (currentXp / maxXp).clamp(0, 1) * barWidth,
+                      height: isVertical
+                          ? (currentXp / maxXp).clamp(0, 1) * barHeight
+                          : barHeight,
+                      decoration: BoxDecoration(
+                          color: fillColor,
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: Offset(0, 0),
+                    child: Align(
+                      alignment: isVertical
+                          ? Alignment.topCenter
+                          : Alignment.centerLeft,
+                      child: Container(
+                        width: isVertical
+                            ? barWidth
+                            : ((totalGains / maxXp).clamp(0, 1) * barWidth)
+                                .clamp(
+                                0,
+                                barWidth -
+                                    (currentXp / maxXp).clamp(0, 1) * barWidth,
+                              ),
+                        height: isVertical
+                            ? (totalGains / maxXp).clamp(0, 1) * barHeight
+                            : barHeight,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(10),
+                              bottomRight: Radius.circular(10)),
+                          color:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

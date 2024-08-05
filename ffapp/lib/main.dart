@@ -25,6 +25,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 
+class HistoryModel extends ChangeNotifier {
+  List<Routes.Workout> workouts = List.empty();
+
+  void setWorkouts(List<Routes.Workout> newWorkouts) {
+    workouts = newWorkouts;
+    notifyListeners();
+  }
+}
+
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
   void setCurrency(String newCurrency) {
@@ -41,7 +50,12 @@ class CurrencyModel extends ChangeNotifier {
 }
 
 class UserModel extends ChangeNotifier {
-  Routes.User? user;
+  Routes.User? user = Routes.User();
+
+  int get baseGain => 5;
+
+  int get streak => 5;
+
   void setUser(Routes.User newUser) {
     user = newUser;
     notifyListeners();
@@ -69,7 +83,7 @@ class InventoryModel extends ChangeNotifier {
 }
 
 class FigureModel extends ChangeNotifier {
-  Routes.FigureInstance? figure;
+  Routes.FigureInstance? figure = Routes.FigureInstance(figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
   int EVLevel = 0;
   bool readyToEvolve = false;
 
@@ -162,6 +176,9 @@ Future<void> main() async {
       ),
       ChangeNotifierProvider(
         create: (context) => InventoryModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => HistoryModel(),
       ),
       ChangeNotifierProvider(create: (context) => MessageProvider()),
     ], child: const MyApp()),
@@ -331,6 +348,9 @@ class MyApp extends StatelessWidget {
             //less important big stuff, ex. numbers in the dashboard
             headlineSmall: GoogleFonts.novaSquare(
               fontSize: 48,
+            ),
+            bodyMedium: GoogleFonts.novaSquare(
+              fontSize: 24,
             ),
             //medium title ex. frequency selection prompt
             titleMedium: GoogleFonts.novaSquare(fontSize: 20),

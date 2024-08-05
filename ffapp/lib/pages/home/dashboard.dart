@@ -59,58 +59,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false);
   }
 
-  void onViewSkins() async {
-    Routes.MultiSkinInstance multiskininstances = await auth.getSkinInstances(
-        Routes.User(
-            email: Provider.of<UserModel>(context, listen: false).user!.email));
-    Routes.MultiFigureInstance multifigureinstances =
-        await auth.getFigureInstances(Routes.User(
-            email: Provider.of<UserModel>(context, listen: false).user!.email));
-    Routes.MultiSkin multiskins = await auth.getSkins();
-
-    List<Routes.SkinInstance> skinInstances = multiskininstances.skinInstances;
-    List<Routes.FigureInstance> figureInstances =
-        multifigureinstances.figureInstances;
-    List<Routes.Skin> skins = multiskins.skins;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Skins"),
-          content: SizedBox(
-            height: 1000, // Set the height to 80% of the screen height
-            child: ChangeNotifierProvider(
-                create: (context) => store.FigureInstancesProvider(),
-                child: SkinViewer(
-                    listOfSkins: skins,
-                    listOfSkinInstances: skinInstances,
-                    figureName: Provider.of<FigureModel>(context, listen: false)
-                        .figure!
-                        .figureName,
-                    listOfFigureInstances: figureInstances)),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Close"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
     Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
         Routes.FigureInstance(
             userEmail: databaseUser?.email,
             figureName: databaseUser?.curFigure));
-    Routes.Figure? figure =
-        await auth.getFigure(Figure(figureName: databaseUser?.curFigure));
 
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;

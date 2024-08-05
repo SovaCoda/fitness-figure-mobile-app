@@ -1,5 +1,7 @@
+import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class ChargeBar extends StatelessWidget {
   final int currentCharge;
@@ -10,6 +12,8 @@ class ChargeBar extends StatelessWidget {
   final bool isVertical;
   final bool showDashedLines;
   final bool showInfoCircle;
+  final bool areWeShadowing;
+  final bool simulateCurrentGains;
 
   const ChargeBar(
       {super.key,
@@ -17,20 +21,36 @@ class ChargeBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.areWeShadowing = false,
       this.isVertical = false,
       this.showDashedLines = false,
-      this.showInfoCircle = false});
+      this.showInfoCircle = false,
+      this.simulateCurrentGains = false});
 
   @override
   Widget build(BuildContext context) {
+    int totalGains = 0;
+    if (simulateCurrentGains) {
+      totalGains = Provider.of<UserModel>(context, listen: false).baseGain +
+          (Provider.of<UserModel>(context, listen: false).baseGain /
+                  Provider.of<UserModel>(context, listen: false).streak)
+              .ceil();
+    }
     return Column(
       children: [
         if (!showInfoCircle)
-          Text("$currentCharge%",
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.primary)),
+          Consumer<UserModel>(
+            builder: (_, user, __) {
+              return Text(
+                  simulateCurrentGains
+                      ? "$currentCharge% + [${user.baseGain}% | ${(user.baseGain / user.streak).ceil()}%🔥]"
+                      : "$currentCharge%",
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayMedium!
+                      .copyWith(color: Theme.of(context).colorScheme.primary));
+            },
+          ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -80,6 +100,14 @@ class ChargeBar extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 color: Theme.of(context).colorScheme.primaryFixedDim,
+                boxShadow: areWeShadowing
+                    ? const [
+                        BoxShadow(
+                            blurRadius: 4,
+                            color: Colors.black,
+                            offset: Offset(0, 4))
+                      ]
+                    : null,
               ),
               child: Column(
                 mainAxisAlignment: isVertical
@@ -118,6 +146,40 @@ class ChargeBar extends StatelessWidget {
                               ]),
                         ),
                       ),
+                      if (simulateCurrentGains)
+                        Transform.translate(
+                          offset: Offset(-2, 0),
+                          child: Align(
+                            alignment: isVertical
+                                ? Alignment.topCenter
+                                : Alignment.centerLeft,
+                            child: Container(
+                              width: isVertical
+                                  ? barWidth
+                                  : (totalGains / 100).clamp(
+                                          0, (showDashedLines ? 0.8 : 1)) *
+                                      barWidth,
+                              height: isVertical
+                                  ? (totalGains / 100).clamp(
+                                          0, (showDashedLines ? 0.8 : 1)) *
+                                      barHeight
+                                  : barHeight,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer,
+                                      offset: Offset(0.0, 0.0),
+                                      blurRadius: 10.0,
+                                    )
+                                  ]),
+                            ),
+                          ),
+                        ),
                       if (showDashedLines)
                         Align(
                           alignment: isVertical

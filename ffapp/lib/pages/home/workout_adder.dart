@@ -1,15 +1,20 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_points.dart';
 import 'package:ffapp/components/backed_figure_holder.dart';
 import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/charge_bar.dart';
+import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/popup.dart';
 import 'package:ffapp/components/progress_bar.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/components/workout_calendar.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
@@ -17,11 +22,13 @@ import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class WorkoutAdder extends StatefulWidget {
   const WorkoutAdder({super.key});
@@ -433,23 +440,185 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         123.5; // height of app bar and bottom nav bar
     if (!_logging) {
       return Center(
-        child: Container(
-          height: usableHeight,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FfButton(
-                text: "+ Start Workout",
-                height: 100,
-                textColor: Theme.of(context).colorScheme.onPrimary,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                onPressed: () {
-                  startLogging();
-                  startTimer();
-                },
-              )
-            ],
-          ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+                top: 0,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width.clamp(0, 375),
+                  child: const WorkoutCalendar(
+                    calendarFormat: CalendarFormat.week,
+                    isInteractable: false,
+                  ),
+                )),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Consumer<FigureModel>(
+                  builder: (_, figure, __) {
+                    return RobotImageHolder(
+                      height: MediaQuery.of(context).size.height / 3,
+                      width: MediaQuery.of(context).size.width,
+                      url: figure.composeFigureUrl(),
+                    );
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: GradientedContainer(
+                    doWeBinkTheBorder: false,
+                    radius: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Consumer<FigureModel>(
+                            builder: (_, figure, __) {
+                              return Column(
+                                children: [
+                                  ChargeBar(
+                                    areWeShadowing: true,
+                                    simulateCurrentGains: true,
+                                    barHeight: 10,
+                                    barWidth:
+                                        MediaQuery.of(context).size.width / 2,
+                                    fillColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    currentCharge: figure.figure!.charge,
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  EvBar(
+                                    simulateCurrentGains: true,
+                                    areWeShadowing: true,
+                                    currentXp: figure.figure!.evPoints,
+                                    maxXp: figure1.EvCutoffs[figure.EVLevel],
+                                    fillColor:
+                                        Theme.of(context).colorScheme.secondary,
+                                    barHeight: 10,
+                                    barWidth:
+                                        MediaQuery.of(context).size.width / 2,
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                          Consumer<UserModel>(
+                            builder: (_, user, __) {
+                              return Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                          formatSeconds(user
+                                                  .user!.workoutMinTime
+                                                  .toInt() *
+                                              60),
+                                          style:
+                                              Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium!
+                                                  .copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface,
+                                                      shadows: [
+                                                const BoxShadow(
+                                                    blurRadius: 4,
+                                                    color: Colors.black,
+                                                    offset: Offset(0, 4))
+                                              ])),
+                                      Icon(Icons.access_time,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                          shadows: const [
+                                            BoxShadow(
+                                                blurRadius: 4,
+                                                color: Colors.black,
+                                                offset: Offset(0, 4))
+                                          ],
+                                          size: 30),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text('${user.streak} Days ',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,
+                                            shadows: const [
+                                              BoxShadow(
+                                                  blurRadius: 4,
+                                                  color: Colors.black,
+                                                  offset: Offset(0, 4))
+                                            ],
+                                          )),
+                                      Icon(Icons.sunny,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                          shadows: [
+                                            BoxShadow(
+                                                blurRadius: 6,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .tertiary,
+                                                offset: Offset(0, 0))
+                                          ],
+                                          size: 33),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: FfButton(
+                    icon: Icons.add,
+                    iconSize: 50,
+                    text: "Start Workout",
+                    textStyle: Theme.of(context).textTheme.headlineLarge!,
+                    height: 90,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    onPressed: () {
+                      startLogging();
+                      startTimer();
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ],
         ),
       );
     } else {

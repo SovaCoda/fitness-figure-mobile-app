@@ -1,4 +1,5 @@
 import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/workout_calendar.dart';
 import 'package:ffapp/components/workout_history_view.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
@@ -18,23 +19,16 @@ class History extends StatefulWidget {
 
 class HistoryState extends State<History> {
   late AuthService auth;
-  late List<Routes.Workout> workoutsFuture;
-  late final ValueNotifier<List<Routes.Workout>> _selectedEvents;
+  late List<Routes.Workout> _workouts;
+  late final ValueNotifier<List<Routes.Workout>> _selectedEvents =
+      ValueNotifier([]);
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-    _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier([]);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      var workouts =
-          await getWorkouts(); // Assuming getWorkouts() is an async function returning a List<Workout>
-      setState(() {
-        workoutsFuture = workouts;
-        _selectedEvents.value = _getWorkoutsForDay(_selectedDay!);
-      });
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      initialize();
     });
   }
 
@@ -44,9 +38,19 @@ class HistoryState extends State<History> {
     super.dispose();
   }
 
+  void initialize() async {
+    List<Routes.Workout> workouts = await auth.getWorkouts().then((value) {
+      return value.workouts;
+    });
+    Provider.of<HistoryModel>(context, listen: false).setWorkouts(workouts);
+    setState(() {
+      _workouts = workouts;
+    });
+  }
+
   List<Routes.Workout> _getWorkoutsForDay(DateTime day) {
     List<Routes.Workout> workouts = [];
-    for (var workout in workoutsFuture) {
+    for (var workout in _workouts) {
       DateTime date = DateTime.parse(workout.endDate);
       if (date.year == day.year &&
           date.month == day.month &&
@@ -85,109 +89,12 @@ class HistoryState extends State<History> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
-        TableCalendar(
-            onFormatChanged: (format) {
-              if (_calendarFormat != format) {
-                // Call `setState()` when updating calendar format
-                setState(() {
-                  _calendarFormat = format;
-                });
-              }
-            },
-            onPageChanged: (focusedDay) {
-              // No need to call `setState()` here
-              _focusedDay = focusedDay;
-            },
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-                _selectedEvents.value = _getWorkoutsForDay(selectedDay);
-              });
-            },
-            firstDay: DateTime.utc(2010, 10, 16),
-            lastDay: DateTime.utc(2030, 10, 16),
-            focusedDay: _focusedDay,
-            headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              titleTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer),
-              leftChevronIcon: Icon(
-                Icons.chevron_left,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              rightChevronIcon: Icon(
-                Icons.chevron_right,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-            ),
-            daysOfWeekStyle: DaysOfWeekStyle(
-                weekdayStyle:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-                weekendStyle:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary)),
-            calendarStyle: CalendarStyle(
-              todayDecoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryFixedDim,
-                shape: BoxShape.rectangle,
-              ),
-              selectedDecoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                shape: BoxShape.rectangle,
-              ),
-              weekendTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer),
-              weekNumberTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer),
-              defaultTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer),
-            )),
-        ValueListenableBuilder<List<Routes.Workout>>(
-            valueListenable: _selectedEvents,
-            builder: (context, value, _) {
-              if (value.isEmpty && _selectedDay!.isAfter(DateTime.now())) {
-                return Center(
-                  child: Text(
-                    'No workouts for this day, but its hard to workout in the future!',
-                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onPrimaryContainer),
-                  ),
-                );
-              } else if (value.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No workouts for this day',
-                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onPrimaryContainer),
-                  ),
-                );
-              } else {
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: value.length,
-                    itemBuilder: (context, index) {
-                      return WorkoutHistoryView(
-                        dateTime: value[index].endDate,
-                        chargeGain: value[index].chargeAdd.toInt(),
-                        currencyGain: value[index].currencyAdd.toInt(),
-                        elapsedTime:
-                            formatSeconds(value[index].elapsed.toInt()),
-                        evoGain: 30,
-                        robotUrl: "robot1/robot1_skin0_evo0_cropped_happy",
-                      );
-                    },
-                  ),
-                );
-              }
-            })
+        WorkoutCalendar(
+          calendarFormat: CalendarFormat.month,
+          isInteractable: true,
+        )
       ],
     );
   }
