@@ -1,4 +1,5 @@
 import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ class EvBar extends StatelessWidget {
   final bool showInfoBox;
   final bool areWeShadowing;
   final bool simulateCurrentGains;
+  final bool didWeWorkoutToday;
 
   const EvBar(
       {super.key,
@@ -23,6 +25,7 @@ class EvBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.didWeWorkoutToday = false,
       this.areWeShadowing = false,
       this.showInfoBox = false,
       this.innerBarPercentage = 1,
@@ -46,12 +49,19 @@ class EvBar extends StatelessWidget {
         if (!showInfoBox)
           Consumer<UserModel>(
             builder: (_, user, __) {
-              return Text(
-                  simulateCurrentGains
-                      ? "$currentXp + (${(maxXp / 5).floor()} | ${user.streak * 10}🔥)"
-                      : currentXp.toString(),
-                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.secondary));
+              return Row(
+                children: [
+                  Text(
+                      simulateCurrentGains
+                          ? didWeWorkoutToday ? "$currentXp + (0 | 0🔥)": "$currentXp + (${(maxXp / 5).floor()} | ${user.streak * 10}🔥)"
+                          : currentXp.toString(),
+                      style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.secondary)),
+                  if(didWeWorkoutToday)
+                  GestureDetector(onTap: () => showFFDialog("Why am I not gaining EVO?", "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.", context), child: Text('?', style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,),))
+                ],
+              );
             },
           ),
         Visibility(

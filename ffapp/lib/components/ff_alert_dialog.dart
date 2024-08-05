@@ -1,3 +1,5 @@
+import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:flutter/material.dart';
 
 class FfAlertDialog extends StatelessWidget {
@@ -8,108 +10,33 @@ class FfAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: Stack(children: [
-      Container(
-        width: MediaQuery.sizeOf(context).width * 0.7,
-        height: MediaQuery.sizeOf(context).height / 2,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                Theme.of(context).colorScheme.surfaceBright,
-                Theme.of(context).colorScheme.surfaceDim,
-              ]),
-          border: Border.all(
-              color: Theme.of(context).colorScheme.secondary.withAlpha(127),
-              width: 2),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: child,
-        ),
-      ),
-      Transform.translate(
-        offset: const Offset(-1, -1),
-        child: IgnorePointer(
-          child: Container(
-              width: MediaQuery.sizeOf(context).width * 0.7 * 0.7,
-              height: MediaQuery.sizeOf(context).height / 4,
-              decoration: BoxDecoration(
-                border: Border(
-                    left: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    ),
-                    top: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    )),
-              )),
-        ),
-      ),
-      Positioned(
-        top: 4,
-        left: 4,
-        child: IgnorePointer(
-          child: Container(
-              width: MediaQuery.sizeOf(context).width * 0.7 * 0.55,
-              height: MediaQuery.sizeOf(context).height / 4 * 0.8,
-              decoration: BoxDecoration(
-                border: Border(
-                    left: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    ),
-                    top: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    )),
-              )),
-        ),
-      ),
-      Positioned(
-        bottom: 0,
-        right: 0,
-        child: Transform.translate(
-          offset: const Offset(1, 1),
-          child: IgnorePointer(
-            child: Container(
-                width: MediaQuery.sizeOf(context).width * 0.7 * 0.7,
-                height: MediaQuery.sizeOf(context).height / 4,
-                decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2,
-                      ),
-                      right: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2,
-                      )),
-                )),
+      SizedBox(
+          width: MediaQuery.sizeOf(context).width * 0.7,
+          height: MediaQuery.sizeOf(context).height / 2,
+        child: GradientedContainer(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: child,
           ),
         ),
       ),
-      Positioned(
-        bottom: 4,
-        right: 4,
-        child: IgnorePointer(
-          child: Container(
-              width: MediaQuery.sizeOf(context).width * 0.7 * 0.55,
-              height: MediaQuery.sizeOf(context).height / 4 * 0.8,
-              decoration: BoxDecoration(
-                border: Border(
-                    right: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    ),
-                    bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    )),
-              )),
-        ),
-      ),
-    ]));
+    ]
+    ));
+    }
   }
+
+void showFFDialog( String title, String message, BuildContext context) {
+  showDialog(context: context, builder: (context) {
+    return FfAlertDialog(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, textAlign: TextAlign.start,style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
+          Container(margin: EdgeInsets.only(top: 2, bottom: 2), decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), shape: BoxShape.rectangle, color: Theme.of(context).colorScheme.onSurface), width: MediaQuery.sizeOf(context).width * 0.65, height: 3,),
+          Text(message, textAlign: TextAlign.start, style: Theme.of(context).textTheme.displaySmall!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
+          Expanded(child: Align(alignment: Alignment.bottomCenter, child: FfButton(height: 50, text: "Get Fit", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop())))
+       ],
+    ),
+    );
+  });
 }

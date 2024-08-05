@@ -14,6 +14,7 @@ class ChargeBar extends StatelessWidget {
   final bool showInfoCircle;
   final bool areWeShadowing;
   final bool simulateCurrentGains;
+  final bool didWeWorkoutToday;
 
   const ChargeBar(
       {super.key,
@@ -21,6 +22,7 @@ class ChargeBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.didWeWorkoutToday = false,
       this.areWeShadowing = false,
       this.isVertical = false,
       this.showDashedLines = false,
@@ -43,7 +45,7 @@ class ChargeBar extends StatelessWidget {
             builder: (_, user, __) {
               return Text(
                   simulateCurrentGains
-                      ? "$currentCharge% + [${user.baseGain}% | ${(user.baseGain / user.streak).ceil()}%🔥]"
+                      ? didWeWorkoutToday ? "$currentCharge% + [0% | 0%🔥]" : "$currentCharge% + [${user.baseGain}% | ${(user.baseGain / user.streak).ceil()}%🔥]"
                       : "$currentCharge%",
                   style: Theme.of(context)
                       .textTheme

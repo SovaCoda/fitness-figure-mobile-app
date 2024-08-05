@@ -476,36 +476,42 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         children: [
                           Consumer<FigureModel>(
                             builder: (_, figure, __) {
-                              return Column(
-                                children: [
-                                  ChargeBar(
-                                    areWeShadowing: true,
-                                    simulateCurrentGains: true,
-                                    barHeight: 10,
-                                    barWidth:
-                                        MediaQuery.of(context).size.width / 2,
-                                    fillColor:
-                                        Theme.of(context).colorScheme.primary,
-                                    currentCharge: figure.figure!.charge,
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  EvBar(
-                                    simulateCurrentGains: true,
-                                    areWeShadowing: true,
-                                    currentXp: figure.figure!.evPoints,
-                                    maxXp: figure1.EvCutoffs[figure.EVLevel],
-                                    fillColor:
-                                        Theme.of(context).colorScheme.secondary,
-                                    barHeight: 10,
-                                    barWidth:
-                                        MediaQuery.of(context).size.width / 2,
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                ],
+                              return Consumer<HistoryModel>(
+                                builder: (_, workoutHistory, __) {
+                                  return Column(
+                                    children: [
+                                      ChargeBar(
+                                        didWeWorkoutToday: workoutHistory.workedOutToday,
+                                        areWeShadowing: true,
+                                        simulateCurrentGains: true,
+                                        barHeight: 10,
+                                        barWidth:
+                                            MediaQuery.of(context).size.width / 2,
+                                        fillColor:
+                                            Theme.of(context).colorScheme.primary,
+                                        currentCharge: figure.figure!.charge,
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      EvBar(
+                                        didWeWorkoutToday: workoutHistory.workedOutToday,
+                                        simulateCurrentGains: true,
+                                        areWeShadowing: true,
+                                        currentXp: figure.figure!.evPoints,
+                                        maxXp: figure1.EvCutoffs[figure.EVLevel],
+                                        fillColor:
+                                            Theme.of(context).colorScheme.secondary,
+                                        barHeight: 10,
+                                        barWidth:
+                                            MediaQuery.of(context).size.width / 2,
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                    ],
+                                  );
+                                }
                               );
                             },
                           ),

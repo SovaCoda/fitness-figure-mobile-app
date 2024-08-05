@@ -180,7 +180,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                     ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
                                     : "robot1/robot1_skin0_evo0_cropped_happy",
                                 height:
-                                    MediaQuery.of(context).size.height / 2.38,
+                                    MediaQuery.of(context).size.height / 2.6,
                                 width: 500,
                               )
                             ],

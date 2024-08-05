@@ -27,8 +27,14 @@ import 'package:ffapp/services/routes.pb.dart' as Routes;
 
 class HistoryModel extends ChangeNotifier {
   List<Routes.Workout> workouts = List.empty();
+  bool workedOutToday = false;
 
   void setWorkouts(List<Routes.Workout> newWorkouts) {
+    for (int i = 0; i < newWorkouts.length; i++) {
+      DateTime curDate = DateTime.parse(newWorkouts[i].endDate);
+      DateTime now = DateTime.now();
+      if(curDate.day == now.day && curDate.month == now.month && curDate.year == now.year) {workedOutToday = true;};
+    }
     workouts = newWorkouts;
     notifyListeners();
   }
