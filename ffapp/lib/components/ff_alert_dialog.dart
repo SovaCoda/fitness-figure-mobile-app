@@ -14,10 +14,11 @@ class FfAlertDialog extends StatelessWidget {
           width: MediaQuery.sizeOf(context).width * 0.7,
           height: MediaQuery.sizeOf(context).height / 2,
         child: GradientedContainer(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: child,
-          ),
+          padding: const EdgeInsets.all(16),
+          radius: 0,
+          borderColor: Theme.of(context).colorScheme.onSurface,
+          borderWidth: 1,
+          child: child,
         ),
       ),
     ]
@@ -32,9 +33,32 @@ void showFFDialog( String title, String message, BuildContext context) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, textAlign: TextAlign.start,style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
-          Container(margin: EdgeInsets.only(top: 2, bottom: 2), decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), shape: BoxShape.rectangle, color: Theme.of(context).colorScheme.onSurface), width: MediaQuery.sizeOf(context).width * 0.65, height: 3,),
+          Center(child: Container(margin: const EdgeInsets.only(top: 15, bottom: 15), decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), shape: BoxShape.rectangle, color: Theme.of(context).colorScheme.onSurface), width: MediaQuery.sizeOf(context).width * 0.6, height: 2,)),
           Text(message, textAlign: TextAlign.start, style: Theme.of(context).textTheme.displaySmall!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
           Expanded(child: Align(alignment: Alignment.bottomCenter, child: FfButton(height: 50, text: "Get Fit", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop())))
+       ],
+    ),
+    );
+  });
+}
+
+void showFFDialogBinary(String title, String message, BuildContext context, FfButton yesButton, FfButton noButton)
+{
+    showDialog(context: context, builder: (context) {
+    return FfAlertDialog(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, textAlign: TextAlign.start,style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
+          Center(child: Container(margin: const EdgeInsets.only(top: 15, bottom: 15), decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), shape: BoxShape.rectangle, color: Theme.of(context).colorScheme.onSurface), width: MediaQuery.sizeOf(context).width * 0.6, height: 2,)),
+          Text(message, textAlign: TextAlign.start, style: Theme.of(context).textTheme.displaySmall!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
+          Expanded(child: Align(alignment: Alignment.bottomCenter, child: Column( mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              yesButton,
+              SizedBox(height: 10,),
+              noButton,
+            ],
+          )))
        ],
     ),
     );

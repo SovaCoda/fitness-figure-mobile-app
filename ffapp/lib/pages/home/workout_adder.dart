@@ -9,10 +9,12 @@ import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
-import 'package:ffapp/components/popup.dart';
 import 'package:ffapp/components/progress_bar.dart';
+import 'package:ffapp/components/resuables/chat_bubble.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
-import 'package:ffapp/components/robot_dialog_box.dart';
+import 'package:ffapp/components/resuables/streak_shower.dart';
+import 'package:ffapp/components/resuables/week_to_go_shower.dart';
+import 'package:ffapp/components/resuables/workout_time_shower.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/workout_calendar.dart';
 import 'package:ffapp/main.dart';
@@ -22,7 +24,9 @@ import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
@@ -99,8 +103,38 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   void startLogging() {
     setState(() {
+      states["logging"] = true;
+      states["pre-logging"] = false;
       _logging = true;
       _startTime = DateTime.now().toString();
+    });
+  }
+
+  void resumeTimer() {
+    setState(() {
+      states['paused'] = false;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        
+        time++;
+        if (time == _timegoal) {
+          _goalMet = true;
+          LocalNotificationService().showNotification(
+            id: 0,
+            title: "Goal Met!",
+            body: "You have met your workout goal.",
+          );
+          logger.i('Goal met, sending user notification');
+        }
+      });
+    });
+  }
+
+  void pauseTimer() {
+    _timer.cancel();
+    setState(() {
+      states["paused"] = true;
     });
   }
 
@@ -172,6 +206,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   Future<void> endLogging() async {
+    states["logging"] = false; 
     _timePassed = time;
     time = Int64.ZERO;
     _endTime = DateTime.now().toString();
@@ -200,27 +235,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  Widget imSureButton() {
-    return FfButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-          endLogging();
-        },
-        text: "I'm Sure",
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        textColor: Theme.of(context).colorScheme.primaryFixedDim);
-  }
-
-  Widget noIllKeepAtIt() {
-    return FfButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-          endLogging();
-        },
-        text: "No, I'll keep at it!",
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        textColor: Theme.of(context).colorScheme.primaryFixedDim);
-  }
 
   add30Seconds() {
     setState(() {
@@ -234,197 +248,27 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  void showConfirmationBox() async {
+  void endWorkout() async {
     if (time < _timegoal.toInt()) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return FfAlertDialog(
-              child: Column(
-                children: [
-                  Text(
-                    "Are you sure?",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.surface),
-                  ),
-                  Text(
-                    "You haven't worked out at least as long as ${formatSeconds(_timegoal.toInt())}, if you stop now this workout will be logged, but you will only gain currency and EV points. Are you sure you want to stop?",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.surface),
-                  ),
-                  FfButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        endLogging();
-                      },
-                      text: "I'm Sure",
-                      backgroundColor:
-                          Theme.of(context).colorScheme.onPrimaryContainer,
-                      textColor: Theme.of(context).colorScheme.primaryFixedDim),
-                  FfButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      text: "No, I'll keep at it!",
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      textColor: Theme.of(context).colorScheme.primaryFixedDim),
-                ],
-              ),
-            );
-          });
-    } else {
-      FigureInstance figureInstance =
-          Provider.of<FigureModel>(context, listen: false).figure!;
-      Figure figure =
-          await auth.getFigure(Figure(figureName: figureInstance.figureName));
-      int currency = int.parse(
-          Provider.of<CurrencyModel>(context, listen: false).currency);
-      int addableCurrency = time.toInt() ~/ 10;
-      currency += addableCurrency;
-
-      var user = Provider.of<UserModel>(context, listen: false).user;
-
-      int figureEV = figure.baseEvGain;
-      double eVConcistencyBonus = (figureEV * 0.1) * user!.weekComplete.toInt();
-      int ev = figureEV + eVConcistencyBonus.toInt();
-
-      int charge = 0;
-      if (user.weekComplete <= user.weekGoal) {
-        int figureCharge = 5; // needs to be replaced with the figure provider.
-        double chargeConcistencyBonus =
-            (figureCharge * 0.01) * user.weekComplete.toInt();
-        charge = figureCharge + chargeConcistencyBonus.toInt();
-      }
-      showDialog(
-          context: context,
-          builder: (context) {
-            return FfAlertDialog(
-              child: Center(
-                  child: Column(children: [
-                Column(
-                  children: [
-                    Column(
-                      children: [
-                        ProgressBar(
-                          icon: Icon(
-                            Icons.battery_charging_full,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 40,
-                          ),
-                          progressPercent: 1,
-                          fillColor: Theme.of(context).colorScheme.primary,
-                          barWidth: 240,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Charge: ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary)),
-                            Text(charge.toString(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary)), // Replace '10' with the actual charge value
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Column(
-                      children: [
-                        ProgressBar(
-                          icon: Icon(
-                            Icons.currency_franc_sharp,
-                            color: Theme.of(context).colorScheme.secondary,
-                            size: 40,
-                          ),
-                          progressPercent: 1,
-                          fillColor: Theme.of(context).colorScheme.secondary,
-                          barWidth: 240,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Currency: ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary)),
-                            Text(addableCurrency.toString(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary)), // Replace '50' with the actual currency value
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Column(
-                      children: [
-                        ProgressBar(
-                          icon: Icon(
-                            Icons.ev_station,
-                            color: Theme.of(context).colorScheme.tertiary,
-                            size: 40,
-                          ),
-                          progressPercent: 1,
-                          fillColor: Theme.of(context).colorScheme.tertiary,
-                          barWidth: 240,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('EV: ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary)),
-                            Text(ev.toString(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary)), // Replace '75' with the actual EV value
-                          ],
-                        ),
-                      ],
-                    ),
-                    FfButton(
-                        text: "Awesome!",
-                        textColor: Theme.of(context).colorScheme.onError,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          endLogging();
-                        }),
-                  ],
-                ),
-              ])),
-            );
-          });
+      showFFDialogBinary("Hold on!", "You havent worked out at least as long as ${formatSeconds(_timegoal.toInt())}! If you stop now, this workout won't contribute to your weekly goal and you'll gain no charge, you will still recieve evo for the time you worked out.", context, 
+        FfButton(height: 50, text: "I'll keep at it!", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => { Navigator.of(context).pop()}),
+        FfButton(height: 50, text: "End workout", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onSurface, backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(126), onPressed: () => {setState((){ states['chatting'] = true;
+        states['logging'] = false;}),Navigator.of(context).pop()}),
+      );
     }
+    else{
+      setState(() {
+        states['chatting'] = true;
+        states['logging'] = false;
+      });
+    } 
+  }
+
+  void chatMore() async {
+    showFFDialogBinary("FF+ Premium Feature", "Subscribe now to FF+ to gain acess to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!", context,
+    FfButton(height: 50, text: "Subscribe Now \$1.99", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => { Navigator.of(context).pop()},),
+    FfButton(height: 50, text: "No Thanks", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onSurface, backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(126), onPressed: () => { Navigator.of(context).pop()})
+    );
   }
 
   @override
@@ -433,17 +277,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     super.dispose();
   }
 
+  Map<String, bool> states = {"pre-logging" : true, "logging": false, "paused": false, "chatting": false, "post-logging" : false};
+
   @override
   Widget build(BuildContext context) {
-    double usableHeight = MediaQuery.of(context).size.height -
-        60 -
-        123.5; // height of app bar and bottom nav bar
-    if (!_logging) {
       return Center(
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Positioned(
+            states['post-logging']! ? Container() : Positioned(
                 top: 0,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width.clamp(0, 375),
@@ -452,9 +294,121 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     isInteractable: false,
                   ),
                 )),
+            states['post-logging']! ? 
+            Column(
+              children: [
+                Expanded(
+                  child: GradientedContainer(
+                    radius: 2,
+                    margin: EdgeInsets.all(2),
+                    padding: EdgeInsets.all(20),
+                    child:
+                  Column(
+                    children: [
+                      Row(children: [
+                       Consumer<FigureModel>(
+                        builder: (_, figure, __) {
+                          return RobotImageHolder(
+                            height: MediaQuery.of(context).size.height / 4,
+                            width: MediaQuery.of(context).size.width /2,
+                            url: figure.composeFigureUrl(),
+                          );
+                        },
+                      ),
+                      Consumer<UserModel>(
+                        builder: (_, user, __) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                            WorkoutTimeShower(textStyle: Theme.of(context).textTheme.displayMedium!, workoutMinTime: user.user!.workoutMinTime.toInt(),),
+                            SizedBox(height: 10,),
+                            StreakShower(textStyle: Theme.of(context).textTheme.displayMedium!, streak: user.streak,),
+                            SizedBox(height: 10,),
+                                                            Consumer<HistoryModel>(
+                        builder: (_, workoutHistory, __) {
+                            return Row(children:[ WeekToGoShower(weekGoal: user.user!.weekGoal.toInt() ,boxSize: Size(16,16), workouts: workoutHistory.currentWeek)]);}),
+                          ],);
+                        }
+                      )
+                      ],),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              ChargeBar(
+                                barHeight: 10,
+                                barWidth:
+                                    MediaQuery.of(context).size.width / 2,
+                                fillColor:
+                                    Theme.of(context).colorScheme.primary,
+                                currentCharge: 30,
+                              ),
+                              Text("[+7%]", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.primary),)
+                            ],
+                          ),
+                          SizedBox(height: 10,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          EvBar(
+                            currentXp: 350,
+                            maxXp: 1000,
+                            fillColor:
+                                Theme.of(context).colorScheme.secondary,
+                            barHeight: 10,
+                            barWidth:
+                                MediaQuery.of(context).size.width / 2,
+                          ),
+                          Text("(+340)", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.secondary),)
+                        ],
+                      ),
+                        ],
+                      ),
+                      
+                    
+                    ],
+                  )),
+                ),
+                 FfButton(height: 90, text: "Awesome!", textStyle: Theme.of(context).textTheme.headlineLarge!,textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {setState(() {states['post-logging'] = false; states['pre-logging'] = true;})}),
+              const SizedBox(
+                  height: 10,
+                ),
+              ],
+            )
+            : 
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [
+              children: states['chatting']! ? 
+              [
+                const ChatBubble(
+                 message: "Great workout today, were really keeping our charge in tip top shape! Just a few more workouts and we will be on track to meet our weekly goal. I can't wait to evolve!"
+                ),
+                Container(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Consumer<FigureModel>(
+                  builder: (_, figure, __) {
+                    return RobotImageHolder(
+                      height: MediaQuery.of(context).size.height / 4,
+                      width: MediaQuery.of(context).size.width /2,
+                      url: figure.composeFigureUrl(),
+                    );
+                  },
+                ),
+                FfButton(height: 45, width: MediaQuery.sizeOf(context).width /2, text: "Chat More >", textStyle: Theme.of(context).textTheme.displaySmall!,textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {chatMore()})
+                  ],
+                )),
+                FfButton(height: 90, text: "Awesome!", textStyle: Theme.of(context).textTheme.headlineLarge!,textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {setState(() {states['chatting'] = false; states['post-logging'] = true;})}),
+              const SizedBox(
+                  height: 10,
+                ),
+              ]
+              : [
                 Consumer<FigureModel>(
                   builder: (_, figure, __) {
                     return RobotImageHolder(
@@ -467,18 +421,35 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: GradientedContainer(
+                    height: 100,
                     doWeBinkTheBorder: false,
                     radius: 0,
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Row(
+                      child: 
+                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        children: states["logging"]! ? 
+                        [
+                          GestureDetector(onTap: () => {endWorkout()},child: Icon(Icons.stop, color: Theme.of(context).colorScheme.primary, size: 60,),),
+                          Text(
+                          formatSeconds(time.toInt()),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface),
+                        ),
+                        GestureDetector(onTap: () => {states["paused"]! ? resumeTimer() : pauseTimer()}, child: states["paused"]! ? Icon(Icons.play_arrow, color: Theme.of(context).colorScheme.primary, size: 60,): Icon(Icons.pause, color: Theme.of(context).colorScheme.primary, size: 60,),),
+                        ]
+                          : 
+                        [
                           Consumer<FigureModel>(
                             builder: (_, figure, __) {
                               return Consumer<HistoryModel>(
                                 builder: (_, workoutHistory, __) {
-                                  return Column(
+                                    return Column(
                                     children: [
                                       ChargeBar(
                                         didWeWorkoutToday: workoutHistory.workedOutToday,
@@ -511,6 +482,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                       ),
                                     ],
                                   );
+
+                                  
                                 }
                               );
                             },
@@ -522,75 +495,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                          formatSeconds(user
-                                                  .user!.workoutMinTime
-                                                  .toInt() *
-                                              60),
-                                          style:
-                                              Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium!
-                                                  .copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurface,
-                                                      shadows: [
-                                                const BoxShadow(
-                                                    blurRadius: 4,
-                                                    color: Colors.black,
-                                                    offset: Offset(0, 4))
-                                              ])),
-                                      Icon(Icons.access_time,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                          shadows: const [
-                                            BoxShadow(
-                                                blurRadius: 4,
-                                                color: Colors.black,
-                                                offset: Offset(0, 4))
-                                          ],
-                                          size: 30),
-                                    ],
-                                  ),
+                                  WorkoutTimeShower(textStyle: Theme.of(context).textTheme.displayMedium!, workoutMinTime: user.user!.workoutMinTime.toInt(),),
                                   const SizedBox(
                                     height: 5,
                                   ),
-                                  Row(
-                                    children: [
-                                      Text('${user.streak} Days ',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .tertiary,
-                                            shadows: const [
-                                              BoxShadow(
-                                                  blurRadius: 4,
-                                                  color: Colors.black,
-                                                  offset: Offset(0, 4))
-                                            ],
-                                          )),
-                                      Icon(Icons.sunny,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary,
-                                          shadows: [
-                                            BoxShadow(
-                                                blurRadius: 6,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .tertiary,
-                                                offset: Offset(0, 0))
-                                          ],
-                                          size: 33),
-                                    ],
-                                  ),
+                                  StreakShower(textStyle: Theme.of(context).textTheme.displayMedium!, streak: user.streak,),
                                 ],
                               );
                             },
@@ -605,7 +514,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
-                  child: FfButton(
+                  child: states['logging']! ? 
+                  FfButtonProgressable(progress: (time.toDouble() / _timegoal.toDouble()).clamp(0, 1), disabled: false, height: 90, icon: Icons.add, iconSize: 50, text: 'Complete Workout', textStyle: Theme.of(context).textTheme.headlineLarge!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {endLogging()})
+                  : FfButton(
                     icon: Icons.add,
                     iconSize: 50,
                     text: "Start Workout",
@@ -620,130 +531,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                   ),
                 ),
                 const SizedBox(
-                  height: 20,
+                  height: 10,
                 ),
               ],
             ),
           ],
         ),
       );
-    } else {
-      return Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Stack(children: [
-                  Consumer<FigureModel>(
-                    builder: (context, figureModel, _) {
-                      return BackedFigureHolder(
-                          height: 350,
-                          width: 250,
-                          figureUrl: figureModel.composeFigureUrl());
-                    },
-                  ),
-                ]),
-                Center(
-                  child: Stack(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          ProgressBar(
-                            icon: Icon(
-                              Icons.battery_charging_full,
-                              color: Theme.of(context).colorScheme.secondary,
-                              size: 40,
-                            ),
-                            progressPercent:
-                                time.toDouble() / (_timegoal.toDouble()),
-                            fillColor: Theme.of(context).colorScheme.secondary,
-                            barWidth: 300,
-                            gradientColor:
-                                Theme.of(context).colorScheme.surfaceDim,
-                          ),
-                          ProgressBar(
-                            icon: Icon(
-                              Icons.upgrade,
-                              color: Theme.of(context).colorScheme.tertiary,
-                              size: 40,
-                            ),
-                            progressPercent:
-                                time.toDouble() / (_timegoal.toDouble()),
-                            fillColor: Theme.of(context).colorScheme.tertiary,
-                            barWidth: 300,
-                            gradientColor:
-                                Theme.of(context).colorScheme.tertiaryFixedDim,
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                        ],
-                      ),
-                      Positioned(
-                        left: 65,
-                        top: 0,
-                        child: FloatingText(
-                          text:
-                              "^ ${(scoreIncrement * 10).toStringAsPrecision(sigfigs)}",
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onPrimary),
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Text(
-                          formatSeconds(time.toInt()),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium!
-                              .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        FfButton(
-                            text: "End Workout",
-                            textColor:
-                                Theme.of(context).colorScheme.primaryFixedDim,
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                            onPressed: showConfirmationBox),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                      ],
-                    ))
-              ],
-            ),
-          ),
-          Consumer<UserModel>(builder: (context, user, _) {
-            return user.user?.email == "chb263@msstate.edu" ||
-                    user.user?.email == "blizard265@gmail.com" || user.user?.email == 'bujyzasu@teleg.eu'
-                ? DraggableAdminPanel(
-                    onButton1Pressed: add30Seconds,
-                    onButton2Pressed: add10Minutes,
-                    button1Text: "Add 30 Seconds",
-                    button2Text: "Add 10 Minutes")
-                : Container();
-          })
-        ],
-      );
     }
   }
-}
+

@@ -1,3 +1,4 @@
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -43,18 +44,21 @@ class ChargeBar extends StatelessWidget {
         if (!showInfoCircle)
           Consumer<UserModel>(
             builder: (_, user, __) {
-              return Text(
-                  simulateCurrentGains
-                      ? didWeWorkoutToday ? "$currentCharge% + [0% | 0%🔥]" : "$currentCharge% + [${user.baseGain}% | ${(user.baseGain / user.streak).ceil()}%🔥]"
-                      : "$currentCharge%",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(color: Theme.of(context).colorScheme.primary));
+              return GestureDetector(
+                onTap: didWeWorkoutToday ? () => showFFDialog("Why am I not gaining Charge?", "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.", context) : () => {},
+                child: Text(
+                    simulateCurrentGains
+                        ? didWeWorkoutToday ? "$currentCharge% + [0%] ?" : "$currentCharge% + [${user.baseGain}% | ${(user.baseGain / user.streak).ceil()}%🔥]"
+                        : "$currentCharge%",
+                    style: Theme.of(context)
+                        .textTheme
+                        .displayMedium!
+                        .copyWith(color: Theme.of(context).colorScheme.primary)),
+              );
             },
           ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Visibility(
               visible: showInfoCircle,
@@ -148,7 +152,7 @@ class ChargeBar extends StatelessWidget {
                               ]),
                         ),
                       ),
-                      if (simulateCurrentGains)
+                      if (simulateCurrentGains && !didWeWorkoutToday)
                         Transform.translate(
                           offset: Offset(-2, 0),
                           child: Align(
