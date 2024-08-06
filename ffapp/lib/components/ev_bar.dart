@@ -68,7 +68,7 @@ class EvBar extends StatelessWidget {
           visible: showInfoBox,
           child: GestureDetector(
             onTap: () {
-              GoRouter.of(context).go('/evolution');
+              context.goNamed('Evolution');
             },
             child: Container(
               height: barHeight,
