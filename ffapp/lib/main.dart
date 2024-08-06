@@ -29,11 +29,31 @@ class HistoryModel extends ChangeNotifier {
   List<Routes.Workout> workouts = List.empty();
   bool workedOutToday = false;
 
+  List<int> currentWeek = List.filled(7, 0, growable: false);
+
+  DateTime mostRecentSunday(DateTime date)
+  {
+    return DateTime(date.year, date.month, date.day - date.weekday % 7);
+  }
+
   void setWorkouts(List<Routes.Workout> newWorkouts) {
+    DateTime now = DateTime.now();
+    DateTime weekstart = mostRecentSunday(now); // get week start (sunday is 7)
+    List<DateTime?> workoutsInCurrentWeek = List.filled(7, null, growable: false); // track workouts in our current week
     for (int i = 0; i < newWorkouts.length; i++) {
       DateTime curDate = DateTime.parse(newWorkouts[i].endDate);
-      DateTime now = DateTime.now();
-      if(curDate.day == now.day && curDate.month == now.month && curDate.year == now.year) {workedOutToday = true;};
+      if(curDate.isAfter(weekstart)) {workoutsInCurrentWeek[curDate.weekday % 7] = curDate;} // if workout is in our current week add it to our list 
+      if(curDate.day == now.day && curDate.month == now.month && curDate.year == now.year) {workedOutToday = true;}
+    }
+
+    for(int i = 0; i < currentWeek.length; i++)
+    {
+      int status = 0;
+      if(workoutsInCurrentWeek[i] == null && weekstart.add(Duration(days: i)).isBefore(now)) {status = 0;} // in the past didnt workout Dark Green
+      if(workoutsInCurrentWeek[i] == null && weekstart.add(Duration(days: i)).isAfter(now)) {status = 1;} // in the future hasnt workedout Gray Surface
+      if(workoutsInCurrentWeek[i] != null) {status = 2;} // worked out Bright Green
+
+      currentWeek[i] = status;
     }
     workouts = newWorkouts;
     notifyListeners();
