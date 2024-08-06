@@ -202,7 +202,7 @@ class _EvolutionPageState extends State<EvolutionPage>
         body: Stack(alignment: Alignment.center, children: [
           Container(
               padding: const EdgeInsets.all(10),
-              margin: const EdgeInsets.only(top: 10, bottom: 10),
+          margin: const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 5),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(13)),
                 gradient: RadialGradient(
@@ -256,8 +256,7 @@ class _EvolutionPageState extends State<EvolutionPage>
                             _showNewBenefits
                                 ? Center(
                                     child: SizedBox(
-                                      width:
-                                          200,
+                                      width: 200,
                                       child: GridView.count(
                                         crossAxisCount: 1,
                                         padding: const EdgeInsets.all(16),
