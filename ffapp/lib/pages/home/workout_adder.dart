@@ -538,7 +538,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           ],
         ),
       );
-    
     }
   }
 
