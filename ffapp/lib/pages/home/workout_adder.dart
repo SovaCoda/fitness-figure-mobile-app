@@ -9,7 +9,6 @@ import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
-import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/components/resuables/chat_bubble.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/resuables/streak_shower.dart';
@@ -26,7 +25,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
@@ -59,11 +57,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   late double scoreIncrement;
   final int sigfigs = 2;
   bool _goalMet = false;
+  int minWorkoutTime = 30; 
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+          setState(() {
+      minWorkoutTime = Provider.of<UserModel>(context, listen: false).user!.workoutMinTime.toInt();
+    });
+    });
+
   }
 
   void startTimer() {
@@ -138,103 +143,90 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
+  int addableEV = 50;
+  int addableCharge = 0;
   //function that does all the awarding in one
   Future<void> awardAll({required bool weeklyGoalMet}) async {
-    User user = Provider.of<UserModel>(context, listen: false).user!;
+
+    UserModel user = Provider.of<UserModel>(context, listen: false);
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
-    Figure figure =
-        await auth.getFigure(Figure(figureName: figureInstance.figureName));
-    int currency =
-        int.parse(Provider.of<CurrencyModel>(context, listen: false).currency);
-    int addableCurrency = _timePassed.toInt() ~/ 10;
-    currency += addableCurrency;
+    HistoryModel history = Provider.of<HistoryModel>(context, listen: false);
 
-    int figureEV = figure.baseEvGain;
-    double eVConcistencyBonus = (figureEV * 0.1) * user.weekComplete.toInt();
-    int addableEV = _timePassed.toInt() ~/ 10;
-    int ev = figureEV + eVConcistencyBonus.toInt() + addableEV;
+    double workoutPercent = (_timePassed.toDouble() / _timegoal.toDouble()).clamp(0, 1);
 
-    int figureCharge = 5; // needs to be replaced with the figure provider.
-    double chargeConcistencyBonus =
-        (figureCharge * 0.1) * user.weekComplete.toInt();
-    int addableCharge = _timePassed.toInt() ~/ user.workoutMinTime.toInt();
-    int charge = figureCharge + chargeConcistencyBonus.toInt() + addableCharge;
+    double maxEVGain = figure1.EvCutoffs[figureInstance.evLevel].toDouble()/5;
+    double baseEVGain = 50.00;
+    double eVConcistencyBonus = (10) * user.streak.toDouble();
+    addableEV = history.workedOutToday ? (baseEVGain * workoutPercent).ceil() : ((maxEVGain + eVConcistencyBonus) * workoutPercent).ceil();
+    int totalEV = (figureInstance.evPoints + addableEV).toInt();
+
+    int baseChargeGain = 5;
+    int chargeConcistencyBonus = ((0.5) * user.streak.toDouble()).ceil();
+    addableCharge = history.workedOutToday ? 0 : (baseChargeGain + chargeConcistencyBonus) * workoutPercent.floor();
+    int totalCharge = figureInstance.charge + addableCharge;
+
+    setState(() {
+     addableCharge = addableCharge;
+     addableEV = addableEV;
+    });
 
     await auth.updateUserDBInfo(Routes.User(
-        email: user.email,
-        currency: Int64(currency),
-        weekComplete: Int64(user.weekComplete.toInt() + 1)));
+        email: user.user!.email,
+        weekComplete: Int64(user.user!.weekComplete.toInt() + 1)));
 
-    Provider.of<CurrencyModel>(context, listen: false)
-        .setCurrency(currency.toString());
     Provider.of<FigureModel>(context, listen: false)
-        .setFigureEv(figureInstance.evPoints + ev);
+        .setFigureEv(totalEV);
     Provider.of<FigureModel>(context, listen: false)
         .setFigureCharge(!weeklyGoalMet
-            ? ((figureInstance.charge + charge) > 100)
+            ? ((totalCharge) > 100)
                 ? 100
-                : figureInstance.charge + charge
+                : totalCharge
             : figureInstance.charge);
     Provider.of<UserModel>(context, listen: false)
-        .setUserWeekCompleted(Int64(user.weekComplete.toInt() + 1));
+        .setUserWeekCompleted(Int64(user.user!.weekComplete.toInt() + 1));
     figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
-    user = Provider.of<UserModel>(context, listen: false).user!;
+
     await auth.updateFigureInstance(FigureInstance(
         figureId: figureInstance.figureId,
-        userEmail: user.email,
+        userEmail: user.user!.email,
         figureName: figureInstance.figureName,
         charge: (figureInstance.charge).toInt(),
         evPoints: (figureInstance.evPoints).toInt()));
-    // Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
-    //       Routes.FigureInstance(
-    //         userEmail: Provider.of<UserModel>(context, listen: false).user?.email,
-    //         figureName: Provider.of<UserModel>(context, listen: false).user?.curFigure));
-    // Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
+
+    Workout workout = Workout(
+      startDate: _startTime,
+      endDate: _endTime,
+      elapsed: _timePassed,
+      email: await auth.getUser().then((value) => value!.email.toString()),
+      chargeAdd: Int64(addableCharge),
+      currencyAdd: Int64(addableEV),
+    );
+    List<Workout> workouts = Provider.of<HistoryModel>(context, listen: false).workouts;
+    workouts.add(workout);
+    Provider.of<HistoryModel>(context,listen: false).setWorkouts(workouts, context);
+    await auth.createWorkout(workout);
 
     final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
         prefs.getBool("hasSurveyed") == true) {
-      // showDialog(
-      //   context: context,
-      //   builder: (context) => const PopupWidget(
-      //     message:
-      //         'Congratulations on completing your workout, would you like to take a quick 3 minute survey on how you\'re liking Fitness Figure so far?',
-      //   ),
-      // );
     }
   }
 
   Future<void> endLogging() async {
     states["logging"] = false; 
     _timePassed = time;
+    setState(() {
+      _timePassed = time;
+    });
     time = Int64.ZERO;
     _endTime = DateTime.now().toString();
-    Workout workout = Workout(
-      startDate: _startTime,
-      endDate: _endTime,
-      elapsed: _timePassed,
-      email: await auth.getUser().then((value) => value!.email.toString()),
-      chargeAdd: Int64(Random.secure().nextInt(100)),
-      currencyAdd: Int64(Random.secure().nextInt(1000)),
-    );
-    await auth.createWorkout(workout);
-    var user = Provider.of<UserModel>(context, listen: false).user;
-    if (user!.weekComplete >= user.weekGoal) {
-      setState(() {
-        _logging = false;
-        _timer.cancel();
-      });
-      await awardAll(weeklyGoalMet: true);
-      return;
-    }
     await awardAll(weeklyGoalMet: false);
     setState(() {
       _logging = false;
       _timer.cancel();
     });
   }
-
 
   add30Seconds() {
     setState(() {
@@ -252,12 +244,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     if (time < _timegoal.toInt()) {
       showFFDialogBinary("Hold on!", "You havent worked out at least as long as ${formatSeconds(_timegoal.toInt())}! If you stop now, this workout won't contribute to your weekly goal and you'll gain no charge, you will still recieve evo for the time you worked out.", context, 
         FfButton(height: 50, text: "I'll keep at it!", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => { Navigator.of(context).pop()}),
-        FfButton(height: 50, text: "End workout", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onSurface, backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(126), onPressed: () => {setState((){ states['chatting'] = true;
+        FfButton(height: 50, text: "End workout", textStyle: Theme.of(context).textTheme.displayMedium!, textColor: Theme.of(context).colorScheme.onSurface, backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(126), onPressed: () => {setState((){ endLogging(); states['chatting'] = true;
         states['logging'] = false;}),Navigator.of(context).pop()}),
       );
     }
     else{
       setState(() {
+        endLogging();
         states['chatting'] = true;
         states['logging'] = false;
       });
@@ -289,9 +282,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 top: 0,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width.clamp(0, 375),
-                  child: const WorkoutCalendar(
+                  child: WorkoutCalendar(
                     calendarFormat: CalendarFormat.week,
                     isInteractable: false,
+                    workoutMinTime: minWorkoutTime,
                   ),
                 )),
             states['post-logging']! ? 
@@ -303,73 +297,73 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     margin: EdgeInsets.all(2),
                     padding: EdgeInsets.all(20),
                     child:
-                  Column(
-                    children: [
-                      Row(children: [
-                       Consumer<FigureModel>(
+                  Consumer<UserModel>(
+                    builder: (_, user, __) {
+                      return Consumer<FigureModel>(
                         builder: (_, figure, __) {
-                          return RobotImageHolder(
-                            height: MediaQuery.of(context).size.height / 4,
-                            width: MediaQuery.of(context).size.width /2,
-                            url: figure.composeFigureUrl(),
-                          );
-                        },
-                      ),
-                      Consumer<UserModel>(
-                        builder: (_, user, __) {
                           return Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                            WorkoutTimeShower(textStyle: Theme.of(context).textTheme.displayMedium!, workoutMinTime: user.user!.workoutMinTime.toInt(),),
-                            SizedBox(height: 10,),
-                            StreakShower(textStyle: Theme.of(context).textTheme.displayMedium!, streak: user.streak,),
-                            SizedBox(height: 10,),
-                                                            Consumer<HistoryModel>(
-                        builder: (_, workoutHistory, __) {
-                            return Row(children:[ WeekToGoShower(weekGoal: user.user!.weekGoal.toInt() ,boxSize: Size(16,16), workouts: workoutHistory.currentWeek)]);}),
-                          ],);
-                        }
-                      )
-                      ],),
-                      Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              ChargeBar(
-                                barHeight: 10,
-                                barWidth:
-                                    MediaQuery.of(context).size.width / 2,
-                                fillColor:
-                                    Theme.of(context).colorScheme.primary,
-                                currentCharge: 30,
+                              Row(children: [
+                               RobotImageHolder(
+                                 height: MediaQuery.of(context).size.height / 4,
+                                 width: MediaQuery.of(context).size.width / 2,
+                                 url: figure.composeFigureUrl(),
+                               ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                WorkoutTimeShower(textStyle: Theme.of(context).textTheme.displayMedium!, workoutMinTime: _timePassed.toInt(), secondsTrueMinutesFalse: true, showStatus: true, goalMet: _goalMet),
+                                SizedBox(height: 10,),
+                                StreakShower(textStyle: Theme.of(context).textTheme.displayMedium!, streak: user.streak, showStatus: true, goalMet: _goalMet),
+                                SizedBox(height: 10,),
+                                                                Consumer<HistoryModel>(
+                                                          builder: (_, workoutHistory, __) {
+                                return Row(children:[ WeekToGoShower(weekGoal: user.user!.weekGoal.toInt() ,boxSize: Size(16,16), workouts: workoutHistory.currentWeek)]);}),
+                              ],)
+                              ],),
+                              Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      ChargeBar(
+                                        barHeight: 10,
+                                        barWidth:
+                                            MediaQuery.of(context).size.width / 2,
+                                        fillColor:
+                                            Theme.of(context).colorScheme.primary,
+                                        currentCharge: figure.figure!.charge,
+                                      ),
+                                      Text("[+$addableCharge%]", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.primary),)
+                                    ],
+                                  ),
+                                  SizedBox(height: 10,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  EvBar(
+                                    currentXp: figure.figure!.evPoints,
+                                    maxXp: figure1.EvCutoffs[figure.EVLevel],
+                                    fillColor:
+                                        Theme.of(context).colorScheme.secondary,
+                                    barHeight: 10,
+                                    barWidth:
+                                        MediaQuery.of(context).size.width / 2,
+                                  ),
+                                  Text("(+$addableEV)", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.secondary),)
+                                ],
                               ),
-                              Text("[+7%]", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.primary),)
+                                ],
+                              ),
+                              
+                            
                             ],
-                          ),
-                          SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          EvBar(
-                            currentXp: 350,
-                            maxXp: 1000,
-                            fillColor:
-                                Theme.of(context).colorScheme.secondary,
-                            barHeight: 10,
-                            barWidth:
-                                MediaQuery.of(context).size.width / 2,
-                          ),
-                          Text("(+340)", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).colorScheme.secondary),)
-                        ],
-                      ),
-                        ],
-                      ),
-                      
-                    
-                    ],
+                          );
+                        }
+                      );
+                    }
                   )),
                 ),
                  FfButton(height: 90, text: "Awesome!", textStyle: Theme.of(context).textTheme.headlineLarge!,textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {setState(() {states['post-logging'] = false; states['pre-logging'] = true;})}),
@@ -411,10 +405,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               : [
                 Consumer<FigureModel>(
                   builder: (_, figure, __) {
-                    return RobotImageHolder(
-                      height: MediaQuery.of(context).size.height / 3,
-                      width: MediaQuery.of(context).size.width,
-                      url: figure.composeFigureUrl(),
+                    return Stack(
+                      children: [
+                        RobotImageHolder(
+                          height: MediaQuery.of(context).size.height / 3,
+                          width: MediaQuery.of(context).size.width,
+                          url: figure.composeFigureUrl(),
+                        ),
+                        DraggableAdminPanel(button1Text: "add 10 mins", button2Text: "add 30 sec", onButton1Pressed: add10Minutes, onButton2Pressed: add30Seconds,),
+                      ],
                     );
                   },
                 ),
@@ -515,7 +514,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: states['logging']! ? 
-                  FfButtonProgressable(progress: (time.toDouble() / _timegoal.toDouble()).clamp(0, 1), disabled: false, height: 90, icon: Icons.add, iconSize: 50, text: 'Complete Workout', textStyle: Theme.of(context).textTheme.headlineLarge!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {endLogging()})
+                  FfButtonProgressable(progress: (time.toDouble() / _timegoal.toDouble()).clamp(0, 1), disabled: false, height: 90, icon: Icons.add, iconSize: 50, text: 'Complete Workout', textStyle: Theme.of(context).textTheme.headlineLarge!, textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {endWorkout()})
                   : FfButton(
                     icon: Icons.add,
                     iconSize: 50,

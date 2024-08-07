@@ -42,7 +42,8 @@ class HistoryState extends State<History> {
     List<Routes.Workout> workouts = await auth.getWorkouts().then((value) {
       return value.workouts;
     });
-    Provider.of<HistoryModel>(context, listen: false).setWorkouts(workouts);
+    
+    Provider.of<HistoryModel>(context, listen: false).setWorkouts(workouts, context);
     setState(() {
       _workouts = workouts;
     });

@@ -9,8 +9,10 @@ import 'package:table_calendar/table_calendar.dart';
 class WorkoutCalendar extends StatefulWidget {
   final CalendarFormat calendarFormat;
   final bool isInteractable;
+  final int workoutMinTime;
   const WorkoutCalendar(
       {super.key,
+      this.workoutMinTime = 30,
       this.calendarFormat = CalendarFormat.week,
       this.isInteractable = true});
 
@@ -19,11 +21,13 @@ class WorkoutCalendar extends StatefulWidget {
 }
 
 class WorkoutCalendarState extends State<WorkoutCalendar> {
+  int _workoutMinTime = 30;
   @override
   void initState() {
     super.initState();
 
     setState(() {
+      _workoutMinTime = widget.workoutMinTime;
       _selectedDay = _focusedDay;
       _calendarFormat = widget.calendarFormat;
       _interactable = widget.isInteractable;
@@ -31,6 +35,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   }
 
   Widget _buildCellDate(DateTime day) {
+    day = day.toLocal();
     return Consumer<HistoryModel>(
       builder: (_, workoutHistory, __) {
         bool hasWorkout = false;
@@ -38,7 +43,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           DateTime date = DateTime.parse(workout.endDate);
           if (date.year == day.year &&
               date.month == day.month &&
-              date.day == day.day) {
+              date.day == day.day && (workout.elapsed.toInt()/60 >= _workoutMinTime)) {
             hasWorkout = true;
             logger.i("hasWorkout: $hasWorkout for $day");
             break;
@@ -74,6 +79,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
   bool _interactable = true;
   List<Workout> _workouts = [];
+  
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
