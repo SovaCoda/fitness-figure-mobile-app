@@ -93,6 +93,7 @@ class HistoryState extends State<History> {
     return const Column(
       children: [
         WorkoutCalendar(
+          showWorkoutData: true,
           calendarFormat: CalendarFormat.month,
           isInteractable: true,
         )

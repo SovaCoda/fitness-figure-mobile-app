@@ -286,6 +286,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     calendarFormat: CalendarFormat.week,
                     isInteractable: false,
                     workoutMinTime: minWorkoutTime,
+                    showWorkoutData: false,
                   ),
                 )),
             states['post-logging']! ? 
