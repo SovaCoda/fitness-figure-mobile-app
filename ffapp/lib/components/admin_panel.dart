@@ -54,21 +54,24 @@ class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
               height: 10,
             ),
             Text('Admin Panel',
-                style: TextStyle(color: Theme.of(context).colorScheme.surface)),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                FfButton(
-                    text: widget.button1Text,
-                    textColor: Colors.black,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    onPressed: widget.onButton1Pressed),
-                FfButton(
-                    text: widget.button2Text,
-                    textColor: Colors.black,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    onPressed: widget.onButton2Pressed),
-              ],
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FfButton(
+                      text: widget.button1Text,
+                      textColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      onPressed: widget.onButton1Pressed),
+                      SizedBox(height: 10,),                  FfButton(
+                      text: widget.button2Text,
+                      textColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      onPressed: widget.onButton2Pressed),
+                ],
+              ),
             ),
           ],
         ),
