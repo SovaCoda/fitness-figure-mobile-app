@@ -1,12 +1,12 @@
 import 'dart:async';
-
-import 'package:ffapp/components/charge_bar.dart';
-import 'package:ffapp/components/ev_bar.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/components/research_option.dart';
+import 'package:ffapp/components/robot_line_painter.dart';
 
 class Core extends StatefulWidget {
   const Core({super.key});
@@ -16,7 +16,7 @@ class Core extends StatefulWidget {
 }
 
 class CoreState extends State<Core> {
-  late final FigureModel figure;
+  late FigureModel figure = FigureModel();
   late final CurrencyModel currency;
   late final Timer currencyGenTimer;
   late final UserModel user;
@@ -59,7 +59,7 @@ class CoreState extends State<Core> {
   initState() {
     super.initState;
     currencyIncrement = 0;
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       initialize();
     });
   }
@@ -69,7 +69,7 @@ class CoreState extends State<Core> {
     currencyGenTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       handleCurrencyUpdate();
     });
-    await Future.delayed(Duration(
+    await Future.delayed(const Duration(
         milliseconds:
             500)); // allow time for figure instance to be filled out by dashboard
     auth = Provider.of<AuthService>(context, listen: false);
@@ -91,40 +91,115 @@ class CoreState extends State<Core> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FigureModel>(builder: (context, figure, child) {
-      return Column(children: [
-        Center(
-          child: ChargeBar(
-              showDashedLines: true,
-              showInfoCircle: true,
-              currentCharge: 30,
-              fillColor: Theme.of(context).colorScheme.primary,
-              barHeight: 30,
-              barWidth: 300),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  CustomPaint(
+                    size: Size(MediaQuery.of(context).size.width * 0.5,
+                        MediaQuery.of(context).size.height * 0.3),
+                    painter: RobotLinePainter(),
+                  ),
+                  RobotImageHolder(
+                    url: (figure.figure != null)
+                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.EVLevel}_cropped_happy")
+                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.5,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 10, top: 10, right: 30),
+              decoration: BoxDecoration(
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.primary),
+                shape: BoxShape.circle,
+              ),
+              child: CircleAvatar(
+                minRadius: 75,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                child: Column(
+                  children: [
+                    Text('EVO ${figure.EVLevel}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary)),
+                    Text('\$1.4/sec',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface)),
+                    Text('\$429.32',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface)),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 10),
-        Center(
-          child: Row(
+        Container(
+          width: MediaQuery.of(context).size.width * 0.95,
+          height: MediaQuery.of(context).size.height * 0.465,
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
             children: [
-              SizedBox(width: 10),
-              ChargeBar(
-                  showDashedLines: true,
-                  showInfoCircle: false,
-                  currentCharge: 30,
-                  fillColor: Theme.of(context).colorScheme.primary,
-                  barHeight: 10,
-                  barWidth: 50),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.85,
+                margin: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.02,
+                    bottom: MediaQuery.of(context).size.height * 0.02,
+                    right: MediaQuery.of(context).size.width * 0.02),
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1))),
+                child: Text('Research',
+                    style: Theme.of(context)
+                        .textTheme
+                        .displayMedium!
+                        .copyWith(fontSize: 24)),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ResearchOption(
+                        title: 'Optimize Processors',
+                        chance: 34,
+                        ev: 40,
+                        duration: Duration(seconds: 30),
+                      ),
+                      ResearchOption(
+                        title: 'Shine Tracks',
+                        chance: 12,
+                        ev: 200,
+                        duration: Duration(minutes: 1),
+                      ),
+                      ResearchOption(
+                        title: 'Upgrade Coolants',
+                        chance: 4,
+                        ev: 550,
+                        duration: Duration(minutes: 2),
+                      ),
+                      // Add more ResearchOption widgets here as needed
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
-        Text(
-          'Evo Level ${figure.EVLevel} Generating ${currencyIncrement ?? 0}/s',
-          style: Theme.of(context)
-              .textTheme
-              .displayMedium!
-              .copyWith(color: Theme.of(context).colorScheme.primary),
-        )
-      ]);
-    });
+      ],
+    );
   }
 }
