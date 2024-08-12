@@ -130,10 +130,10 @@ class CoreState extends State<Core> {
                     Text('EVO ${figure.EVLevel}',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.secondary)),
-                    Text('\$1.4/sec',
+                    Text('\$${getCurrencyIncrement(figure)}/sec',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
-                    Text('\$429.32',
+                    Text('\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
                   ],
