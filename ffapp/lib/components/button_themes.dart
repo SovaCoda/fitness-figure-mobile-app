@@ -202,11 +202,8 @@ class FfButtonProgressableResearch extends StatelessWidget {
       ),
       child: ElevatedButton(
         style: ButtonStyle(
-          padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
-            const EdgeInsets.symmetric(horizontal: 0), // remove default padding
-          ),
           shape: WidgetStateProperty.all<OutlinedBorder>(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           
           backgroundColor: WidgetStateProperty.all<Color>(

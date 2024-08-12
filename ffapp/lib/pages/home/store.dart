@@ -110,9 +110,8 @@ class _StoreState extends State<Store> {
   }
 
   void subtractCurrency(BuildContext context, int subtractCurrency) async {
-    Routes.User? databaseUser = await auth
-        .getUserDBInfo(); // needs to be changed to get user from provider
-    int currentCurrency = databaseUser!.currency.toInt();
+    Routes.User databaseUser = Provider.of<UserModel>(context, listen: false).user!; // Changed to use provider
+    int currentCurrency = databaseUser.currency.toInt();
     logger.i(
         "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
     int updateCurrency = currentCurrency - subtractCurrency;

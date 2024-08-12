@@ -6,6 +6,9 @@ import 'dart:async';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/routes.pb.dart';
+import 'package:fixnum/fixnum.dart';
 
 class ResearchOption extends StatefulWidget {
   final String title;
@@ -26,6 +29,7 @@ class ResearchOption extends StatefulWidget {
 }
 
 class _ResearchOptionState extends State<ResearchOption> {
+  late AuthService auth;
   bool _isCountdown = false;
   bool _isExpanded = false;
   double _investmentAmount = 0;
@@ -42,6 +46,7 @@ class _ResearchOptionState extends State<ResearchOption> {
   @override
   void initState() {
     super.initState();
+    auth = Provider.of<AuthService>(context, listen: false);
     _currentCountdown = widget.duration.inSeconds;
     _currentChance = widget.chance;
     _randValue = Random().nextInt(100);
@@ -55,7 +60,7 @@ class _ResearchOptionState extends State<ResearchOption> {
       _cost = value.round();
       // Increase chance based on investment. This is a simple linear increase,
       // you might want to adjust the formula based on your game's mechanics.
-      _currentChance = widget.chance + (value / 10).round();
+      _currentChance = widget.chance + (value / 100).round();
       // Ensure chance doesn't exceed 100%
       _currentChance = _currentChance.clamp(0, 100);
     });
@@ -75,6 +80,52 @@ class _ResearchOptionState extends State<ResearchOption> {
         }
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  void giveRewards() async {
+    FigureInstance figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
+    int totalEV = figureInstance.evPoints + widget.ev;
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigureEv(totalEV);
+    UserModel user = Provider.of<UserModel>(context, listen: false);
+    figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
+
+    await auth.updateFigureInstance(FigureInstance(
+        figureId: figureInstance.figureId,
+        userEmail: user.user!.email,
+        figureName: figureInstance.figureName,
+        charge: (figureInstance.charge).toInt(),
+        evPoints: (figureInstance.evPoints).toInt()));
+  }
+
+  void subtractCurrency() async {
+    User databaseUser = Provider.of<UserModel>(context, listen: false).user!;
+    int currentCurrency = databaseUser.currency.toInt();
+    logger.i(
+        "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
+    int updateCurrency = currentCurrency - _investmentAmount.round();
+    if (updateCurrency < 0) {
+      logger.i("Not enough currency to complete transaction.");
+      if (mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Not enough currency to complete this purchase!")),    
+        );
+      return;
+      }
+    }
+    databaseUser.currency = Int64(updateCurrency);
+    await auth.updateUserDBInfo(databaseUser);
+    if(mounted){
+      Provider.of<CurrencyModel>(context, listen: false)
+          .setCurrency(updateCurrency.toString());
+      }
   }
 
   @override
@@ -122,12 +173,16 @@ class _ResearchOptionState extends State<ResearchOption> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '    ${widget.chance}% Chance',
+                          '    $_currentChance% Chance',
                           style: Theme.of(context)
                               .textTheme
                               .displayMedium!
                               .copyWith(
-                                  color: Theme.of(context).colorScheme.primary),
+                                  color: Color.fromARGB(
+                                      255,
+                                      255 - (2.55 * _currentChance).round(),
+                                      0 + (2.55 * _currentChance).round(),
+                                      0)),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -195,6 +250,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                                       disabledColor: Theme.of(context)
                                           .colorScheme
                                           .onSurface,
+                                      
                                       width: MediaQuery.of(context).size.width *
                                           0.4,
                                       height: 40,
@@ -259,7 +315,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                               divisions: 100,
                               value: _investmentAmount,
                               min: 0,
-                              max: 1000,
+                              max: 10000,
                               onChanged: _updateInvestment,
                               label: _cost.toString()),
                           Text('$_currentChance% Chance',
@@ -273,6 +329,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                               onPressed: () {
                                 startTimer();
                                 setState(() {
+                                  subtractCurrency();
                                   _isExpanded = !_isExpanded;
                                   _isCountdown = true;
                                 });
@@ -353,11 +410,12 @@ class _ResearchOptionState extends State<ResearchOption> {
                             ]),
                             ElevatedButton(
                                 onPressed: () {
+                                  
                                   setState(() {
+                                    giveRewards(); // Award the user on victory
                                     _isDelete = true;
                                     _isExpanded = !_isExpanded;
                                   });
-                                  // Implement some reward function here
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -416,7 +474,6 @@ class _ResearchOptionState extends State<ResearchOption> {
                                     _isDelete = true;
                                     _isExpanded = !_isExpanded;
                                   });
-                                  // Implement some reward function here
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
