@@ -87,8 +87,9 @@ class AuthService {
 
   Future<Routes.User?> getUserDBInfo() async {
   FB.User? currentUser = _auth.currentUser;
+  
   if (currentUser == null) {
-    throw Exception("No user is currently signed in.");
+    return null;
   }
   Routes.User user = Routes.User(email: currentUser.email);
   return await _routes.routesClient.getUser(user);
@@ -170,7 +171,8 @@ class AuthService {
 
   Future<void> updateCurrency(int currency) async {
     FB.User? currentUser = _auth.currentUser;
-    Routes.User user = Routes.User(email: currentUser!.email);
+    Routes.User user = Routes.User(email: currentUser?.email);
+    if (currentUser == null) return;
     Int64 currency64 = Int64(currency);
     user.currency = currency64;
     await _routes.routesClient.updateUser(user);

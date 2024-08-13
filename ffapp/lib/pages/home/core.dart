@@ -41,8 +41,13 @@ class CoreState extends State<Core> {
         .getOfflineDateTime(Routes.OfflineDateTime(email: user.email));
     DateTime parsedDateTime = DateTime.parse(lastLoggedGeneration.currency);
     Duration difference = DateTime.now().difference(parsedDateTime);
-    currency.addToCurrency(difference.inSeconds * currencyIncrement!);
-    auth.updateCurrency(int.parse(currency.currency));
+    // Seems like a temporary solution. Look into a real solution in the future
+    if (difference.inSeconds < 0) {
+      auth.updateCurrency(0);
+    } else {
+      currency.addToCurrency(difference.inSeconds * currencyIncrement!);
+      auth.updateCurrency(int.parse(currency.currency));
+    }
   }
 
   void deactivateGenerationServer() {
@@ -133,7 +138,8 @@ class CoreState extends State<Core> {
                     Text('\$${getCurrencyIncrement(figure)}/sec',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
-                    Text('\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
+                    Text(
+                        '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
                   ],
