@@ -1,6 +1,7 @@
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -246,7 +247,11 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             ),
           ),
         ),
-        if(showWorkoutData) workoutData == null ? Text('no workouts for this day') : Text("${workoutData!.startDate} to ${workoutData!.endDate}")
+        if(showWorkoutData) workoutData == null ? Text('no workouts for this day') : 
+        sizeBox(height: 20),
+        // LineChart(LineChartData(LineChartBarData(isCurved: false, )))
+
+      
       ],
     );
   }
