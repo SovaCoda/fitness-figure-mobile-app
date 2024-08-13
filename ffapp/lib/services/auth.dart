@@ -86,37 +86,38 @@ class AuthService {
   }
 
   Future<Routes.User?> getUserDBInfo() async {
-  FB.User? currentUser = _auth.currentUser;
-  if (currentUser == null) {
-    throw Exception("No user is currently signed in.");
+    FB.User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      throw Exception("No user is currently signed in.");
+    }
+    Routes.User user = Routes.User(email: currentUser.email);
+    return await _routes.routesClient.getUser(user);
   }
-  Routes.User user = Routes.User(email: currentUser.email);
-  return await _routes.routesClient.getUser(user);
-}
 
   Future<Routes.User> updateUserDBInfo(Routes.User user) async {
     user.email = _auth.currentUser!.email!;
     return await _routes.routesClient.updateUser(user);
   }
 
-  Future<void> updateEmail(String oldEmail, String newEmail, FB.AuthCredential credential) async {
-  try {
-    await _auth.currentUser?.reauthenticateWithCredential(credential);
-    await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
-    await _auth.currentUser?.reload();
-    Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
-      Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail)
-    );
-    print("Email updated successfully to: ${updatedUser.email}");
-  } catch (e) {
-    print("Error updating email: $e");
-    rethrow;
+  Future<void> updateEmail(
+      String oldEmail, String newEmail, FB.AuthCredential credential) async {
+    try {
+      await _auth.currentUser?.reauthenticateWithCredential(credential);
+      await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
+      await _auth.currentUser?.reload();
+      Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
+          Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail));
+      print("Email updated successfully to: ${updatedUser.email}");
+    } catch (e) {
+      print("Error updating email: $e");
+      rethrow;
+    }
   }
-}
 
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
-    await _routes.routesClient.deleteUser(Routes.User(email: _auth.currentUser!.email!));
+    await _routes.routesClient
+        .deleteUser(Routes.User(email: _auth.currentUser!.email!));
   }
 
   Future<Routes.Workout> createWorkout(Routes.Workout workout) async {
@@ -145,8 +146,6 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-
-
   Future<void> updatePassword(String password, credential) async {
     await _auth.currentUser?.reauthenticateWithCredential(credential);
     await _auth.currentUser?.updatePassword(password);
@@ -170,7 +169,9 @@ class AuthService {
 
   Future<void> updateCurrency(int currency) async {
     FB.User? currentUser = _auth.currentUser;
-    Routes.User user = Routes.User(email: currentUser!.email);
+    Routes.User user = Routes.User(
+        email:
+            currentUser?.email); // Caused crash if user logged out when using !
     Int64 currency64 = Int64(currency);
     user.currency = currency64;
     await _routes.routesClient.updateUser(user);

@@ -94,7 +94,6 @@ class FfButtonProgressable extends StatelessWidget {
   final double progress;
   final bool disabled;
   final TextStyle textStyle;
-  
 
   const FfButtonProgressable({
     super.key,
@@ -118,9 +117,18 @@ class FfButtonProgressable extends StatelessWidget {
       height: height,
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(13),
-        gradient: LinearGradient(colors: [backgroundColor, backgroundColor, disabledColor, disabledColor], stops: [0, progress -0.05, progress, 1])
-      ),
+          borderRadius: BorderRadius.circular(13),
+          gradient: LinearGradient(colors: [
+            backgroundColor,
+            backgroundColor,
+            disabledColor,
+            disabledColor
+          ], stops: [
+            0,
+            progress - 0.05,
+            progress,
+            1
+          ])),
       child: ElevatedButton(
         style: ButtonStyle(
           padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
@@ -129,11 +137,13 @@ class FfButtonProgressable extends StatelessWidget {
           shape: WidgetStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
           ),
-          
-          backgroundColor: WidgetStateProperty.all<Color>(
-              Colors.transparent),
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
         ),
-        onPressed: disabled ? null : progress == 1 ? onPressed : null,
+        onPressed: disabled
+            ? null
+            : progress == 1
+                ? onPressed
+                : null,
         child: icon != null
             ? Stack(
                 children: [
@@ -157,7 +167,6 @@ class FfButtonProgressable extends StatelessWidget {
       ),
     );
   }
-  
 }
 
 class FfButtonProgressableResearch extends StatelessWidget {
@@ -173,7 +182,6 @@ class FfButtonProgressableResearch extends StatelessWidget {
   final double progress;
   final bool disabled;
   final TextStyle textStyle;
-  
 
   const FfButtonProgressableResearch({
     super.key,
@@ -197,19 +205,30 @@ class FfButtonProgressableResearch extends StatelessWidget {
       height: height,
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(13),
-        gradient: LinearGradient(colors: [backgroundColor, backgroundColor, disabledColor, disabledColor], stops: [0, progress -0.05, progress, 1])
-      ),
+          borderRadius: BorderRadius.circular(13),
+          gradient: LinearGradient(colors: [
+            backgroundColor,
+            backgroundColor,
+            disabledColor,
+            disabledColor
+          ], stops: [
+            0,
+            progress - 0.05,
+            progress,
+            1
+          ])),
       child: ElevatedButton(
         style: ButtonStyle(
           shape: WidgetStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          
-          backgroundColor: WidgetStateProperty.all<Color>(
-              Colors.transparent),
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
         ),
-        onPressed: disabled ? null : progress == 1 ? onPressed : null,
+        onPressed: disabled
+            ? null
+            : progress == 1
+                ? onPressed
+                : null,
         child: icon != null
             ? Stack(
                 children: [
@@ -234,5 +253,3 @@ class FfButtonProgressableResearch extends StatelessWidget {
     );
   }
 }
-
-

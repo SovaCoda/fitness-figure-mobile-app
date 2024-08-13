@@ -67,9 +67,8 @@ class _InventoryState extends State<Inventory> {
 
   @override
   Widget build(BuildContext context) {
-    double usableHeight = MediaQuery.of(context).size.height -
-        92 -
-        123.5; // height of app bar and bottom nav bar
+    double usableHeight = MediaQuery.of(context).size.height *
+        0.75; // height of app bar and bottom nav bar (adjusted mediaquery for my device)
     return (Column(
       children: [
         Consumer<UserModel>(

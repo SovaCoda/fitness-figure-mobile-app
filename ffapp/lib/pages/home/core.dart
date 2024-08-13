@@ -133,7 +133,8 @@ class CoreState extends State<Core> {
                     Text('\$${getCurrencyIncrement(figure)}/sec',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
-                    Text('\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
+                    Text(
+                        '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
                   ],
