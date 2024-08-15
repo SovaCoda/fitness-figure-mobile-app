@@ -15,6 +15,7 @@ import 'package:ffapp/components/resuables/streak_shower.dart';
 import 'package:ffapp/components/resuables/week_to_go_shower.dart';
 import 'package:ffapp/components/resuables/workout_time_shower.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/workout_calendar.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';

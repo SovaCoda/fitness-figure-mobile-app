@@ -3,7 +3,7 @@ import 'package:ffapp/components/message_sender.dart';
 import 'package:ffapp/components/robot_response.dart';
 import 'package:ffapp/components/user_message.dart';
 import 'package:ffapp/main.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MessageProvider extends ChangeNotifier {
@@ -96,63 +96,67 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MessageProvider(),
-      child: Consumer<FigureModel>(
-        builder: (context, figure, child) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Container(
-                  constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height,
-                      minHeight: MediaQuery.of(context).size.height - 500),
-                  width: MediaQuery.of(context).size.width,
-                  child: Consumer<MessageProvider>(
-                    builder: (_, interactions, __) {
-                      return ListView.builder(
-                          shrinkWrap: false,
-                          itemCount: interactions.getInteractions().length,
-                          itemBuilder: (context, index) {
-                            return interactions
-                                        .getInteractions()
-                                        .values
-                                        .elementAt(index) ==
-                                    null
-                                ? SizedBox(
-                                    width: MediaQuery.sizeOf(context).width,
-                                    child: interactions
-                                        .getInteractions()
-                                        .keys
-                                        .elementAt(index))
-                                : Column(
-                                    children: [
-                                      SizedBox(
-                                          width:
-                                              MediaQuery.sizeOf(context).width,
-                                          child: interactions
-                                              .getInteractions()
-                                              .values
-                                              .elementAt(index)),
-                                      SizedBox(
-                                          width:
-                                              MediaQuery.sizeOf(context).width,
-                                          child: interactions
-                                              .getInteractions()
-                                              .keys
-                                              .elementAt(index)!)
-                                    ],
-                                  );
-                          });
-                    },
+    return Material(
+      child: Container(
+        child: ChangeNotifierProvider(
+          create: (context) => MessageProvider(),
+          child: Consumer<FigureModel>(
+            builder: (context, figure, child) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Container(
+                      constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height,
+                          minHeight: MediaQuery.of(context).size.height - 500),
+                      width: MediaQuery.of(context).size.width,
+                      child: Consumer<MessageProvider>(
+                        builder: (_, interactions, __) {
+                          return ListView.builder(
+                              shrinkWrap: false,
+                              itemCount: interactions.getInteractions().length,
+                              itemBuilder: (context, index) {
+                                return interactions
+                                            .getInteractions()
+                                            .values
+                                            .elementAt(index) ==
+                                        null
+                                    ? SizedBox(
+                                        width: MediaQuery.sizeOf(context).width,
+                                        child: interactions
+                                            .getInteractions()
+                                            .keys
+                                            .elementAt(index))
+                                    : Column(
+                                        children: [
+                                          SizedBox(
+                                              width: MediaQuery.sizeOf(context)
+                                                  .width,
+                                              child: interactions
+                                                  .getInteractions()
+                                                  .values
+                                                  .elementAt(index)),
+                                          SizedBox(
+                                              width: MediaQuery.sizeOf(context)
+                                                  .width,
+                                              child: interactions
+                                                  .getInteractions()
+                                                  .keys
+                                                  .elementAt(index)!)
+                                        ],
+                                      );
+                              });
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              MessageSender(),
-            ],
-          );
-        },
+                  MessageSender(),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }

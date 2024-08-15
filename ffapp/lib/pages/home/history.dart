@@ -1,4 +1,5 @@
 import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/workout_calendar.dart';
 import 'package:ffapp/components/workout_history_view.dart';
 import 'package:ffapp/main.dart';
@@ -92,6 +93,7 @@ class HistoryState extends State<History> {
   Widget build(BuildContext context) {
     return const Column(
       children: [
+        
         WorkoutCalendar(
           showWorkoutData: true,
           calendarFormat: CalendarFormat.month,

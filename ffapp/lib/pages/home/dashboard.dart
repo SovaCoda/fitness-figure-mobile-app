@@ -188,6 +188,19 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         );
                       },
                     ),
+                    Positioned(
+                      child: GestureDetector(
+                        onTap: () {
+                          context.goNamed("Chat");
+                        },
+                        child: Icon(
+                          Icons.chat,
+                          size: 60,
+                        ),
+                      ),
+                      top: 0,
+                      right: 0,
+                    ),
                     Consumer<UserModel>(
                       builder: (context, user, child) => (user.user != null &&
                                   user.user?.email == "chb263@msstate.ed" ||

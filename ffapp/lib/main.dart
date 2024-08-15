@@ -1,5 +1,6 @@
 import 'package:dart_openai/dart_openai.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/evo.dart';
 import 'package:fixnum/fixnum.dart';
@@ -20,48 +21,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 
-class HistoryModel extends ChangeNotifier {
-  List<Routes.Workout> workouts = List.empty();
-  bool workedOutToday = false;
-
-  List<int> currentWeek = List.filled(7, 0, growable: false);
-
-  DateTime mostRecentSunday(DateTime date)
-  {
-    return DateTime(date.year, date.month, date.day - date.weekday % 7);
-  }
-
-  void setWorkouts(List<Routes.Workout> newWorkouts, BuildContext context) {
-    DateTime now = DateTime.now().toLocal();
-    DateTime weekstart = mostRecentSunday(now); // get week start (sunday is 7)
-    List<DateTime?> workoutsInCurrentWeek = List.filled(7, null, growable: false); // track workouts in our current week
-    int minTime = Provider.of<UserModel>(context, listen: false).user!.workoutMinTime.toInt(); 
-    for (int i = 0; i < newWorkouts.length; i++) {
-      DateTime curDate = DateTime.parse(newWorkouts[i].endDate);
-      bool goalMet = newWorkouts[i].elapsed.toInt()/60 >= minTime;
-     
-      if(curDate.isAfter(weekstart) && goalMet) {workoutsInCurrentWeek[curDate.weekday % 7] = curDate;} // if workout is in our current week add it to our list 
-      if(curDate.day == now.day && curDate.month == now.month && curDate.year == now.year && goalMet) {workedOutToday = true;}
-    }
-
-    for(int i = 0; i < currentWeek.length; i++)
-    {
-      int status = 0;
-      if(workoutsInCurrentWeek[i] == null && weekstart.add(Duration(days: i)).isBefore(now)) {status = 0;} // in the past didnt workout Dark Green
-      if(workoutsInCurrentWeek[i] == null && weekstart.add(Duration(days: i)).isAfter(now)) {status = 1;} // in the future hasnt workedout Gray Surface
-      if(workoutsInCurrentWeek[i] != null) {status = 2;} // worked out Bright Green
-
-      currentWeek[i] = status;
-    }
-    workouts = newWorkouts;
-    notifyListeners();
-  }
-}
 
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
@@ -264,6 +229,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     path: '/evolution',
     builder: (context, state) => const EvolutionPage(),
   ),
+  GoRoute(
+    name: 'Chat',
+    path: '/chat',
+    builder: (context, state) => const ChatPage(),
+  )
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',

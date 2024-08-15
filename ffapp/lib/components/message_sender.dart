@@ -1,6 +1,6 @@
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class MessageSender extends StatefulWidget {
@@ -19,6 +19,15 @@ class _MessageSenderState extends State<MessageSender> {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
+          IconButton(
+            icon: const Icon(
+              Icons.chevron_left,
+              size: 40,
+            ),
+            onPressed: () {
+              context.goNamed('Home');
+            },
+          ),
           Expanded(
             child: TextField(
               controller: _controller,
