@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/pages/home/survey.dart';
 import 'package:ffapp/pages/home/home.dart';
 import 'package:ffapp/components/evolution_item.dart';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 
 class EvolutionPage extends StatefulWidget {
   const EvolutionPage({super.key});
@@ -32,6 +33,8 @@ class _EvolutionPageState extends State<EvolutionPage>
   late AnimationController _figureFadeController;
   late Animation<double> _figureFadeAnimation;
 
+  late FigureModel figure = FigureModel();
+  int _evolutionCost = 0;   
   bool _isAnimating = false;
   bool _showNewBenefits = false;
   bool _isEvolved = false;
@@ -42,7 +45,8 @@ class _EvolutionPageState extends State<EvolutionPage>
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-
+    figure = Provider.of<FigureModel>(context, listen: false);
+    _evolutionCost = figure1.EvCutoffs[figure.EVLevel];
     _controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -98,6 +102,7 @@ class _EvolutionPageState extends State<EvolutionPage>
       _disabledButtons = false;
       _isAnimating = false;
       _showNewBenefits = true;
+      _evolutionCost = figure1.EvCutoffs[figure.EVLevel];
     });
   }
 
@@ -170,6 +175,30 @@ class _EvolutionPageState extends State<EvolutionPage>
     );
   }
 
+  Future<bool> subtractEVPoints() async {
+    FigureModel userFigure = Provider.of<FigureModel>(context, listen: false);
+    int currentEVPoints = userFigure.figure!.evPoints;
+    int updatedEVPoints = currentEVPoints - _evolutionCost;
+    logger.i("Attempting to make transaction of cost $_evolutionCost on current points $currentEVPoints");  
+    if (updatedEVPoints < 0) {
+      logger.i("Not enough EV Points to complete transaction.");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Not enough EV Points to complete this purchase!")),
+        );
+        return false;
+      }
+    }
+    userFigure.figure!.evPoints = updatedEVPoints; 
+    await auth.updateFigureInstance(userFigure.figure!);
+    if (mounted) {
+      Provider.of<CurrencyModel>(context, listen: false)
+          .setCurrency(updatedEVPoints.toString());
+    }
+    return true;
+  }
+  
   double? usableScreenHeight;
   @override
   Widget build(BuildContext context) {
@@ -266,10 +295,7 @@ class _EvolutionPageState extends State<EvolutionPage>
                                         children: [
                                           EvolutionItem(
                                             title: 'EVO ${figure.EVLevel + 1}',
-                                            upgrades: [
-                                              '\$0.25/Sec',
-                                              'Research Unlocked'
-                                            ], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+                                            upgrades: figure1.figureEvUpgrades[figure.EVLevel + 1], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
                                           ),
                                         ],
                                       ),
@@ -284,16 +310,11 @@ class _EvolutionPageState extends State<EvolutionPage>
                                       children: [
                                         EvolutionItem(
                                           title: 'EVO ${figure.EVLevel}',
-                                          upgrades: [
-                                            '\$0.05/Sec'
-                                          ], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+                                          upgrades: figure1.figureEvUpgrades[figure.EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
                                         ),
                                         EvolutionItem(
                                           title: 'EVO ${figure.EVLevel + 1}',
-                                          upgrades: [
-                                            '\$0.25/Sec',
-                                            'Research Unlocked'
-                                          ],
+                                          upgrades: figure1.figureEvUpgrades[figure.EVLevel + 1],
                                           isUnlocked:
                                               false, // Adds lock icon to next line
                                         ),
@@ -319,13 +340,15 @@ class _EvolutionPageState extends State<EvolutionPage>
                                                 BorderRadius.circular(10.0),
                                           ),
                                         ),
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          await subtractEVPoints() ?
                                           setState(() {
                                             _isAnimating = true;
-                                          });
-                                          _disabledButtons
+                                            _disabledButtons
                                               ? ()
                                               : evolveFigure();
+                                          }) : null;
+                                          
                                         },
                                         child: Text('EVOLVE',
                                             style: Theme.of(context)
