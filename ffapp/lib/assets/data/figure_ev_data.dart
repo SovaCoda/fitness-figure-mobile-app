@@ -5,13 +5,16 @@ class figureEvData {
   int baseEvRequired = 0;
   int evRequirementGainPerLevel = 0;
   int levelScaleFactor = 0;
+  List<List<String>> figureEvUpgrades = [];
 
-  figureEvData(
-      {required this.figureName,
-      this.numberOfEvolutions = 0,
-      this.baseEvRequired = 0,
-      this.evRequirementGainPerLevel = 0,
-      this.levelScaleFactor = 0}) {
+  figureEvData({
+    required this.figureName,
+    this.numberOfEvolutions = 0,
+    this.baseEvRequired = 0,
+    this.evRequirementGainPerLevel = 0,
+    this.levelScaleFactor = 0,
+    this.figureEvUpgrades = const [],
+  }) {
     EvCutoffs = _generateEvCutoffs;
   }
 
@@ -29,6 +32,17 @@ figureEvData figure1 = figureEvData(
   evRequirementGainPerLevel: 200,
   levelScaleFactor: 2,
   figureName: "robot1",
+  figureEvUpgrades: [
+    ["\$0.05/Sec"],
+    ["\$0.25/Sec", "Research Unlocked"],
+    ["Upgrade 5", "Upgrade 6"],
+    ["Upgrade 7", "Upgrade 8"],
+    ["Upgrade 9", "Upgrade 10"],
+    ["Upgrade 11", "Upgrade 12"],
+    ["Upgrade 13", "Upgrade 14"],
+    ["Upgrade 15", "Upgrade 16"],
+    // Add more lists for each evolution
+  ],
 );
 
 figureEvData figure2 = figureEvData(
@@ -37,4 +51,15 @@ figureEvData figure2 = figureEvData(
   evRequirementGainPerLevel: 100,
   levelScaleFactor: 2,
   figureName: "robot2",
+  figureEvUpgrades: [
+    ["Upgrade A", "Upgrade B"],
+    ["Upgrade C", "Upgrade D"],
+    ["Upgrade E", "Upgrade F"],
+    ["Upgrade G", "Upgrade H"],
+    ["Upgrade I", "Upgrade J"],
+    ["Upgrade K", "Upgrade L"],
+    ["Upgrade M", "Upgrade N"],
+    ["Upgrade O", "Upgrade P"],
+    // Add more lists for each evolution
+  ],
 );
