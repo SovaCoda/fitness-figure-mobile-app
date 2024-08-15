@@ -66,7 +66,7 @@ class _StoreState extends State<Store> {
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
     // Check to see if mounted to prevent crash from exiting menu too fast
-    if(mounted) {
+    if (mounted) {
       setState(() {
         listOfFigures = listOfFigures;
       });
@@ -78,27 +78,19 @@ class _StoreState extends State<Store> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Skins"),
-          content: SizedBox(
-            height: MediaQuery.of(context).size.height *
-                1, // Set the height to 80% of the screen height
-            child: ChangeNotifierProvider(
-                create: (context) => FigureInstancesProvider(),
-                child: SkinViewer(
-                    listOfSkins: listOfSkin,
-                    listOfSkinInstances: listOfSkinInstances,
-                    figureName: figureName,
-                    listOfFigureInstances: listOfFigureInstances)),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Close"),
-            ),
-          ],
-        );
+            backgroundColor: Colors.grey[900],
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height *
+                  0.8, // Set the height to 80% of the screen height
+              child: ChangeNotifierProvider(
+                  create: (context) => FigureInstancesProvider(),
+                  child: SkinViewer(
+                      listOfSkins: listOfSkin,
+                      listOfSkinInstances: listOfSkinInstances,
+                      figureName: figureName,
+                      listOfFigureInstances: listOfFigureInstances)),
+            ));
       },
     );
   }
@@ -110,27 +102,28 @@ class _StoreState extends State<Store> {
   }
 
   void subtractCurrency(BuildContext context, int subtractCurrency) async {
-    Routes.User databaseUser = Provider.of<UserModel>(context, listen: false).user!; // Changed to use provider
+    Routes.User databaseUser = Provider.of<UserModel>(context, listen: false)
+        .user!; // Changed to use provider
     int currentCurrency = databaseUser.currency.toInt();
     logger.i(
         "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
     int updateCurrency = currentCurrency - subtractCurrency;
     if (updateCurrency < 0) {
       logger.i("Not enough currency to complete transaction.");
-      if (mounted){
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Not enough currency to complete this purchase!")),    
+              content: Text("Not enough currency to complete this purchase!")),
         );
-      return;
+        return;
       }
     }
     databaseUser.currency = Int64(updateCurrency);
     await auth.updateUserDBInfo(databaseUser);
-    if(mounted){
+    if (mounted) {
       Provider.of<CurrencyModel>(context, listen: false)
           .setCurrency(updateCurrency.toString());
-      }
+    }
   }
 
   @override
@@ -164,8 +157,7 @@ class _StoreState extends State<Store> {
                               .textTheme
                               .headlineLarge!
                               .copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.onSurface,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ));
                     },
                   ),
@@ -188,7 +180,7 @@ class _StoreState extends State<Store> {
                           return AlertDialog(
                             title: const Text("Questions?"),
                             content: const Text(
-                                '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
+                                '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health problems every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
                             actions: [
                               ElevatedButton(
                                   onPressed: () {
@@ -213,6 +205,7 @@ class _StoreState extends State<Store> {
       body: SingleChildScrollView(
         child: (Column(
           children: [
+            
             const SizedBox(
               height: 30,
             ),
@@ -239,6 +232,7 @@ class _StoreState extends State<Store> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
+                                        // Robot 1
                                         FigureStoreItem(
                                           owned: listOfFigureInstances.any(
                                               (instance) =>
@@ -254,18 +248,22 @@ class _StoreState extends State<Store> {
                                           onOpenSkin:
                                               (context, price, skinSkinName) {
                                             subtractCurrency(context, price);
-                                            if(userModel.user!.currency >= price){
-                                            auth.createFigureInstance(
-                                                Routes.FigureInstance(
-                                              figureName:
-                                                  listOfFigures[index * 2]
-                                                      .figureName,
-                                              curSkin: "0",
-                                              userEmail: userModel.user?.email,
-                                              lastReset: "2001-09-04 19:21:00",
-                                              evPoints: 0,
-                                              charge: 70,
-                                            ));}
+                                            if (userModel.user!.currency >=
+                                                price) {
+                                              auth.createFigureInstance(
+                                                  Routes.FigureInstance(
+                                                figureName:
+                                                    listOfFigures[index * 2]
+                                                        .figureName,
+                                                curSkin: "0",
+                                                userEmail:
+                                                    userModel.user?.email,
+                                                lastReset:
+                                                    "2001-09-04 19:21:00",
+                                                evPoints: 0,
+                                                charge: 70,
+                                              ));
+                                            }
                                           },
                                           onViewSkin: (context, figureName) {
                                             showSkinView(
@@ -277,6 +275,7 @@ class _StoreState extends State<Store> {
                                               .figureName,
                                         ),
                                         const SizedBox(width: 15),
+                                        // Robot 2
                                         FigureStoreItem(
                                           skinName: "",
                                           owned: listOfFigureInstances.any(
@@ -290,21 +289,26 @@ class _StoreState extends State<Store> {
                                               listOfFigures[index * 2 + 1]
                                                   .price
                                                   .toString()),
+                                          isLocked: Provider.of<FigureModel>(context, listen: false).figure!.evLevel < 5 ? true : false,
                                           onOpenSkin:
                                               (context, price, skinSkinName) {
                                             subtractCurrency(context, price);
-                                            if(userModel.user!.currency >= price){
-                                             auth.createFigureInstance(
-                                                Routes.FigureInstance(
-                                              figureName:
-                                                  listOfFigures[index * 2 + 1]
-                                                      .figureName,
-                                              curSkin: "0",
-                                              userEmail: userModel.user?.email,
-                                              lastReset: "2001-09-04 19:21:00",
-                                              evPoints: 0,
-                                              charge: 70,
-                                            ));}
+                                            if (userModel.user!.currency >=
+                                                price) {
+                                              auth.createFigureInstance(
+                                                  Routes.FigureInstance(
+                                                figureName:
+                                                    listOfFigures[index * 2 + 1]
+                                                        .figureName,
+                                                curSkin: "0",
+                                                userEmail:
+                                                    userModel.user?.email,
+                                                lastReset:
+                                                    "2001-09-04 19:21:00",
+                                                evPoints: 0,
+                                                charge: 70,
+                                              ));
+                                            }
                                           },
                                           onViewSkin: (context, skinName) {
                                             showSkinView(

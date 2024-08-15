@@ -41,12 +41,12 @@ class CoreState extends State<Core> {
         .getOfflineDateTime(Routes.OfflineDateTime(email: user.email));
     DateTime parsedDateTime = DateTime.parse(lastLoggedGeneration.currency);
     Duration difference = DateTime.now().difference(parsedDateTime);
-    // Seems like a temporary solution. Look into a real solution in the future
     if (difference.inSeconds < 0) {
       auth.updateCurrency(0);
-    } else {
-      currency.addToCurrency(difference.inSeconds * currencyIncrement!);
-      auth.updateCurrency(int.parse(currency.currency));
+    }
+    else{
+    currency.addToCurrency(difference.inSeconds * currencyIncrement!);
+    auth.updateCurrency(int.parse(currency.currency));
     }
   }
 

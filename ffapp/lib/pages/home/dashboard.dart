@@ -159,7 +159,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     currentCharge: figure.figure?.charge ?? 0,
                     fillColor: Theme.of(context).colorScheme.primary,
                     barHeight: 30,
-                    barWidth: MediaQuery.of(context).size.width - 86,
+                    barWidth: MediaQuery.of(context).size.width * 0.79,
                     isVertical: false,
                     showDashedLines: true,
                     showInfoCircle: true,
@@ -180,7 +180,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                     ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
                                     : "robot1/robot1_skin0_evo0_cropped_happy",
                                 height:
-                                    MediaQuery.of(context).size.height / 2.6,
+                                    MediaQuery.of(context).size.height * 0.333,
                                 width: 500,
                               )
                             ],
@@ -228,7 +228,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       maxXp: figure1.EvCutoffs[figure.EVLevel],
                       fillColor: Theme.of(context).colorScheme.secondary,
                       barHeight: 30,
-                      barWidth: MediaQuery.of(context).size.width - 40,
+                      barWidth: MediaQuery.of(context).size.width *0.9,
                       isVertical: false,
                       showInfoBox: true,
                     ),
