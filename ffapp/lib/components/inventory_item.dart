@@ -84,6 +84,7 @@ class InventoryItem extends StatelessWidget {
                       height: MediaQuery.of(context).size.height / 3.5,
                       width: 200),
               const SizedBox(height: 10),
+              
             ],
           ),
         ],

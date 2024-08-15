@@ -180,7 +180,7 @@ class _StoreState extends State<Store> {
                           return AlertDialog(
                             title: const Text("Questions?"),
                             content: const Text(
-                                '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health probelms every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
+                                '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health problems every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
                             actions: [
                               ElevatedButton(
                                   onPressed: () {
@@ -205,6 +205,7 @@ class _StoreState extends State<Store> {
       body: SingleChildScrollView(
         child: (Column(
           children: [
+            
             const SizedBox(
               height: 30,
             ),
@@ -231,6 +232,7 @@ class _StoreState extends State<Store> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
+                                        // Robot 1
                                         FigureStoreItem(
                                           owned: listOfFigureInstances.any(
                                               (instance) =>
@@ -273,6 +275,7 @@ class _StoreState extends State<Store> {
                                               .figureName,
                                         ),
                                         const SizedBox(width: 15),
+                                        // Robot 2
                                         FigureStoreItem(
                                           skinName: "",
                                           owned: listOfFigureInstances.any(
@@ -286,6 +289,7 @@ class _StoreState extends State<Store> {
                                               listOfFigures[index * 2 + 1]
                                                   .price
                                                   .toString()),
+                                          isLocked: Provider.of<FigureModel>(context, listen: false).figure!.evLevel < 5 ? true : false,
                                           onOpenSkin:
                                               (context, price, skinSkinName) {
                                             subtractCurrency(context, price);

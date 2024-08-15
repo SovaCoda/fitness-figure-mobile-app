@@ -31,6 +31,7 @@ class _SkinViewerState extends State<SkinViewer> {
   late UserModel userModel;
   int currentSkinIndex = 0;
   late String figureName;
+  
   @override
   void initState() {
     super.initState();
@@ -70,8 +71,6 @@ class _SkinViewerState extends State<SkinViewer> {
         .then((_) => overlayEntry.remove());
   }
 
-  void viewSkin(BuildContext context, String skinName) {}
-
   void equipSkin(BuildContext context, String figureName, String skinName) {
     Provider.of<FigureInstancesProvider>(context, listen: false)
         .setFigureInstanceCurSkin(figureName, skinName);
@@ -99,7 +98,18 @@ class _SkinViewerState extends State<SkinViewer> {
           Int64(curCurrency - price);
       await auth.updateUserDBInfo(userModel.user!);
 
+      // Update the local list of skin instances
+      setState(() {
+        widget.listOfSkinInstances.add(Routes.SkinInstance(
+            userEmail: userModel.user?.email,
+            skinName: skinSkinName,
+            figureName: figureSkinName));
+      });
+
       showOverlayAlert(context, "Skin purchased!", Colors.green, 73);
+      
+      // Automatically equip the newly purchased skin
+      equipSkin(context, figureSkinName, skinSkinName);
     } else if (owned == true) {
       showOverlayAlert(context, "Skin already owned!", Colors.red, 90);
     } else {
@@ -156,7 +166,7 @@ class _SkinViewerState extends State<SkinViewer> {
                                 opacity: 0.3,
                                 child: RobotImageHolder(
                                   url:
-                                      '${figureName}/${figureName}_skin0_evo0_cropped_happy',
+                                      '$figureName/${figureName}_skin0_evo0_cropped_happy',
                                   height:
                                       MediaQuery.of(context).size.height * 0.50,
                                   width:
@@ -172,7 +182,7 @@ class _SkinViewerState extends State<SkinViewer> {
                                 opacity: 0.3,
                                 child: RobotImageHolder(
                                   url:
-                                      '${figureName}/${figureName}_skin0_evo0_cropped_happy',
+                                      '$figureName/${figureName}_skin0_evo0_cropped_happy',
                                   height:
                                       MediaQuery.of(context).size.height * 0.50,
                                   width:
@@ -185,7 +195,7 @@ class _SkinViewerState extends State<SkinViewer> {
                               top: 0,
                               child: RobotImageHolder(
                                 url:
-                                    '${figureName}/${figureName}_skin1_evo0_cropped_happy',
+                                    '$figureName/${figureName}_skin1_evo0_cropped_happy',
                                 height:
                                     MediaQuery.of(context).size.height * 0.4,
                                 width: MediaQuery.of(context).size.width * 0.5,
@@ -290,7 +300,7 @@ class _SkinViewerState extends State<SkinViewer> {
                   // There is no skin.description text to use, so I did this approach, but I suggest adding a place to define these elsewhere
                   child: Text(
                     figureName == "robot1" && currentSkinIndex == 0
-                        ? 'The original skin with the original figure. You really can’t go wrong with the classics and this one comes with the default green theme.'
+                        ? 'The original skin with the original figure. You really can\'t go wrong with the classics and this one comes with the default green theme.'
                         : figureName == "robot1" && currentSkinIndex == 1
                             ? 'For those who believe in pretty in pink, this figure and theme combo does not disappoint!'
                             : figureName == "robot2" && currentSkinIndex == 0
@@ -310,74 +320,59 @@ class _SkinViewerState extends State<SkinViewer> {
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-              equippedSkin.listOfFigureInstances.first.curSkin ==
-                          skin.skinName.substring(4) &&
-                      equippedSkin.listOfFigureInstances.first.figureName ==
-                          skin.figureName
-                  ? ElevatedButton(
-                      onPressed: () => !owned
-                          ? purchaseSkin(
-                              context,
-                              skin.price,
-                              skin.skinName,
-                              skin.figureName,
-                              owned,
-                            )
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          minimumSize: Size(
-                              MediaQuery.of(context).size.width * 0.6,
-                              MediaQuery.of(context).size.height * 0.07),
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)))),
-                      child: Positioned(
-                        bottom: 0,
-                        child: Text('Equipped',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayMedium!
-                                .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary)),
-                      ),
-                    )
-                  : ElevatedButton(
-                      onPressed: () => !owned
-                          ? purchaseSkin(
-                              context,
-                              skin.price,
-                              skin.skinName,
-                              skin.figureName,
-                              owned,
-                            )
-                          : equipSkin(context, skin.figureName, skin.skinName),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          minimumSize: Size(
-                              MediaQuery.of(context).size.width * 0.6,
-                              MediaQuery.of(context).size.height * 0.07),
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)))),
-                      child: Positioned(
-                        bottom: 0,
-                        child: Text(owned ? 'Equip' : 'Purchase',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayMedium!
-                                .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary)),
-                      ),
-                    ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-            ],
+              Container(
+                decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withAlpha(100),
+                                            blurRadius: 10.0,
+                                            spreadRadius: 1.0,
+                                            offset: const Offset(
+                                              0.0,
+                                              0.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+              child: ElevatedButton(
+                onPressed: () => !owned
+                    ? purchaseSkin(
+                        context,
+                        skin.price,
+                        skin.skinName,
+                        figureName,
+                        owned,
+                      )
+                    : equipSkin(context, skin.figureName, skin.skinName),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  minimumSize: Size(
+                    MediaQuery.of(context).size.width * 0.6,
+                    MediaQuery.of(context).size.height * 0.07,
+                  ),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+                child: Text(
+                  owned
+                      ? (equippedSkin.listOfFigureInstances.first.curSkin ==
+                                  skin.skinName.substring(4) &&
+                              equippedSkin.listOfFigureInstances.first.figureName ==
+                                  skin.figureName)
+                          ? 'Equipped'
+                          : 'Equip'
+                      : 'Purchase',
+                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+              
+          ), SizedBox(height: MediaQuery.of(context).size.height * 0.03),],
           ),
         );
       },

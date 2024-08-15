@@ -172,6 +172,7 @@ class AuthService {
     Routes.User user = Routes.User(
         email:
             currentUser?.email); // Caused crash if user logged out when using !
+            if(currentUser == null) return;
     Int64 currency64 = Int64(currency);
     user.currency = currency64;
     await _routes.routesClient.updateUser(user);
