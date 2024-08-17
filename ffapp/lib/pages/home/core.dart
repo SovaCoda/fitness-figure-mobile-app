@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/components/research_option.dart';
 import 'package:ffapp/components/robot_line_painter.dart';
+import 'package:ffapp/components/research_task_manager.dart';// New component implements daily tasks
+import 'package:fixnum/fixnum.dart'; 
 
 class Core extends StatefulWidget {
   const Core({super.key});
@@ -16,6 +18,7 @@ class Core extends StatefulWidget {
 }
 
 class CoreState extends State<Core> {
+  late ResearchTaskManager _taskManager;
   late FigureModel figure = FigureModel();
   late final CurrencyModel currency;
   late final Timer currencyGenTimer;
@@ -43,10 +46,9 @@ class CoreState extends State<Core> {
     Duration difference = DateTime.now().difference(parsedDateTime);
     if (difference.inSeconds < 0) {
       auth.updateCurrency(0);
-    }
-    else{
-    currency.addToCurrency(difference.inSeconds * currencyIncrement!);
-    auth.updateCurrency(int.parse(currency.currency));
+    } else {
+      currency.addToCurrency(difference.inSeconds * currencyIncrement!);
+      auth.updateCurrency(int.parse(currency.currency));
     }
   }
 
@@ -63,10 +65,24 @@ class CoreState extends State<Core> {
   @override
   initState() {
     super.initState;
+    _taskManager = ResearchTaskManager();
+    _initTaskManager();
     currencyIncrement = 0;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initialize();
     });
+  }
+
+  Future<void> _initTaskManager() async {
+    await _taskManager.init();
+  }
+
+  void _resetTasks()  {
+    _taskManager.resetUnconditionally();
+  }
+
+  void _onTaskComplete(String taskId) {
+    _taskManager.completeTask(taskId);
   }
 
   void initialize() async {
@@ -85,6 +101,31 @@ class CoreState extends State<Core> {
     setState(() {
       currencyIncrement = currencyIncrement;
     });
+  }
+
+  Future<bool> subtractCurrency(double investmentAmount) async {
+    Routes.User? user = await auth.getUserDBInfo();
+    int currentCurrency = int.parse(currency.currency); // This way, it will update with the value on screen rather than in database
+    logger.i(
+        "Subtracting user's currency on purchase. Amount subtracted: ${investmentAmount.round()} from $currentCurrency");
+    int updateCurrency = currentCurrency - investmentAmount.round();
+    if (updateCurrency < 0) {
+      logger.i("Not enough currency to complete transaction.");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Not enough currency to complete this purchase!")),
+        );
+        return false;
+      }
+    }
+    user!.currency = Int64(updateCurrency);
+    await auth.updateUserDBInfo(user);
+    if (mounted) {
+      Provider.of<CurrencyModel>(context, listen: false)
+          .setCurrency(updateCurrency.toString());
+    }
+    return true;
   }
 
   @override
@@ -175,33 +216,93 @@ class CoreState extends State<Core> {
                         .displayMedium!
                         .copyWith(fontSize: 24)),
               ),
+              _taskManager.isDailyLimitReached() ?
+              Column(children: [Container(
+                width: MediaQuery.of(context).size.width * 0.85,
+                margin: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.02,
+                    bottom: MediaQuery.of(context).size.height * 0.02,
+                    right: MediaQuery.of(context).size.width * 0.02),
+                padding: const EdgeInsets.all(5),
+                
+                child: Text('Daily limit reached. Come back tomorrow!',
+                    style: Theme.of(context)
+                        .textTheme
+                        .displayMedium!
+                        .copyWith(fontSize: 24))),
+                        // Button for debugging, add your email if you want to test.
+                        if(Provider.of<UserModel>(context, listen: false).user!.email == "hewynehu@polkaroad.net")
+                        ElevatedButton(
+                                        onPressed: _resetTasks,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          foregroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0)),
+                                          minimumSize: Size(
+                                              MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.4,
+                                              40),
+                                        ),
+                                        child: Text('Reset tasks (for debugging)',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displaySmall!
+                                                .copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary)))],
+              ) :
+              
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
-                    children: [
-                      ResearchOption(
-                        title: 'Optimize Processors',
-                        chance: 34,
-                        ev: 40,
-                        duration: Duration(seconds: 30),
-                      ),
-                      ResearchOption(
-                        title: 'Shine Tracks',
-                        chance: 12,
-                        ev: 200,
-                        duration: Duration(minutes: 1),
-                      ),
-                      ResearchOption(
-                        title: 'Upgrade Coolants',
-                        chance: 4,
-                        ev: 550,
-                        duration: Duration(minutes: 2),
-                      ),
-                      // Add more ResearchOption widgets here as needed
-                    ],
+                    children: _taskManager.getAvailableTasks().map((task) {
+                      return ResearchOption(
+                        task: task,
+                        onComplete: _onTaskComplete,
+                        onStart: _taskManager.startTask,
+                        onSubtractCurrency: subtractCurrency,
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
+              ElevatedButton(
+                                        onPressed: _resetTasks,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          foregroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0)),
+                                          minimumSize: Size(
+                                              MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.4,
+                                              40),
+                                        ),
+                                        child: Text('Reset tasks (for debugging)',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displaySmall!
+                                                .copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary)))
+              
             ],
           ),
         ),

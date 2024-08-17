@@ -8,20 +8,22 @@ import 'package:ffapp/main.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
-import 'package:fixnum/fixnum.dart';
+
+import 'package:ffapp/components/research_task_manager.dart';
+import 'package:ffapp/components/admin_panel.dart';
 
 class ResearchOption extends StatefulWidget {
-  final String title;
-  final int chance;
-  final int ev;
-  final Duration duration;
+  final ResearchTask task;
+  final Function(String) onComplete;
+  final Function(String) onStart;
+  final Function(double) onSubtractCurrency;
 
-  const ResearchOption({
+   const ResearchOption({
     Key? key,
-    required this.title,
-    required this.chance,
-    required this.ev,
-    required this.duration,
+    required this.task,
+    required this.onComplete,
+    required this.onStart,
+    required this.onSubtractCurrency,
   }) : super(key: key);
 
   @override
@@ -47,10 +49,11 @@ class _ResearchOptionState extends State<ResearchOption> {
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-    _currentCountdown = widget.duration.inSeconds;
-    _currentChance = widget.chance;
+    _currentCountdown = widget.task.duration.inSeconds;
+    _currentChance = widget.task.chance;
     _randValue = Random().nextInt(100);
     figure = Provider.of<FigureModel>(context, listen: false);
+    
   }
 
   void _updateInvestment(double value) {
@@ -58,9 +61,8 @@ class _ResearchOptionState extends State<ResearchOption> {
       _isCountdown = false;
       _investmentAmount = value;
       _cost = value.round();
-      // Increase chance based on investment. This is a simple linear increase,
-      // you might want to adjust the formula based on your game's mechanics.
-      _currentChance = widget.chance + (value / 100).round();
+      // Increase chance based on investment. This is a simple linear increase
+      _currentChance = widget.task.chance + (value / 100).round();
       // Ensure chance doesn't exceed 100%
       _currentChance = _currentChance.clamp(0, 100);
     });
@@ -70,6 +72,9 @@ class _ResearchOptionState extends State<ResearchOption> {
     setState(() {
       _isCountdown = true;
     });
+    if (widget.task.startTime == null) {
+      widget.onStart(widget.task.id);
+    }
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _currentCountdown--;
@@ -82,6 +87,20 @@ class _ResearchOptionState extends State<ResearchOption> {
     });
   }
 
+  add30Seconds() {
+    setState(() {
+      _time += 30;
+      _currentCountdown -= 30;
+    });
+  }
+
+  add10Minutes() {
+    setState(() {
+      _time += 600;
+      _currentCountdown -= 600;
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -91,7 +110,7 @@ class _ResearchOptionState extends State<ResearchOption> {
   void giveRewards() async {
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
-    int totalEV = figureInstance.evPoints + widget.ev;
+    int totalEV = figureInstance.evPoints + widget.task.ev;
     Provider.of<FigureModel>(context, listen: false).setFigureEv(totalEV);
     UserModel user = Provider.of<UserModel>(context, listen: false);
     figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
@@ -102,32 +121,10 @@ class _ResearchOptionState extends State<ResearchOption> {
         figureName: figureInstance.figureName,
         charge: (figureInstance.charge).toInt(),
         evPoints: (figureInstance.evPoints).toInt()));
+    widget.onComplete(widget.task.id);
   }
 
-  Future<bool> subtractCurrency() async {
-    User? user = await auth.getUserDBInfo();
-    int currentCurrency = user!.currency.toInt();
-    logger.i(
-        "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
-    int updateCurrency = currentCurrency - _investmentAmount.round();
-    if (updateCurrency < 0) {
-      logger.i("Not enough currency to complete transaction.");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Not enough currency to complete this purchase!")),
-        );
-        return false;
-      }
-    }
-    user.currency = Int64(updateCurrency);
-    await auth.updateUserDBInfo(user);
-    if (mounted) {
-      Provider.of<CurrencyModel>(context, listen: false)
-          .setCurrency(updateCurrency.toString());
-    }
-    return true;
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +157,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                       : const BoxDecoration(),
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: Text(
-                    widget.title,
+                    widget.task.title,
                     style: Theme.of(context).textTheme.displayMedium!.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -176,7 +173,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '    $_currentChance% Chance',
+                                _isExpanded || _isCountdown ? '${_currentChance}% Chance' : '    ${widget.task.chance}% Chance',
                                 style: Theme.of(context)
                                     .textTheme
                                     .displayMedium!
@@ -190,7 +187,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '   +${widget.ev} EV',
+                                '   +${widget.task.ev} EV',
                                 style: Theme.of(context)
                                     .textTheme
                                     .displayMedium!
@@ -214,8 +211,8 @@ class _ResearchOptionState extends State<ResearchOption> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                            _formatDuration(Duration(
-                                                seconds: _currentCountdown)),
+                                            _isCountdown ? _formatDuration(Duration(
+                                                seconds: _currentCountdown)) : _formatDuration(widget.task.duration),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .displaySmall),
@@ -271,7 +268,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                                                 .colorScheme
                                                 .primary,
                                             progress: _time /
-                                                widget.duration.inSeconds,
+                                                widget.task.duration.inSeconds,
                                             onPressed: () => {},
                                             textStyle: Theme.of(context)
                                                 .textTheme
@@ -279,6 +276,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                                         : ElevatedButton(
                                             onPressed: () {
                                               setState(() {
+                                                _currentChance = widget.task.chance;
                                                 _isExpanded = !_isExpanded;
                                               });
                                             },
@@ -347,10 +345,11 @@ class _ResearchOptionState extends State<ResearchOption> {
                                             0))),
                                 ElevatedButton(
                                     onPressed: () async {
-                                      await subtractCurrency()
+                                      await widget.onSubtractCurrency(_investmentAmount)
                                           ? setState(() {
                                               startTimer();
                                               _isExpanded = !_isExpanded;
+                                              _currentCountdown = widget.task.duration.inSeconds;
                                               _isCountdown = true;
                                             })
                                           : setState(() {});
@@ -430,7 +429,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                                       width: MediaQuery.of(context).size.width *
                                           0.5,
                                     ),
-                                    Text('+${widget.ev} EV',
+                                    Text('+${widget.task.ev} EV',
                                         style: Theme.of(context)
                                             .textTheme
                                             .displayMedium!
@@ -508,6 +507,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                                         setState(() {
                                           _isDelete = true;
                                           _isExpanded = !_isExpanded;
+                                          widget.onComplete(widget.task.id);
                                         });
                                       },
                                       style: ElevatedButton.styleFrom(

@@ -26,7 +26,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
-
+import 'package:ffapp/components/research_task_manager.dart';
 
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
@@ -77,7 +77,8 @@ class InventoryModel extends ChangeNotifier {
 }
 
 class FigureModel extends ChangeNotifier {
-  Routes.FigureInstance? figure = Routes.FigureInstance(figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
+  Routes.FigureInstance? figure = Routes.FigureInstance(
+      figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
   int EVLevel = 0;
   bool readyToEvolve = false;
 
