@@ -1,13 +1,21 @@
+import 'dart:ffi';
+
 import 'package:ffapp/components/admin_panel.dart';
+import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/dashboard/workout_numbers.dart';
 import 'package:ffapp/components/ev_bar.dart';
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/message_sender.dart';
+import 'package:ffapp/components/resuables/streak_shower.dart';
+import 'package:ffapp/components/resuables/week_to_go_shower.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/robot_response.dart';
 import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/components/user_message.dart';
+import 'package:ffapp/components/utils/history_model.dart';
+import 'package:ffapp/components/week_complete_showcase.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/store.dart' as store;
@@ -16,6 +24,7 @@ import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
+import 'package:fixnum/src/int64.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
@@ -47,7 +56,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   bool showInteractions = false;
   String loginMessage = "Hey i would like to speak with you";
   late AppBarAndBottomNavigationBarModel appBarAndBottomNavigationBar;
-  late Stream<FigureModel> figureStream;
 
   @override
   void initState() {
@@ -61,6 +69,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void initialize() async {
     Routes.User? databaseUser = await auth.getUserDBInfo();
+    databaseUser!.lastLogin = DateTime.now().toUtc().toString();
+    await auth.updateUserDBInfo(databaseUser);
     Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
         Routes.FigureInstance(
             userEmail: databaseUser?.email,
@@ -96,6 +106,77 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         } else {
           figureURL = "${curFigure}_happy";
         }
+      }
+    });
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (databaseUser!.readyForWeekReset == 'yes') {
+        bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
+        showFFDialogWithChildren(
+            "Week Complete!",
+            [
+              WeekCompleteShowcase(
+                isUserFirstWeek: isUsersFirstWeek,
+              )
+            ],
+            FfButton(
+                text: "Get Fit",
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                onPressed: () async {
+                  int numComplete =
+                      Provider.of<HistoryModel>(context, listen: false)
+                          .lastWeek
+                          .where((element) => element == 2)
+                          .length;
+                  int chargeGain = numComplete * 3;
+                  int evGain = numComplete * 50;
+                  bool isComplete = isUsersFirstWeek
+                      ? true
+                      : Provider.of<HistoryModel>(context, listen: false)
+                              .lastWeek
+                              .where((element) => element == 2)
+                              .length >=
+                          Provider.of<UserModel>(context, listen: false)
+                              .user!
+                              .weekGoal
+                              .toInt();
+                  User user =
+                      Provider.of<UserModel>(context, listen: false).user!;
+                  FigureInstance figure =
+                      Provider.of<FigureModel>(context, listen: false).figure!;
+                  if (isComplete) {
+                    auth.resetUserWeekComplete(user);
+                    user.weekComplete = Int64(0);
+                    user.readyForWeekReset = 'no';
+                    user.isInGracePeriod = 'no';
+
+                    figure.evPoints += evGain;
+                    figure.charge += chargeGain;
+
+                    await auth.updateUserDBInfo(user);
+                    await auth.updateFigureInstance(figure);
+                    Provider.of<UserModel>(context, listen: false)
+                        .setUser(user);
+                    Provider.of<FigureModel>(context, listen: false)
+                        .setFigure(figure);
+
+                    Navigator.of(context).pop();
+                    return;
+                  }
+                  user.streak = Int64(0);
+                  user.weekComplete = Int64(0);
+                  user.readyForWeekReset = 'no';
+                  await auth.resetUserStreak(user);
+                  await auth.resetUserWeekComplete(user);
+                  await auth.updateUserDBInfo(user);
+                  await auth.updateFigureInstance(figure);
+                  Provider.of<UserModel>(context, listen: false).setUser(user);
+                  Provider.of<FigureModel>(context, listen: false)
+                      .setFigure(figure);
+
+                  Navigator.of(context).pop();
+                }),
+            context);
       }
     });
     logger.i(figureURL);
@@ -159,7 +240,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     currentCharge: figure.figure?.charge ?? 0,
                     fillColor: Theme.of(context).colorScheme.primary,
                     barHeight: 30,
-                    barWidth: MediaQuery.of(context).size.width * 0.79,
+                    barWidth: MediaQuery.of(context).size.width * 0.78,
                     isVertical: false,
                     showDashedLines: true,
                     showInfoCircle: true,
@@ -228,7 +309,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       maxXp: figure1.EvCutoffs[figure.EVLevel],
                       fillColor: Theme.of(context).colorScheme.secondary,
                       barHeight: 30,
-                      barWidth: MediaQuery.of(context).size.width *0.9,
+                      barWidth: MediaQuery.of(context).size.width * 0.9,
                       isVertical: false,
                       showInfoBox: true,
                     ),
@@ -240,6 +321,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   return const CircularProgressIndicator();
                 }
                 return WorkoutNumbersRow(
+                  streak: user.user!.streak.toInt(),
                   weeklyCompleted: user.user!.weekComplete.toInt(),
                   weeklyGoal: user.user!.weekGoal.toInt(),
                   lifeTimeCompleted: 10,

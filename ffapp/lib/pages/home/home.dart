@@ -32,7 +32,6 @@ class _DashboardPageState extends State<DashboardPage> {
     const WorkoutAdder(),
     const History(),
     const Profile(),
-    const FitVenturesLite(),
     const Core(),
   ];
 
@@ -157,7 +156,6 @@ class _DashboardPageState extends State<DashboardPage> {
               canvasColor: Theme.of(context).colorScheme.surface,
             ),
             child: BottomNavigationBar(
-                
                 key: _bottomNavBarKey,
                 iconSize: 30,
                 showSelectedLabels: false,
@@ -191,9 +189,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     label: 'Profile',
                   ),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.map_outlined), label: 'Fitventures'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.map_outlined), label: 'Coreß'),
+                      icon: Icon(Icons.science), label: 'Coreß'),
                 ],
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped)));

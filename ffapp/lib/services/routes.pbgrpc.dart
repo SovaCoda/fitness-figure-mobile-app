@@ -42,6 +42,34 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/UpdateUserEmail',
       ($0.UpdateEmailRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$resetUserStreak = $grpc.ClientMethod<$0.User, $0.User>(
+      '/routes.Routes/ResetUserStreak',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$resetUserWeekComplete = $grpc.ClientMethod<$0.User, $0.User>(
+      '/routes.Routes/ResetUserWeekComplete',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.User.fromBuffer(value));
+  static final _$getDailySnapshot = $grpc.ClientMethod<$0.DailySnapshot, $0.DailySnapshot>(
+      '/routes.Routes/GetDailySnapshot',
+      ($0.DailySnapshot value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value));
+  static final _$updateDailySnapshot = $grpc.ClientMethod<$0.DailySnapshot, $0.DailySnapshot>(
+      '/routes.Routes/UpdateDailySnapshot',
+      ($0.DailySnapshot value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value));
+  static final _$createDailySnapshot = $grpc.ClientMethod<$0.DailySnapshot, $0.DailySnapshot>(
+      '/routes.Routes/CreateDailySnapshot',
+      ($0.DailySnapshot value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value));
+  static final _$deleteDailySnapshot = $grpc.ClientMethod<$0.DailySnapshot, $0.DailySnapshot>(
+      '/routes.Routes/DeleteDailySnapshot',
+      ($0.DailySnapshot value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value));
+  static final _$getDailySnapshots = $grpc.ClientMethod<$0.DailySnapshot, $0.MultiDailySnapshot>(
+      '/routes.Routes/GetDailySnapshots',
+      ($0.DailySnapshot value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiDailySnapshot.fromBuffer(value));
   static final _$getWorkouts = $grpc.ClientMethod<$0.User, $0.MultiWorkout>(
       '/routes.Routes/GetWorkouts',
       ($0.User value) => value.writeToBuffer(),
@@ -211,6 +239,34 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.User> updateUserEmail($0.UpdateEmailRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$updateUserEmail, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.User> resetUserStreak($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$resetUserStreak, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.User> resetUserWeekComplete($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$resetUserWeekComplete, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DailySnapshot> getDailySnapshot($0.DailySnapshot request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getDailySnapshot, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DailySnapshot> updateDailySnapshot($0.DailySnapshot request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateDailySnapshot, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DailySnapshot> createDailySnapshot($0.DailySnapshot request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createDailySnapshot, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DailySnapshot> deleteDailySnapshot($0.DailySnapshot request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteDailySnapshot, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiDailySnapshot> getDailySnapshots($0.DailySnapshot request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getDailySnapshots, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.MultiWorkout> getWorkouts($0.User request, {$grpc.CallOptions? options}) {
@@ -398,6 +454,55 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.UpdateEmailRequest.fromBuffer(value),
         ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.User>(
+        'ResetUserStreak',
+        resetUserStreak_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.User>(
+        'ResetUserWeekComplete',
+        resetUserWeekComplete_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.User value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DailySnapshot, $0.DailySnapshot>(
+        'GetDailySnapshot',
+        getDailySnapshot_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value),
+        ($0.DailySnapshot value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DailySnapshot, $0.DailySnapshot>(
+        'UpdateDailySnapshot',
+        updateDailySnapshot_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value),
+        ($0.DailySnapshot value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DailySnapshot, $0.DailySnapshot>(
+        'CreateDailySnapshot',
+        createDailySnapshot_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value),
+        ($0.DailySnapshot value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DailySnapshot, $0.DailySnapshot>(
+        'DeleteDailySnapshot',
+        deleteDailySnapshot_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value),
+        ($0.DailySnapshot value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DailySnapshot, $0.MultiDailySnapshot>(
+        'GetDailySnapshots',
+        getDailySnapshots_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DailySnapshot.fromBuffer(value),
+        ($0.MultiDailySnapshot value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.User, $0.MultiWorkout>(
         'GetWorkouts',
         getWorkouts_Pre,
@@ -672,6 +777,34 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return updateUserEmail(call, await request);
   }
 
+  $async.Future<$0.User> resetUserStreak_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return resetUserStreak(call, await request);
+  }
+
+  $async.Future<$0.User> resetUserWeekComplete_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return resetUserWeekComplete(call, await request);
+  }
+
+  $async.Future<$0.DailySnapshot> getDailySnapshot_Pre($grpc.ServiceCall call, $async.Future<$0.DailySnapshot> request) async {
+    return getDailySnapshot(call, await request);
+  }
+
+  $async.Future<$0.DailySnapshot> updateDailySnapshot_Pre($grpc.ServiceCall call, $async.Future<$0.DailySnapshot> request) async {
+    return updateDailySnapshot(call, await request);
+  }
+
+  $async.Future<$0.DailySnapshot> createDailySnapshot_Pre($grpc.ServiceCall call, $async.Future<$0.DailySnapshot> request) async {
+    return createDailySnapshot(call, await request);
+  }
+
+  $async.Future<$0.DailySnapshot> deleteDailySnapshot_Pre($grpc.ServiceCall call, $async.Future<$0.DailySnapshot> request) async {
+    return deleteDailySnapshot(call, await request);
+  }
+
+  $async.Future<$0.MultiDailySnapshot> getDailySnapshots_Pre($grpc.ServiceCall call, $async.Future<$0.DailySnapshot> request) async {
+    return getDailySnapshots(call, await request);
+  }
+
   $async.Future<$0.MultiWorkout> getWorkouts_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
     return getWorkouts(call, await request);
   }
@@ -821,6 +954,13 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> deleteUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUserEmail($grpc.ServiceCall call, $0.UpdateEmailRequest request);
+  $async.Future<$0.User> resetUserStreak($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.User> resetUserWeekComplete($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.DailySnapshot> getDailySnapshot($grpc.ServiceCall call, $0.DailySnapshot request);
+  $async.Future<$0.DailySnapshot> updateDailySnapshot($grpc.ServiceCall call, $0.DailySnapshot request);
+  $async.Future<$0.DailySnapshot> createDailySnapshot($grpc.ServiceCall call, $0.DailySnapshot request);
+  $async.Future<$0.DailySnapshot> deleteDailySnapshot($grpc.ServiceCall call, $0.DailySnapshot request);
+  $async.Future<$0.MultiDailySnapshot> getDailySnapshots($grpc.ServiceCall call, $0.DailySnapshot request);
   $async.Future<$0.MultiWorkout> getWorkouts($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.Workout> getWorkout($grpc.ServiceCall call, $0.Workout request);
   $async.Future<$0.Workout> createWorkout($grpc.ServiceCall call, $0.Workout request);

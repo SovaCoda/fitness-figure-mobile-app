@@ -119,13 +119,13 @@ class FfButtonProgressable extends StatelessWidget {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(13),
           gradient: LinearGradient(colors: [
-            backgroundColor,
-            backgroundColor,
+            progress == 1 ? backgroundColor : backgroundColor.withAlpha(155),
+            progress == 1 ? backgroundColor : backgroundColor.withAlpha(155),
             disabledColor,
             disabledColor
           ], stops: [
             0,
-            progress - 0.05,
+            progress - (progress == 1 ? 0.0 : 0.05),
             progress,
             1
           ])),

@@ -5,11 +5,13 @@ class WorkoutNumbersRow extends StatelessWidget {
   final int weeklyGoal;
   final int weeklyCompleted;
   final int lifeTimeCompleted;
+  final int streak;
   final double availableWidth;
 
   const WorkoutNumbersRow(
       {super.key,
       required this.weeklyCompleted,
+      required this.streak,
       required this.weeklyGoal,
       required this.lifeTimeCompleted,
       this.availableWidth = 0});
@@ -71,7 +73,7 @@ class WorkoutNumbersRow extends StatelessWidget {
                   style: Theme.of(context).textTheme.displayMedium!.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       )),
-              Text(weeklyCompleted.toString(),
+              Text(streak.toString(),
                   style: Theme.of(context).textTheme.displayLarge!.copyWith(
                         color: Theme.of(context).colorScheme.tertiary,
                       )),

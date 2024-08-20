@@ -12,6 +12,15 @@ service Routes {
     rpc UpdateUser(User) returns (User) {}
     rpc DeleteUser(User) returns (User) {}
     rpc UpdateUserEmail(UpdateEmailRequest) returns (User) {}
+    rpc ResetUserStreak(User) returns (User) {}
+    rpc ResetUserWeekComplete(User) returns (User) {}
+
+    // DAILY SNAPSHOT ROUTES //
+    rpc GetDailySnapshot(DailySnapshot) returns (DailySnapshot) {}
+    rpc UpdateDailySnapshot(DailySnapshot) returns (DailySnapshot) {}
+    rpc CreateDailySnapshot(DailySnapshot) returns (DailySnapshot) {}
+    rpc DeleteDailySnapshot(DailySnapshot) returns (DailySnapshot) {}
+    rpc GetDailySnapshots(DailySnapshot) returns (MultiDailySnapshot) {}
 
     // WORKOUT ROUTES //
     rpc GetWorkouts(User) returns (MultiWorkout) {}
@@ -74,9 +83,10 @@ message Workout {
     string Email = 1;
     string Start_date = 2;
     int64 Elapsed = 3;
-    int64 Currency_Add = 4;
+    int64 Evo_Add = 4;
     string End_Date = 5;
     int64 Charge_Add = 6;
+    int32 Countable = 7;
 }
 
 message MultiWorkout {
@@ -92,7 +102,29 @@ message User {
     int64 week_goal = 6;
     string cur_workout = 7;
     int64 workout_min_time = 8;
-    string last_reset = 9;
+    string last_login = 9;
+    int64 streak = 10;
+    int64 premium = 11;
+    string ready_for_week_reset = 12;
+    string is_in_grace_period = 13;
+}
+
+message DailySnapshot {
+    string User_Email = 1;
+    string Date = 2;
+    string Figure_Name = 3;
+    int32 Ev_Points = 4;
+    int32 Ev_Level = 5;
+    int32 Charge = 6;
+    int32 User_Streak = 7;
+    int32 User_Week_Complete = 8;
+    int32 User_Week_Goal = 9;
+    int32 User_Workout_Min_Time = 10;
+    int32 User_Currency = 11;
+}
+
+message MultiDailySnapshot {
+    repeated DailySnapshot dailySnapshots = 1;
 }
 
 message MultiUser {

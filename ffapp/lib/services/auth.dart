@@ -99,6 +99,14 @@ class AuthService {
     return await _routes.routesClient.updateUser(user);
   }
 
+  Future<Routes.User> resetUserStreak(Routes.User user) async {
+    return await _routes.routesClient.resetUserStreak(user);
+  }
+
+  Future<Routes.User> resetUserWeekComplete(Routes.User user) async {
+    return await _routes.routesClient.resetUserWeekComplete(user);
+  }
+
   Future<void> updateEmail(
       String oldEmail, String newEmail, FB.AuthCredential credential) async {
     try {
@@ -118,6 +126,56 @@ class AuthService {
     await _auth.currentUser?.delete();
     await _routes.routesClient
         .deleteUser(Routes.User(email: _auth.currentUser!.email!));
+  }
+
+  Future<Routes.MultiDailySnapshot> getDailySnapshots(
+      Routes.DailySnapshot dailySnapshot) async {
+    try {
+      return await _routes.routesClient.getDailySnapshots(dailySnapshot);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get daily snapshots");
+    }
+  }
+
+  Future<Routes.DailySnapshot> getDailySnapshot(
+      Routes.DailySnapshot dailySnapshot) async {
+    try {
+      return await _routes.routesClient.getDailySnapshot(dailySnapshot);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to get daily snapshot");
+    }
+  }
+
+  Future<Routes.DailySnapshot> createDailySnapshot(
+      Routes.DailySnapshot dailySnapshot) async {
+    try {
+      return await _routes.routesClient.createDailySnapshot(dailySnapshot);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to create daily snapshot");
+    }
+  }
+
+  Future<Routes.DailySnapshot> updateDailySnapshot(
+      Routes.DailySnapshot dailySnapshot) async {
+    try {
+      return await _routes.routesClient.updateDailySnapshot(dailySnapshot);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to update daily snapshot");
+    }
+  }
+
+  Future<Routes.DailySnapshot> deleteDailySnapshot(
+      Routes.DailySnapshot dailySnapshot) async {
+    try {
+      return await _routes.routesClient.deleteDailySnapshot(dailySnapshot);
+    } catch (e) {
+      logger.e(e);
+      throw Exception("Failed to delete daily snapshot");
+    }
   }
 
   Future<Routes.Workout> createWorkout(Routes.Workout workout) async {
@@ -172,7 +230,7 @@ class AuthService {
     Routes.User user = Routes.User(
         email:
             currentUser?.email); // Caused crash if user logged out when using !
-            if(currentUser == null) return;
+    if (currentUser == null) return;
     Int64 currency64 = Int64(currency);
     user.currency = currency64;
     await _routes.routesClient.updateUser(user);

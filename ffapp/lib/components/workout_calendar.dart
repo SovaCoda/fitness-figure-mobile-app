@@ -56,7 +56,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       lineBarsData = [
         LineChartBarData(
           showingIndicators: [0, 1, 2, 3, 4, 5, 6],
-          spots: evTrueChargeFalse ?  weekData['ev']! : weekData['charge']!,
+          spots: evTrueChargeFalse ? weekData['ev']! : weekData['charge']!,
           isCurved: true,
           color: _selectedColor,
         ),
@@ -67,6 +67,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   Widget _buildSelectedCellDate(
     DateTime day,
   ) {
+    day = day.toUtc();
     return Consumer<HistoryModel>(
       builder: (_, workoutHistory, __) {
         bool hasWorkout = false;
@@ -75,9 +76,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           if (date.year == day.year &&
               date.month == day.month &&
               date.day == day.day &&
-              (workout.elapsed.toInt() / 60 >= _workoutMinTime)) {
+              (workout.countable == 1)) {
             hasWorkout = true;
-            logger.i("hasWorkout: $hasWorkout for $day");
             break;
           }
         }
@@ -90,8 +90,12 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           decoration: BoxDecoration(
               color: hasWorkout
                   ? Theme.of(context).colorScheme.primary
-                  : day.isBefore(DateTime.now())
-                      ? Theme.of(context).colorScheme.primaryFixedDim
+                  : day.isBefore(DateTime.now().toUtc())
+                      ? (day.day == DateTime.now().toUtc().day &&
+                              day.month == DateTime.now().toUtc().month &&
+                              day.year == DateTime.now().toUtc().year)
+                          ? Theme.of(context).colorScheme.surface
+                          : Theme.of(context).colorScheme.primaryFixedDim
                       : Theme.of(context).colorScheme.surface,
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(5.0),
@@ -103,7 +107,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
               style: Theme.of(context).textTheme.displaySmall!.copyWith(
                   color: hasWorkout
                       ? Theme.of(context).colorScheme.onPrimary
-                      : day.isBefore(DateTime.now())
+                      : day.isBefore(DateTime.now().toUtc())
                           ? Theme.of(context).colorScheme.onSurface
                           : Theme.of(context).colorScheme.onSurface)),
         );
@@ -114,13 +118,14 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   Widget _buildCellDate(DateTime day) {
     return Consumer<HistoryModel>(
       builder: (_, workoutHistory, __) {
+        day = day.toUtc();
         bool hasWorkout = false;
         for (var workout in workoutHistory.workouts) {
           DateTime date = DateTime.parse(workout.endDate);
           if (date.year == day.year &&
               date.month == day.month &&
               date.day == day.day &&
-              (workout.elapsed.toInt() / 60 >= _workoutMinTime)) {
+              (workout.countable == 1)) {
             hasWorkout = true;
             logger.i("hasWorkout: $hasWorkout for $day");
             break;
@@ -135,8 +140,12 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           decoration: BoxDecoration(
             color: hasWorkout
                 ? Theme.of(context).colorScheme.primary
-                : day.isBefore(DateTime.now())
-                    ? Theme.of(context).colorScheme.primaryFixedDim
+                : day.isBefore(DateTime.now().toUtc())
+                    ? (day.day == DateTime.now().toUtc().day &&
+                            day.month == DateTime.now().toUtc().month &&
+                            day.year == DateTime.now().toUtc().year)
+                        ? Theme.of(context).colorScheme.surface
+                        : Theme.of(context).colorScheme.primaryFixedDim
                     : Theme.of(context).colorScheme.surface,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(5.0),
@@ -145,7 +154,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
               style: Theme.of(context).textTheme.displaySmall!.copyWith(
                   color: hasWorkout
                       ? Theme.of(context).colorScheme.onPrimary
-                      : day.isBefore(DateTime.now())
+                      : day.isBefore(DateTime.now().toUtc())
                           ? Theme.of(context).colorScheme.onSurface
                           : Theme.of(context).colorScheme.onSurface)),
         );
@@ -174,6 +183,9 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           focusedDay: _focusedDay,
           calendarFormat: _calendarFormat,
           calendarBuilders: CalendarBuilders(
+            todayBuilder: (context, day, focusedDay) {
+              return _buildCellDate(day);
+            },
             outsideBuilder: (context, day, focusedDay) {
               return _buildCellDate(day);
             },

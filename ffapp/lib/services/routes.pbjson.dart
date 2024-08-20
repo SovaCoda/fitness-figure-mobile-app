@@ -32,18 +32,19 @@ const Workout$json = {
     {'1': 'Email', '3': 1, '4': 1, '5': 9, '10': 'Email'},
     {'1': 'Start_date', '3': 2, '4': 1, '5': 9, '10': 'StartDate'},
     {'1': 'Elapsed', '3': 3, '4': 1, '5': 3, '10': 'Elapsed'},
-    {'1': 'Currency_Add', '3': 4, '4': 1, '5': 3, '10': 'CurrencyAdd'},
+    {'1': 'Evo_Add', '3': 4, '4': 1, '5': 3, '10': 'EvoAdd'},
     {'1': 'End_Date', '3': 5, '4': 1, '5': 9, '10': 'EndDate'},
     {'1': 'Charge_Add', '3': 6, '4': 1, '5': 3, '10': 'ChargeAdd'},
+    {'1': 'Countable', '3': 7, '4': 1, '5': 5, '10': 'Countable'},
   ],
 };
 
 /// Descriptor for `Workout`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List workoutDescriptor = $convert.base64Decode(
     'CgdXb3Jrb3V0EhQKBUVtYWlsGAEgASgJUgVFbWFpbBIdCgpTdGFydF9kYXRlGAIgASgJUglTdG'
-    'FydERhdGUSGAoHRWxhcHNlZBgDIAEoA1IHRWxhcHNlZBIhCgxDdXJyZW5jeV9BZGQYBCABKANS'
-    'C0N1cnJlbmN5QWRkEhkKCEVuZF9EYXRlGAUgASgJUgdFbmREYXRlEh0KCkNoYXJnZV9BZGQYBi'
-    'ABKANSCUNoYXJnZUFkZA==');
+    'FydERhdGUSGAoHRWxhcHNlZBgDIAEoA1IHRWxhcHNlZBIXCgdFdm9fQWRkGAQgASgDUgZFdm9B'
+    'ZGQSGQoIRW5kX0RhdGUYBSABKAlSB0VuZERhdGUSHQoKQ2hhcmdlX0FkZBgGIAEoA1IJQ2hhcm'
+    'dlQWRkEhwKCUNvdW50YWJsZRgHIAEoBVIJQ291bnRhYmxl');
 
 @$core.Deprecated('Use multiWorkoutDescriptor instead')
 const MultiWorkout$json = {
@@ -70,7 +71,11 @@ const User$json = {
     {'1': 'week_goal', '3': 6, '4': 1, '5': 3, '10': 'weekGoal'},
     {'1': 'cur_workout', '3': 7, '4': 1, '5': 9, '10': 'curWorkout'},
     {'1': 'workout_min_time', '3': 8, '4': 1, '5': 3, '10': 'workoutMinTime'},
-    {'1': 'last_reset', '3': 9, '4': 1, '5': 9, '10': 'lastReset'},
+    {'1': 'last_login', '3': 9, '4': 1, '5': 9, '10': 'lastLogin'},
+    {'1': 'streak', '3': 10, '4': 1, '5': 3, '10': 'streak'},
+    {'1': 'premium', '3': 11, '4': 1, '5': 3, '10': 'premium'},
+    {'1': 'ready_for_week_reset', '3': 12, '4': 1, '5': 9, '10': 'readyForWeekReset'},
+    {'1': 'is_in_grace_period', '3': 13, '4': 1, '5': 9, '10': 'isInGracePeriod'},
   ],
 };
 
@@ -80,8 +85,51 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'd1cmUSEgoEbmFtZRgDIAEoCVIEbmFtZRIaCghjdXJyZW5jeRgEIAEoA1IIY3VycmVuY3kSIwoN'
     'd2Vla19jb21wbGV0ZRgFIAEoA1IMd2Vla0NvbXBsZXRlEhsKCXdlZWtfZ29hbBgGIAEoA1IId2'
     'Vla0dvYWwSHwoLY3VyX3dvcmtvdXQYByABKAlSCmN1cldvcmtvdXQSKAoQd29ya291dF9taW5f'
-    'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWUSHQoKbGFzdF9yZXNldBgJIAEoCVIJbGFzdFJlc2'
-    'V0');
+    'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWUSHQoKbGFzdF9sb2dpbhgJIAEoCVIJbGFzdExvZ2'
+    'luEhYKBnN0cmVhaxgKIAEoA1IGc3RyZWFrEhgKB3ByZW1pdW0YCyABKANSB3ByZW1pdW0SLwoU'
+    'cmVhZHlfZm9yX3dlZWtfcmVzZXQYDCABKAlSEXJlYWR5Rm9yV2Vla1Jlc2V0EisKEmlzX2luX2'
+    'dyYWNlX3BlcmlvZBgNIAEoCVIPaXNJbkdyYWNlUGVyaW9k');
+
+@$core.Deprecated('Use dailySnapshotDescriptor instead')
+const DailySnapshot$json = {
+  '1': 'DailySnapshot',
+  '2': [
+    {'1': 'User_Email', '3': 1, '4': 1, '5': 9, '10': 'UserEmail'},
+    {'1': 'Date', '3': 2, '4': 1, '5': 9, '10': 'Date'},
+    {'1': 'Figure_Name', '3': 3, '4': 1, '5': 9, '10': 'FigureName'},
+    {'1': 'Ev_Points', '3': 4, '4': 1, '5': 5, '10': 'EvPoints'},
+    {'1': 'Ev_Level', '3': 5, '4': 1, '5': 5, '10': 'EvLevel'},
+    {'1': 'Charge', '3': 6, '4': 1, '5': 5, '10': 'Charge'},
+    {'1': 'User_Streak', '3': 7, '4': 1, '5': 5, '10': 'UserStreak'},
+    {'1': 'User_Week_Complete', '3': 8, '4': 1, '5': 5, '10': 'UserWeekComplete'},
+    {'1': 'User_Week_Goal', '3': 9, '4': 1, '5': 5, '10': 'UserWeekGoal'},
+    {'1': 'User_Workout_Min_Time', '3': 10, '4': 1, '5': 5, '10': 'UserWorkoutMinTime'},
+    {'1': 'User_Currency', '3': 11, '4': 1, '5': 5, '10': 'UserCurrency'},
+  ],
+};
+
+/// Descriptor for `DailySnapshot`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List dailySnapshotDescriptor = $convert.base64Decode(
+    'Cg1EYWlseVNuYXBzaG90Eh0KClVzZXJfRW1haWwYASABKAlSCVVzZXJFbWFpbBISCgREYXRlGA'
+    'IgASgJUgREYXRlEh8KC0ZpZ3VyZV9OYW1lGAMgASgJUgpGaWd1cmVOYW1lEhsKCUV2X1BvaW50'
+    'cxgEIAEoBVIIRXZQb2ludHMSGQoIRXZfTGV2ZWwYBSABKAVSB0V2TGV2ZWwSFgoGQ2hhcmdlGA'
+    'YgASgFUgZDaGFyZ2USHwoLVXNlcl9TdHJlYWsYByABKAVSClVzZXJTdHJlYWsSLAoSVXNlcl9X'
+    'ZWVrX0NvbXBsZXRlGAggASgFUhBVc2VyV2Vla0NvbXBsZXRlEiQKDlVzZXJfV2Vla19Hb2FsGA'
+    'kgASgFUgxVc2VyV2Vla0dvYWwSMQoVVXNlcl9Xb3Jrb3V0X01pbl9UaW1lGAogASgFUhJVc2Vy'
+    'V29ya291dE1pblRpbWUSIwoNVXNlcl9DdXJyZW5jeRgLIAEoBVIMVXNlckN1cnJlbmN5');
+
+@$core.Deprecated('Use multiDailySnapshotDescriptor instead')
+const MultiDailySnapshot$json = {
+  '1': 'MultiDailySnapshot',
+  '2': [
+    {'1': 'dailySnapshots', '3': 1, '4': 3, '5': 11, '6': '.routes.DailySnapshot', '10': 'dailySnapshots'},
+  ],
+};
+
+/// Descriptor for `MultiDailySnapshot`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiDailySnapshotDescriptor = $convert.base64Decode(
+    'ChJNdWx0aURhaWx5U25hcHNob3QSPQoOZGFpbHlTbmFwc2hvdHMYASADKAsyFS5yb3V0ZXMuRG'
+    'FpbHlTbmFwc2hvdFIOZGFpbHlTbmFwc2hvdHM=');
 
 @$core.Deprecated('Use multiUserDescriptor instead')
 const MultiUser$json = {

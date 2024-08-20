@@ -21,34 +21,17 @@ class History extends StatefulWidget {
 class HistoryState extends State<History> {
   late AuthService auth;
   late List<Routes.Workout> _workouts;
-  late final ValueNotifier<List<Routes.Workout>> _selectedEvents =
-      ValueNotifier([]);
 
   @override
   void initState() {
+    Provider.of<HistoryModel>(context, listen: false).retrieveWorkouts();
     super.initState();
-    auth = Provider.of<AuthService>(context, listen: false);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       initialize();
     });
   }
 
-  @override
-  void dispose() {
-    _selectedEvents.dispose();
-    super.dispose();
-  }
-
-  void initialize() async {
-    List<Routes.Workout> workouts = await auth.getWorkouts().then((value) {
-      return value.workouts;
-    });
-    
-    Provider.of<HistoryModel>(context, listen: false).setWorkouts(workouts, context);
-    setState(() {
-      _workouts = workouts;
-    });
-  }
+  void initialize() async {}
 
   List<Routes.Workout> _getWorkoutsForDay(DateTime day) {
     List<Routes.Workout> workouts = [];
@@ -63,37 +46,10 @@ class HistoryState extends State<History> {
     return workouts;
   }
 
-  Future<List<Routes.Workout>> getWorkouts() async {
-    List<Routes.Workout> workouts = [];
-    Routes.MultiWorkout recievedWorkouts;
-    try {
-      recievedWorkouts = await auth.getWorkouts();
-      for (var workout in recievedWorkouts.workouts) {
-        workouts.add(workout);
-      }
-    } catch (e) {
-      logger.e(e);
-    }
-    return workouts;
-  }
-
-  String formatSeconds(int seconds) {
-    final formatter = NumberFormat('00');
-    String hours = formatter.format((seconds / 3600).floor());
-    String minutes = formatter.format(((seconds % 3600) / 60).floor());
-    String second = formatter.format((seconds % 60));
-    return "$hours:$minutes:$second";
-  }
-
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-
   @override
   Widget build(BuildContext context) {
     return const Column(
       children: [
-        
         WorkoutCalendar(
           showWorkoutData: true,
           calendarFormat: CalendarFormat.month,

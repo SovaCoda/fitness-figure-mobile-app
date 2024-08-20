@@ -69,9 +69,10 @@ class Workout extends $pb.GeneratedMessage {
     $core.String? email,
     $core.String? startDate,
     $fixnum.Int64? elapsed,
-    $fixnum.Int64? currencyAdd,
+    $fixnum.Int64? evoAdd,
     $core.String? endDate,
     $fixnum.Int64? chargeAdd,
+    $core.int? countable,
   }) {
     final $result = create();
     if (email != null) {
@@ -83,14 +84,17 @@ class Workout extends $pb.GeneratedMessage {
     if (elapsed != null) {
       $result.elapsed = elapsed;
     }
-    if (currencyAdd != null) {
-      $result.currencyAdd = currencyAdd;
+    if (evoAdd != null) {
+      $result.evoAdd = evoAdd;
     }
     if (endDate != null) {
       $result.endDate = endDate;
     }
     if (chargeAdd != null) {
       $result.chargeAdd = chargeAdd;
+    }
+    if (countable != null) {
+      $result.countable = countable;
     }
     return $result;
   }
@@ -102,9 +106,10 @@ class Workout extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'Email', protoName: 'Email')
     ..aOS(2, _omitFieldNames ? '' : 'StartDate', protoName: 'Start_date')
     ..aInt64(3, _omitFieldNames ? '' : 'Elapsed', protoName: 'Elapsed')
-    ..aInt64(4, _omitFieldNames ? '' : 'CurrencyAdd', protoName: 'Currency_Add')
+    ..aInt64(4, _omitFieldNames ? '' : 'EvoAdd', protoName: 'Evo_Add')
     ..aOS(5, _omitFieldNames ? '' : 'EndDate', protoName: 'End_Date')
     ..aInt64(6, _omitFieldNames ? '' : 'ChargeAdd', protoName: 'Charge_Add')
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'Countable', $pb.PbFieldType.O3, protoName: 'Countable')
     ..hasRequiredFields = false
   ;
 
@@ -157,13 +162,13 @@ class Workout extends $pb.GeneratedMessage {
   void clearElapsed() => clearField(3);
 
   @$pb.TagNumber(4)
-  $fixnum.Int64 get currencyAdd => $_getI64(3);
+  $fixnum.Int64 get evoAdd => $_getI64(3);
   @$pb.TagNumber(4)
-  set currencyAdd($fixnum.Int64 v) { $_setInt64(3, v); }
+  set evoAdd($fixnum.Int64 v) { $_setInt64(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasCurrencyAdd() => $_has(3);
+  $core.bool hasEvoAdd() => $_has(3);
   @$pb.TagNumber(4)
-  void clearCurrencyAdd() => clearField(4);
+  void clearEvoAdd() => clearField(4);
 
   @$pb.TagNumber(5)
   $core.String get endDate => $_getSZ(4);
@@ -182,6 +187,15 @@ class Workout extends $pb.GeneratedMessage {
   $core.bool hasChargeAdd() => $_has(5);
   @$pb.TagNumber(6)
   void clearChargeAdd() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get countable => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set countable($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasCountable() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearCountable() => clearField(7);
 }
 
 class MultiWorkout extends $pb.GeneratedMessage {
@@ -238,7 +252,11 @@ class User extends $pb.GeneratedMessage {
     $fixnum.Int64? weekGoal,
     $core.String? curWorkout,
     $fixnum.Int64? workoutMinTime,
-    $core.String? lastReset,
+    $core.String? lastLogin,
+    $fixnum.Int64? streak,
+    $fixnum.Int64? premium,
+    $core.String? readyForWeekReset,
+    $core.String? isInGracePeriod,
   }) {
     final $result = create();
     if (email != null) {
@@ -265,8 +283,20 @@ class User extends $pb.GeneratedMessage {
     if (workoutMinTime != null) {
       $result.workoutMinTime = workoutMinTime;
     }
-    if (lastReset != null) {
-      $result.lastReset = lastReset;
+    if (lastLogin != null) {
+      $result.lastLogin = lastLogin;
+    }
+    if (streak != null) {
+      $result.streak = streak;
+    }
+    if (premium != null) {
+      $result.premium = premium;
+    }
+    if (readyForWeekReset != null) {
+      $result.readyForWeekReset = readyForWeekReset;
+    }
+    if (isInGracePeriod != null) {
+      $result.isInGracePeriod = isInGracePeriod;
     }
     return $result;
   }
@@ -283,7 +313,11 @@ class User extends $pb.GeneratedMessage {
     ..aInt64(6, _omitFieldNames ? '' : 'weekGoal')
     ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
     ..aInt64(8, _omitFieldNames ? '' : 'workoutMinTime')
-    ..aOS(9, _omitFieldNames ? '' : 'lastReset')
+    ..aOS(9, _omitFieldNames ? '' : 'lastLogin')
+    ..aInt64(10, _omitFieldNames ? '' : 'streak')
+    ..aInt64(11, _omitFieldNames ? '' : 'premium')
+    ..aOS(12, _omitFieldNames ? '' : 'readyForWeekReset')
+    ..aOS(13, _omitFieldNames ? '' : 'isInGracePeriod')
     ..hasRequiredFields = false
   ;
 
@@ -381,13 +415,283 @@ class User extends $pb.GeneratedMessage {
   void clearWorkoutMinTime() => clearField(8);
 
   @$pb.TagNumber(9)
-  $core.String get lastReset => $_getSZ(8);
+  $core.String get lastLogin => $_getSZ(8);
   @$pb.TagNumber(9)
-  set lastReset($core.String v) { $_setString(8, v); }
+  set lastLogin($core.String v) { $_setString(8, v); }
   @$pb.TagNumber(9)
-  $core.bool hasLastReset() => $_has(8);
+  $core.bool hasLastLogin() => $_has(8);
   @$pb.TagNumber(9)
-  void clearLastReset() => clearField(9);
+  void clearLastLogin() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $fixnum.Int64 get streak => $_getI64(9);
+  @$pb.TagNumber(10)
+  set streak($fixnum.Int64 v) { $_setInt64(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasStreak() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearStreak() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $fixnum.Int64 get premium => $_getI64(10);
+  @$pb.TagNumber(11)
+  set premium($fixnum.Int64 v) { $_setInt64(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasPremium() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearPremium() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.String get readyForWeekReset => $_getSZ(11);
+  @$pb.TagNumber(12)
+  set readyForWeekReset($core.String v) { $_setString(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasReadyForWeekReset() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearReadyForWeekReset() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.String get isInGracePeriod => $_getSZ(12);
+  @$pb.TagNumber(13)
+  set isInGracePeriod($core.String v) { $_setString(12, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasIsInGracePeriod() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearIsInGracePeriod() => clearField(13);
+}
+
+class DailySnapshot extends $pb.GeneratedMessage {
+  factory DailySnapshot({
+    $core.String? userEmail,
+    $core.String? date,
+    $core.String? figureName,
+    $core.int? evPoints,
+    $core.int? evLevel,
+    $core.int? charge,
+    $core.int? userStreak,
+    $core.int? userWeekComplete,
+    $core.int? userWeekGoal,
+    $core.int? userWorkoutMinTime,
+    $core.int? userCurrency,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (date != null) {
+      $result.date = date;
+    }
+    if (figureName != null) {
+      $result.figureName = figureName;
+    }
+    if (evPoints != null) {
+      $result.evPoints = evPoints;
+    }
+    if (evLevel != null) {
+      $result.evLevel = evLevel;
+    }
+    if (charge != null) {
+      $result.charge = charge;
+    }
+    if (userStreak != null) {
+      $result.userStreak = userStreak;
+    }
+    if (userWeekComplete != null) {
+      $result.userWeekComplete = userWeekComplete;
+    }
+    if (userWeekGoal != null) {
+      $result.userWeekGoal = userWeekGoal;
+    }
+    if (userWorkoutMinTime != null) {
+      $result.userWorkoutMinTime = userWorkoutMinTime;
+    }
+    if (userCurrency != null) {
+      $result.userCurrency = userCurrency;
+    }
+    return $result;
+  }
+  DailySnapshot._() : super();
+  factory DailySnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DailySnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DailySnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'UserEmail', protoName: 'User_Email')
+    ..aOS(2, _omitFieldNames ? '' : 'Date', protoName: 'Date')
+    ..aOS(3, _omitFieldNames ? '' : 'FigureName', protoName: 'Figure_Name')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'EvPoints', $pb.PbFieldType.O3, protoName: 'Ev_Points')
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'EvLevel', $pb.PbFieldType.O3, protoName: 'Ev_Level')
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'Charge', $pb.PbFieldType.O3, protoName: 'Charge')
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'UserStreak', $pb.PbFieldType.O3, protoName: 'User_Streak')
+    ..a<$core.int>(8, _omitFieldNames ? '' : 'UserWeekComplete', $pb.PbFieldType.O3, protoName: 'User_Week_Complete')
+    ..a<$core.int>(9, _omitFieldNames ? '' : 'UserWeekGoal', $pb.PbFieldType.O3, protoName: 'User_Week_Goal')
+    ..a<$core.int>(10, _omitFieldNames ? '' : 'UserWorkoutMinTime', $pb.PbFieldType.O3, protoName: 'User_Workout_Min_Time')
+    ..a<$core.int>(11, _omitFieldNames ? '' : 'UserCurrency', $pb.PbFieldType.O3, protoName: 'User_Currency')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DailySnapshot clone() => DailySnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DailySnapshot copyWith(void Function(DailySnapshot) updates) => super.copyWith((message) => updates(message as DailySnapshot)) as DailySnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DailySnapshot create() => DailySnapshot._();
+  DailySnapshot createEmptyInstance() => create();
+  static $pb.PbList<DailySnapshot> createRepeated() => $pb.PbList<DailySnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static DailySnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DailySnapshot>(create);
+  static DailySnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get date => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set date($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDate() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDate() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get figureName => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set figureName($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFigureName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFigureName() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get evPoints => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set evPoints($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasEvPoints() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearEvPoints() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get evLevel => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set evLevel($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasEvLevel() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEvLevel() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get charge => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set charge($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCharge() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCharge() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get userStreak => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set userStreak($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasUserStreak() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearUserStreak() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.int get userWeekComplete => $_getIZ(7);
+  @$pb.TagNumber(8)
+  set userWeekComplete($core.int v) { $_setSignedInt32(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasUserWeekComplete() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearUserWeekComplete() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.int get userWeekGoal => $_getIZ(8);
+  @$pb.TagNumber(9)
+  set userWeekGoal($core.int v) { $_setSignedInt32(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasUserWeekGoal() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearUserWeekGoal() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.int get userWorkoutMinTime => $_getIZ(9);
+  @$pb.TagNumber(10)
+  set userWorkoutMinTime($core.int v) { $_setSignedInt32(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasUserWorkoutMinTime() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearUserWorkoutMinTime() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.int get userCurrency => $_getIZ(10);
+  @$pb.TagNumber(11)
+  set userCurrency($core.int v) { $_setSignedInt32(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasUserCurrency() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearUserCurrency() => clearField(11);
+}
+
+class MultiDailySnapshot extends $pb.GeneratedMessage {
+  factory MultiDailySnapshot({
+    $core.Iterable<DailySnapshot>? dailySnapshots,
+  }) {
+    final $result = create();
+    if (dailySnapshots != null) {
+      $result.dailySnapshots.addAll(dailySnapshots);
+    }
+    return $result;
+  }
+  MultiDailySnapshot._() : super();
+  factory MultiDailySnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiDailySnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiDailySnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<DailySnapshot>(1, _omitFieldNames ? '' : 'dailySnapshots', $pb.PbFieldType.PM, protoName: 'dailySnapshots', subBuilder: DailySnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiDailySnapshot clone() => MultiDailySnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiDailySnapshot copyWith(void Function(MultiDailySnapshot) updates) => super.copyWith((message) => updates(message as MultiDailySnapshot)) as MultiDailySnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiDailySnapshot create() => MultiDailySnapshot._();
+  MultiDailySnapshot createEmptyInstance() => create();
+  static $pb.PbList<MultiDailySnapshot> createRepeated() => $pb.PbList<MultiDailySnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static MultiDailySnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiDailySnapshot>(create);
+  static MultiDailySnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<DailySnapshot> get dailySnapshots => $_getList(0);
 }
 
 class MultiUser extends $pb.GeneratedMessage {

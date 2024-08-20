@@ -29,6 +29,14 @@ type RoutesClient interface {
 	UpdateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
 	DeleteUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
 	UpdateUserEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*User, error)
+	ResetUserStreak(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
+	ResetUserWeekComplete(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
+	// DAILY SNAPSHOT ROUTES //
+	GetDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error)
+	UpdateDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error)
+	CreateDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error)
+	DeleteDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error)
+	GetDailySnapshots(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*MultiDailySnapshot, error)
 	// WORKOUT ROUTES //
 	GetWorkouts(ctx context.Context, in *User, opts ...grpc.CallOption) (*MultiWorkout, error)
 	GetWorkout(ctx context.Context, in *Workout, opts ...grpc.CallOption) (*Workout, error)
@@ -122,6 +130,69 @@ func (c *routesClient) DeleteUser(ctx context.Context, in *User, opts ...grpc.Ca
 func (c *routesClient) UpdateUserEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
 	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) ResetUserStreak(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/routes.Routes/ResetUserStreak", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) ResetUserWeekComplete(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/routes.Routes/ResetUserWeekComplete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) GetDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error) {
+	out := new(DailySnapshot)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetDailySnapshot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UpdateDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error) {
+	out := new(DailySnapshot)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateDailySnapshot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) CreateDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error) {
+	out := new(DailySnapshot)
+	err := c.cc.Invoke(ctx, "/routes.Routes/CreateDailySnapshot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) DeleteDailySnapshot(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*DailySnapshot, error) {
+	out := new(DailySnapshot)
+	err := c.cc.Invoke(ctx, "/routes.Routes/DeleteDailySnapshot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) GetDailySnapshots(ctx context.Context, in *DailySnapshot, opts ...grpc.CallOption) (*MultiDailySnapshot, error) {
+	out := new(MultiDailySnapshot)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetDailySnapshots", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -462,6 +533,14 @@ type RoutesServer interface {
 	UpdateUser(context.Context, *User) (*User, error)
 	DeleteUser(context.Context, *User) (*User, error)
 	UpdateUserEmail(context.Context, *UpdateEmailRequest) (*User, error)
+	ResetUserStreak(context.Context, *User) (*User, error)
+	ResetUserWeekComplete(context.Context, *User) (*User, error)
+	// DAILY SNAPSHOT ROUTES //
+	GetDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error)
+	UpdateDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error)
+	CreateDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error)
+	DeleteDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error)
+	GetDailySnapshots(context.Context, *DailySnapshot) (*MultiDailySnapshot, error)
 	// WORKOUT ROUTES //
 	GetWorkouts(context.Context, *User) (*MultiWorkout, error)
 	GetWorkout(context.Context, *Workout) (*Workout, error)
@@ -527,6 +606,27 @@ func (UnimplementedRoutesServer) DeleteUser(context.Context, *User) (*User, erro
 }
 func (UnimplementedRoutesServer) UpdateUserEmail(context.Context, *UpdateEmailRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserEmail not implemented")
+}
+func (UnimplementedRoutesServer) ResetUserStreak(context.Context, *User) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetUserStreak not implemented")
+}
+func (UnimplementedRoutesServer) ResetUserWeekComplete(context.Context, *User) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetUserWeekComplete not implemented")
+}
+func (UnimplementedRoutesServer) GetDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDailySnapshot not implemented")
+}
+func (UnimplementedRoutesServer) UpdateDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDailySnapshot not implemented")
+}
+func (UnimplementedRoutesServer) CreateDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDailySnapshot not implemented")
+}
+func (UnimplementedRoutesServer) DeleteDailySnapshot(context.Context, *DailySnapshot) (*DailySnapshot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDailySnapshot not implemented")
+}
+func (UnimplementedRoutesServer) GetDailySnapshots(context.Context, *DailySnapshot) (*MultiDailySnapshot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDailySnapshots not implemented")
 }
 func (UnimplementedRoutesServer) GetWorkouts(context.Context, *User) (*MultiWorkout, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkouts not implemented")
@@ -735,6 +835,132 @@ func _Routes_UpdateUserEmail_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RoutesServer).UpdateUserEmail(ctx, req.(*UpdateEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_ResetUserStreak_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).ResetUserStreak(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/ResetUserStreak",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).ResetUserStreak(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_ResetUserWeekComplete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).ResetUserWeekComplete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/ResetUserWeekComplete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).ResetUserWeekComplete(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_GetDailySnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DailySnapshot)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetDailySnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetDailySnapshot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetDailySnapshot(ctx, req.(*DailySnapshot))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UpdateDailySnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DailySnapshot)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UpdateDailySnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UpdateDailySnapshot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UpdateDailySnapshot(ctx, req.(*DailySnapshot))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_CreateDailySnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DailySnapshot)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).CreateDailySnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/CreateDailySnapshot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).CreateDailySnapshot(ctx, req.(*DailySnapshot))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_DeleteDailySnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DailySnapshot)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).DeleteDailySnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/DeleteDailySnapshot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).DeleteDailySnapshot(ctx, req.(*DailySnapshot))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_GetDailySnapshots_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DailySnapshot)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetDailySnapshots(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetDailySnapshots",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetDailySnapshots(ctx, req.(*DailySnapshot))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1413,6 +1639,34 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserEmail",
 			Handler:    _Routes_UpdateUserEmail_Handler,
+		},
+		{
+			MethodName: "ResetUserStreak",
+			Handler:    _Routes_ResetUserStreak_Handler,
+		},
+		{
+			MethodName: "ResetUserWeekComplete",
+			Handler:    _Routes_ResetUserWeekComplete_Handler,
+		},
+		{
+			MethodName: "GetDailySnapshot",
+			Handler:    _Routes_GetDailySnapshot_Handler,
+		},
+		{
+			MethodName: "UpdateDailySnapshot",
+			Handler:    _Routes_UpdateDailySnapshot_Handler,
+		},
+		{
+			MethodName: "CreateDailySnapshot",
+			Handler:    _Routes_CreateDailySnapshot_Handler,
+		},
+		{
+			MethodName: "DeleteDailySnapshot",
+			Handler:    _Routes_DeleteDailySnapshot_Handler,
+		},
+		{
+			MethodName: "GetDailySnapshots",
+			Handler:    _Routes_GetDailySnapshots_Handler,
 		},
 		{
 			MethodName: "GetWorkouts",

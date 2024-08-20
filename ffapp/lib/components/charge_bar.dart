@@ -9,6 +9,7 @@ class ChargeBar extends StatelessWidget {
   final Color fillColor;
   final double barHeight;
   final double barWidth;
+  final int overrideGains;
 
   final bool isVertical;
   final bool showDashedLines;
@@ -28,16 +29,22 @@ class ChargeBar extends StatelessWidget {
       this.isVertical = false,
       this.showDashedLines = false,
       this.showInfoCircle = false,
+      this.overrideGains = 0,
       this.simulateCurrentGains = false});
 
   @override
   Widget build(BuildContext context) {
     int totalGains = 0;
     if (simulateCurrentGains) {
-      totalGains = Provider.of<UserModel>(context, listen: false).baseGain +
-          (Provider.of<UserModel>(context, listen: false).baseGain /
-                  Provider.of<UserModel>(context, listen: false).streak)
-              .ceil();
+      totalGains = overrideGains == 0
+          ? Provider.of<UserModel>(context, listen: false).baseGain +
+              (0.25 *
+                      Provider.of<UserModel>(context, listen: false)
+                          .user!
+                          .streak
+                          .toInt())
+                  .ceil()
+          : overrideGains;
     }
     return Column(
       children: [
@@ -45,15 +52,22 @@ class ChargeBar extends StatelessWidget {
           Consumer<UserModel>(
             builder: (_, user, __) {
               return GestureDetector(
-                onTap: didWeWorkoutToday ? () => showFFDialog("Why am I not gaining Charge?", "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.", context) : () => {},
+                onTap: didWeWorkoutToday
+                    ? () => showFFDialog(
+                        "Why am I not gaining Charge?",
+                        "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
+                        context)
+                    : () => {},
                 child: Text(
                     simulateCurrentGains
-                        ? didWeWorkoutToday ? "$currentCharge% + [0%] ?" : "$currentCharge% + [${user.baseGain}% | ${(user.baseGain / user.streak).ceil()}%🔥]"
+                        ? overrideGains == 0
+                            ? didWeWorkoutToday
+                                ? "$currentCharge% + [0%] ?"
+                                : "$currentCharge% + [${user.baseGain}% | ${(user.user!.streak.toInt() * 0.25).ceil()}%🔥]"
+                            : "$currentCharge% + [$overrideGains%]"
                         : "$currentCharge%",
-                    style: Theme.of(context)
-                        .textTheme
-                        .displayMedium!
-                        .copyWith(color: Theme.of(context).colorScheme.primary)),
+                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.primary)),
               );
             },
           ),
@@ -130,9 +144,10 @@ class ChargeBar extends StatelessWidget {
                         child: Container(
                           width: isVertical
                               ? barWidth
-                              : (currentCharge / 100)
-                                      .clamp(0, (showDashedLines ? 0.8 : 1)) *
-                                  barWidth,
+                              : (currentCharge / 100).clamp(
+                                          0, (showDashedLines ? 0.8 : 1)) *
+                                      barWidth -
+                                  0,
                           height: isVertical
                               ? (currentCharge / 100)
                                       .clamp(0, (showDashedLines ? 0.8 : 1)) *

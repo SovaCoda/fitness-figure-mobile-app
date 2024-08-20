@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 class EvBar extends StatelessWidget {
   final int currentXp;
   final int maxXp;
+  final int overrideGains;
   final Color fillColor;
   final double barHeight;
   final double barWidth;
@@ -25,6 +26,7 @@ class EvBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.overrideGains = 0,
       this.didWeWorkoutToday = false,
       this.areWeShadowing = false,
       this.showInfoBox = false,
@@ -37,8 +39,14 @@ class EvBar extends StatelessWidget {
     bool evoReady = currentXp >= maxXp;
     int totalGains = 50;
     if (simulateCurrentGains && !didWeWorkoutToday) {
-      totalGains = ((maxXp / 5).floor()) +
-          Provider.of<UserModel>(context, listen: false).streak * 10;
+      totalGains = overrideGains == 0
+          ? ((maxXp / 5).floor()) +
+              Provider.of<UserModel>(context, listen: false)
+                      .user!
+                      .streak
+                      .toInt() *
+                  10
+          : overrideGains;
     }
     return Column(
       mainAxisAlignment:
@@ -50,10 +58,21 @@ class EvBar extends StatelessWidget {
           Consumer<UserModel>(
             builder: (_, user, __) {
               return GestureDetector(
-                onTap: didWeWorkoutToday ? () => {showFFDialog('Why am I not gaining Evo?', "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.", context)} : () => {},
+                onTap: didWeWorkoutToday
+                    ? () => {
+                          showFFDialog(
+                              'Why am I not gaining Evo?',
+                              "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
+                              context)
+                        }
+                    : () => {},
                 child: Text(
                     simulateCurrentGains
-                        ? didWeWorkoutToday ? "$currentXp + ($totalGains) ?": "$currentXp + (${(maxXp / 5).floor()} | ${user.streak * 10}🔥)"
+                        ? didWeWorkoutToday
+                            ? "$currentXp + ($totalGains) ?"
+                            : overrideGains == 0
+                                ? "$currentXp + (${(maxXp / 5).floor()} | ${user.user!.streak * 10}🔥)"
+                                : "$currentXp + ($overrideGains)"
                         : currentXp.toString(),
                     style: Theme.of(context).textTheme.displayMedium!.copyWith(
                         color: Theme.of(context).colorScheme.secondary)),
@@ -135,31 +154,31 @@ class EvBar extends StatelessWidget {
                     ),
                   ),
                   if (simulateCurrentGains)
-                  Align(
-                    alignment: isVertical
-                        ? Alignment.topCenter
-                        : Alignment.centerLeft,
-                    child: Container(
-                      width: isVertical
-                          ? barWidth
-                          : ((totalGains / maxXp).clamp(0, 1) * barWidth)
-                              .clamp(
-                              0,
-                              barWidth -
-                                  (currentXp / maxXp).clamp(0, 1) * barWidth,
-                            ),
-                      height: isVertical
-                          ? (totalGains / maxXp).clamp(0, 1) * barHeight
-                          : barHeight,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10)),
-                        color:
-                            Theme.of(context).colorScheme.secondaryContainer,
+                    Align(
+                      alignment: isVertical
+                          ? Alignment.topCenter
+                          : Alignment.centerLeft,
+                      child: Container(
+                        width: isVertical
+                            ? barWidth
+                            : ((totalGains / maxXp).clamp(0, 1) * barWidth)
+                                .clamp(
+                                0,
+                                barWidth -
+                                    (currentXp / maxXp).clamp(0, 1) * barWidth,
+                              ),
+                        height: isVertical
+                            ? (totalGains / maxXp).clamp(0, 1) * barHeight
+                            : barHeight,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(10),
+                              bottomRight: Radius.circular(10)),
+                          color:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
