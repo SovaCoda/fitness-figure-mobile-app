@@ -270,17 +270,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       },
                     ),
                     Positioned(
+                      top: 0,
+                      right: 0,
                       child: GestureDetector(
                         onTap: () {
-                          context.goNamed("Chat");
+                          showFFDialog(
+                              "Work In Progress",
+                              "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!",
+                              context);
                         },
                         child: Icon(
                           Icons.chat,
                           size: 60,
                         ),
                       ),
-                      top: 0,
-                      right: 0,
                     ),
                     Consumer<UserModel>(
                       builder: (context, user, child) => (user.user != null &&
