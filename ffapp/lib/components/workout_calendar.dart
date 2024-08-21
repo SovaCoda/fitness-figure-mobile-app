@@ -72,7 +72,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       builder: (_, workoutHistory, __) {
         bool hasWorkout = false;
         for (var workout in workoutHistory.workouts) {
-          DateTime date = DateTime.parse(workout.endDate);
+          DateTime date = DateTime.parse(workout.endDate).toLocal();
           if (date.year == day.year &&
               date.month == day.month &&
               date.day == day.day &&
@@ -121,7 +121,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         day = day.toUtc();
         bool hasWorkout = false;
         for (var workout in workoutHistory.workouts) {
-          DateTime date = DateTime.parse(workout.endDate);
+          DateTime date = DateTime.parse(workout.endDate).toLocal();
           if (date.year == day.year &&
               date.month == day.month &&
               date.day == day.day &&
@@ -204,7 +204,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
               List<Workout> workouts =
                   Provider.of<HistoryModel>(context, listen: false).workouts;
               for (var workout in workouts) {
-                DateTime date = DateTime.parse(workout.endDate);
+                DateTime date = DateTime.parse(workout.endDate).toLocal();
                 if (date.year == selectedDay.year &&
                     date.month == selectedDay.month &&
                     date.day == selectedDay.day &&

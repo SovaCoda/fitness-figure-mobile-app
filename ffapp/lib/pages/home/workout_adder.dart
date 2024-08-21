@@ -179,6 +179,14 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       addableEV = addableEV;
     });
 
+    Provider.of<FigureModel>(context, listen: false).setFigureEv(totalEV);
+      Provider.of<FigureModel>(context, listen: false)
+          .setFigureCharge(!weeklyGoalMet
+              ? ((totalCharge) > 100)
+                  ? 100
+                  : totalCharge
+              : figureInstance.charge);
+
     // if we havent worked out today, update the user's streak and week complete
     if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday) {
       await auth.updateUserDBInfo(Routes.User(
@@ -186,13 +194,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           streak: Int64(user.user!.streak.toInt() + 1),
           weekComplete: Int64(user.user!.weekComplete.toInt() + 1)));
 
-      Provider.of<FigureModel>(context, listen: false).setFigureEv(totalEV);
-      Provider.of<FigureModel>(context, listen: false)
-          .setFigureCharge(!weeklyGoalMet
-              ? ((totalCharge) > 100)
-                  ? 100
-                  : totalCharge
-              : figureInstance.charge);
+      
       Provider.of<UserModel>(context, listen: false)
           .setUserWeekCompleted(Int64(user.user!.weekComplete.toInt() + 1));
       Provider.of<UserModel>(context, listen: false).user!.streak =
@@ -386,12 +388,16 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                             height: 10,
                                           ),
                                           StreakShower(
+                                            showChevron: false,
                                               textStyle: Theme.of(context)
                                                   .textTheme
                                                   .displayMedium!,
                                               streak: user.user!.streak.toInt(),
                                               showStatus: true,
-                                              goalMet: _goalMet),
+                                              goalMet: true,
+                                              
+                                              ),
+                                              
                                           SizedBox(
                                             height: 10,
                                           ),

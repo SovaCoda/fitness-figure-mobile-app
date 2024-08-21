@@ -5,10 +5,12 @@ class StreakShower extends StatelessWidget {
   final Color themeColor;
   final TextStyle textStyle;
   final bool showStatus;
+  final bool showChevron;
   final bool goalMet;
   const StreakShower(
       {super.key,
       this.streak = 0,
+      this.showChevron = false,
       required this.textStyle,
       this.themeColor = const Color.fromRGBO(255, 119, 0, 1),
       this.showStatus = false,
@@ -19,10 +21,12 @@ class StreakShower extends StatelessWidget {
     return Row(children: [
       if (showStatus)
         goalMet
-            ? Text('^',
+            ? showChevron ? Text('^',
                 style: textStyle.copyWith(
                   color: themeColor,
-                ))
+                )) : Text('',
+                style: textStyle.copyWith(
+                  color: themeColor,))
             : Text('X',
                 style: textStyle.copyWith(
                   color: Colors.red,
