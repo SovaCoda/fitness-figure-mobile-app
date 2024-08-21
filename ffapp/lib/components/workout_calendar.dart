@@ -118,13 +118,13 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   Widget _buildCellDate(DateTime day) {
     return Consumer<HistoryModel>(
       builder: (_, workoutHistory, __) {
-        day = day.toUtc();
+        DateTime parsedDay = day.toUtc();
         bool hasWorkout = false;
         for (var workout in workoutHistory.workouts) {
           DateTime date = DateTime.parse(workout.endDate).toLocal();
-          if (date.year == day.year &&
-              date.month == day.month &&
-              date.day == day.day &&
+          if (date.year == parsedDay.year &&
+              date.month == parsedDay.month &&
+              date.day == parsedDay.day &&
               (workout.countable == 1)) {
             hasWorkout = true;
             logger.i("hasWorkout: $hasWorkout for $day");
