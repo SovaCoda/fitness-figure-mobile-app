@@ -55,8 +55,6 @@ class _CoreState extends State<Core> {
     _figure = Provider.of<FigureModel>(context, listen: false);
     _currencyIncrement = _getCurrencyIncrement(_figure);
     await _reactivateGenerationServer();
-
-    setState(() {});
   }
 
   void _handleCurrencyUpdate() {

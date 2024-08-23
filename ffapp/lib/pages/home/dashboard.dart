@@ -80,7 +80,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
     int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
     String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
-    Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+    if (!mounted) return;
+    Provider.of<UserModel>(context, listen: false).setUser(databaseUser);
     Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
     Provider.of<FigureModel>(context, listen: false)
         .setFigureLevel(databaseFigure!.evLevel ?? 0);
