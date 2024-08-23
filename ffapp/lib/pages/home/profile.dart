@@ -51,16 +51,13 @@ class _ProfileState extends State<Profile> {
     }
     String curEmail = databaseUser?.email ?? "Loading...";
     int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
-//  Remove comment when premium is added
-//  bool premiumStatus = databaseUser?.premium ?? false;
+    bool premiumStatus = Provider.of<UserModel>(context, listen: false).isPremium();
     setState(() {
       name = curName;
       email = curEmail;
       password = "*******";
       weeklyGoal = curGoal;
-      manageSub = "Subscription Tier 1";
-//    Remove comment when premium is added
-//    manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User"
+      manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
     });
   }
 
