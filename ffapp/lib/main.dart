@@ -70,6 +70,15 @@ class UserModel extends ChangeNotifier {
     user?.premium = premium;
     notifyListeners();
   }
+
+  bool isPremium () {
+    if(user?.premium == Int64(1)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 }
 
 class InventoryModel extends ChangeNotifier {
