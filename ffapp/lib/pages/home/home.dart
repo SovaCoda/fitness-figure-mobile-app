@@ -116,6 +116,29 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: InkWell(
+                onTap: () => context.goNamed('Subscribe'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 10.0),
+                    Text(
+                      'FF',
+                      style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    Icon(
+                      Icons.add,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             //question mark area that displays an alert on tap
             InkWell(
                 onTap: () => {
@@ -134,7 +157,8 @@ class _DashboardPageState extends State<DashboardPage> {
                         color: Theme.of(context).colorScheme.onSurface),
                     const SizedBox(width: 4.0),
                   ],
-                ))
+                )),
+                
           ],
         ),
 

@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 
 class CurrencyModel extends ChangeNotifier {
@@ -63,6 +64,20 @@ class UserModel extends ChangeNotifier {
   void setUserWeekGoal(Int64 newValue) {
     user?.weekGoal = newValue;
     notifyListeners();
+  }
+
+  void setPremium (Int64 premium) {
+    user?.premium = premium;
+    notifyListeners();
+  }
+
+  bool isPremium () {
+    if(user?.premium == Int64(1)) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 }
 
@@ -147,7 +162,10 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: ".env");
+  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
   OpenAI.apiKey = "sk-proj-QpCgg3HzPQvHSRjXu9HRT3BlbkFJ4aGGyeCD6DyYcw1qx1w7";
+  await Stripe.instance.applySettings();
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();
