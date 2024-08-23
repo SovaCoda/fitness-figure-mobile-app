@@ -25,8 +25,10 @@ class FfAlertDialog extends StatelessWidget {
   }
 }
 
-void showFFDialog(String title, String message, BuildContext context) {
+void showFFDialog(
+    String title, String message, bool dismissable, BuildContext context) {
   showDialog(
+      barrierDismissible: dismissable,
       context: context,
       builder: (context) {
         return FfAlertDialog(
@@ -76,9 +78,10 @@ void showFFDialog(String title, String message, BuildContext context) {
       });
 }
 
-void showFFDialogBinary(String title, String message, BuildContext context,
-    FfButton yesButton, FfButton noButton) {
+void showFFDialogBinary(String title, String message, bool dismissable,
+    BuildContext context, FfButton yesButton, FfButton noButton) {
   showDialog(
+      barrierDismissible: dismissable,
       context: context,
       builder: (context) {
         return FfAlertDialog(
@@ -131,8 +134,9 @@ void showFFDialogBinary(String title, String message, BuildContext context,
 }
 
 void showFFDialogWithChildren(String title, List<Widget> children,
-    FfButton doneButton, BuildContext context) {
+    bool dismissable, FfButton doneButton, BuildContext context) {
   showDialog(
+    barrierDismissible: dismissable,
       context: context,
       builder: (context) {
         return FfAlertDialog(

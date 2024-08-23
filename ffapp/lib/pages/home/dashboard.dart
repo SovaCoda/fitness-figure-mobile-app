@@ -118,6 +118,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 isUserFirstWeek: isUsersFirstWeek,
               )
             ],
+            false,
             FfButton(
                 text: "Get Fit",
                 textColor: Theme.of(context).colorScheme.onPrimary,
@@ -277,6 +278,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                           showFFDialog(
                               "Work In Progress",
                               "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!",
+                              true,
                               context);
                         },
                         child: Icon(

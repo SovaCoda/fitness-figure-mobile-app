@@ -63,6 +63,7 @@ class EvBar extends StatelessWidget {
                           showFFDialog(
                               'Why am I not gaining Evo?',
                               "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
+                              true,
                               context)
                         }
                     : () => {},

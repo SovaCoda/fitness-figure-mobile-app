@@ -180,12 +180,12 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
 
     Provider.of<FigureModel>(context, listen: false).setFigureEv(totalEV);
-      Provider.of<FigureModel>(context, listen: false)
-          .setFigureCharge(!weeklyGoalMet
-              ? ((totalCharge) > 100)
-                  ? 100
-                  : totalCharge
-              : figureInstance.charge);
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigureCharge(!weeklyGoalMet
+            ? ((totalCharge) > 100)
+                ? 100
+                : totalCharge
+            : figureInstance.charge);
 
     // if we havent worked out today, update the user's streak and week complete
     if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday) {
@@ -194,7 +194,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           streak: Int64(user.user!.streak.toInt() + 1),
           weekComplete: Int64(user.user!.weekComplete.toInt() + 1)));
 
-      
       Provider.of<UserModel>(context, listen: false)
           .setUserWeekCompleted(Int64(user.user!.weekComplete.toInt() + 1));
       Provider.of<UserModel>(context, listen: false).user!.streak =
@@ -258,6 +257,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       showFFDialogBinary(
         "Hold on!",
         "You havent worked out at least as long as ${formatSeconds(_timegoal.toInt())}! If you stop now, this workout won't contribute to your weekly goal and you'll gain no charge, you will still recieve evo for the time you worked out.",
+        true,
         context,
         FfButton(
             height: 50,
@@ -295,6 +295,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     showFFDialogBinary(
         "FF+ Premium Feature",
         "Subscribe now to FF+ to gain acess to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
+        false,
         context,
         FfButton(
           height: 50,
@@ -389,15 +390,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                           ),
                                           StreakShower(
                                             showChevron: false,
-                                              textStyle: Theme.of(context)
-                                                  .textTheme
-                                                  .displayMedium!,
-                                              streak: user.user!.streak.toInt(),
-                                              showStatus: true,
-                                              goalMet: true,
-                                              
-                                              ),
-                                              
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .displayMedium!,
+                                            streak: user.user!.streak.toInt(),
+                                            showStatus: true,
+                                            goalMet: true,
+                                          ),
                                           SizedBox(
                                             height: 10,
                                           ),
