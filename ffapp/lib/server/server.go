@@ -52,7 +52,7 @@ func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, time.Now().Format("2006-01-02 15:04:05"), 0, 0, 0, "")
+	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, time.Now().Format("2006-01-02 15:04:05"), 0, 0, "no", "yes")
 	
 	return &user, nil
 }
@@ -977,7 +977,7 @@ func ServerIntiaitedUserDecay(db *sql.DB) error {
 	return nil
 }
 
-const resetTimer = 24 * time.Hour
+// const resetTimer = 24 * time.Hour
 func main() {
 	dbHost := os.Getenv("DB_HOST")
 	dbUser := os.Getenv("DB_USER")
@@ -990,19 +990,19 @@ func main() {
 	}
 	defer db.Close()
 
-	resetticker := time.NewTicker(resetTimer)
+	// resetticker := time.NewTicker(resetTimer)
 
-	go func() {
-		for {
-			select {
-			case <-resetticker.C:
-				err = ServerInitiatedFigureDecay(db)
-				if err != nil {
-					log.Fatalf("could not decay figures: %v", err)
-				}
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-resetticker.C:
+	// 			err = ServerInitiatedFigureDecay(db)
+	// 			if err != nil {
+	// 				log.Fatalf("could not decay figures: %v", err)
+	// 			}
+	// 		}
+	// 	}
+	// }()
 
 	lis, err := net.Listen("tcp", ":8080")
 	if err != nil {
