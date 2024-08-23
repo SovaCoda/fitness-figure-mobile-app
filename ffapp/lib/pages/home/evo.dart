@@ -309,11 +309,11 @@ class _EvolutionPageState extends State<EvolutionPage>
                                       crossAxisSpacing: 16,
                                       children: [
                                         EvolutionItem(
-                                          title: 'EVO ${figure.EVLevel}',
+                                          title: 'EVO ${figure.EVLevel + 1}',
                                           upgrades: figure1.figureEvUpgrades[figure.EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
                                         ),
                                         EvolutionItem(
-                                          title: 'EVO ${figure.EVLevel + 1}',
+                                          title: 'EVO ${figure.EVLevel + 2}',
                                           upgrades: figure1.figureEvUpgrades[figure.EVLevel + 1],
                                           isUnlocked:
                                               false, // Adds lock icon to next line

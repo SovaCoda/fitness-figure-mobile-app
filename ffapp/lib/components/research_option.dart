@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'dart:async';
@@ -8,49 +7,56 @@ import 'package:ffapp/main.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
-import 'package:fixnum/fixnum.dart';
+import 'package:ffapp/components/research_task_manager.dart';
 
 class ResearchOption extends StatefulWidget {
-  final String title;
-  final int chance;
-  final int ev;
-  final Duration duration;
+  final ResearchTask task;
+  final Function(String) onComplete;
+  final Function(String) onStart;
+  final Function(double) onSubtractCurrency;
 
   const ResearchOption({
-    Key? key,
-    required this.title,
-    required this.chance,
-    required this.ev,
-    required this.duration,
-  }) : super(key: key);
+    super.key,
+    required this.task,
+    required this.onComplete,
+    required this.onStart,
+    required this.onSubtractCurrency,
+  });
 
   @override
-  _ResearchOptionState createState() => _ResearchOptionState();
+  State<ResearchOption> createState() => _ResearchOptionState();
 }
 
 class _ResearchOptionState extends State<ResearchOption> {
-  late AuthService auth;
+  late AuthService _auth;
+  late FigureModel _figure;
+
   bool _isCountdown = false;
   bool _isExpanded = false;
+  bool _isCompleted = false;
+  bool _isDelete = false;
+
   double _investmentAmount = 0;
   int _currentChance = 0;
   int _cost = 0;
   int _currentCountdown = 0;
   int _time = 0;
-  bool _isCompleted = false;
   int _randValue = 0;
-  bool _isDelete = false;
+
   Timer _timer = Timer(Duration.zero, () {});
-  late FigureModel figure = FigureModel();
 
   @override
   void initState() {
     super.initState();
-    auth = Provider.of<AuthService>(context, listen: false);
-    _currentCountdown = widget.duration.inSeconds;
-    _currentChance = widget.chance;
+    _initializeState();
+  }
+
+  void _initializeState() {
+    _auth = Provider.of<AuthService>(context, listen: false);
+    _figure = Provider.of<FigureModel>(context, listen: false);
+    _currentCountdown = widget.task.duration.inSeconds;
+    _currentChance = widget.task.chance;
     _randValue = Random().nextInt(100);
-    figure = Provider.of<FigureModel>(context, listen: false);
   }
 
   void _updateInvestment(double value) {
@@ -58,487 +64,420 @@ class _ResearchOptionState extends State<ResearchOption> {
       _isCountdown = false;
       _investmentAmount = value;
       _cost = value.round();
-      // Increase chance based on investment. This is a simple linear increase,
-      // you might want to adjust the formula based on your game's mechanics.
-      _currentChance = widget.chance + (value / 100).round();
-      // Ensure chance doesn't exceed 100%
-      _currentChance = _currentChance.clamp(0, 100);
+      _currentChance =
+          (widget.task.chance + (value / 100).round()).clamp(0, 100);
     });
   }
 
-  void startTimer() {
+  void _startTimer() {
     setState(() {
       _isCountdown = true;
     });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    if (widget.task.startTime == null) {
+      widget.onStart(widget.task.id);
+    }
+    _timer = Timer.periodic(const Duration(seconds: 1), _updateTimer);
+  }
+
+  void _updateTimer(Timer timer) {
+    setState(() {
+      _currentCountdown--;
+      _time++;
+      if (_currentCountdown == 0) {
+        _isCompleted = true;
+        _timer.cancel();
+      }
+    });
+  }
+
+  void _giveRewards() async {
+    FigureInstance figureInstance = _figure.figure!;
+    int totalEV = figureInstance.evPoints + widget.task.ev;
+    _figure.setFigureEv(totalEV);
+    UserModel user = Provider.of<UserModel>(context, listen: false);
+    figureInstance = _figure.figure!;
+
+    await _auth.updateFigureInstance(FigureInstance(
+      figureId: figureInstance.figureId,
+      userEmail: user.user!.email,
+      figureName: figureInstance.figureName,
+      charge: figureInstance.charge.toInt(),
+      evPoints: figureInstance.evPoints.toInt(),
+    ));
+    widget.onComplete(widget.task.id);
+  }
+
+  void _startResearch() async {
+    if (await widget.onSubtractCurrency(_investmentAmount)) {
       setState(() {
-        _currentCountdown--;
-        _time++;
-        if (_currentCountdown == 0) {
-          _isCompleted = true;
-          _timer.cancel();
-        }
+        _startTimer();
+        _isExpanded = false;
+        _currentCountdown = widget.task.duration.inSeconds;
+        _isCountdown = true;
       });
+    }
+  }
+
+  String _getRobotImageUrl({required bool happy}) {
+    if (_figure.figure != null) {
+      String emotion = happy ? 'happy' : 'sad';
+      return "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_$emotion";
+    }
+    return "robot1/robot1_skin0_evo0_cropped_happy";
+  }
+
+  void _handleSuccessCompletion() {
+    setState(() {
+      _giveRewards();
+      _isDelete = true;
+      _isExpanded = false;
+    });
+  }
+
+  void _handleFailureCompletion() {
+    setState(() {
+      _isDelete = true;
+      _isExpanded = false;
+      widget.onComplete(widget.task.id);
     });
   }
 
   @override
   void dispose() {
-    super.dispose();
     _timer.cancel();
-  }
-
-  void giveRewards() async {
-    FigureInstance figureInstance =
-        Provider.of<FigureModel>(context, listen: false).figure!;
-    int totalEV = figureInstance.evPoints + widget.ev;
-    Provider.of<FigureModel>(context, listen: false).setFigureEv(totalEV);
-    UserModel user = Provider.of<UserModel>(context, listen: false);
-    figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
-
-    await auth.updateFigureInstance(FigureInstance(
-        figureId: figureInstance.figureId,
-        userEmail: user.user!.email,
-        figureName: figureInstance.figureName,
-        charge: (figureInstance.charge).toInt(),
-        evPoints: (figureInstance.evPoints).toInt()));
-  }
-
-  Future<bool> subtractCurrency() async {
-    User? user = await auth.getUserDBInfo();
-    int currentCurrency = user!.currency.toInt();
-    logger.i(
-        "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
-    int updateCurrency = currentCurrency - _investmentAmount.round();
-    if (updateCurrency < 0) {
-      logger.i("Not enough currency to complete transaction.");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Not enough currency to complete this purchase!")),
-        );
-        return false;
-      }
-    }
-    user.currency = Int64(updateCurrency);
-    await auth.updateUserDBInfo(user);
-    if (mounted) {
-      Provider.of<CurrencyModel>(context, listen: false)
-          .setCurrency(updateCurrency.toString());
-    }
-    return true;
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return !_isDelete
-        ? AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: MediaQuery.of(context).size.width * 0.87,
-            height: _isExpanded
-                ? MediaQuery.of(context).size.height * 0.45
-                : MediaQuery.of(context).size.height * 0.162,
-            padding: const EdgeInsets.all(8),
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  decoration: _isExpanded
-                      ? BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                  width: 1)))
-                      : const BoxDecoration(),
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: Text(
-                    widget.title,
-                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
+    if (_isDelete) return Container();
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      width: MediaQuery.of(context).size.width * 0.87,
+      height: _getContainerHeight(),
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: _isExpanded
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.spaceBetween,
+        children: [
+          _buildTitle(),
+          _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
+        ],
+      ),
+    );
+  }
+
+  double _getContainerHeight() {
+    if (!_isExpanded) return MediaQuery.of(context).size.height * 0.12;
+    return _isCompleted
+        ? MediaQuery.of(context).size.height * 0.376
+        : MediaQuery.of(context).size.height * 0.315;
+  }
+
+  Widget _buildTitle() {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 3),
+      decoration: _isExpanded
+          ? BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  width: 1,
                 ),
-                !_isExpanded
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '    $_currentChance% Chance',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displayMedium!
-                                    .copyWith(
-                                        color: Color.fromARGB(
-                                            255,
-                                            255 -
-                                                (2.55 * _currentChance).round(),
-                                            0 + (2.55 * _currentChance).round(),
-                                            0)),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '   +${widget.ev} EV',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displayMedium!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary),
-                              ),
-                            ],
-                          ),
-                          Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (!_isCompleted)
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                            _formatDuration(Duration(
-                                                seconds: _currentCountdown)),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displaySmall),
-                                        const Icon(Icons.access_time, size: 20)
-                                      ]),
-                                !_isCountdown
-                                    ? ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _isExpanded = !_isExpanded;
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                          foregroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0)),
-                                          minimumSize: Size(
-                                              MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.4,
-                                              40),
-                                        ),
-                                        child: Text('Begin',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displaySmall!
-                                                .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary)))
-                                    : !_isCompleted
-                                        ? FfButtonProgressableResearch(
-                                            text: 'In Progress',
-                                            textColor: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            disabledColor: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.4,
-                                            height: 40,
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            progress: _time /
-                                                widget.duration.inSeconds,
-                                            onPressed: () => {},
-                                            textStyle: Theme.of(context)
-                                                .textTheme
-                                                .displaySmall!)
-                                        : ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _isExpanded = !_isExpanded;
-                                              });
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              foregroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0)),
-                                              minimumSize: Size(
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.4,
-                                                  40),
-                                            ),
-                                            child: Text('Completed',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .displaySmall!
-                                                    .copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimary)))
-                              ]),
-                        ],
-                      )
-                    : !_isCompleted
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                                const SizedBox(height: 3),
-                                Text(
-                                    'Invest funds to improve chances of research success!',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displaySmall),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.attach_money, size: 24),
-                                    Text('$_cost'),
-                                  ],
-                                ),
-                                Slider(
-                                    divisions: 100,
-                                    value: _investmentAmount,
-                                    min: 0,
-                                    max: 10000,
-                                    onChanged: _updateInvestment,
-                                    label: _cost.toString()),
-                                Text('$_currentChance% Chance',
-                                    style: TextStyle(
-                                        color: Color.fromARGB(
-                                            255,
-                                            255 -
-                                                (2.55 * _currentChance).round(),
-                                            0 + (2.55 * _currentChance).round(),
-                                            0))),
-                                ElevatedButton(
-                                    onPressed: () async {
-                                      await subtractCurrency()
-                                          ? setState(() {
-                                              startTimer();
-                                              _isExpanded = !_isExpanded;
-                                              _isCountdown = true;
-                                            })
-                                          : setState(() {});
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      foregroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0)),
-                                      minimumSize: Size(
-                                          MediaQuery.of(context).size.width *
-                                              0.9,
-                                          40),
-                                    ),
-                                    child: Text('Begin',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .displaySmall!
-                                            .copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary))),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _isExpanded = !_isExpanded;
-                                      });
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey[900],
-                                      foregroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0)),
-                                      minimumSize: Size(
-                                          MediaQuery.of(context).size.width *
-                                              0.9,
-                                          40),
-                                    ),
-                                    child: Text('Back',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .displaySmall!
-                                            .copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface)))
-                              ])
-                        : (_currentChance >= _randValue) ||
-                                (_currentChance == 100)
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('SUCCESS',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displayMedium!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary)),
-                                  Row(children: [
-                                    RobotImageHolder(
-                                      url: (figure.figure != null)
-                                          ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.EVLevel}_cropped_happy")
-                                          : "robot1/robot1_skin0_evo0_cropped_happy",
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.25,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.5,
-                                    ),
-                                    Text('+${widget.ev} EV',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .displayMedium!
-                                            .copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary))
-                                  ]),
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          giveRewards(); // Award the user on victory
-                                          _isDelete = true;
-                                          _isExpanded = !_isExpanded;
-                                        });
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
-                                        foregroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0)),
-                                        minimumSize: Size(
-                                            MediaQuery.of(context).size.width *
-                                                0.9,
-                                            40),
-                                      ),
-                                      child: Text('Awesome!',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displaySmall!
-                                              .copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary)))
-                                ],
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('FAILURE',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displayMedium!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .error)),
-                                  Row(children: [
-                                    RobotImageHolder(
-                                      url: (figure.figure != null)
-                                          ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.EVLevel}_cropped_sad")
-                                          : "robot1/robot1_skin0_evo0_cropped_happy",
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.25,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.5,
-                                    ),
-                                    Text('+0 EV',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .displayMedium!
-                                            .copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary))
-                                  ]),
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _isDelete = true;
-                                          _isExpanded = !_isExpanded;
-                                        });
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
-                                        foregroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0)),
-                                        minimumSize: Size(
-                                            MediaQuery.of(context).size.width *
-                                                0.9,
-                                            40),
-                                      ),
-                                      child: Text('Okay',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displaySmall!
-                                              .copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary)))
-                                ],
-                              )
-              ],
+              ),
+            )
+          : null,
+      width: MediaQuery.of(context).size.width * 0.9,
+      child: Text(
+        widget.task.title,
+        style: Theme.of(context).textTheme.displayMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
             ),
-          )
-        : Container();
+      ),
+    );
+  }
+
+  Widget _buildCollapsedContent() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildChanceAndEVInfo(),
+        _buildTimerAndButton(),
+      ],
+    );
+  }
+
+  Widget _buildChanceAndEVInfo() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '\t\t\t$_currentChance% Chance',
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: Color.fromARGB(
+                  255,
+                  255 - (2.55 * _currentChance).round(),
+                  0 + (2.55 * _currentChance).round(),
+                  0,
+                ),
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '\t\t+${widget.task.ev} EV',
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimerAndButton() {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (!_isCompleted) _buildTimer(),
+        _buildActionButton(),
+      ],
+    );
+  }
+
+  Widget _buildTimer() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          _isCountdown
+              ? _formatDuration(Duration(seconds: _currentCountdown))
+              : _formatDuration(widget.task.duration),
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
+        const Icon(Icons.access_time, size: 20),
+      ],
+    );
+  }
+
+  Widget _buildActionButton() {
+    if (!_isCountdown) {
+      return _buildBeginButton();
+    } else if (!_isCompleted) {
+      return _buildProgressButton();
+    } else {
+      return _buildCompletedButton();
+    }
+  }
+
+  Widget _buildBeginButton() {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _isExpanded = !_isExpanded;
+        });
+      },
+      style: _getButtonStyle(),
+      child: Text('Begin', style: _getButtonTextStyle()),
+    );
+  }
+
+  Widget _buildProgressButton() {
+    return FfButtonProgressableResearch(
+      text: 'In Progress',
+      textColor: Theme.of(context).colorScheme.onPrimary,
+      disabledColor: Theme.of(context).colorScheme.onSurface,
+      width: MediaQuery.of(context).size.width * 0.4,
+      height: 40,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      progress: _time / widget.task.duration.inSeconds,
+      onPressed: () {},
+      textStyle: Theme.of(context).textTheme.displaySmall!,
+    );
+  }
+
+  Widget _buildCompletedButton() {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _currentChance = widget.task.chance;
+          _isExpanded = !_isExpanded;
+        });
+      },
+      style: _getButtonStyle(color: Theme.of(context).colorScheme.primary),
+      child: Text('Completed', style: _getButtonTextStyle()),
+    );
+  }
+
+  ButtonStyle _getButtonStyle({Color? color}) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
+      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
+    );
+  }
+
+  _getExpandedButtonStyle({Color? color}) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
+      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      minimumSize: Size(MediaQuery.of(context).size.width * 0.82, 40),
+    );
+  }
+
+  TextStyle _getButtonTextStyle() {
+    return Theme.of(context).textTheme.displaySmall!.copyWith(
+          color: Theme.of(context).colorScheme.onPrimary,
+        );
+  }
+
+  TextStyle _getBackButtonTextStyle() {
+    return Theme.of(context).textTheme.displaySmall!.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        );
+  }
+
+  Widget _buildExpandedContent() {
+    if (!_isCompleted) {
+      return _buildInvestmentContent();
+    } else if (_currentChance >= _randValue || _currentChance == 100) {
+      return _buildSuccessContent();
+    } else {
+      return _buildFailureContent();
+    }
+  }
+
+  Widget _buildInvestmentContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          'Invest funds to improve chances of research success!',
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.attach_money, size: 24),
+            Text('$_cost'),
+          ],
+        ),
+        Slider(
+          divisions: 100,
+          value: _investmentAmount,
+          min: 0,
+          max: 10000,
+          onChanged: _updateInvestment,
+          label: _cost.toString(),
+        ),
+        Text(
+          '$_currentChance% Chance',
+          style: TextStyle(
+            color: Color.fromARGB(
+              255,
+              255 - (2.55 * _currentChance).round(),
+              0 + (2.55 * _currentChance).round(),
+              0,
+            ),
+          ),
+        ),
+        ResearchButton(onPressed: _startResearch),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _isExpanded = false;
+            });
+          },
+          style: _getExpandedButtonStyle(color: Colors.grey[900]),
+          child: Text('Back', style: _getBackButtonTextStyle()),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuccessContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'SUCCESS',
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+        ),
+        Row(
+          children: [
+            RobotImageHolder(
+              url: _getRobotImageUrl(happy: true),
+              height: MediaQuery.of(context).size.height * 0.25,
+              width: MediaQuery.of(context).size.width * 0.5,
+            ),
+            Text(
+              '+${widget.task.ev} EV',
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+            ),
+          ],
+        ),
+        ElevatedButton(
+          onPressed: _handleSuccessCompletion,
+          style: _getButtonStyle(),
+          child: Text('Awesome!', style: _getButtonTextStyle()),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFailureContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          'FAILURE',
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
+        ),
+        Row(
+          children: [
+            RobotImageHolder(
+              url: _getRobotImageUrl(happy: false),
+              height: MediaQuery.of(context).size.height * 0.25,
+              width: MediaQuery.of(context).size.width * 0.5,
+            ),
+            Text(
+              '+0 EV',
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+            ),
+          ],
+        ),
+        ElevatedButton(
+          onPressed: _handleFailureCompletion,
+          style: _getExpandedButtonStyle(),
+          child: Text('Okay', style: _getButtonTextStyle()),
+        ),
+      ],
+    );
   }
 
   String _formatDuration(Duration duration) {
@@ -546,5 +485,51 @@ class _ResearchOptionState extends State<ResearchOption> {
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+}
+
+class ResearchButton extends StatefulWidget {
+  final VoidCallback onPressed;
+
+  const ResearchButton({Key? key, required this.onPressed}) : super(key: key);
+
+  @override
+  _ResearchButtonState createState() => _ResearchButtonState();
+}
+
+class _ResearchButtonState extends State<ResearchButton> {
+  bool _isButtonDisabled = false;
+
+  void _handleButtonPress() {
+    if (!_isButtonDisabled) {
+      setState(() {
+        _isButtonDisabled = true;
+      });
+      widget.onPressed();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: _isButtonDisabled ? null : _handleButtonPress,
+      style: _getExpandedButtonStyle(),
+      child: Text('Begin', style: _getButtonTextStyle()),
+    );
+  }
+
+  _getExpandedButtonStyle({Color? color}) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
+      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      minimumSize: Size(MediaQuery.of(context).size.width * 0.82, 40),
+    );
+  }
+
+  TextStyle _getButtonTextStyle() {
+    return Theme.of(context).textTheme.displaySmall!.copyWith(
+          color: Theme.of(context).colorScheme.onPrimary,
+        );
   }
 }
