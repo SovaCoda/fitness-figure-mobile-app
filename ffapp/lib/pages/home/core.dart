@@ -29,6 +29,7 @@ class _CoreState extends State<Core> {
 
   @override
   void initState() {
+    _user = UserModel();
     _figure = FigureModel();
     super.initState();
     _taskManager = ResearchTaskManager();
@@ -53,7 +54,7 @@ class _CoreState extends State<Core> {
     _auth = Provider.of<AuthService>(context, listen: false);
     _user = Provider.of<UserModel>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
-    _currencyIncrement = _getCurrencyIncrement(_figure);
+    _currencyIncrement = _getCurrencyIncrement(_figure, _user.isPremium());
     await _reactivateGenerationServer();
   }
 
@@ -61,8 +62,8 @@ class _CoreState extends State<Core> {
     _currency.addToCurrency(_currencyIncrement!);
   }
 
-  int _getCurrencyIncrement(FigureModel figure) {
-    return figure.EVLevel + 1;
+  int _getCurrencyIncrement(FigureModel figure, bool isPremium) {
+    return (figure.EVLevel + 1) * (isPremium ? 2 : 1);
   }
 
   Future<void> _reactivateGenerationServer() async {
@@ -188,7 +189,7 @@ class _CoreState extends State<Core> {
             Text('EVO ${_figure.EVLevel + 1}',
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.secondary)),
-            Text('\$${_getCurrencyIncrement(_figure)}/sec',
+            Text('\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             Text(

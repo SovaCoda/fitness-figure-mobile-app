@@ -160,14 +160,14 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         (_timePassed.toDouble() / _timegoal.toDouble()).clamp(0, 1);
 
     double maxEVGain = figure1.EvCutoffs[figureInstance.evLevel].toDouble() / 5;
-    double baseEVGain = 50.00;
+    double baseEVGain = user.isPremium() ? 75.00 : 50.00;
     double eVConcistencyBonus = (10) * user.user!.streak.toDouble();
     addableEV = history.workedOutToday
         ? (baseEVGain * workoutPercent).ceil()
         : ((maxEVGain + eVConcistencyBonus) * workoutPercent).ceil();
     int totalEV = (figureInstance.evPoints + addableEV).toInt();
 
-    int baseChargeGain = 5;
+    int baseChargeGain = user.isPremium() ? 6 : 5;
     int chargeConcistencyBonus = ((0.25) * user.user!.streak.toInt()).ceil();
     addableCharge = history.workedOutToday
         ? 0
