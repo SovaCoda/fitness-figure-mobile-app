@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-
+import 'package:go_router/go_router.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_points.dart';
@@ -160,14 +160,14 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         (_timePassed.toDouble() / _timegoal.toDouble()).clamp(0, 1);
 
     double maxEVGain = figure1.EvCutoffs[figureInstance.evLevel].toDouble() / 5;
-    double baseEVGain = 50.00;
+    double baseEVGain = user.isPremium() ? 75.00 : 50.00;
     double eVConcistencyBonus = (10) * user.user!.streak.toDouble();
     addableEV = history.workedOutToday
         ? (baseEVGain * workoutPercent).ceil()
         : ((maxEVGain + eVConcistencyBonus) * workoutPercent).ceil();
     int totalEV = (figureInstance.evPoints + addableEV).toInt();
 
-    int baseChargeGain = 5;
+    int baseChargeGain = user.isPremium() ? 6 : 5;
     int chargeConcistencyBonus = ((0.25) * user.user!.streak.toInt()).ceil();
     addableCharge = history.workedOutToday
         ? 0
@@ -291,28 +291,30 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     }
   }
 
-  void chatMore() async {
-    showFFDialogBinary(
-        "FF+ Premium Feature",
-        "Subscribe now to FF+ to gain acess to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
-        false,
-        context,
-        FfButton(
-          height: 50,
-          text: "Subscribe Now \$1.99",
-          textStyle: Theme.of(context).textTheme.displayMedium!,
-          textColor: Theme.of(context).colorScheme.onPrimary,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          onPressed: () => {Navigator.of(context).pop()},
-        ),
-        FfButton(
-            height: 50,
-            text: "No Thanks",
-            textStyle: Theme.of(context).textTheme.displayMedium!,
-            textColor: Theme.of(context).colorScheme.onSurface,
-            backgroundColor:
-                Theme.of(context).colorScheme.surface.withAlpha(126),
-            onPressed: () => {Navigator.of(context).pop()}));
+  void chatMore(context) async {
+    Provider.of<UserModel>(context, listen: false).isPremium()
+        ? GoRouter.of(context).go('/chat')
+        : showFFDialogBinary(
+            "FF+ Premium Feature",
+            "Subscribe now to FF+ to gain acess to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
+            false,
+            context,
+            FfButton(
+              height: 50,
+              text: "Subscribe Now \$1.99",
+              textStyle: Theme.of(context).textTheme.displayMedium!,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              onPressed: () => {GoRouter.of(context).go('/subscribe')},
+            ),
+            FfButton(
+                height: 50,
+                text: "No Thanks",
+                textStyle: Theme.of(context).textTheme.displayMedium!,
+                textColor: Theme.of(context).colorScheme.onSurface,
+                backgroundColor:
+                    Theme.of(context).colorScheme.surface.withAlpha(126),
+                onPressed: () => {Navigator.of(context).pop()}));
   }
 
   @override
@@ -538,7 +540,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                       Theme.of(context).colorScheme.onPrimary,
                                   backgroundColor:
                                       Theme.of(context).colorScheme.primary,
-                                  onPressed: () => {chatMore()})
+                                  onPressed: () => {chatMore(context)})
                             ],
                           )),
                           FfButton(

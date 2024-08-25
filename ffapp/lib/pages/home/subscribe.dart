@@ -105,7 +105,7 @@ class _SubscribePageContent extends StatelessWidget {
                                     ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
                                     : "robot1/robot1_skin0_evo0_cropped_happy",
                                 height:
-                                    MediaQuery.of(context).size.height * 0.333,
+                                    MediaQuery.of(context).size.height * 0.30,
                                 width: 500,
                               ),
                   _buildFeatureCard(context),
@@ -170,9 +170,14 @@ class _SubscribePageContent extends StatelessWidget {
                 Theme.of(context).colorScheme.error),
             _buildFeatureItem(
                 context,
+                Icons.chat,
+                "Your AI Fitness Coach",
+                Theme.of(context).colorScheme.primary),
+            _buildFeatureItem(
+                context,
                 Icons.style,
                 "Exclusive Figure Cosmetics",
-                Theme.of(context).colorScheme.primary),
+                Theme.of(context).colorScheme.secondary),
           ],
         ),
       ),
