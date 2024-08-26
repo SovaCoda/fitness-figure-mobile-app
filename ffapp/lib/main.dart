@@ -28,6 +28,16 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart';
 
+class SelectedFigureProvider extends ChangeNotifier {
+  int _selectedFigureIndex = 0;
+
+  int get selectedFigureIndex => _selectedFigureIndex;
+
+  void setSelectedFigureIndex(int index) {
+    _selectedFigureIndex = index;
+    notifyListeners();
+  }
+}
 
 class CurrencyModel extends ChangeNotifier {
   String currency = "0000";
@@ -66,16 +76,15 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPremium (Int64 premium) {
+  void setPremium(Int64 premium) {
     user?.premium = premium;
     notifyListeners();
   }
 
-  bool isPremium () {
-    if(user?.premium == Int64(1)) {
+  bool isPremium() {
+    if (user?.premium == Int64(1)) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -92,7 +101,8 @@ class InventoryModel extends ChangeNotifier {
 }
 
 class FigureModel extends ChangeNotifier {
-  Routes.FigureInstance? figure = Routes.FigureInstance(figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
+  Routes.FigureInstance? figure = Routes.FigureInstance(
+      figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
   int EVLevel = 0;
   bool readyToEvolve = false;
 
@@ -110,8 +120,13 @@ class FigureModel extends ChangeNotifier {
   }
 
   void setFigureSkin(String newValue) {
-    figure?.curSkin = newValue;
-    notifyListeners();
+    if (figure != null) {
+      figure?.curSkin = newValue;
+      notifyListeners();
+      print("Figure skin updated to: $newValue");
+    } else {
+      print("Error: Figure is null when trying to set skin");
+    }
   }
 
   void setFigureLevel(int newValue) {
@@ -193,6 +208,7 @@ Future<void> main() async {
         create: (context) => HistoryModel(),
       ),
       ChangeNotifierProvider(create: (context) => MessageProvider()),
+      ChangeNotifierProvider(create: (_) => SelectedFigureProvider())
     ], child: const MyApp()),
   );
 }

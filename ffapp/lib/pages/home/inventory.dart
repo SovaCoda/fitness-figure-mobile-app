@@ -26,7 +26,6 @@ class _InventoryState extends State<Inventory> {
 
   late AuthService auth;
   late int currency = 0;
-
   late List<Routes.FigureInstance> figureInstancesList = List.empty();
   late List<Routes.Figure> figureList = List.empty();
 
@@ -50,112 +49,90 @@ class _InventoryState extends State<Inventory> {
         }));
   }
 
-  void equipNew(String newFigureName) {
-    Provider.of<UserModel>(context, listen: false).setUser(Routes.User(
-      email: Provider.of<UserModel>(context, listen: false).user?.email,
-      currency: Provider.of<UserModel>(context, listen: false).user?.currency,
-      weekGoal: Provider.of<UserModel>(context, listen: false).user?.weekGoal,
-      weekComplete:
-          Provider.of<UserModel>(context, listen: false).user?.weekComplete,
-      curFigure: newFigureName,
-    ));
-    auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
-    Provider.of<FigureModel>(context, listen: false).setFigure(
-        figureInstancesList
-            .firstWhere((element) => element.figureName == newFigureName));
+
+  void selectFigure(int index) {
+    Provider.of<SelectedFigureProvider>(context, listen: false).setSelectedFigureIndex(index);
+    equipNew(figureInstancesList[index].figureName.toString(), index);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    double usableHeight = MediaQuery.of(context).size.height *0.75; // height of app bar and bottom nav bar (adjusted mediaquery for my device)
-    return (Column(
-      children: [
-        Consumer<UserModel>(
-          builder: (context, userModel, _) {
-            return Column(
-              children: [
-                for (int i = 0; i <= 1; i++)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: usableHeight / 2,
-                          maxWidth: MediaQuery.of(context).size.width,
+@override
+Widget build(BuildContext context) {
+  return Consumer<SelectedFigureProvider>(
+    builder: (context, selectedFigureProvider, _) {
+      return Column(
+        children: [
+          Consumer<UserModel>(
+            builder: (context, userModel, _) {
+              return Column(
+                children: [
+                  for (int i = 0; i < (figureInstancesList.length + 1) ~/ 2; i++)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: i * 2 < figureInstancesList.length
+                              ? GestureDetector(
+                                  onTap: () => selectFigure(i * 2),
+                                  child: InventoryItem(
+                                    figureInstance: figureInstancesList[i * 2],
+                                    photoPath: ("${figureInstancesList[i * 2].figureName}/${figureInstancesList[i * 2].figureName}_skin${figureInstancesList[i * 2].curSkin}_evo${figureInstancesList[i * 2].evLevel}_cropped_happy"),
+                                    equiped: figureInstancesList[i * 2].figureName.toString() == userModel.user?.curFigure,
+                                    onEquip: (context) => equipNew(figureInstancesList[i * 2].figureName.toString(), i * 2),
+                                    isSelected: selectedFigureProvider.selectedFigureIndex == i * 2,
+                                  ),
+                                )
+                              : InventoryItem(
+                                  figureInstance: null,
+                                  locked: true,
+                                  photoPath: "null",
+                                  equiped: false,
+                                  onEquip: (context) => {},
+                                ),
                         ),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          margin: const EdgeInsets.all(4),
-                          height: usableHeight / 2,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                child: i * 2 >= figureInstancesList.length
-                                    ? InventoryItem(
-                                        figureInstance: null,
-                                        locked: true,
-                                        photoPath: "null",
-                                        equiped: false,
-                                        onEquip: (context) => {})
-                                    : Consumer<InventoryModel>(
-                                        builder: (_, inventory, __) {
-                                          return InventoryItem(
-                                              figureInstance:
-                                                  figureInstancesList[i * 2],
-                                              photoPath:
-                                                  ("${figureInstancesList[i * 2].figureName}/${figureInstancesList[i * 2].figureName}_skin${figureInstancesList[i * 2].curSkin}_evo${figureInstancesList[i * 2].evLevel}_cropped_happy"),
-                                              equiped:
-                                                  figureInstancesList[i * 2]
-                                                          .figureName
-                                                          .toString() ==
-                                                      userModel.user?.curFigure,
-                                              onEquip: (context) => {
-                                                    equipNew(
-                                                        figureInstancesList[
-                                                                i * 2]
-                                                            .figureName
-                                                            .toString())
-                                                  });
-                                        },
-                                      ),
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: i * 2 + 1 >= figureInstancesList.length
-                                    ? InventoryItem(
-                                        figureInstance: null,
-                                        locked: true,
-                                        photoPath: "null",
-                                        equiped: false,
-                                        onEquip: (context) => {})
-                                    : InventoryItem(
-                                        figureInstance:
-                                            figureInstancesList[i * 2 + 1],
-                                        photoPath:
-                                            ("${figureInstancesList[i * 2 + 1].figureName}/${figureInstancesList[i * 2 + 1].figureName}_skin0_evo0_cropped_happy"),
-                                        equiped: figureInstancesList[i * 2 + 1]
-                                                .figureName
-                                                .toString() ==
-                                            userModel.user?.curFigure,
-                                        onEquip: (context) => {
-                                              equipNew(
-                                                  figureInstancesList[i * 2 + 1]
-                                                      .figureName
-                                                      .toString())
-                                            }),
-                              ),
-                            ],
-                          ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: i * 2 + 1 < figureInstancesList.length
+                              ? GestureDetector(
+                                  onTap: () => selectFigure(i * 2 + 1),
+                                  child: InventoryItem(
+                                    figureInstance: figureInstancesList[i * 2 + 1],
+                                    photoPath: ("${figureInstancesList[i * 2 + 1].figureName}/${figureInstancesList[i * 2 + 1].figureName}_skin${figureInstancesList[i * 2 + 1].curSkin}_evo${figureInstancesList[i * 2 + 1].evLevel}_cropped_happy"),
+                                    equiped: figureInstancesList[i * 2 + 1].figureName.toString() == userModel.user?.curFigure,
+                                    onEquip: (context) => equipNew(figureInstancesList[i * 2 + 1].figureName.toString(), i * 2 + 1),
+                                    isSelected: selectedFigureProvider.selectedFigureIndex == i * 2 + 1,
+                                  ),
+                                )
+                              : InventoryItem(
+                                  figureInstance: null,
+                                  locked: true,
+                                  photoPath: "null",
+                                  equiped: false,
+                                  onEquip: (context) => {},
+                                ),
                         ),
-                      ),
-                    ],
-                  ),
-              ],
-            );
-          },
-        )
-      ],
-    ));
-  }
+                      ],
+                    ),
+                ],
+              );
+            },
+          )
+        ],
+      );
+    },
+  );
 }
+  void equipNew(String newFigureName, int figureIndex) {
+  Provider.of<UserModel>(context, listen: false).setUser(Routes.User(
+    email: Provider.of<UserModel>(context, listen: false).user?.email,
+    currency: Provider.of<UserModel>(context, listen: false).user?.currency,
+    weekGoal: Provider.of<UserModel>(context, listen: false).user?.weekGoal,
+    weekComplete:
+        Provider.of<UserModel>(context, listen: false).user?.weekComplete,
+    curFigure: newFigureName,
+  ));
+  auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
+  Provider.of<FigureModel>(context, listen: false).setFigure(
+      figureInstancesList[figureIndex]);
+}
+  
+  }

@@ -31,13 +31,20 @@ class _SkinViewerState extends State<SkinViewer> {
   late UserModel userModel;
   int currentSkinIndex = 0;
   late String figureName;
-  
+  late int selectedFigureIndex;
+
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
     userModel = Provider.of<UserModel>(context, listen: false);
-    figureName = widget.figureName;
+    selectedFigureIndex =
+        Provider.of<SelectedFigureProvider>(context, listen: false)
+            .selectedFigureIndex;
+    figureName = widget.listOfFigureInstances[selectedFigureIndex].figureName;
+    print("SkinViewer initialized with figureName: ${widget.figureName}");
+    print("listOfSkins: ${widget.listOfSkins}");
+    print("listOfFigureInstances: ${widget.listOfFigureInstances}");
   }
 
   void showOverlayAlert(
@@ -72,14 +79,26 @@ class _SkinViewerState extends State<SkinViewer> {
   }
 
   void equipSkin(BuildContext context, String figureName, String skinName) {
+    print("Equipping skin: $skinName for figure: $figureName");
+    int selectedIndex =
+        Provider.of<SelectedFigureProvider>(context, listen: false)
+            .selectedFigureIndex;
+
     Provider.of<FigureInstancesProvider>(context, listen: false)
-        .setFigureInstanceCurSkin(figureName, skinName);
+        .setFigureInstanceCurSkin(figureName, skinName, selectedIndex);
+
     Provider.of<FigureModel>(context, listen: false)
         .setFigureSkin(skinName.substring(4));
-    auth.updateFigureInstance(Routes.FigureInstance(
-        figureName: figureName,
-        curSkin: skinName.substring(4),
-        userEmail: userModel.user?.email));
+
+    auth
+        .updateFigureInstance(Routes.FigureInstance(
+      figureName: figureName,
+      curSkin: skinName.substring(4),
+      userEmail: userModel.user?.email,
+    ))
+        .then((_) {
+      print("Figure instance updated in backend for $figureName");
+    });
   }
 
   void purchaseSkin(BuildContext context, int price, String skinSkinName,
@@ -107,7 +126,7 @@ class _SkinViewerState extends State<SkinViewer> {
       });
 
       showOverlayAlert(context, "Skin purchased!", Colors.green, 73);
-      
+
       // Automatically equip the newly purchased skin
       equipSkin(context, figureSkinName, skinSkinName);
     } else if (owned == true) {
@@ -322,57 +341,68 @@ class _SkinViewerState extends State<SkinViewer> {
               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               Container(
                 decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                                .withAlpha(100),
-                                            blurRadius: 10.0,
-                                            spreadRadius: 1.0,
-                                            offset: const Offset(
-                                              0.0,
-                                              0.0,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-              child: ElevatedButton(
-                onPressed: () => !owned
-                    ? purchaseSkin(
-                        context,
-                        skin.price,
-                        skin.skinName,
-                        figureName,
-                        owned,
-                      )
-                    : equipSkin(context, skin.figureName, skin.skinName),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  minimumSize: Size(
-                    MediaQuery.of(context).size.width * 0.6,
-                    MediaQuery.of(context).size.height * 0.07,
-                  ),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Theme.of(context).colorScheme.primary.withAlpha(100),
+                      blurRadius: 10.0,
+                      spreadRadius: 1.0,
+                      offset: const Offset(
+                        0.0,
+                        0.0,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  owned
-                      ? (equippedSkin.listOfFigureInstances.first.curSkin ==
-                                  skin.skinName.substring(4) &&
-                              equippedSkin.listOfFigureInstances.first.figureName ==
-                                  skin.figureName)
-                          ? 'Equipped'
-                          : 'Equip'
-                      : 'Purchase',
-                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
+                child: ElevatedButton(
+                  onPressed: () => !owned
+                      ? purchaseSkin(
+                          context,
+                          skin.price,
+                          skin.skinName,
+                          figureName,
+                          owned,
+                        )
+                      : equipSkin(context, figureName, skin.skinName),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    minimumSize: Size(
+                      MediaQuery.of(context).size.width * 0.6,
+                      MediaQuery.of(context).size.height * 0.07,
+                    ),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                  child: Text(
+                    owned
+                        ? (equippedSkin
+                                        .listOfFigureInstances[
+                                            Provider.of<SelectedFigureProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .selectedFigureIndex]
+                                        .curSkin ==
+                                    skin.skinName.substring(4) &&
+                                equippedSkin
+                                        .listOfFigureInstances[
+                                            Provider.of<SelectedFigureProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .selectedFigureIndex]
+                                        .figureName ==
+                                    figureName)
+                            ? 'Equipped'
+                            : 'Equip'
+                        : 'Purchase',
+                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                   ),
                 ),
               ),
-              
-          ), SizedBox(height: MediaQuery.of(context).size.height * 0.03),],
+              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+            ],
           ),
         );
       },

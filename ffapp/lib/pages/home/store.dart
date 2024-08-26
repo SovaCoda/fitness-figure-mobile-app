@@ -18,11 +18,9 @@ class FigureInstancesProvider extends ChangeNotifier {
     this.listOfFigureInstances = listOfFigureInstances;
   }
 
-  void setFigureInstanceCurSkin(String figureName, String curSkin) {
-    listOfFigureInstances
-        .where((element) => element.figureName == figureName)
-        .first
-        .curSkin = curSkin.substring(4);
+  void setFigureInstanceCurSkin(
+      String figureName, String curSkin, int selectedFigureIndex) {
+    listOfFigureInstances[selectedFigureIndex].curSkin = curSkin.substring(4);
     notifyListeners();
   }
 }
@@ -74,6 +72,7 @@ class _StoreState extends State<Store> {
   }
 
   void showSkinView(String figureName) {
+    print("Showing skin view for figure: $figureName");
     showDialog(
       context: context,
       builder: (context) {
@@ -205,7 +204,6 @@ class _StoreState extends State<Store> {
       body: SingleChildScrollView(
         child: (Column(
           children: [
-            
             const SizedBox(
               height: 30,
             ),
@@ -266,6 +264,7 @@ class _StoreState extends State<Store> {
                                             }
                                           },
                                           onViewSkin: (context, figureName) {
+                                            print("Viewing skin for figure: $figureName");
                                             showSkinView(
                                                 listOfFigures[index * 2]
                                                     .figureName);
@@ -289,7 +288,8 @@ class _StoreState extends State<Store> {
                                               listOfFigures[index * 2 + 1]
                                                   .price
                                                   .toString()),
-                                          isLocked: Provider.of<FigureModel>(context, listen: false).figure!.evLevel < 5 ? true : false,
+                                          isLocked:
+                                              false, //Provider.of<FigureModel>(context, listen: false).figure!.evLevel < 5 ? true : false,
                                           onOpenSkin:
                                               (context, price, skinSkinName) {
                                             subtractCurrency(context, price);
@@ -311,6 +311,7 @@ class _StoreState extends State<Store> {
                                             }
                                           },
                                           onViewSkin: (context, skinName) {
+                                            
                                             showSkinView(
                                                 listOfFigures[index * 2 + 1]
                                                     .figureName);
