@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
@@ -53,22 +56,22 @@ class HistoryModel extends ChangeNotifier {
       }
     }
 
-
     // take the day subtract 7 days to get the last week
     // determine the start of that day's week
     // go through 7 dates and check the status of those workouts
     // add those statuses to the last week list
 
-    DateTime lastWeekStart = mostRecentSunday(now.subtract(Duration(days: 7))); // get week start (sunday is 7)
-    List<DateTime?> workoutsInLastWeek = List.filled(7, null, growable: false); // track workouts in our last week
-    for(int i = 0; i < 7; i++)
-    {
+    DateTime lastWeekStart = mostRecentSunday(
+        now.subtract(Duration(days: 7))); // get week start (sunday is 7)
+    List<DateTime?> workoutsInLastWeek = List.filled(7, null,
+        growable: false); // track workouts in our last week
+    for (int i = 0; i < 7; i++) {
       DateTime curDate = lastWeekStart.add(Duration(days: i));
-      for(int j = 0; j < newWorkouts.length; j++)
-      {
+      for (int j = 0; j < newWorkouts.length; j++) {
         DateTime workoutDate = DateTime.parse(newWorkouts[j].endDate);
-        if(workoutDate.day == curDate.day && workoutDate.month == curDate.month && workoutDate.year == curDate.year)
-        {
+        if (workoutDate.day == curDate.day &&
+            workoutDate.month == curDate.month &&
+            workoutDate.year == curDate.year) {
           workoutsInLastWeek[curDate.weekday % 7] = curDate;
         }
       }
@@ -77,15 +80,15 @@ class HistoryModel extends ChangeNotifier {
     for (int i = 0; i < lastWeek.length; i++) {
       int status = 0;
       if (workoutsInLastWeek[i] == null &&
-        lastWeekStart.add(Duration(days: i)).isBefore(now)) {
-      status = 0;
+          lastWeekStart.add(Duration(days: i)).isBefore(now)) {
+        status = 0;
       } // in the past didnt workout Dark Green
       if (workoutsInLastWeek[i] == null &&
-        lastWeekStart.add(Duration(days: i)).isAfter(now)) {
-      status = 1;
+          lastWeekStart.add(Duration(days: i)).isAfter(now)) {
+        status = 1;
       } // in the future hasnt workedout Gray Surface
       if (workoutsInLastWeek[i] != null) {
-      status = 2;
+        status = 2;
       } // worked out Bright Green
 
       lastWeek[i] = status;
@@ -111,61 +114,79 @@ class HistoryModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Map<String, List<FlSpot>> getWeekData(
-      DateTime date, int curCharge, int curEv) {
+  Future<Map<String, List<FlSpot>>> getWeekData(
+      String userEmail,
+      int maxEv,
+      String figureName,
+      DateTime date,
+      int curCharge,
+      int curEv,
+      int curStreak,
+      int curWeekComplete) async {
+    //get the start of the week in utc
+    //loop through the week days and get the total charge and ev for that day from the snapshots (snapshots are a day ahead in utc subtract 1 day)
+    //add the total charge and ev to the list
+    //return the list
+
+    List<DailySnapshot> snapshots = await auth!
+        .getDailySnapshots(
+            DailySnapshot(userEmail: userEmail, figureName: figureName))
+        .then(
+      (value) {
+        return value.dailySnapshots;
+      },
+    );
+
     DateTime weekstart = mostRecentSunday(date);
-    Map<String, List<FlSpot>> weekData = {"ev": [], "charge": []};
+    Map<String, List<FlSpot>> weekData = {
+      "charge": [],
+      "ev": [],
+      "changes": [],
+      "streakAndGoal": []
+    };
 
-    List<int> chargeAdds = [];
-    List<int> evAdds = [];
+    snapshots = snapshots
+        .where((element) => (DateTime.parse(element.date)
+                .isAfter(weekstart.add(const Duration(days: 1))) &&
+            DateTime.parse(element.date)
+                .isBefore(weekstart.add(const Duration(days: 8)))))
+        .toList();
 
+    if (isSameDay(mostRecentSunday(date), mostRecentSunday(DateTime.now()))) {
+      snapshots.add(DailySnapshot(
+          date: DateTime.now().toUtc().toString(),
+          charge: curCharge,
+          evPoints: curEv,
+          userStreak: curStreak,
+          userWeekComplete: curWeekComplete));
+    }
+
+    if (snapshots.isNotEmpty) {
+      weekData['changes']!.add(FlSpot(
+          (snapshots.last.charge - snapshots.first.charge).toDouble(),
+          (snapshots.last.evPoints - snapshots.first.evPoints).toDouble()));
+
+      weekData['streakAndGoal']!.add(FlSpot(
+          (snapshots.last.userStreak - snapshots.first.userStreak).toDouble(),
+          (snapshots.last.userWeekComplete).toDouble()));
+    }
+
+    int snapshotIterator = 0;
     for (int i = 0; i < 7; i++) {
-      DateTime curDate = weekstart.add(Duration(days: i));
-      int charge = 0;
-      int ev = 0;
-      bool foundWorkout = false;
-      if (curDate.isAfter(DateTime.now())) {
-        break;
-      }
-      for (int j = 0; j < workouts.length; j++) {
-        DateTime workoutDate = DateTime.parse(workouts[j].endDate);
-        if (workoutDate.day == curDate.day &&
-            workoutDate.month == curDate.month &&
-            workoutDate.year == curDate.year) {
-          charge += workouts[j].chargeAdd.toInt();
-          ev += workouts[j].evoAdd.toInt();
-          foundWorkout = true;
+      if (snapshotIterator < snapshots.length) {
+        if (isSameDay(weekstart.add(Duration(days: i + 1)),
+            DateTime.parse(snapshots[snapshotIterator].date))) {
+          weekData['charge']!.add(FlSpot(
+              i.toDouble() + 1, snapshots[snapshotIterator].charge.toDouble()));
+
+          double displayEv = snapshots[snapshotIterator].evPoints.toDouble();
+          if (snapshots[snapshotIterator].evPoints > maxEv) {
+            displayEv = maxEv.toDouble();
+          }
+          weekData['ev']!.add(FlSpot(i.toDouble() + 1, displayEv));
+          snapshotIterator++;
+          continue;
         }
-        if (j == workouts.length - 1 && !foundWorkout) {
-          charge = -5;
-        }
-      }
-      chargeAdds.add(charge);
-      evAdds.add(ev);
-    }
-    int totalCharge = curCharge;
-    int totalEv = curEv;
-
-    List<int> oldChargeAdds = chargeAdds;
-    chargeAdds.last = curCharge;
-
-    List<int> oldEvAdds = evAdds.toList();
-    evAdds.last = curEv;
-
-    for (int i = chargeAdds.length - 2; i >= 0; i--) {
-      chargeAdds[i] = oldChargeAdds[i] + chargeAdds[i + 1];
-      evAdds[i] = evAdds[i + 1] - oldEvAdds[i + 1];
-    }
-
-    for (int i = 7; i > 0; i--) {
-      if (i > chargeAdds.length) {
-        weekData["charge"]!.add(FlSpot(i.toDouble(), 0));
-        weekData["ev"]!.add(FlSpot(i.toDouble(), 0));
-        continue;
-      } else {
-        weekData["charge"]!
-            .add(FlSpot(i.toDouble(), chargeAdds[i - 1].toDouble()));
-        weekData["ev"]!.add(FlSpot(i.toDouble(), evAdds[i - 1].toDouble()));
       }
     }
 

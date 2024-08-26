@@ -71,7 +71,7 @@ Future<void> updateEmail(String userEmail, String userPassword, String newEmail)
     AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword);
     await auth.updateEmail(userEmail, newEmail, credential); // sends email to the new email to verify the change in email
 
-    signOut();
+    signOut(context);
     GoRouter.of(context).go("/");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Success! Please sign back in.")),
@@ -89,7 +89,7 @@ Future<void> updatePassword(String userEmail, String userPassword, String newPas
   try {
   AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword); 
   await auth.updatePassword(newPassword, credential);
-  signOut();
+  signOut(context);
   GoRouter.of(context).go("/");
   ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Success! Please sign back in.")),
@@ -196,7 +196,7 @@ Future<void> updatePassword(String userEmail, String userPassword, String newPas
         // ),
         GestureDetector(
           onTap: () {
-            signOut();
+            signOut(context);
             GoRouter.of(context).go("/");
           },
           child: Container(
@@ -355,6 +355,7 @@ class getUserCredentials extends StatelessWidget {
   }
 }
 
-Future<void> signOut() async {
+Future<void> signOut(BuildContext context) async {
+  Provider.of<UserModel>(context, listen: false).setUser(Routes.User());
   await FirebaseAuth.instance.signOut();
 }
