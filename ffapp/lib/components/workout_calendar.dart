@@ -1,3 +1,4 @@
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/utils/history_model.dart';
@@ -30,12 +31,22 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   int _workoutMinTime = 30;
   bool showWorkoutData = true;
   Color _selectedColor = Colors.blue;
+  List<int> indicatorsShown = [];
   Map<String, List<FlSpot>> weekData = {};
+  int maxEv = 0;
+
   @override
   void initState() {
     super.initState();
 
+    DateTime weekStart = mostRecentSunday(DateTime.now());
+    DateTime weekEnd = weekStart.add(Duration(days: 6));
+
     setState(() {
+      if (widget.isInteractable) {
+        _rangeStart = weekStart;
+        _rangeEnd = weekEnd;
+      }
       showWorkoutData = widget.showWorkoutData;
       _workoutMinTime = widget.workoutMinTime;
       _selectedDay = _focusedDay;
@@ -46,19 +57,66 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     initialize();
   }
 
+  DateTime mostRecentSunday(DateTime date) {
+    return DateTime(date.year, date.month, date.day - date.weekday % 7);
+  }
+
   void initialize() async {
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {
       _selectedColor = Theme.of(context).colorScheme.primary;
+    });
+    getWeekDataForDate(DateTime.now());
+  }
 
-      weekData = Provider.of<HistoryModel>(context, listen: false)
-          .getWeekData(DateTime.now(), 21, 1100);
+  int? _chargeChange;
+  int? _evChange;
+  int? _streakChange;
+  int? _goal;
+  DateTime? _weekOfDate;
+
+  void getWeekDataForDate(DateTime date) async {
+    date = date.toUtc();
+    User user = Provider.of<UserModel>(context, listen: false).user!;
+    FigureInstance figure =
+        Provider.of<FigureModel>(context, listen: false).figure!;
+    weekData = await Provider.of<HistoryModel>(context, listen: false)
+        .getWeekData(
+            user.email,
+            figure1.EvCutoffs[figure.evLevel],
+            user.curFigure,
+            date,
+            figure.charge,
+            figure.evPoints,
+            user.streak.toInt(),
+            user.weekComplete.toInt());
+
+    indicatorsShown = weekData['charge']!.map((e) {
+      return weekData['charge']!.indexWhere((element) => element == e);
+    }).toList();
+
+    setState(() {
+      if (weekData['charge']!.isEmpty) {
+        weekData['charge']!.add(FlSpot(1, 0));
+        _chargeChange = null;
+        _evChange = null;
+        _streakChange = null;
+        _goal = null;
+      } else {
+        _chargeChange = weekData['changes']![0].x.toInt();
+        _evChange = weekData['changes']![0].y.toInt();
+        _streakChange = weekData['streakAndGoal']![0].x.toInt();
+        _goal = weekData['streakAndGoal']![0].y.toInt();
+        _weekOfDate = (date);
+      }
+
+      maxEv = figure1.EvCutoffs[figure.evLevel];
       lineBarsData = [
         LineChartBarData(
-          showingIndicators: [0, 1, 2, 3, 4, 5, 6],
+          showingIndicators: indicatorsShown,
           spots: evTrueChargeFalse ? weekData['ev']! : weekData['charge']!,
-          isCurved: true,
           color: _selectedColor,
+          isCurved: false,
         ),
       ];
     });
@@ -68,50 +126,52 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     DateTime day,
   ) {
     day = day.toUtc();
-    return Consumer<HistoryModel>(
-      builder: (_, workoutHistory, __) {
-        bool hasWorkout = false;
-        for (var workout in workoutHistory.workouts) {
-          DateTime date = DateTime.parse(workout.endDate).toLocal();
-          if (date.year == day.year &&
-              date.month == day.month &&
-              date.day == day.day &&
-              (workout.countable == 1)) {
-            hasWorkout = true;
-            break;
+    return Center(
+      child: Consumer<HistoryModel>(
+        builder: (_, workoutHistory, __) {
+          bool hasWorkout = false;
+          for (var workout in workoutHistory.workouts) {
+            DateTime date = DateTime.parse(workout.endDate).toLocal();
+            if (date.year == day.year &&
+                date.month == day.month &&
+                date.day == day.day &&
+                (workout.countable == 1)) {
+              hasWorkout = true;
+              break;
+            }
           }
-        }
-        return Container(
-          margin: const EdgeInsets.all(0),
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-              color: hasWorkout
-                  ? Theme.of(context).colorScheme.primary
-                  : day.isBefore(DateTime.now().toUtc())
-                      ? (day.day == DateTime.now().toUtc().day &&
-                              day.month == DateTime.now().toUtc().month &&
-                              day.year == DateTime.now().toUtc().year)
-                          ? Theme.of(context).colorScheme.surface
-                          : Theme.of(context).colorScheme.primaryFixedDim
-                      : Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(
-                  strokeAlign: BorderSide.strokeAlignOutside,
-                  width: 2,
-                  color: Theme.of(context).colorScheme.primary)),
-          child: Text(day.day.toString(),
-              style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                  color: hasWorkout
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : day.isBefore(DateTime.now().toUtc())
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).colorScheme.onSurface)),
-        );
-      },
+          return Container(
+            margin: const EdgeInsets.all(0),
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                color: hasWorkout
+                    ? Theme.of(context).colorScheme.primary
+                    : day.isBefore(DateTime.now().toUtc())
+                        ? (day.day == DateTime.now().toUtc().day &&
+                                day.month == DateTime.now().toUtc().month &&
+                                day.year == DateTime.now().toUtc().year)
+                            ? Theme.of(context).colorScheme.surface
+                            : Theme.of(context).colorScheme.primaryFixedDim
+                        : Theme.of(context).colorScheme.surface,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(
+                    strokeAlign: BorderSide.strokeAlignOutside,
+                    width: 2,
+                    color: Theme.of(context).colorScheme.primary)),
+            child: Text(day.day.toString(),
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                    color: hasWorkout
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : day.isBefore(DateTime.now().toUtc())
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.onSurface)),
+          );
+        },
+      ),
     );
   }
 
@@ -131,32 +191,34 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             break;
           }
         }
-        return Container(
-          margin: const EdgeInsets.all(0),
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: hasWorkout
-                ? Theme.of(context).colorScheme.primary
-                : day.isBefore(DateTime.now().toUtc())
-                    ? (day.day == DateTime.now().toUtc().day &&
-                            day.month == DateTime.now().toUtc().month &&
-                            day.year == DateTime.now().toUtc().year)
-                        ? Theme.of(context).colorScheme.surface
-                        : Theme.of(context).colorScheme.primaryFixedDim
-                    : Theme.of(context).colorScheme.surface,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(5.0),
+        return Center(
+          child: Container(
+            margin: const EdgeInsets.all(0),
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: hasWorkout
+                  ? Theme.of(context).colorScheme.primary
+                  : day.isBefore(DateTime.now().toUtc())
+                      ? (day.day == DateTime.now().toUtc().day &&
+                              day.month == DateTime.now().toUtc().month &&
+                              day.year == DateTime.now().toUtc().year)
+                          ? Theme.of(context).colorScheme.surface
+                          : Theme.of(context).colorScheme.primaryFixedDim
+                      : Theme.of(context).colorScheme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+            child: Text(day.day.toString(),
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                    color: hasWorkout
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : day.isBefore(DateTime.now().toUtc())
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.onSurface)),
           ),
-          child: Text(day.day.toString(),
-              style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                  color: hasWorkout
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : day.isBefore(DateTime.now().toUtc())
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).colorScheme.onSurface)),
         );
       },
     );
@@ -169,6 +231,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  DateTime? _rangeStart = DateTime(2010, 10, 16);
+  DateTime? _rangeEnd = DateTime(2010, 10, 22);
 
   bool evTrueChargeFalse = false;
   List<LineChartBarData> lineBarsData = [];
@@ -181,8 +245,66 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           firstDay: DateTime.utc(2010, 10, 16),
           lastDay: DateTime.utc(2030, 3, 14),
           focusedDay: _focusedDay,
+          rangeStartDay: _rangeStart,
+          rangeEndDay: _rangeEnd,
           calendarFormat: _calendarFormat,
           calendarBuilders: CalendarBuilders(
+            rangeStartBuilder: (context, day, focusedDay) {
+              return _buildCellDate(day);
+            },
+            rangeEndBuilder: (context, day, focusedDay) {
+              return _buildCellDate(day);
+            },
+            rangeHighlightBuilder: (context, day, focusedDay) {
+              return ((day.isAfter(_rangeStart!) ||
+                          (isSameDay(_rangeStart, day))) &&
+                      day.isBefore(_rangeEnd!))
+                  ? Container(
+                      margin: const EdgeInsets.only(top: 1, bottom: 1),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topLeft: isSameDay(day, _rangeStart)
+                                  ? Radius.circular(5)
+                                  : Radius.circular(0),
+                              bottomLeft: isSameDay(day, _rangeStart)
+                                  ? Radius.circular(5)
+                                  : Radius.circular(0),
+                              topRight: isSameDay(day, _rangeEnd)
+                                  ? Radius.circular(5)
+                                  : Radius.circular(0),
+                              bottomRight: isSameDay(day, _rangeEnd)
+                                  ? Radius.circular(5)
+                                  : Radius.circular(0)),
+                          border: Border(
+                            top: BorderSide(
+                                strokeAlign: BorderSide.strokeAlignInside,
+                                width: 2,
+                                color: Theme.of(context).colorScheme.primary),
+                            bottom: BorderSide(
+                                strokeAlign: BorderSide.strokeAlignInside,
+                                width: 2,
+                                color: Theme.of(context).colorScheme.primary),
+                            left: isSameDay(day, _rangeStart)
+                                ? BorderSide(
+                                    strokeAlign: BorderSide.strokeAlignInside,
+                                    width: 2,
+                                    color:
+                                        Theme.of(context).colorScheme.primary)
+                                : BorderSide.none,
+                            right: isSameDay(day, _rangeEnd)
+                                ? BorderSide(
+                                    strokeAlign: BorderSide.strokeAlignInside,
+                                    width: 2,
+                                    color:
+                                        Theme.of(context).colorScheme.primary)
+                                : BorderSide.none,
+                          )),
+                    )
+                  : Container();
+            },
+            withinRangeBuilder: (context, day, focusedDay) {
+              return _buildCellDate(day);
+            },
             todayBuilder: (context, day, focusedDay) {
               return _buildCellDate(day);
             },
@@ -201,25 +323,25 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           },
           onDaySelected: (selectedDay, focusedDay) {
             if (!isSameDay(_selectedDay, selectedDay) && _interactable) {
-              List<Workout> workouts =
-                  Provider.of<HistoryModel>(context, listen: false).workouts;
-              for (var workout in workouts) {
-                DateTime date = DateTime.parse(workout.endDate).toLocal();
-                if (date.year == selectedDay.year &&
-                    date.month == selectedDay.month &&
-                    date.day == selectedDay.day &&
-                    (workout.elapsed.toInt() / 60 >= _workoutMinTime)) {
-                  setState(() {
-                    workoutData = workout;
-                  });
-                  break;
-                } else {
-                  workoutData = null;
-                }
-              }
+              DateTime weekStart = mostRecentSunday(selectedDay);
+              DateTime weekEnd = weekStart.add(Duration(days: 6));
+
+              getWeekDataForDate(selectedDay);
+
+              evTrueChargeFalse
+                  ? _showEvoData(context)
+                  : _showChargeData(context);
+              Color selectedColor = evTrueChargeFalse
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary;
               setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
+                if (_interactable) {
+                  _selectedColor = selectedColor;
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                  _rangeStart = weekStart;
+                  _rangeEnd = weekEnd;
+                }
               });
             }
           },
@@ -294,9 +416,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           ),
         ),
         if (showWorkoutData)
-          workoutData == null
-              ? const Text('no workouts for this day')
-              : GradientedContainer(
+          _chargeChange != null
+              ? GradientedContainer(
                   height: 300,
                   margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
@@ -304,7 +425,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Week of August 9, 2024",
+                        "Week of ${_weekOfDate!.month}/${_weekOfDate!.day}/${_weekOfDate!.year}",
                         textAlign: TextAlign.start,
                         style: Theme.of(context)
                             .textTheme
@@ -324,30 +445,40 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Total Time\n 1:32:42',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium!
-                                  .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface)),
-                          Text('Weekly Goal\n 2/4',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium!
-                                  .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface)),
-                          Text('Streak\n +2 Days',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium!
-                                  .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary))
+                          Consumer<UserModel>(
+                            builder: (_, user, __) {
+                              return Row(
+                                children: [
+                                  Text('Weekly Goal ',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displaySmall!
+                                          .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface)),
+                                  Text('${"$_goal/${user.user!.weekGoal}"}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displaySmall!
+                                          .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary)),
+                                ],
+                              );
+                            },
+                          ),
+                          // cant figure out a good way to track this so just waysiding it for now
+                          // Text(
+                          //     'Streak\n ${_streakChange! < 0 ? "BROKEN" : "+$_streakChange"}',
+                          //     style: Theme.of(context)
+                          //         .textTheme
+                          //         .displayMedium!
+                          //         .copyWith(
+                          //             color: Theme.of(context)
+                          //                 .colorScheme
+                          //                 .tertiary))
                         ],
                       ),
                       Container(
@@ -358,7 +489,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                         child: LineChart(
                           LineChartData(
                               showingTooltipIndicators:
-                                  toolTipSpots.map((index) {
+                                  indicatorsShown.map((index) {
                                 return ShowingTooltipIndicators([
                                   LineBarSpot(
                                       lineBarsData[0],
@@ -419,7 +550,11 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                       (List<LineBarSpot> lineBarsSpot) {
                                     return lineBarsSpot.map((lineBarSpot) {
                                       return LineTooltipItem(
-                                        lineBarSpot.y.toString(),
+                                        evTrueChargeFalse
+                                            ? lineBarSpot.y == maxEv.toDouble()
+                                                ? "MAX"
+                                                : lineBarSpot.y.toString()
+                                            : lineBarSpot.y.toString(),
                                         TextStyle(
                                             color: _selectedColor,
                                             fontWeight: FontWeight.bold,
@@ -433,7 +568,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                               minX: 1,
                               maxX: 7,
                               minY: evTrueChargeFalse ? 0 : 0,
-                              maxY: evTrueChargeFalse ? 1500 : 100,
+                              maxY: evTrueChargeFalse ? maxEv.toDouble() : 100,
                               titlesData: FlTitlesData(
                                   bottomTitles: AxisTitles(
                                       sideTitles: SideTitles(
@@ -461,7 +596,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                           FfButton(
                               width: 120,
                               height: 40,
-                              text: "Charge +3%",
+                              text:
+                                  "Charge ${_chargeChange! > 0 ? "+$_chargeChange" : "$_chargeChange"}%",
                               textStyle:
                                   Theme.of(context).textTheme.displaySmall!,
                               textColor:
@@ -472,7 +608,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                           FfButton(
                               width: 120,
                               height: 40,
-                              text: "Evo +212",
+                              text:
+                                  "Evo ${_evChange! > 0 ? "+$_evChange" : "$_evChange"}",
                               textStyle:
                                   Theme.of(context).textTheme.displaySmall!,
                               textColor:
@@ -484,7 +621,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                       ),
                     ],
                   ),
-                ),
+                )
+              : Text("No data available for this week"),
       ],
     );
   }
@@ -495,9 +633,9 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       _selectedColor = Theme.of(context).colorScheme.primary;
       lineBarsData = [
         LineChartBarData(
-          showingIndicators: [0, 1, 2, 3, 4, 5, 6],
+          showingIndicators: indicatorsShown,
           spots: weekData['charge']!,
-          isCurved: true,
+          isCurved: false,
           color: _selectedColor,
         ),
       ];
@@ -510,16 +648,14 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       _selectedColor = Theme.of(context).colorScheme.secondary;
       lineBarsData = [
         LineChartBarData(
-          showingIndicators: [0, 1, 2, 3, 4, 5, 6],
+          showingIndicators: indicatorsShown,
           spots: weekData['ev']!,
-          isCurved: true,
+          isCurved: false,
           color: _selectedColor,
         ),
       ];
     });
   }
-
-  List<int> toolTipSpots = [0, 1, 2, 3, 4, 5, 6];
 }
 
 Widget dayOfWeekLabel(double value, TitleMeta meta) {
