@@ -27,14 +27,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
 
+  SelectedFigureProvider() {
+    _loadSelectedIndex();
+  }
+
+
   int get selectedFigureIndex => _selectedFigureIndex;
 
-  void setSelectedFigureIndex(int index) {
+  void setSelectedFigureIndex(int index) async {
     _selectedFigureIndex = index;
+    notifyListeners();
+    
+    // Save the selected index
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('selectedFigureIndex', index);
+  }
+
+  Future<void> _loadSelectedIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    _selectedFigureIndex = prefs.getInt('selectedFigureIndex') ?? 0;
     notifyListeners();
   }
 }
