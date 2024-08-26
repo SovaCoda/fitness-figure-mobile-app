@@ -146,7 +146,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   FigureInstance figure =
                       Provider.of<FigureModel>(context, listen: false).figure!;
                   if (isComplete) {
-                    auth.resetUserWeekComplete(user);
+                    await auth.resetUserWeekComplete(user);
                     user.weekComplete = Int64(0);
                     user.readyForWeekReset = 'no';
                     user.isInGracePeriod = 'no';
