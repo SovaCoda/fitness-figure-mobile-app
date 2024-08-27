@@ -32,6 +32,7 @@ class InventoryItem extends StatelessWidget {
     return Consumer<FigureModel>(
       builder: (context, figureModel, _) {
         return GradientedContainer(
+          height: MediaQuery.of(context).size.height * 0.33, // ensure the same height on each device and no overflow
           borderColor: isSelected
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surface,

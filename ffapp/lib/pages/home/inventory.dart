@@ -62,66 +62,66 @@ Widget build(BuildContext context) {
     builder: (context, selectedFigureProvider, _) {
       return Column(
         children: [
+          SizedBox(height: 10), // Top gap
           Consumer<UserModel>(
             builder: (context, userModel, _) {
+              int totalSlots = figureInstancesList.length + 2;
               return Column(
                 children: [
-                  for (int i = 0; i < (figureInstancesList.length + 1) ~/ 2; i++)
+                  for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: i * 2 < figureInstancesList.length
-                              ? GestureDetector(
-                                  onTap: () => selectFigure(i * 2),
-                                  child: InventoryItem(
-                                    figureInstance: figureInstancesList[i * 2],
-                                    photoPath: ("${figureInstancesList[i * 2].figureName}/${figureInstancesList[i * 2].figureName}_skin${figureInstancesList[i * 2].curSkin}_evo${figureInstancesList[i * 2].evLevel}_cropped_happy"),
-                                    equiped: figureInstancesList[i * 2].figureName.toString() == userModel.user?.curFigure,
-                                    onEquip: (context) => equipNew(figureInstancesList[i * 2].figureName.toString(), i * 2),
-                                    isSelected: selectedFigureProvider.selectedFigureIndex == i * 2,
-                                  ),
-                                )
-                              : InventoryItem(
-                                  figureInstance: null,
-                                  locked: true,
-                                  photoPath: "null",
-                                  equiped: false,
-                                  onEquip: (context) => {},
-                                ),
+                          child: _buildInventorySlot(context, i * 2, userModel, selectedFigureProvider),
                         ),
                         SizedBox(width: 10),
                         Expanded(
-                          child: i * 2 + 1 < figureInstancesList.length
-                              ? GestureDetector(
-                                  onTap: () => selectFigure(i * 2 + 1),
-                                  child: InventoryItem(
-                                    figureInstance: figureInstancesList[i * 2 + 1],
-                                    photoPath: ("${figureInstancesList[i * 2 + 1].figureName}/${figureInstancesList[i * 2 + 1].figureName}_skin${figureInstancesList[i * 2 + 1].curSkin}_evo${figureInstancesList[i * 2 + 1].evLevel}_cropped_happy"),
-                                    equiped: figureInstancesList[i * 2 + 1].figureName.toString() == userModel.user?.curFigure,
-                                    onEquip: (context) => equipNew(figureInstancesList[i * 2 + 1].figureName.toString(), i * 2 + 1),
-                                    isSelected: selectedFigureProvider.selectedFigureIndex == i * 2 + 1,
-                                  ),
-                                )
-                              : InventoryItem(
-                                  figureInstance: null,
-                                  locked: true,
-                                  photoPath: "null",
-                                  equiped: false,
-                                  onEquip: (context) => {},
-                                ),
+                          child: _buildInventorySlot(context, i * 2 + 1, userModel, selectedFigureProvider),
                         ),
                       ],
                     ),
+                    SizedBox(height: 10), // Gap between rows
+                  ],
                 ],
               );
             },
-          )
+          ),
+          SizedBox(height: 10), // Bottom gap
         ],
       );
     },
   );
 }
+
+Widget _buildInventorySlot(BuildContext context, int index, UserModel userModel, SelectedFigureProvider selectedFigureProvider) {
+  if (index < figureInstancesList.length) {
+    return GestureDetector(
+      onTap: () => selectFigure(index),
+      child: InventoryItem(
+        figureInstance: figureInstancesList[index],
+        photoPath: ("${figureInstancesList[index].figureName}/${figureInstancesList[index].figureName}_skin${figureInstancesList[index].curSkin}_evo${figureInstancesList[index].evLevel}_cropped_happy"),
+        equiped: figureInstancesList[index].figureName.toString() == userModel.user?.curFigure,
+        onEquip: (context) => equipNew(figureInstancesList[index].figureName.toString(), index),
+        isSelected: selectedFigureProvider.selectedFigureIndex == index,
+      ),
+    );
+  } else if (index < figureInstancesList.length + 2) {
+    // Additional slots for future figures
+    return InventoryItem(
+      figureInstance: null,
+      locked: true,
+      photoPath: "null",
+      equiped: false,
+      onEquip: (context) => {},
+    );
+  } else {
+    // Empty slot
+    return SizedBox();
+  }
+}
+
+
   void equipNew(String newFigureName, int figureIndex) {
   Provider.of<UserModel>(context, listen: false).setUser(Routes.User(
     email: Provider.of<UserModel>(context, listen: false).user?.email,
