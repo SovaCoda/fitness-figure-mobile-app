@@ -52,6 +52,7 @@ class _InventoryState extends State<Inventory> {
 
   void selectFigure(int index) {
     Provider.of<SelectedFigureProvider>(context, listen: false).setSelectedFigureIndex(index);
+    Provider.of<FigureModel>(context, listen: false).setFigure(figureInstancesList[index]);
     equipNew(figureInstancesList[index].figureName.toString(), index);
   }
 
