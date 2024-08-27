@@ -13,18 +13,22 @@ class InventoryItem extends StatelessWidget {
   final Function(BuildContext) onEquip;
   final bool locked;
   final FigureInstance? figureInstance;
+  final bool isSelected;
+
   const InventoryItem(
       {super.key,
       required this.photoPath,
       required this.equiped,
       required this.onEquip,
       required this.figureInstance,
-      this.locked = false});
+      this.locked = false,
+      this.isSelected = false,
+      });
 
   @override
   Widget build(BuildContext context) {
     return GradientedContainer(
-      borderColor: equiped
+      borderColor: isSelected
           ? Theme.of(context).colorScheme.primary
           : Theme.of(context).colorScheme.surface,
       radius: 1.3,

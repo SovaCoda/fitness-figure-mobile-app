@@ -20,6 +20,7 @@ class EvolutionItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
+        border: isUnlocked ? Border.all(color: Theme.of(context).colorScheme.secondary, width: 2) : null
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,

@@ -294,7 +294,7 @@ class _EvolutionPageState extends State<EvolutionPage>
                                         shrinkWrap: true,
                                         children: [
                                           EvolutionItem(
-                                            title: 'EVO ${figure.EVLevel + 1}',
+                                            title: 'EVO ${figure.EVLevel + 2}',
                                             upgrades: figure1.figureEvUpgrades[figure.EVLevel + 1], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
                                           ),
                                         ],

@@ -251,7 +251,7 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                       )
                   ],
                 ),
-                if(!owned)
+                if(!owned && !widget.isLocked)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[900], foregroundColor: Colors.white),
                     onPressed: _buyFigure,
