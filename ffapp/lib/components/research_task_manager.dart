@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 class ResearchTask {
   final String id;
   final String title;
-  final int chance;
+  int chance;
   final int ev;
   final Duration duration;
   DateTime? startTime;
@@ -113,7 +113,7 @@ class ResearchTaskManager {
   ResearchTask _createRandomTask() {
     String id = _uuid.v4();
     int chance = 5 + _random.nextInt(46);
-    int durationMinutes = (15 + _random.nextInt(31));
+    int durationMinutes = (1 + _random.nextInt(1));
     Duration duration = Duration(minutes: durationMinutes);
 
     double evMultiplier = 0.5 + (1 / (chance / 100));

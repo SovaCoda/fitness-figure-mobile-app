@@ -152,7 +152,8 @@ class PersistantTimer {
   }
 
   void stop() {
-    classTimer!.cancel();
+    if (classTimer != null) classTimer!.cancel();
+    
   }
 
   void dispose() {

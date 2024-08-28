@@ -74,7 +74,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _lifeState = SchedulerBinding.instance!.lifecycleState;
     _listener = AppLifecycleListener(
       onDetach: () {
-        //_timer.deleteTimer();
+        _timer.deleteTimer();
         if (states['logging']! && !states['paused']!) {
           prefs!.setBool("hasOngoingWorkout", true);
           prefs!.setBool("hasOngoingWorkoutPaused", false);
@@ -99,8 +99,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   void initialize() async {
     prefs = await SharedPreferences.getInstance();
 
-    startLogging(prefs!.getBool('hasOngoingWorkoutPaused') == true);
-    startTimer(true, prefs!.getBool('hasOngoingWorkoutPaused') == true);
+    startLogging(false);
+    startTimer(true, false);
   }
 
   Future<UserModel> getUserModel() async {
@@ -108,11 +108,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     do {
       await Future.delayed(Duration(milliseconds: 100));
       userModel = Provider.of<UserModel>(context, listen: false);
-    } while (userModel.user?.workoutMinTime == null);
+    } while (userModel.user == User());
     return userModel;
   }
 
-  void startTimer(bool loadingWorkout, bool paused) async {
+  void startTimer(bool isInit, bool paused) async {
     User user = await getUserModel().then((value) => value.user!);
     Int64 timegoal = user.workoutMinTime;
     scoreIncrement = 1 / (timegoal.toDouble() * 60);
@@ -156,10 +156,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       await _timer.start();
       setState(() {
         time = Int64(_timer.getTimeInSeconds());
-        _timegoal = timegoal * 60; //convert to seconds
+        _timegoal = user!.workoutMinTime * 60; //convert to seconds
       });
     } else {
-      await _timer.start();
+      if (!isInit) await _timer.start();
     }
   }
 
