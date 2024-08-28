@@ -138,11 +138,13 @@ class _CoreState extends State<Core> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildTopSection(),
-        _buildResearchSection(),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildTopSection(),
+          _buildResearchSection(),
+        ],
+      ),
     );
   }
 
@@ -290,22 +292,24 @@ class _CoreState extends State<Core> {
    * This widget creates a button that resets the tasks for debugging.
    * Set [isDebugging] to true to enable it, but keep it disabled on the main branch.
    */
-  Widget _buildResetTasksButton({bool isDebugging = false}) {
-    return isDebugging ? ElevatedButton(
-      onPressed: _resetTasks,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
-      ),
-      child: Text(
-        'Reset tasks (for debugging)',
-        style: Theme.of(context).textTheme.displaySmall!.copyWith(
-              color: Theme.of(context).colorScheme.onPrimary,
+  Widget _buildResetTasksButton({bool isDebugging = true}) {
+    return isDebugging
+        ? ElevatedButton(
+            onPressed: _resetTasks,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
             ),
-      ),
-    ): Container();
+            child: Text(
+              'Reset tasks (for debugging)',
+              style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+            ),
+          )
+        : Container();
   }
 }

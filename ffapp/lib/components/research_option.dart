@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'dart:async';
@@ -8,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:ffapp/components/research_task_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResearchOption extends StatefulWidget {
   final ResearchTask task;
@@ -30,6 +32,9 @@ class ResearchOption extends StatefulWidget {
 class _ResearchOptionState extends State<ResearchOption> {
   late AuthService _auth;
   late FigureModel _figure;
+  late ResearchTask task;
+  late SharedPreferences prefs;
+  late PersistantTimer _timer;
 
   bool _isCountdown = false;
   bool _isExpanded = false;
@@ -43,23 +48,52 @@ class _ResearchOptionState extends State<ResearchOption> {
   int _time = 0;
   int _randValue = 0;
 
-  Timer _timer = Timer(Duration.zero, () {});
-
   @override
   void initState() {
     super.initState();
     _initializeState();
   }
 
-  void _initializeState() {
+  void _initializeState() async {
+    task = widget.task;
+    prefs = await SharedPreferences.getInstance();
+    _timer = PersistantTimer(
+        timerName: task.title,
+        prefs: prefs,
+        milliseconds: 0,
+        tickSpeedMS: 1000,
+        onTick: _updateTimer);
+    if (_timer.hasStoredTime()) {
+      if (hasStoredInvestment()) {
+        _updateInvestment(prefs.getDouble('${task.title} investment')!);
+      }
+      await _timer.loadTime();
+      setState(() {
+        _timer.stop();
+        _startTimer();
+        _isExpanded = false;
+        _currentCountdown =
+            widget.task.duration.inSeconds - _timer.getTimeInSeconds();
+        _time = _timer.getTimeInSeconds();
+        _isCountdown = true;
+        widget.onStart(widget.task.id);
+      });
+    } else {
+      _currentCountdown = widget.task.duration.inSeconds;
+      _currentChance = widget.task.chance;
+    }
     _auth = Provider.of<AuthService>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
-    _currentCountdown = widget.task.duration.inSeconds;
-    _currentChance = widget.task.chance;
+
     _randValue = Random().nextInt(100);
   }
 
+  bool hasStoredInvestment() {
+    return prefs.containsKey('${task.title} investment');
+  }
+
   void _updateInvestment(double value) {
+    prefs.setDouble('${task.title} investment', value);
     setState(() {
       _isCountdown = false;
       _investmentAmount = value;
@@ -76,18 +110,20 @@ class _ResearchOptionState extends State<ResearchOption> {
     if (widget.task.startTime == null) {
       widget.onStart(widget.task.id);
     }
-    _timer = Timer.periodic(const Duration(seconds: 1), _updateTimer);
+
+    _timer.start();
   }
 
-  void _updateTimer(Timer timer) {
-    setState(() {
-      _currentCountdown--;
-      _time++;
-      if (_currentCountdown == 0) {
-        _isCompleted = true;
-        _timer.cancel();
-      }
-    });
+  void _updateTimer() {
+    if (mounted) {
+      setState(() {
+        _currentCountdown -= 1;
+        _time = _timer.getTimeInSeconds();
+        if (_currentCountdown <= 0) {
+          _isCompleted = true;
+        }
+      });
+    }
   }
 
   void _giveRewards() async {
@@ -127,6 +163,8 @@ class _ResearchOptionState extends State<ResearchOption> {
   }
 
   void _handleSuccessCompletion() {
+    _timer.deleteTimer();
+    prefs.remove('${task.title} investment');
     setState(() {
       _giveRewards();
       _isDelete = true;
@@ -135,6 +173,8 @@ class _ResearchOptionState extends State<ResearchOption> {
   }
 
   void _handleFailureCompletion() {
+    _timer.deleteTimer();
+    prefs.remove('${task.title} investment');
     setState(() {
       _isDelete = true;
       _isExpanded = false;
@@ -144,7 +184,7 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer.stop();
     super.dispose();
   }
 
@@ -176,10 +216,10 @@ class _ResearchOptionState extends State<ResearchOption> {
   }
 
   double _getContainerHeight() {
-    if (!_isExpanded) return MediaQuery.of(context).size.height * 0.12;
+    if (!_isExpanded) return MediaQuery.of(context).size.height * 0.14;
     return _isCompleted
-        ? MediaQuery.of(context).size.height * 0.376
-        : MediaQuery.of(context).size.height * 0.315;
+        ? MediaQuery.of(context).size.height * 0.4
+        : MediaQuery.of(context).size.height * 0.4;
   }
 
   Widget _buildTitle() {
@@ -311,7 +351,6 @@ class _ResearchOptionState extends State<ResearchOption> {
     return ElevatedButton(
       onPressed: () {
         setState(() {
-          _currentChance = widget.task.chance;
           _isExpanded = !_isExpanded;
         });
       },

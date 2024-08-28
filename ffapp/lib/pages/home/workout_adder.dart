@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:ffapp/components/utils/time_utils.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
@@ -45,7 +47,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   final logger = Logger();
   bool _logging = false;
-  Timer _timer = Timer(Duration.zero, () {});
+  PersistantTimer _timer = PersistantTimer(
+      prefs: null, timerName: "workout", onTick: () => {}, tickSpeedMS: 1000);
   Int64 time = Int64(0);
   Int64 _timePassed = Int64(0);
   late Int64 _timegoal = Int64(0);
@@ -59,10 +62,29 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final int sigfigs = 2;
   bool _goalMet = false;
   int minWorkoutTime = 30;
+  SharedPreferences? prefs;
+
+  late final AppLifecycleListener _listener;
+  late AppLifecycleState? _lifeState;
+  final List<String> _lifeStates = <String>[];
 
   @override
   void initState() {
     super.initState();
+    _lifeState = SchedulerBinding.instance!.lifecycleState;
+    _listener = AppLifecycleListener(
+      onDetach: () {
+        _timer.deleteTimer();
+        if (states['logging']! && !states['paused']!) {
+          prefs!.setBool("hasOngoingWorkout", true);
+          prefs!.setBool("hasOngoingWorkoutPaused", false);
+        }
+
+        if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
+      },
+    );
+    initialize();
+
     auth = Provider.of<AuthService>(context, listen: false);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       setState(() {
@@ -74,76 +96,124 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  void startTimer() {
-    UserModel? userModel = Provider.of<UserModel>(context, listen: false);
-    User user = userModel.user != null ? userModel.user! : User();
+  void initialize() async {
+    prefs = await SharedPreferences.getInstance();
+
+    startLogging(false);
+    startTimer(true, false);
+  }
+
+  Future<UserModel> getUserModel() async {
+    UserModel userModel;
+    do {
+      await Future.delayed(Duration(milliseconds: 100));
+      userModel = Provider.of<UserModel>(context, listen: false);
+    } while (userModel.user == User());
+    return userModel;
+  }
+
+  void startTimer(bool isInit, bool paused) async {
+    User user = await getUserModel().then((value) => value.user!);
     Int64 timegoal = user.workoutMinTime;
     scoreIncrement = 1 / (timegoal.toDouble() * 60);
     logger.i(timegoal);
+
     setState(() {
       if (timegoal != Int64.ZERO) {
         _timegoal = timegoal * 60; //convert to seconds
       }
     });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        time++;
-        if (time >= _timegoal) {
-          _goalMet = true;
-          if (time == _timegoal) {
-            LocalNotificationService().showNotification(
-              id: 0,
-              title: "Goal Met!",
-              body: "You have met your workout goal.",
-            );
-            logger.i('Goal met, sending user notification');
+
+    _timer = PersistantTimer(
+        prefs: prefs,
+        timerName: "workout_timer",
+        onTick: () {
+          if (mounted) {
+            setState(() {
+              if (mounted) {
+                time = Int64(_timer.getTimeInSeconds());
+                if (time >= _timegoal) {
+                  _goalMet = true;
+                  if (time == _timegoal) {
+                    LocalNotificationService().showNotification(
+                      id: 0,
+                      title: "Goal Met!",
+                      body: "You have met your workout goal.",
+                    );
+                    logger.i('Goal met, sending user notification');
+                  }
+                }
+              }
+            });
           }
-        }
-      });
-    });
-  }
-
-  String formatSeconds(int seconds) {
-    final formatter = NumberFormat('00');
-    String hours = formatter.format((seconds / 3600).floor());
-    String minutes = formatter.format(((seconds % 3600) / 60).floor());
-    String second = formatter.format((seconds % 60));
-    return "$hours:$minutes:$second";
-  }
-
-  void startLogging() {
-    setState(() {
+        },
+        tickSpeedMS: 1000,
+        milliseconds: 0);
+    if (_timer.hasStoredTime()) {
       states["logging"] = true;
+      states["paused"] = _timer.hasStoredPauseTime();
       states["pre-logging"] = false;
+      await _timer.start();
+      setState(() {
+        time = Int64(_timer.getTimeInSeconds());
+        _timegoal = user!.workoutMinTime * 60; //convert to seconds
+      });
+    } else {
+      if (!isInit) await _timer.start();
+    }
+  }
+
+  void startLogging(bool paused) {
+    setState(() {
+      // states["logging"] = true;
+      // states["paused"] = paused;
+      // states["pre-logging"] = false;
       _logging = true;
       _startTime = DateTime.now().toUtc().toString();
     });
   }
 
-  void resumeTimer() {
+  void resumeTimer() async {
+    _timer.resume();
     setState(() {
       states['paused'] = false;
     });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        time++;
-        if (time == _timegoal) {
-          _goalMet = true;
-          LocalNotificationService().showNotification(
-            id: 0,
-            title: "Goal Met!",
-            body: "You have met your workout goal.",
-          );
-          logger.i('Goal met, sending user notification');
-        }
-      });
+  }
+
+  void pauseTimer() async {
+    _timer.pause();
+    setState(() {
+      states["paused"] = true;
     });
   }
 
-  void pauseTimer() {
-    _timer.cancel();
+  @override
+  void dispose() {
+    if (states['logging']! && !states['paused']!) {
+      prefs!.setBool("hasOngoingWorkout", true);
+      prefs!.setBool("hasOngoingWorkoutPaused", false);
+    }
+
+    if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
+    super.dispose();
+  }
+
+  Future<void> endLogging() async {
+    prefs!.setBool("hasOngoingWorkout", false);
+    prefs!.setBool("hasOngoingWorkoutPaused", false);
+    prefs!.remove("workout lastTicked");
+    prefs!.remove("workout pausedAt");
+    states["logging"] = false;
+    _timePassed = time;
     setState(() {
-      states["paused"] = true;
+      _timePassed = time;
+    });
+    _timer.deleteTimer();
+    time = Int64.ZERO;
+    _endTime = DateTime.now().toUtc().toString();
+    await awardAll(weeklyGoalMet: false);
+    setState(() {
+      _logging = false;
     });
   }
 
@@ -225,21 +295,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         prefs.getBool("hasSurveyed") == true) {}
   }
 
-  Future<void> endLogging() async {
-    states["logging"] = false;
-    _timePassed = time;
-    setState(() {
-      _timePassed = time;
-    });
-    time = Int64.ZERO;
-    _endTime = DateTime.now().toUtc().toString();
-    await awardAll(weeklyGoalMet: false);
-    setState(() {
-      _logging = false;
-      _timer.cancel();
-    });
-  }
-
   add30Seconds() {
     setState(() {
       time += Int64(30);
@@ -315,12 +370,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 backgroundColor:
                     Theme.of(context).colorScheme.surface.withAlpha(126),
                 onPressed: () => {Navigator.of(context).pop()}));
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
   }
 
   Map<String, bool> states = {
@@ -773,8 +822,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     backgroundColor:
                                         Theme.of(context).colorScheme.primary,
                                     onPressed: () {
-                                      startLogging();
-                                      startTimer();
+                                      startLogging(false);
+                                      startTimer(false, false);
                                     },
                                   ),
                           ),
