@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String formatSeconds(int seconds) {
   final formatter = NumberFormat('00');
@@ -16,4 +19,149 @@ bool isSameDay(DateTime date1, DateTime date2) {
 
 DateTime mostRecentSunday(DateTime date) {
   return DateTime(date.year, date.month, date.day - date.weekday % 7);
+}
+
+class PersistantTimer {
+  PersistantTimer(
+      {required this.timerName,
+      required this.prefs,
+      this.milliseconds = 0,
+      this.onTick,
+      this.tickSpeedMS = 1000});
+
+  SharedPreferences? prefs;
+  void Function()? onTick;
+  String timerName;
+  int tickSpeedMS;
+  int milliseconds = 0;
+  Timer? classTimer;
+
+  Future storeTime() async {
+    DateTime now = DateTime.now();
+
+    await prefs!.setString('$timerName timerStarted', now.toString());
+  }
+
+  Future storePauseTime() async {
+    DateTime now = DateTime.now();
+
+    await prefs!.setString('$timerName pausedAt', now.toString());
+  }
+
+  bool hasStoredTime() {
+    return prefs!.containsKey('$timerName timerStarted');
+  }
+
+  bool hasStoredPauseTime() {
+    return prefs!.containsKey('$timerName pausedAt');
+  }
+
+  Future loadTime() async {
+    if (hasStoredPauseTime()) {
+      String? pausedAt = prefs!.getString('$timerName pausedAt');
+      DateTime pausedAtDate = DateTime.parse(pausedAt!);
+      DateTime now = DateTime.now();
+      prefs!.setString('$timerName pausedAt', now.toString());
+      int differenceInMS = now.difference(pausedAtDate).inMilliseconds;
+      DateTime newStartDate =
+          DateTime.parse(prefs!.getString('$timerName timerStarted')!)
+              .add(Duration(milliseconds: differenceInMS));
+      prefs!.setString('$timerName timerStarted', newStartDate.toString());
+      int difference = now.difference(newStartDate).inMilliseconds;
+      milliseconds = difference;
+      return;
+    }
+
+    String? timerStarted = prefs!.getString('$timerName timerStarted');
+    //String? pausedAt = prefs!.getString('$timerName pausedAt');
+    DateTime timerStartedDate = DateTime.parse(timerStarted!);
+
+    // if (pausedAt != null) {
+    //   DateTime pausedAtDate = DateTime.parse(pausedAt);
+    //   int differenceInSeconds =
+    //       pausedAtDate.difference(DateTime.now()).inSeconds * -1;
+    //   timerStarted = timerStartedDate!
+    //       .add(Duration(seconds: differenceInSeconds))
+    //       .toString();
+    //   await prefs!.setString('$timerName timerStarted', timerStarted.toString());
+    //   await prefs!.remove('$timerName pausedAt');
+    //   timerStartedDate = DateTime.parse(timerStarted);
+    // }
+
+    DateTime now = DateTime.now();
+    int difference = now.difference(timerStartedDate).inMilliseconds;
+    milliseconds = difference;
+    classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
+      milliseconds += tickSpeedMS;
+      if (onTick != null) {
+        onTick!();
+      }
+    });
+  }
+
+  int getTimeInMilliseconds() {
+    return milliseconds;
+  }
+
+  int getTimeInSeconds() {
+    return milliseconds ~/ 1000;
+  }
+
+  int getTimeInMinutes() {
+    return milliseconds ~/ 60000;
+  }
+
+  void pause() {
+    classTimer!.cancel();
+    storePauseTime();
+  }
+
+  void resume() {
+    String? pausedAt = prefs!.getString('$timerName pausedAt');
+    DateTime pausedAtDate = DateTime.parse(pausedAt!);
+    DateTime now = DateTime.now();
+    int differenceInMS = now.difference(pausedAtDate).inMilliseconds;
+    DateTime newStartDate =
+        DateTime.parse(prefs!.getString('$timerName timerStarted')!)
+            .add(Duration(milliseconds: differenceInMS));
+
+    prefs!.remove('$timerName pausedAt');
+    prefs!.remove('$timerName pausedAt');
+    prefs!.setString('$timerName timerStarted', newStartDate.toString());
+
+    classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
+      milliseconds += tickSpeedMS;
+      if (onTick != null) {
+        onTick!();
+      }
+    });
+  }
+
+  Future start() async {
+    if (hasStoredTime()) {
+      await loadTime();
+      return;
+    }
+    classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
+      milliseconds += tickSpeedMS;
+      if (onTick != null) {
+        onTick!();
+      }
+    });
+    prefs!.setString('$timerName timerStarted', DateTime.now().toString());
+  }
+
+  void stop() {
+    classTimer!.cancel();
+  }
+
+  void dispose() {
+    classTimer!.cancel();
+  }
+
+  void deleteTimer() {
+    prefs!.remove('$timerName timerStarted');
+    prefs!.remove('$timerName pausedAt');
+    stop();
+  }
 }

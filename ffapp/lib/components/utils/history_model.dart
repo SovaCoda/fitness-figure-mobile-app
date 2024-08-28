@@ -154,7 +154,7 @@ class HistoryModel extends ChangeNotifier {
 
     if (isSameDay(mostRecentSunday(date), mostRecentSunday(DateTime.now()))) {
       snapshots.add(DailySnapshot(
-          date: DateTime.now().toUtc().toString(),
+          date: DateTime.now().toUtc().add(Duration(days: 1)).toString(),
           charge: curCharge,
           evPoints: curEv,
           userStreak: curStreak,
