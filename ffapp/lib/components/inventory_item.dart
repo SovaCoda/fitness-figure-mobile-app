@@ -13,6 +13,7 @@ class InventoryItem extends StatelessWidget {
   final Function(BuildContext) onEquip;
   final bool locked;
   final FigureInstance? figureInstance;
+<<<<<<< Updated upstream
   const InventoryItem(
       {super.key,
       required this.photoPath,
