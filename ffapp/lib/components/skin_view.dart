@@ -105,7 +105,7 @@ class _SkinViewerState extends State<SkinViewer> {
       String figureSkinName, bool owned) async {
     String currency =
         Provider.of<CurrencyModel>(context, listen: false).currency;
-    int curCurrency = int.parse(currency);
+    double curCurrency = double.parse(currency);
     if (curCurrency >= price && owned == false) {
       Provider.of<CurrencyModel>(context, listen: false)
           .setCurrency((curCurrency - price).toString());
@@ -114,7 +114,7 @@ class _SkinViewerState extends State<SkinViewer> {
           skinName: skinSkinName,
           figureName: figureSkinName));
       Provider.of<UserModel>(context, listen: false).user?.currency =
-          Int64(curCurrency - price);
+          Int64((curCurrency - price).toInt());
       await auth.updateUserDBInfo(userModel.user!);
 
       // Update the local list of skin instances

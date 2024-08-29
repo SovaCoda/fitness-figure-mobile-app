@@ -3,6 +3,7 @@ import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/evo.dart';
+import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
@@ -36,13 +37,12 @@ class SelectedFigureProvider extends ChangeNotifier {
     _loadSelectedIndex();
   }
 
-
   int get selectedFigureIndex => _selectedFigureIndex;
 
   void setSelectedFigureIndex(int index) async {
     _selectedFigureIndex = index;
     notifyListeners();
-    
+
     // Save the selected index
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('selectedFigureIndex', index);
@@ -62,9 +62,9 @@ class CurrencyModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addToCurrency(int numberToAdd) {
-    int currentCurrency = int.parse(currency);
-    String newCurrency = (currentCurrency + numberToAdd).toString();
+  void addToCurrency(double numberToAdd) {
+    double currentCurrency = double.parse(currency);
+    String newCurrency = (currentCurrency + numberToAdd).toStringAsFixed(2);
     currency = newCurrency;
     notifyListeners();
   }
@@ -121,13 +121,42 @@ class FigureModel extends ChangeNotifier {
       figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
   bool readyToEvolve = false;
 
+  Map<String, bool> capabilities = {
+    "Research Unlocked": false,
+    "Research 20% Faster": false,
+    "Task EV +20%": false,
+    "Dual Tasking": false,
+    "Halve Research Time": false
+  };
+
+  Map<String, int> capabilityUnlocks = {
+    "Research Unlocked": 1,
+    "Research 20% Faster": 2,
+    "Task EV +20%": 3,
+    "Dual Tasking": 4,
+    "Halve Research Time": 7,
+  };
+
+  void updateCapabilities(FigureInstance figure) {
+    capabilities.forEach((key, value) {
+      if (figure.evLevel >= capabilityUnlocks[key]!) {
+        capabilities[key] = true;
+      }
+      else {
+        capabilities[key] = false;
+      }
+    });
+
+    notifyListeners();
+  }
+
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
+    updateCapabilities(newFigure);
     notifyListeners();
   }
 
   int get EVLevel => figure?.evLevel ?? 0;
-
 
   String composeFigureUrl() {
     if (figure == null) {
@@ -155,16 +184,16 @@ class FigureModel extends ChangeNotifier {
   }
 
   void setFigureEv(int newValue) {
-    if (figure != null){
-    figure?.evPoints = newValue;
-    notifyListeners();
+    if (figure != null) {
+      figure?.evPoints = newValue;
+      notifyListeners();
     }
   }
 
   void setFigureCharge(int newValue) {
-    if(figure != null) {
-    figure?.charge = newValue;
-    notifyListeners();
+    if (figure != null) {
+      figure?.charge = newValue;
+      notifyListeners();
     }
   }
 

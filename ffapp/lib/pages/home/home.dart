@@ -126,9 +126,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(width: 10.0),
                     Text(
                       'FF',
-                      style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineLarge!.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                     ),
                     Icon(
                       Icons.add,
@@ -158,7 +159,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(width: 4.0),
                   ],
                 )),
-                
           ],
         ),
 

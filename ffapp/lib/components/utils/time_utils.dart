@@ -34,6 +34,7 @@ class PersistantTimer {
   String timerName;
   int tickSpeedMS;
   int milliseconds = 0;
+  int addableTime = 1000;
   Timer? classTimer;
 
   Future storeTime() async {
@@ -89,10 +90,12 @@ class PersistantTimer {
     // }
 
     DateTime now = DateTime.now();
-    int difference = now.difference(timerStartedDate).inMilliseconds;
+    int difference = ((now.difference(timerStartedDate).inMilliseconds *
+            ((1 - (tickSpeedMS / 1000)) + 1)))
+        .round();
     milliseconds = difference;
     classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
-      milliseconds += tickSpeedMS;
+      milliseconds += addableTime;
       if (onTick != null) {
         onTick!();
       }
@@ -138,12 +141,14 @@ class PersistantTimer {
   }
 
   Future start() async {
+    addableTime = 1000;
     if (hasStoredTime()) {
       await loadTime();
       return;
     }
+    
     classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
-      milliseconds += tickSpeedMS;
+      milliseconds += addableTime;
       if (onTick != null) {
         onTick!();
       }
@@ -153,7 +158,6 @@ class PersistantTimer {
 
   void stop() {
     if (classTimer != null) classTimer!.cancel();
-    
   }
 
   void dispose() {

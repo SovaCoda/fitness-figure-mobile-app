@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fixnum/fixnum.dart';
@@ -24,7 +25,7 @@ class _CoreState extends State<Core> {
   late CurrencyModel _currency;
   late Timer _currencyGenTimer;
   late UserModel _user;
-  late int? _currencyIncrement;
+  late double? _currencyIncrement;
   late AuthService _auth;
 
   @override
@@ -54,7 +55,7 @@ class _CoreState extends State<Core> {
     _auth = Provider.of<AuthService>(context, listen: false);
     _user = Provider.of<UserModel>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
-    _currencyIncrement = _getCurrencyIncrement(_figure, _user.isPremium());
+    _getCurrencyIncrement(_figure, _user.isPremium());
     await _reactivateGenerationServer();
   }
 
@@ -62,8 +63,10 @@ class _CoreState extends State<Core> {
     _currency.addToCurrency(_currencyIncrement!);
   }
 
-  int _getCurrencyIncrement(FigureModel figure, bool isPremium) {
-    return (figure.EVLevel + 1) * (isPremium ? 2 : 1);
+  double _getCurrencyIncrement(FigureModel figure, bool isPremium) {
+    _currencyIncrement =
+        (figure1.currencyGens[figure.EVLevel]) * (isPremium ? 2 : 1);
+    return _currencyIncrement!;
   }
 
   Future<void> _reactivateGenerationServer() async {
@@ -80,12 +83,12 @@ class _CoreState extends State<Core> {
       _auth.updateCurrency(0);
     } else {
       _currency.addToCurrency(difference.inSeconds * _currencyIncrement!);
-      _auth.updateCurrency(int.parse(_currency.currency));
+      _auth.updateCurrency(double.parse(_currency.currency).ceil());
     }
   }
 
   void _deactivateGenerationServer() {
-    _auth.updateCurrency(int.parse(_currency.currency));
+    _auth.updateCurrency(double.parse(_currency.currency).toInt());
     _auth.updateOfflineDateTime(Routes.OfflineDateTime(
       email: _user.user!.email,
       currency: DateTime.now().toString(),
@@ -104,11 +107,11 @@ class _CoreState extends State<Core> {
 
   Future<bool> _subtractCurrency(double investmentAmount) async {
     Routes.User? user = await _auth.getUserDBInfo();
-    int currentCurrency = int.parse(_currency.currency);
+    double currentCurrency = double.parse(_currency.currency);
     logger.i(
         "Subtracting user's currency on purchase. Amount subtracted: ${investmentAmount.round()} from $currentCurrency");
 
-    int updateCurrency = currentCurrency - investmentAmount.round();
+    double updateCurrency = currentCurrency - investmentAmount.round();
     if (updateCurrency < 0) {
       logger.i("Not enough currency to complete transaction.");
       if (mounted) {
@@ -120,7 +123,7 @@ class _CoreState extends State<Core> {
       }
     }
 
-    user!.currency = Int64(updateCurrency);
+    user!.currency = Int64(updateCurrency.ceil());
     await _auth.updateUserDBInfo(user);
     if (mounted) {
       Provider.of<CurrencyModel>(context, listen: false)
@@ -152,6 +155,17 @@ class _CoreState extends State<Core> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        Consumer<UserModel>(
+          builder: (context, figureModel, _) {
+            return Consumer<FigureModel>(
+              builder: (context, figureModel, _) {
+                _getCurrencyIncrement(figureModel, _user.isPremium());
+
+                return Container();
+              },
+            );
+          },
+        ),
         Expanded(
           child: Stack(
             alignment: Alignment.centerRight,
@@ -205,22 +219,72 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildResearchSection() {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.95,
-      height: MediaQuery.of(context).size.height * 0.51,
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          _buildResearchHeader(),
-          _taskManager.isDailyLimitReached()
-              ? _buildDailyLimitReachedMessage()
-              : _buildAvailableTasks(),
-          _buildResetTasksButton(),
-        ],
-      ),
+    return Consumer<FigureModel>(
+      builder: (_, figure, __) {
+        return Container(
+          width: MediaQuery.of(context).size.width * 0.95,
+          height: MediaQuery.of(context).size.height * 0.51,
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(
+                children: [
+                  _buildResearchHeader(),
+                  _taskManager.isDailyLimitReached()
+                      ? _buildDailyLimitReachedMessage()
+                      : _buildAvailableTasks(),
+                  _buildResetTasksButton(),
+                ],
+              ),
+              if (!figure.capabilities['Research Unlocked']!)
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  height: MediaQuery.of(context).size.height * 0.51,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      width: 2,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.lock, size: 75),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Research unlocks at ',
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium!
+                                .copyWith(fontSize: 24),
+                          ),
+                          Text(
+                            'EVO 2',
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    fontSize: 24),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 

@@ -40,6 +40,8 @@ class _ResearchOptionState extends State<ResearchOption> {
   bool _isExpanded = false;
   bool _isCompleted = false;
   bool _isDelete = false;
+  bool _isInitialized = false;
+  bool figureChanged = false;
 
   double _investmentAmount = 0;
   int _currentChance = 0;
@@ -47,6 +49,8 @@ class _ResearchOptionState extends State<ResearchOption> {
   int _currentCountdown = 0;
   int _time = 0;
   int _randValue = 0;
+  int _tickSpeed = 1000;
+  
 
   @override
   void initState() {
@@ -54,14 +58,47 @@ class _ResearchOptionState extends State<ResearchOption> {
     _initializeState();
   }
 
+  void _uponFigureChange(FigureModel figureModel, int time) {
+    if (!_isInitialized) return;
+    Map<String, bool> capabilities = figureModel.capabilities;
+    if (capabilities['Research 20% Faster'] == true) {
+      _tickSpeed = 800;
+    } else if (capabilities['Halve Research Time'] == true) {
+      _tickSpeed = 500;
+    } else {
+      _tickSpeed = 1000;
+    }
+    if (mounted) {
+    _timer = PersistantTimer(
+        timerName: task.title,
+        prefs: prefs,
+        milliseconds: time * 1000,
+        tickSpeedMS: _tickSpeed,
+        onTick: _updateTimer);
+    
+    figureChanged = true;
+}
+
+    //if(_isCountdown) {_cancelTask();}
+  }
+
   void _initializeState() async {
     task = widget.task;
     prefs = await SharedPreferences.getInstance();
+
+    Map<String, bool> capabilities =
+        Provider.of<FigureModel>(context, listen: false).capabilities;
+    if (capabilities['Research 20% Faster'] == true) {
+      _tickSpeed = 800;
+    }
+    if (capabilities['Halve Research Time'] == true) {
+      _tickSpeed = 500;
+    }
     _timer = PersistantTimer(
         timerName: task.title,
         prefs: prefs,
         milliseconds: 0,
-        tickSpeedMS: 1000,
+        tickSpeedMS: _tickSpeed,
         onTick: _updateTimer);
     if (_timer.hasStoredTime()) {
       if (hasStoredInvestment()) {
@@ -86,6 +123,7 @@ class _ResearchOptionState extends State<ResearchOption> {
     _figure = Provider.of<FigureModel>(context, listen: false);
 
     _randValue = Random().nextInt(100);
+    _isInitialized = true;
   }
 
   bool hasStoredInvestment() {
@@ -182,6 +220,17 @@ class _ResearchOptionState extends State<ResearchOption> {
     });
   }
 
+  void _cancelTask() {
+    _timer.deleteTimer();
+    prefs.remove('${task.title} investment');
+
+    _isDelete = false;
+    _isExpanded = false;
+    _isCountdown = false;
+    _isExpanded = false;
+    widget.onComplete(widget.task.id);
+  }
+
   @override
   void dispose() {
     _timer.stop();
@@ -191,6 +240,9 @@ class _ResearchOptionState extends State<ResearchOption> {
   @override
   Widget build(BuildContext context) {
     if (_isDelete) return Container();
+
+    Provider.of<FigureModel>(context, listen: false)
+        .addListener(() => _uponFigureChange(_figure, _time));
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -298,13 +350,19 @@ class _ResearchOptionState extends State<ResearchOption> {
   Widget _buildTimer() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        if (_tickSpeed != 1000)
+          Text("+${(1000 - _tickSpeed) / 10}%  ",
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall!
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface)),
         Text(
           _isCountdown
               ? _formatDuration(Duration(seconds: _currentCountdown))
               : _formatDuration(widget.task.duration),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         const Icon(Icons.access_time, size: 20),
       ],
