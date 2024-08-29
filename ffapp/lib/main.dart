@@ -119,13 +119,15 @@ class InventoryModel extends ChangeNotifier {
 class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure = Routes.FigureInstance(
       figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
-  int EVLevel = 0;
   bool readyToEvolve = false;
 
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
     notifyListeners();
   }
+
+  int get EVLevel => figure?.evLevel ?? 0;
+
 
   String composeFigureUrl() {
     if (figure == null) {
@@ -146,21 +148,32 @@ class FigureModel extends ChangeNotifier {
   }
 
   void setFigureLevel(int newValue) {
-    if (newValue <= 7) {
-      EVLevel = newValue;
+    if (figure != null && newValue <= 7) {
       figure?.evLevel = newValue;
       notifyListeners();
     }
   }
 
   void setFigureEv(int newValue) {
+    if (figure != null){
     figure?.evPoints = newValue;
     notifyListeners();
+    }
   }
 
   void setFigureCharge(int newValue) {
+    if(figure != null) {
     figure?.charge = newValue;
     notifyListeners();
+    }
+  }
+
+  int getFigureEvPoints(String figureName) {
+    return figure?.figureName == figureName ? figure!.evPoints : 0;
+  }
+
+  int getFigureEvLevel(String figureName) {
+    return figure?.figureName == figureName ? figure!.evLevel : 0;
   }
 }
 
