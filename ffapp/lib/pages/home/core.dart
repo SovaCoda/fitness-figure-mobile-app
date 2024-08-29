@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fixnum/fixnum.dart';
@@ -24,7 +25,7 @@ class _CoreState extends State<Core> {
   late CurrencyModel _currency;
   late Timer _currencyGenTimer;
   late UserModel _user;
-  late int? _currencyIncrement;
+  late double? _currencyIncrement;
   late AuthService _auth;
 
   @override
@@ -59,11 +60,12 @@ class _CoreState extends State<Core> {
   }
 
   void _handleCurrencyUpdate() {
-    _currency.addToCurrency(_currencyIncrement!);
+    _currency.addToCurrency(_currencyIncrement!.toInt());
   }
 
-  int _getCurrencyIncrement(FigureModel figure, bool isPremium) {
-    return (figure.EVLevel + 1) * (isPremium ? 2 : 1);
+  double _getCurrencyIncrement(FigureModel figure, bool isPremium) {
+    return (figure1.figureCurrencyGens[figure.EVLevel]) *
+        (isPremium ? 2 : 1);
   }
 
   Future<void> _reactivateGenerationServer() async {
@@ -79,7 +81,8 @@ class _CoreState extends State<Core> {
     if (difference.inSeconds < 0) {
       _auth.updateCurrency(0);
     } else {
-      _currency.addToCurrency(difference.inSeconds * _currencyIncrement!);
+      _currency
+          .addToCurrency(difference.inSeconds * _currencyIncrement!.toInt());
       _auth.updateCurrency(int.parse(_currency.currency));
     }
   }

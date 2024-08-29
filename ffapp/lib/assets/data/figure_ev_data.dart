@@ -6,6 +6,7 @@ class figureEvData {
   int evRequirementGainPerLevel = 0;
   int levelScaleFactor = 0;
   List<List<String>> figureEvUpgrades = [];
+  List<double> figureCurrencyGens = [];
 
   figureEvData({
     required this.figureName,
@@ -14,6 +15,7 @@ class figureEvData {
     this.evRequirementGainPerLevel = 0,
     this.levelScaleFactor = 0,
     this.figureEvUpgrades = const [],
+    this.figureCurrencyGens = const [],
   }) {
     EvCutoffs = _generateEvCutoffs;
   }
@@ -29,9 +31,10 @@ class figureEvData {
 figureEvData figure1 = figureEvData(
   numberOfEvolutions: 8,
   baseEvRequired: 100,
-  evRequirementGainPerLevel: 200,
+  evRequirementGainPerLevel: 800,
   levelScaleFactor: 2,
   figureName: "robot1",
+  figureCurrencyGens: [0.05, 0.10, 0.25, 0.50, 0.75, 1.00, 1.25, 1.50],
   figureEvUpgrades: [
     ["\$0.05/Sec"],
     ["\$0.25/Sec", "Research Unlocked"],

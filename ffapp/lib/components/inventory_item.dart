@@ -20,6 +20,19 @@ class InventoryItem extends StatelessWidget {
       required this.onEquip,
       required this.figureInstance,
       this.locked = false});
+=======
+  final bool isSelected;
+
+  const InventoryItem({
+    super.key,
+    required this.photoPath,
+    required this.equiped,
+    required this.onEquip,
+    required this.figureInstance,
+    this.locked = false,
+    this.isSelected = false,
+  });
+>>>>>>> Stashed changes
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +54,23 @@ class InventoryItem extends StatelessWidget {
                     size: 40, color: Theme.of(context).colorScheme.primary),
               ),
             ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 25),
+              locked
+                  ? Icon(
+                      size: MediaQuery.of(context).size.width / 4,
+                      Icons.lock,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    )
+                  : RobotImageHolder(
+                      url: photoPath,
+                      height: MediaQuery.of(context).size.height / 3.2,
+                      width: 200),
+              const SizedBox(height: 10),
+            ],
+          ),
           Positioned(
             left: 10,
             bottom: 10,
@@ -68,23 +98,6 @@ class InventoryItem extends StatelessWidget {
                 : Text("--",
                     style: Theme.of(context).textTheme.displayMedium!.copyWith(
                         color: Theme.of(context).colorScheme.secondary)),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 25),
-              locked
-                  ? Icon(
-                      size: MediaQuery.of(context).size.width / 4,
-                      Icons.lock,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    )
-                  : RobotImageHolder(
-                      url: photoPath,
-                      height: MediaQuery.of(context).size.height / 3.5,
-                      width: 200),
-              const SizedBox(height: 10),
-            ],
           ),
         ],
       ),

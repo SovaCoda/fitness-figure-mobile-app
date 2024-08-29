@@ -74,7 +74,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _lifeState = SchedulerBinding.instance!.lifecycleState;
     _listener = AppLifecycleListener(
       onDetach: () {
-        _timer.deleteTimer();
         if (states['logging']! && !states['paused']!) {
           prefs!.setBool("hasOngoingWorkout", true);
           prefs!.setBool("hasOngoingWorkoutPaused", false);

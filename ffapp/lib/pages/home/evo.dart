@@ -34,7 +34,7 @@ class _EvolutionPageState extends State<EvolutionPage>
   late Animation<double> _figureFadeAnimation;
 
   late FigureModel figure = FigureModel();
-  int _evolutionCost = 0;   
+  int _evolutionCost = 0;
   bool _isAnimating = false;
   bool _showNewBenefits = false;
   bool _isEvolved = false;
@@ -179,7 +179,8 @@ class _EvolutionPageState extends State<EvolutionPage>
     FigureModel userFigure = Provider.of<FigureModel>(context, listen: false);
     int currentEVPoints = userFigure.figure!.evPoints;
     int updatedEVPoints = currentEVPoints - _evolutionCost;
-    logger.i("Attempting to make transaction of cost $_evolutionCost on current points $currentEVPoints");  
+    logger.i(
+        "Attempting to make transaction of cost $_evolutionCost on current points $currentEVPoints");
     if (updatedEVPoints < 0) {
       logger.i("Not enough EV Points to complete transaction.");
       if (mounted) {
@@ -190,7 +191,7 @@ class _EvolutionPageState extends State<EvolutionPage>
         return false;
       }
     }
-    userFigure.figure!.evPoints = updatedEVPoints; 
+    userFigure.figure!.evPoints = updatedEVPoints;
     await auth.updateFigureInstance(userFigure.figure!);
     if (mounted) {
       Provider.of<CurrencyModel>(context, listen: false)
@@ -198,7 +199,7 @@ class _EvolutionPageState extends State<EvolutionPage>
     }
     return true;
   }
-  
+
   double? usableScreenHeight;
   @override
   Widget build(BuildContext context) {
@@ -231,7 +232,8 @@ class _EvolutionPageState extends State<EvolutionPage>
         body: Stack(alignment: Alignment.center, children: [
           Container(
               padding: const EdgeInsets.all(10),
-          margin: const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 5),
+              margin:
+                  const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 5),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(13)),
                 gradient: RadialGradient(
@@ -288,14 +290,22 @@ class _EvolutionPageState extends State<EvolutionPage>
                                       width: 200,
                                       child: GridView.count(
                                         crossAxisCount: 1,
-                                        padding: const EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(12),
                                         mainAxisSpacing: 16,
                                         crossAxisSpacing: 16,
                                         shrinkWrap: true,
                                         children: [
                                           EvolutionItem(
+<<<<<<< Updated upstream
                                             title: 'EVO ${figure.EVLevel + 1}',
                                             upgrades: figure1.figureEvUpgrades[figure.EVLevel + 1], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+=======
+                                            title: 'EVO ${figure.EVLevel + 2}',
+                                            upgrades: figure1
+                                                .figureEvUpgrades[figure
+                                                    .EVLevel +
+                                                1], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+>>>>>>> Stashed changes
                                           ),
                                         ],
                                       ),
@@ -304,17 +314,19 @@ class _EvolutionPageState extends State<EvolutionPage>
                                 : Expanded(
                                     child: GridView.count(
                                       crossAxisCount: 2,
-                                      padding: const EdgeInsets.all(16),
+                                      padding: const EdgeInsets.all(12),
                                       mainAxisSpacing: 16,
                                       crossAxisSpacing: 16,
                                       children: [
                                         EvolutionItem(
                                           title: 'EVO ${figure.EVLevel + 1}',
-                                          upgrades: figure1.figureEvUpgrades[figure.EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+                                          upgrades: figure1.figureEvUpgrades[figure
+                                              .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
                                         ),
                                         EvolutionItem(
                                           title: 'EVO ${figure.EVLevel + 2}',
-                                          upgrades: figure1.figureEvUpgrades[figure.EVLevel + 1],
+                                          upgrades: figure1.figureEvUpgrades[
+                                              figure.EVLevel + 1],
                                           isUnlocked:
                                               false, // Adds lock icon to next line
                                         ),
@@ -341,14 +353,14 @@ class _EvolutionPageState extends State<EvolutionPage>
                                           ),
                                         ),
                                         onPressed: () async {
-                                          await subtractEVPoints() ?
-                                          setState(() {
-                                            _isAnimating = true;
-                                            _disabledButtons
-                                              ? ()
-                                              : evolveFigure();
-                                          }) : null;
-                                          
+                                          await subtractEVPoints()
+                                              ? setState(() {
+                                                  _isAnimating = true;
+                                                  _disabledButtons
+                                                      ? ()
+                                                      : evolveFigure();
+                                                })
+                                              : null;
                                         },
                                         child: Text('EVOLVE',
                                             style: Theme.of(context)
