@@ -49,90 +49,91 @@ class _InventoryState extends State<Inventory> {
         }));
   }
 
-
   void selectFigure(int index) {
-    Provider.of<SelectedFigureProvider>(context, listen: false).setSelectedFigureIndex(index);
-    Provider.of<FigureModel>(context, listen: false).setFigure(figureInstancesList[index]);
+    Provider.of<SelectedFigureProvider>(context, listen: false)
+        .setSelectedFigureIndex(index);
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigure(figureInstancesList[index]);
     equipNew(figureInstancesList[index].figureName.toString(), index);
   }
 
-@override
-Widget build(BuildContext context) {
-  return Consumer<SelectedFigureProvider>(
-    builder: (context, selectedFigureProvider, _) {
-      return Column(
-        children: [
-          SizedBox(height: 10), // Top gap
-          Consumer<UserModel>(
-            builder: (context, userModel, _) {
-              int totalSlots = figureInstancesList.length + 2;
-              return Column(
-                children: [
-                  for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: _buildInventorySlot(context, i * 2, userModel, selectedFigureProvider),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: _buildInventorySlot(context, i * 2 + 1, userModel, selectedFigureProvider),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10), // Gap between rows
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SelectedFigureProvider>(
+      builder: (context, selectedFigureProvider, _) {
+        return Column(
+          children: [
+            SizedBox(height: 10), // Top gap
+            Consumer<UserModel>(
+              builder: (context, userModel, _) {
+                int totalSlots = figureInstancesList.length + 2;
+                return Column(
+                  children: [
+                    for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: _buildInventorySlot(context, i * 2,
+                                userModel, selectedFigureProvider),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: _buildInventorySlot(context, i * 2 + 1,
+                                userModel, selectedFigureProvider),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10), // Gap between rows
+                    ],
                   ],
-                ],
-              );
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Widget _buildInventorySlot(BuildContext context, int index, UserModel userModel, SelectedFigureProvider selectedFigureProvider) {
-  if (index < figureInstancesList.length) {
-    return GestureDetector(
-      onTap: () => selectFigure(index),
-      child: InventoryItem(
-        figureInstance: figureInstancesList[index],
-        photoPath: ("${figureInstancesList[index].figureName}/${figureInstancesList[index].figureName}_skin${figureInstancesList[index].curSkin}_evo${figureInstancesList[index].evLevel}_cropped_happy"),
-        equiped: figureInstancesList[index].figureName.toString() == userModel.user?.curFigure,
-        onEquip: (context) => equipNew(figureInstancesList[index].figureName.toString(), index),
-        isSelected: selectedFigureProvider.selectedFigureIndex == index,
-      ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
-  } else if (index < figureInstancesList.length + 2) {
-    // Additional slots for future figures
-    return InventoryItem(
-      figureInstance: null,
-      locked: true,
-      photoPath: "null",
-      equiped: false,
-      onEquip: (context) => {},
-    );
-  } else {
-    // Empty slot
-    return SizedBox();
   }
-}
 
+  Widget _buildInventorySlot(BuildContext context, int index,
+      UserModel userModel, SelectedFigureProvider selectedFigureProvider) {
+    if (index < figureInstancesList.length) {
+      return GestureDetector(
+        onTap: () => selectFigure(index),
+        child: InventoryItem(
+          figureInstance: figureInstancesList[index],
+          photoPath:
+              ("${figureInstancesList[index].figureName}/${figureInstancesList[index].figureName}_skin${figureInstancesList[index].curSkin}_evo${figureInstancesList[index].evLevel}_cropped_happy"),
+          equiped: figureInstancesList[index].figureName.toString() ==
+              userModel.user?.curFigure,
+          onEquip: (context) =>
+              equipNew(figureInstancesList[index].figureName.toString(), index),
+          isSelected: selectedFigureProvider.selectedFigureIndex == index,
+        ),
+      );
+    } else if (index < figureInstancesList.length + 2) {
+      // Additional slots for future figures
+      return InventoryItem(
+        figureInstance: null,
+        locked: true,
+        photoPath: "null",
+        equiped: false,
+        onEquip: (context) => {},
+      );
+    } else {
+      // Empty slot
+      return SizedBox();
+    }
+  }
 
   void equipNew(String newFigureName, int figureIndex) {
-  Provider.of<UserModel>(context, listen: false).setUser(Routes.User(
-    email: Provider.of<UserModel>(context, listen: false).user?.email,
-    currency: Provider.of<UserModel>(context, listen: false).user?.currency,
-    weekGoal: Provider.of<UserModel>(context, listen: false).user?.weekGoal,
-    weekComplete:
-        Provider.of<UserModel>(context, listen: false).user?.weekComplete,
-    curFigure: newFigureName,
-  ));
-  auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
-  Provider.of<FigureModel>(context, listen: false).setFigure(
-      figureInstancesList[figureIndex]);
-}
-  
+    Routes.User user = Provider.of<UserModel>(context, listen: false).user!;
+    user.curFigure = newFigureName;
+    Provider.of<UserModel>(context, listen: false).setUser(user);
+
+    auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigure(figureInstancesList[figureIndex]);
   }
+}

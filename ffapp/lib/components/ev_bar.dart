@@ -18,6 +18,7 @@ class EvBar extends StatelessWidget {
   final bool areWeShadowing;
   final bool simulateCurrentGains;
   final bool didWeWorkoutToday;
+  final bool isMaxLevel;
 
   const EvBar(
       {super.key,
@@ -26,6 +27,7 @@ class EvBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.isMaxLevel = false,
       this.overrideGains = 0,
       this.didWeWorkoutToday = false,
       this.areWeShadowing = false,
@@ -84,35 +86,44 @@ class EvBar extends StatelessWidget {
           visible: showInfoBox,
           child: GestureDetector(
             onTap: () {
-              context.goNamed('Evolution');
+              if (!isMaxLevel && evoReady) context.goNamed('Evolution');
             },
             child: Container(
-              height: barHeight,
-              width: barWidth * 0.5,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(13),
-                color: evoReady
-                    ? Theme.of(context).colorScheme.secondary
-                    : Theme.of(context).colorScheme.surface,
-              ),
-              child: Center(
-                child: evoReady
-                    ? Text('EVO Ready!',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayMedium!
-                            .copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary))
-                    : Text('$currentXp/$maxXp EV',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayMedium!
-                            .copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.secondary)),
-              ),
-            ),
+                height: barHeight,
+                width: barWidth * 0.5,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(13),
+                  color: evoReady
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).colorScheme.surface,
+                ),
+                child: Center(
+                    child: isMaxLevel
+                        ? Text('MAX EVO',
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium!
+                                .copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary))
+                        : evoReady
+                            ? Text('EVO Ready!',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSecondary))
+                            : Text('$currentXp/$maxXp EV',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary)))),
           ),
         ),
         SizedBox(

@@ -125,7 +125,7 @@ class FigureModel extends ChangeNotifier {
     "Research Unlocked": false,
     "Research 20% Faster": false,
     "Task EV +20%": false,
-    "Dual Tasking": false,
+    "Multi Tasking": false,
     "Halve Research Time": false
   };
 
@@ -133,7 +133,7 @@ class FigureModel extends ChangeNotifier {
     "Research Unlocked": 1,
     "Research 20% Faster": 2,
     "Task EV +20%": 3,
-    "Dual Tasking": 4,
+    "Multi Tasking": 4,
     "Halve Research Time": 7,
   };
 
@@ -141,8 +141,7 @@ class FigureModel extends ChangeNotifier {
     capabilities.forEach((key, value) {
       if (figure.evLevel >= capabilityUnlocks[key]!) {
         capabilities[key] = true;
-      }
-      else {
+      } else {
         capabilities[key] = false;
       }
     });

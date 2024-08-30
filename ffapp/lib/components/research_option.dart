@@ -14,8 +14,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ResearchOption extends StatefulWidget {
   final ResearchTask task;
   final Function(String) onComplete;
-  final Function(String) onStart;
+  final Function(String, BuildContext) onStart;
   final Function(double) onSubtractCurrency;
+  final Function releaseLockedTasks;
 
   const ResearchOption({
     super.key,
@@ -23,6 +24,7 @@ class ResearchOption extends StatefulWidget {
     required this.onComplete,
     required this.onStart,
     required this.onSubtractCurrency,
+    required this.releaseLockedTasks,
   });
 
   @override
@@ -41,15 +43,16 @@ class _ResearchOptionState extends State<ResearchOption> {
   bool _isCompleted = false;
   bool _isDelete = false;
   bool _isInitialized = false;
+  bool _isLocked = false;
 
   double _investmentAmount = 0;
   int _currentChance = 0;
+  int _currentEv = 0;
   int _cost = 0;
   int _currentCountdown = 0;
   int _time = 0;
   int _randValue = 0;
   int _tickSpeed = 1000;
-  
 
   @override
   void initState() {
@@ -62,14 +65,18 @@ class _ResearchOptionState extends State<ResearchOption> {
     Map<String, bool> capabilities = figureModel.capabilities;
     if (capabilities['Research 20% Faster'] == true) {
       _tickSpeed = 800;
-    } else if (capabilities['Halve Research Time'] == true) {
+    }
+    if (capabilities['Halve Research Time'] == true) {
       _tickSpeed = 500;
+    }
+
+    if (capabilities['Task EV +20%']!) {
+      _currentEv = (widget.task.ev * 1.2).round();
     } else {
-      _tickSpeed = 1000;
+      _currentEv = widget.task.ev;
     }
 
     _timer.changeTickSpeedMS(_tickSpeed);
-    
   }
 
   void _initializeState() async {
@@ -83,6 +90,12 @@ class _ResearchOptionState extends State<ResearchOption> {
     }
     if (capabilities['Halve Research Time'] == true) {
       _tickSpeed = 500;
+    }
+
+    if (capabilities['Task EV +20%']!) {
+      _currentEv = (widget.task.ev * 1.2).round();
+    } else {
+      _currentEv = widget.task.ev;
     }
     _timer = PersistantTimer(
         timerName: task.title,
@@ -103,7 +116,7 @@ class _ResearchOptionState extends State<ResearchOption> {
             widget.task.duration.inSeconds - _timer.getTimeInSeconds();
         _time = _timer.getTimeInSeconds();
         _isCountdown = true;
-        widget.onStart(widget.task.id);
+        widget.onStart(widget.task.id, context);
       });
     } else {
       _currentCountdown = widget.task.duration.inSeconds;
@@ -136,7 +149,7 @@ class _ResearchOptionState extends State<ResearchOption> {
       _isCountdown = true;
     });
     if (widget.task.startTime == null) {
-      widget.onStart(widget.task.id);
+      widget.onStart(widget.task.id, context);
     }
 
     _timer.start();
@@ -156,7 +169,7 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   void _giveRewards() async {
     FigureInstance figureInstance = _figure.figure!;
-    int totalEV = figureInstance.evPoints + widget.task.ev;
+    int totalEV = figureInstance.evPoints + _currentEv;
     _figure.setFigureEv(totalEV);
     UserModel user = Provider.of<UserModel>(context, listen: false);
     figureInstance = _figure.figure!;
@@ -233,27 +246,73 @@ class _ResearchOptionState extends State<ResearchOption> {
 
     Provider.of<FigureModel>(context, listen: false)
         .addListener(() => _uponFigureChange(_figure, _time));
+    Provider.of<FigureModel>(context, listen: false)
+        .addListener(() => widget.releaseLockedTasks());
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: MediaQuery.of(context).size.width * 0.87,
-      height: _getContainerHeight(),
-      padding: const EdgeInsets.all(8),
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: _isExpanded
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.spaceBetween,
-        children: [
-          _buildTitle(),
-          _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
-        ],
-      ),
+    return Stack(
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: MediaQuery.of(context).size.width * 0.87,
+          height: _getContainerHeight(),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: _isExpanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.spaceBetween,
+            children: [
+              _buildTitle(),
+              _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
+            ],
+          ),
+        ),
+        if (widget.task.locked)
+          Container(
+            width: MediaQuery.of(context).size.width * 0.87,
+            height: _getContainerHeight(),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface,
+                width: 2,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock, size: 50),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Multi-Tasking Unlocks at ',
+                      style: Theme.of(context)
+                          .textTheme
+                          .displayMedium!
+                          .copyWith(fontSize: 16),
+                    ),
+                    Text(
+                      'EVO 5',
+                      style: Theme.of(context)
+                          .textTheme
+                          .displayMedium!
+                          .copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 16),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -316,7 +375,7 @@ class _ResearchOptionState extends State<ResearchOption> {
         ),
         const SizedBox(height: 4),
         Text(
-          '\t\t+${widget.task.ev} EV',
+          '\t\t+${_currentEv} EV',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
                 color: Theme.of(context).colorScheme.secondary,
               ),
@@ -516,7 +575,7 @@ class _ResearchOptionState extends State<ResearchOption> {
               width: MediaQuery.of(context).size.width * 0.5,
             ),
             Text(
-              '+${widget.task.ev} EV',
+              '+${_currentEv} EV',
               style: Theme.of(context).textTheme.displayMedium!.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                   ),

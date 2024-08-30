@@ -335,6 +335,7 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildAvailableTasks() {
+
     return Expanded(
       child: SingleChildScrollView(
         child: Column(
@@ -343,7 +344,8 @@ class _CoreState extends State<Core> {
               key: ValueKey(task.id),
               task: task,
               onComplete: _onTaskComplete,
-              onStart: _taskManager.startTask,
+              releaseLockedTasks: _taskManager.releaseLockedTasks,
+              onStart:  _taskManager.startTask,
               onSubtractCurrency: _subtractCurrency,
             );
           }).toList(),

@@ -318,6 +318,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       barWidth: MediaQuery.of(context).size.width * 0.9,
                       isVertical: false,
                       showInfoBox: true,
+                      isMaxLevel: figure.EVLevel == 7,
                     ),
                   );
                 },

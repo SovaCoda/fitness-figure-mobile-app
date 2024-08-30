@@ -1,12 +1,16 @@
 import 'dart:math';
+import 'package:ffapp/main.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ResearchTask {
   final String id;
   final String title;
+  bool locked = false;
   int chance;
-  final int ev;
+  int ev;
   final Duration duration;
   DateTime? startTime;
 
@@ -18,7 +22,6 @@ class ResearchTask {
     required this.duration,
     this.startTime,
   });
-
 
   factory ResearchTask.fromString(String taskString) {
     final parts = taskString.split('|');
@@ -101,12 +104,16 @@ class ResearchTaskManager {
 
   void completeTask(String taskId) {
     _completedTaskIds.add(taskId);
+    for (var task in _availableTasks) {
+      task.locked = false;
+    }
     _tasksCompletedToday++;
     _saveData();
   }
 
   void _generateNewTasks() {
-    _availableTasks = List.generate(_dailyTaskLimit, (_) => _createRandomTask());
+    _availableTasks =
+        List.generate(_dailyTaskLimit, (_) => _createRandomTask());
     _saveData();
   }
 
@@ -133,9 +140,11 @@ class ResearchTaskManager {
 
   Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
-    _completedTaskIds = Set<String>.from(prefs.getStringList('completedTaskIds') ?? []);
+    _completedTaskIds =
+        Set<String>.from(prefs.getStringList('completedTaskIds') ?? []);
     _tasksCompletedToday = prefs.getInt('tasksCompletedToday') ?? 0;
-    _lastResetDate = DateTime.parse(prefs.getString('lastResetDate') ?? DateTime.now().toIso8601String());
+    _lastResetDate = DateTime.parse(
+        prefs.getString('lastResetDate') ?? DateTime.now().toIso8601String());
 
     final savedTasks = prefs.getStringList('availableTasks') ?? [];
     _availableTasks = savedTasks.map(ResearchTask.fromString).toList();
@@ -173,8 +182,25 @@ class ResearchTaskManager {
     _saveData();
   }
 
-  void startTask(String taskId) {
+  void releaseLockedTasks() {
+    for (var task in _availableTasks) {
+      task.locked = false;
+    }
+    // _saveData();
+  }
+
+  void startTask(String taskId, BuildContext context) {
     final taskIndex = _availableTasks.indexWhere((task) => task.id == taskId);
+    if (!Provider.of<FigureModel>(context, listen: false)
+        .capabilities["Multi Tasking"]!) {
+      _availableTasks
+          .where((task) => task.id != taskId)
+          .forEach((task) => task.locked = true);
+    } else {
+      _availableTasks
+          .where((task) => task.id == taskId)
+          .forEach((task) => task.locked = false);
+    }
     if (taskIndex != -1) {
       _availableTasks[taskIndex].startTime = DateTime.now();
       _saveData();

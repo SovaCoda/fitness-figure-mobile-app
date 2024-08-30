@@ -40,7 +40,7 @@ figureEvData figure1 = figureEvData(
     ["\$0.05/Sec", "Research Unlocked"],
     ["\$0.10/Sec", "Research 20% Faster"],
     ["\$0.25/Sec", "Task EV +20%"],
-    ["\$0.50/Sec", "Dual Tasking"],
+    ["\$0.50/Sec", "Multi Tasking"],
     ["\$0.75/Sec"],
     ["\$1.00/Sec"],
     ["\$1.50/Sec", "Halve Research Time"],
