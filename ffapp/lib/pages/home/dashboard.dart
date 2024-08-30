@@ -242,7 +242,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     currentCharge: figure.figure?.charge ?? 0,
                     fillColor: Theme.of(context).colorScheme.primary,
                     barHeight: 30,
-                    barWidth: MediaQuery.of(context).size.width * 0.78,
+                    barWidth: MediaQuery.of(context).size.width * 0.74,
                     isVertical: false,
                     showDashedLines: true,
                     showInfoCircle: true,

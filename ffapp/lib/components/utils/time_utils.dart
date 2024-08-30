@@ -102,6 +102,18 @@ class PersistantTimer {
     });
   }
 
+  void changeTickSpeedMS(int tickSpeedMS) {
+    if (classTimer != null) {
+    classTimer!.cancel(); 
+    classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
+      milliseconds += addableTime;
+      if (onTick != null) {
+        onTick!();
+      }
+    });
+    }
+  }
+
   int getTimeInMilliseconds() {
     return milliseconds;
   }

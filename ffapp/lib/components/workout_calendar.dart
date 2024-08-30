@@ -418,7 +418,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         if (showWorkoutData)
           _chargeChange != null
               ? GradientedContainer(
-                  height: 300,
+                  height: 275,
                   margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
                   child: Column(

@@ -41,7 +41,6 @@ class _ResearchOptionState extends State<ResearchOption> {
   bool _isCompleted = false;
   bool _isDelete = false;
   bool _isInitialized = false;
-  bool figureChanged = false;
 
   double _investmentAmount = 0;
   int _currentChance = 0;
@@ -68,18 +67,9 @@ class _ResearchOptionState extends State<ResearchOption> {
     } else {
       _tickSpeed = 1000;
     }
-    if (mounted) {
-    _timer = PersistantTimer(
-        timerName: task.title,
-        prefs: prefs,
-        milliseconds: time * 1000,
-        tickSpeedMS: _tickSpeed,
-        onTick: _updateTimer);
-    
-    figureChanged = true;
-}
 
-    //if(_isCountdown) {_cancelTask();}
+    _timer.changeTickSpeedMS(_tickSpeed);
+    
   }
 
   void _initializeState() async {

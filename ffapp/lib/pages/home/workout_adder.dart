@@ -98,6 +98,16 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   void initialize() async {
     prefs = await SharedPreferences.getInstance();
+    User user = await getUserModel().then((value) => value.user!);
+    Int64 timegoal = user.workoutMinTime;
+    scoreIncrement = 1 / (timegoal.toDouble() * 60);
+    logger.i(timegoal);
+
+    setState(() {
+      if (timegoal != Int64.ZERO) {
+        _timegoal = timegoal * 60; //convert to seconds
+      }
+    });
 
     startLogging(false);
     startTimer(true, false);
@@ -113,17 +123,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void startTimer(bool isInit, bool paused) async {
-    User user = await getUserModel().then((value) => value.user!);
-    Int64 timegoal = user.workoutMinTime;
-    scoreIncrement = 1 / (timegoal.toDouble() * 60);
-    logger.i(timegoal);
-
-    setState(() {
-      if (timegoal != Int64.ZERO) {
-        _timegoal = timegoal * 60; //convert to seconds
-      }
-    });
-
     _timer = PersistantTimer(
         prefs: prefs,
         timerName: "workout_timer",
@@ -156,10 +155,14 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       await _timer.start();
       setState(() {
         time = Int64(_timer.getTimeInSeconds());
-        _timegoal = user!.workoutMinTime * 60; //convert to seconds
       });
     } else {
-      if (!isInit) await _timer.start();
+      if (!isInit){ 
+        await _timer.start();
+      states["logging"] = true;
+      states["paused"] = false;
+      states["pre-logging"] = false;
+        }
     }
   }
 
@@ -211,7 +214,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timer.deleteTimer();
     time = Int64.ZERO;
     _endTime = DateTime.now().toUtc().toString();
-    await awardAll(weeklyGoalMet: false);
+    await awardAll(weeklyGoalMet: false, timeGoalMet: _goalMet);
     setState(() {
       _logging = false;
     });
@@ -220,7 +223,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   int addableEV = 50;
   int addableCharge = 0;
   //function that does all the awarding in one
-  Future<void> awardAll({required bool weeklyGoalMet}) async {
+  Future<void> awardAll({required bool weeklyGoalMet, required bool timeGoalMet}) async {
     UserModel user = Provider.of<UserModel>(context, listen: false);
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
@@ -258,7 +261,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             : figureInstance.charge);
 
     // if we havent worked out today, update the user's streak and week complete
-    if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday) {
+    if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday && timeGoalMet) {
       await auth.updateUserDBInfo(Routes.User(
           email: user.user!.email,
           streak: Int64(user.user!.streak.toInt() + 1),

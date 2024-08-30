@@ -36,14 +36,15 @@ class HistoryModel extends ChangeNotifier {
   }
 
   void setWorkouts(List<Workout> newWorkouts) {
+    workedOutToday = false;
     DateTime now = DateTime.now().toLocal();
     DateTime weekstart = mostRecentSunday(now); // get week start (sunday is 7)
     List<DateTime?> workoutsInCurrentWeek = List.filled(7, null,
         growable: false); // track workouts in our current week
-    int minTime = 30; // min time is gonna be on the workout in the database
     for (int i = 0; i < newWorkouts.length; i++) {
       DateTime curDate = DateTime.parse(newWorkouts[i].endDate).toLocal();
-      bool goalMet = newWorkouts[i].elapsed.toInt() / 60 >= minTime;
+      int currentCountable = newWorkouts[i].countable;
+      bool goalMet = currentCountable == 1;
 
       if (curDate.isAfter(weekstart) && goalMet) {
         workoutsInCurrentWeek[curDate.weekday % 7] = curDate;
@@ -154,7 +155,7 @@ class HistoryModel extends ChangeNotifier {
 
     if (isSameDay(mostRecentSunday(date), mostRecentSunday(DateTime.now()))) {
       snapshots.add(DailySnapshot(
-          date: DateTime.now().toUtc().add(Duration(days: 1)).toString(),
+          date: DateTime.now().add(Duration(days: 1)).toString(),
           charge: curCharge,
           evPoints: curEv,
           userStreak: curStreak,
