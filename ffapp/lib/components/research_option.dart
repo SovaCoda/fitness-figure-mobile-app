@@ -17,6 +17,7 @@ class ResearchOption extends StatefulWidget {
   final Function(String, BuildContext) onStart;
   final Function(double) onSubtractCurrency;
   final Function releaseLockedTasks;
+  final Function lockAllInactiveTasks;
 
   const ResearchOption({
     super.key,
@@ -25,6 +26,7 @@ class ResearchOption extends StatefulWidget {
     required this.onStart,
     required this.onSubtractCurrency,
     required this.releaseLockedTasks,
+    required this.lockAllInactiveTasks,
   });
 
   @override
@@ -56,6 +58,8 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   @override
   void initState() {
+    Provider.of<FigureModel>(context, listen: false)
+        .addListener(() => _uponFigureChange(_figure, _time));
     super.initState();
     _initializeState();
   }
@@ -63,6 +67,7 @@ class _ResearchOptionState extends State<ResearchOption> {
   void _uponFigureChange(FigureModel figureModel, int time) {
     if (!_isInitialized) return;
     Map<String, bool> capabilities = figureModel.capabilities;
+    _tickSpeed = 1000;
     if (capabilities['Research 20% Faster'] == true) {
       _tickSpeed = 800;
     }
@@ -75,13 +80,17 @@ class _ResearchOptionState extends State<ResearchOption> {
     } else {
       _currentEv = widget.task.ev;
     }
+    //_lockOrUnlockTasks(figureModel);
 
     _timer.changeTickSpeedMS(_tickSpeed);
   }
 
+
   void _initializeState() async {
     task = widget.task;
     prefs = await SharedPreferences.getInstance();
+
+    _updateInvestment(0);
 
     Map<String, bool> capabilities =
         Provider.of<FigureModel>(context, listen: false).capabilities;
@@ -243,11 +252,6 @@ class _ResearchOptionState extends State<ResearchOption> {
   @override
   Widget build(BuildContext context) {
     if (_isDelete) return Container();
-
-    Provider.of<FigureModel>(context, listen: false)
-        .addListener(() => _uponFigureChange(_figure, _time));
-    Provider.of<FigureModel>(context, listen: false)
-        .addListener(() => widget.releaseLockedTasks());
 
     return Stack(
       children: [

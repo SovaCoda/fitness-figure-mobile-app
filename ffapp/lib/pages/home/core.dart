@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fixnum/fixnum.dart';
@@ -27,16 +28,17 @@ class _CoreState extends State<Core> {
   late UserModel _user;
   late double? _currencyIncrement;
   late AuthService _auth;
+  late Future<void> _intializationFuture;
 
   @override
   void initState() {
     _user = UserModel();
     _figure = FigureModel();
+
     super.initState();
-    _taskManager = ResearchTaskManager();
-    _initTaskManager();
+
     _currencyIncrement = 0;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
+    _intializationFuture = _initialize();
   }
 
   Future<void> _initTaskManager() async {
@@ -50,13 +52,17 @@ class _CoreState extends State<Core> {
       (_) => _handleCurrencyUpdate(),
     );
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 1000));
     if (!mounted) return;
     _auth = Provider.of<AuthService>(context, listen: false);
     _user = Provider.of<UserModel>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
     _getCurrencyIncrement(_figure, _user.isPremium());
     await _reactivateGenerationServer();
+    _taskManager = ResearchTaskManager(figureModel: _figure);
+    await _initTaskManager();
+    Provider.of<SelectedFigureProvider>(context, listen: false)
+        .addListener(() => lockOrUnlock());
   }
 
   void _handleCurrencyUpdate() {
@@ -139,15 +145,35 @@ class _CoreState extends State<Core> {
     super.dispose();
   }
 
+  void lockOrUnlock() {
+    if (mounted) {
+      FigureModel figure = Provider.of<FigureModel>(context, listen: false);
+      if (!figure.capabilities['Multi Tasking']!) {
+        _taskManager.releaseLockedTasks();
+      } else {
+        _taskManager.lockAllInactiveTasks();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildTopSection(),
-          _buildResearchSection(),
-        ],
-      ),
+    return FutureBuilder(
+      future: _intializationFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTopSection(),
+                _buildResearchSection(),
+              ],
+            ),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 
@@ -335,7 +361,6 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildAvailableTasks() {
-
     return Expanded(
       child: SingleChildScrollView(
         child: Column(
@@ -345,8 +370,9 @@ class _CoreState extends State<Core> {
               task: task,
               onComplete: _onTaskComplete,
               releaseLockedTasks: _taskManager.releaseLockedTasks,
-              onStart:  _taskManager.startTask,
+              onStart: _taskManager.startTask,
               onSubtractCurrency: _subtractCurrency,
+              lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
             );
           }).toList(),
         ),

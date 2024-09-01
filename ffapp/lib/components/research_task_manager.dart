@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +43,8 @@ class ResearchTask {
 }
 
 class ResearchTaskManager {
+  final FigureModel figureModel;
+  ResearchTaskManager({required this.figureModel});
   static const int _dailyTaskLimit = 5;
   static const List<String> _taskTitles = [
     'Optimize Processors',
@@ -120,7 +123,8 @@ class ResearchTaskManager {
   ResearchTask _createRandomTask() {
     String id = _uuid.v4();
     int chance = 5 + _random.nextInt(46);
-    int durationMinutes = (1 + _random.nextInt(1));
+    int durationMinutes = ((10 * figureModel.EVLevel) +
+        (_random.nextInt(10) * figureModel.EVLevel));
     Duration duration = Duration(minutes: durationMinutes);
 
     double evMultiplier = 0.5 + (1 / (chance / 100));
@@ -182,23 +186,30 @@ class ResearchTaskManager {
     _saveData();
   }
 
-  void releaseLockedTasks() {
+  void releaseLockedTasks() async {
     for (var task in _availableTasks) {
       task.locked = false;
     }
     // _saveData();
   }
 
+  void lockAllInactiveTasks() async {
+    for (int i = 0; i < _availableTasks.length; i++) {
+      if (_availableTasks[i].startTime == null) {
+        _availableTasks[i].locked = true;
+        logger.i('Locking task ${_availableTasks[i].title}');
+      }
+    }
+  }
+
   void startTask(String taskId, BuildContext context) {
     final taskIndex = _availableTasks.indexWhere((task) => task.id == taskId);
-    if (!Provider.of<FigureModel>(context, listen: false)
-        .capabilities["Multi Tasking"]!) {
+    if (!figureModel.capabilities['Multi Tasking']!) {
       _availableTasks
-          .where((task) => task.id != taskId)
+          .where((task) => task.startTime == null)
           .forEach((task) => task.locked = true);
     } else {
       _availableTasks
-          .where((task) => task.id == taskId)
           .forEach((task) => task.locked = false);
     }
     if (taskIndex != -1) {
