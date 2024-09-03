@@ -194,6 +194,10 @@ class ResearchTaskManager {
   }
 
   void lockAllInactiveTasks() async {
+    List<ResearchTask> startedTasks = _availableTasks.where((task) => task.startTime != null).toList();
+    if (startedTasks.isEmpty) {
+      return;
+    }
     for (int i = 0; i < _availableTasks.length; i++) {
       if (_availableTasks[i].startTime == null) {
         _availableTasks[i].locked = true;
