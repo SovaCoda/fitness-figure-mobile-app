@@ -148,7 +148,7 @@ class _CoreState extends State<Core> {
   void lockOrUnlock() {
     if (mounted) {
       FigureModel figure = Provider.of<FigureModel>(context, listen: false);
-      if (!figure.capabilities['Multi Tasking']!) {
+      if (figure.capabilities['Multi Tasking']!) {
         _taskManager.releaseLockedTasks();
       } else {
         _taskManager.lockAllInactiveTasks();

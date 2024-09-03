@@ -7,10 +7,14 @@ class WeekToGoShower extends StatelessWidget {
   final Size boxSize;
   final int weekGoal;
   final bool showChevron;
+  final double invested;
+  final bool isInvesting; 
 
   const WeekToGoShower(
       {super.key,
       this.showChevron = true,
+      this.isInvesting = false,
+      this.invested = 0,
       required this.weekGoal,
       required this.workouts,
       this.boxSize = const Size(20, 20)});
@@ -37,7 +41,7 @@ class WeekToGoShower extends StatelessWidget {
               .displayMedium!
               .copyWith(color: Theme.of(context).colorScheme.primary),
         ),
-        Row(children: [
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           for (int index = 0; index < workouts.length; index++)
             Container(
               width: boxSize.width,

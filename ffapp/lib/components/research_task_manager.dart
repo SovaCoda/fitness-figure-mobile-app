@@ -206,7 +206,7 @@ class ResearchTaskManager {
     final taskIndex = _availableTasks.indexWhere((task) => task.id == taskId);
     if (!figureModel.capabilities['Multi Tasking']!) {
       _availableTasks
-          .where((task) => task.startTime == null)
+          .where((task) => (task.startTime == null) && (task.id != taskId))
           .forEach((task) => task.locked = true);
     } else {
       _availableTasks
