@@ -145,8 +145,9 @@ class _CoreState extends State<Core> {
     super.dispose();
   }
 
-  void lockOrUnlock() {
+  void lockOrUnlock() async {
     if (mounted) {
+      await Future.delayed(const Duration(milliseconds: 100));
       FigureModel figure = Provider.of<FigureModel>(context, listen: false);
       if (figure.capabilities['Multi Tasking']!) {
         _taskManager.releaseLockedTasks();

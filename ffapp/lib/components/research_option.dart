@@ -80,7 +80,7 @@ class _ResearchOptionState extends State<ResearchOption> {
     } else {
       _currentEv = widget.task.ev;
     }
-    //_lockOrUnlockTasks(figureModel);
+
 
     _timer.changeTickSpeedMS(_tickSpeed);
   }
