@@ -1,13 +1,15 @@
-import 'package:ffapp/services/auth.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/flutterUser.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/main.dart';
-import "package:firebase_auth/firebase_auth.dart" as FB;
 import 'package:fixnum/fixnum.dart';
+import 'package:bottom_picker/bottom_picker.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -17,15 +19,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  void emptyFunction() {}
-
   late AuthService auth;
-/*
-  Future<void> initAuthService() async {
-    auth = await AuthService.instance;
-    logger.i("AuthService initialized");
-  }
-*/
   FlutterUser user = FlutterUser();
   late String name = "Loading...";
   late String email = "Loading...";
@@ -44,65 +38,128 @@ class _ProfileState extends State<Profile> {
     Routes.User? databaseUser = await auth.getUserDBInfo();
     if (mounted) {
       Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+
+      String curName = databaseUser.name;
+      String curEmail = databaseUser.email;
+      int curGoal = databaseUser.weekGoal.toInt();
+      bool premiumStatus =
+          Provider.of<UserModel>(context, listen: false).isPremium();
+
+      setState(() {
+        name = curName;
+        email = curEmail;
+        password = "*******";
+        weeklyGoal = curGoal;
+        manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
+      });
     }
-    String curName = databaseUser?.name ?? "Loading...";
-    if (curName == "") {
-      curName = "No name given";
-    }
-    String curEmail = databaseUser?.email ?? "Loading...";
-    int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
-    bool premiumStatus = Provider.of<UserModel>(context, listen: false).isPremium();
+  }
+
+  void _showWeeklyGoalPicker() {
+    int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
+    BottomPicker(
+      items: List.generate(
+          7,
+          (index) => Text("${index + 1} ${index == 0 ? "day" : "days"}",
+              style: TextStyle(fontSize: 35))),
+      pickerTitle: const Text(
+        "Select Weekly Workout Goal",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      titleAlignment: Alignment.center,
+      pickerTextStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      height: MediaQuery.of(context).size.height * 0.5,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      selectedItemIndex: safeWeeklyGoal - 1,
+      itemExtent: 38,
+      dismissable: true,
+      onSubmit: (index) {
+        setState(() {
+          weeklyGoal = index + 1;
+        });
+        updateWeeklyGoal(weeklyGoal);
+      },
+      buttonAlignment: MainAxisAlignment.center,
+      displayCloseIcon: false,
+      buttonWidth: MediaQuery.of(context).size.width * 0.5,
+      buttonContent: Text("Confirm",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16),
+          textAlign: TextAlign.center),
+      buttonStyle: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: const BorderRadius.all(Radius.circular(13)),
+      ),
+      buttonSingleColor: Theme.of(context).colorScheme.primary,
+    ).show(context);
+  }
+
+  void updateName(String newName) async {
+    await auth.updateName(newName);
     setState(() {
-      name = curName;
-      email = curEmail;
-      password = "*******";
-      weeklyGoal = curGoal;
-      manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
+      name = newName;
     });
   }
 
-  void updateName(String name) async {
-    await auth.updateName(name);
+  Future updateEmail(
+      String userEmail, String userPassword, String newEmail) async {
+    try {
+      AuthCredential credential = EmailAuthProvider.credential(
+          email: userEmail, password: userPassword);
+      String result = await auth.updateEmail(userEmail, newEmail, credential);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result)),
+      );
+
+      // Don't sign out or navigate away, wait for verification
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 
-Future<void> updateEmail(String userEmail, String userPassword, String newEmail) async {
-  try {
-    // Create credential because updateEmail requires recent authorization
-    AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword);
-    await auth.updateEmail(userEmail, newEmail, credential); // sends email to the new email to verify the change in email
-
-    signOut(context);
-    GoRouter.of(context).go("/");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Success! Please sign back in.")),
-    );
-
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.toString())),
-    );
+  void checkEmailVerification(String newEmail) {
+    Timer.periodic(Duration(seconds: 5), (timer) async {
+      try {
+      User? user = FirebaseAuth.instance.currentUser;
+      await user?.reload();
+      if (user?.email == newEmail && user?.emailVerified == true) {
+        timer.cancel();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Email updated successfully!")),
+        );
+      } 
+      } on FirebaseAuthException {
+        setState(() {
+          email = newEmail;
+        });
+      }
+    });
   }
-}
 
-Future<void> updatePassword(String userEmail, String userPassword, String newPassword) async {
-  // Create credential because updatePassword requires recent authorization
-  try {
-  AuthCredential credential = EmailAuthProvider.credential(email: userEmail, password: userPassword); 
-  await auth.updatePassword(newPassword, credential);
-  signOut(context);
-  GoRouter.of(context).go("/");
-  ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Success! Please sign back in.")),
-    );
+  Future<void> updatePassword(
+      String userEmail, String userPassword, String newPassword) async {
+    try {
+      AuthCredential credential = EmailAuthProvider.credential(
+          email: userEmail, password: userPassword);
+      await auth.updatePassword(newPassword, credential);
+      signOut(context);
+      GoRouter.of(context).go("/");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Success! Please sign back in.")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
-  catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.toString())),
-    );
-  }
-}
-
-
 
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
@@ -111,248 +168,254 @@ Future<void> updatePassword(String userEmail, String userPassword, String newPas
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text("Profile",
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withAlpha(255),
-                )),
-        const SizedBox(height: 20),
-        SettingsBar(
-          name: "Name: $name",
-          onTapFunction: emptyFunction,
-          onInputChange: (newName) {
-            setState(() {
-              name = newName;
-            });
-            logger.i("Changing user name to $name");
-            updateName(name);
-          },
-        ),
-        SettingsBar(
-          onTapFunction: emptyFunction,
-          name: "Email: $email",
-          onInputChange: (newEmail) async {
-            final userPassword = await showDialog<String>(
-              context: context,
-              builder: (BuildContext context) {
-                return const getUserCredentials();
-              },
-            );
-            logger.i("Changing user name to $newEmail");
-            updateEmail(email, userPassword!, newEmail);
-            setState(() {
-              email = newEmail;
-            });
-          },
-        ),
-        SettingsBar(
-          onTapFunction: emptyFunction,
-          name: "Password: $password",
-          onInputChange: (newPassword) async {
-            final userPassword = await showDialog<String>(
-              context: context,
-              builder: (BuildContext context) {
-                return const getUserCredentials();
-              },
-            );
-            updatePassword(email, userPassword!, newPassword);
-          }
-        ),
-        SettingsBar(
-          onTapFunction: emptyFunction,
-          name: "Workout Goal: $weeklyGoal",
-          onInputChange: (newGoal) {
-            setState(() {
-              weeklyGoal = int.parse(newGoal);
-            });
-            logger.i("Changing user name to $weeklyGoal");
-            updateWeeklyGoal(weeklyGoal);
-          },
-        ),
-        Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          height: 50,
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: const Border(
-                bottom: BorderSide(color: Colors.black),
-                top: BorderSide(color: Colors.black),
-              )),
-          child: Center(
-            child: Text(
-              "Subscription: $manageSub",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.onError),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        // SettingsBar(
-        //   onTapFunction: emptyFunction,
-        //   name: "Subscription: $manageSub",
-        // ),
-        GestureDetector(
-          onTap: () {
-            signOut(context);
-            GoRouter.of(context).go("/");
-          },
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: 50,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: const Border(
-                  bottom: BorderSide(color: Colors.black),
-                  top: BorderSide(color: Colors.black),
-                )),
-            child: Center(
-              child: Text(
-                'Sign Out',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: Theme.of(context).colorScheme.onError),
+    return Scaffold(
+      backgroundColor: Colors.grey[900],
+      appBar: AppBar(
+        backgroundColor: Colors.grey[900],
+        title: Text("Profile", style: Theme.of(context).textTheme.displayLarge),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 20),
+              _buildProfileCard(
+                icon: Icons.person,
+                title: "Name",
+                value: name,
+                onTap: () => _showEditDialog("Name", name, updateName),
               ),
-            ),
+              _buildProfileCard(
+                icon: Icons.email,
+                title: "Email",
+                value: email,
+                onTap: () => _showEditDialog("Email", email, (newEmail) async {
+                  print("in edit function");
+                  final userPassword = await _showPasswordConfirmDialog();
+                  if (userPassword != null) {
+                    updateEmail(email, userPassword, newEmail);
+                  }
+                }),
+              ),
+              _buildProfileCard(
+                icon: Icons.lock,
+                title: "Password",
+                value: "********",
+                onTap: () => _showPasswordChangeDialog(),
+              ),
+              _buildWeeklyGoalCard(),
+              _buildSubscriptionCard(),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _showSignOutConfirmation(),
+                child: Text('Sign Out'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                ),
+              ),
+            ],
           ),
-        )
-      ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(value),
+        trailing: Icon(Icons.edit),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildWeeklyGoalCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Weekly Workout Goal',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}"),
+                ElevatedButton(
+                  onPressed: _showWeeklyGoalPicker,
+                  child: Text("Change"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Icon(Icons.card_membership),
+        title:
+            Text("Subscription", style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(manageSub),
+      ),
+    );
+  }
+
+  void _showEditDialog(
+      String title, String currentValue, Function(String) onSave) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String newValue = currentValue;
+        return AlertDialog(
+          title: Text("Edit $title"),
+          content: TextField(
+            autofocus: true,
+            onChanged: (value) {
+              newValue = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text("Save"),
+              onPressed: () async {
+                // In the _showEditDialog method, replace the existing email update logic with:
+                if (title == "Email") {
+                  final userPassword = await _showPasswordConfirmDialog();
+                  if (userPassword != null) {
+                    await updateEmail(currentValue, userPassword, newValue);
+                    checkEmailVerification(newValue);
+                  }
+                } else {
+                  onSave(newValue);
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String?> _showPasswordConfirmDialog() async {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        String password = '';
+        return AlertDialog(
+          title: Text("Confirm Password"),
+          content: TextField(
+            obscureText: true,
+            onChanged: (value) {
+              password = value;
+            },
+            decoration:
+                InputDecoration(hintText: "Enter your current password"),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text("Confirm"),
+              onPressed: () => Navigator.of(context).pop(password),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPasswordChangeDialog() async {
+    String? currentPassword = await _showPasswordConfirmDialog();
+    if (currentPassword == null) return;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String newPassword = '';
+        return AlertDialog(
+          title: Text("Change Password"),
+          content: TextField(
+            obscureText: true,
+            onChanged: (value) {
+              newPassword = value;
+            },
+            decoration: InputDecoration(hintText: "Enter new password"),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text("Change"),
+              onPressed: () {
+                updatePassword(email, currentPassword, newPassword);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSignOutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Sign Out"),
+          content: Text("Are you sure you want to sign out?"),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text("Sign Out"),
+              onPressed: () {
+                signOut(context);
+                GoRouter.of(context).go("/");
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
-class SettingsBar extends StatelessWidget {
-  const SettingsBar({
-    super.key,
-    required this.onTapFunction,
-    required this.name,
-    this.onInputChange,
-  });
-
-  final Function onTapFunction;
-  final String name;
-  final Function(String)? onInputChange;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      InkWell(
-        //when this setting bar is clicked callback the function given as an input to the class
-        onTap: () async {
-          if (onInputChange != null) {
-            final result = await showDialog<String>(
-              context: context,
-              builder: (BuildContext context) {
-                return const InputDialog();
-              },
-            );
-            if (result != null) {
-              onInputChange!(result);
-            }
-          } else {
-            onTapFunction();
-          }
-        },
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: 50,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: const Border(
-                  bottom: BorderSide(color: Colors.black),
-                  top: BorderSide(color: Colors.black),
-                )),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(
-                name,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: Theme.of(context).colorScheme.onError),
-              ),
-              const SizedBox(width: 10),
-              Icon(
-                Icons.edit,
-                color: Theme.of(context).colorScheme.primary,
-              )
-            ]),
-          ),
-        ),
-      ),
-      const SizedBox(height: 5)
-    ]);
-  }
-}
-
-// When tapped, opens a dialogue box to allow user to input text
-
-class InputDialog extends StatelessWidget {
-  const InputDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController();
-
-    return AlertDialog(
-      title: const Text('Enter New Value'),
-      content: TextField(
-        autofocus: true,
-        controller: controller,
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: const Text('Save'),
-          onPressed: () {
-            Navigator.of(context).pop(controller.text);
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class getUserCredentials extends StatelessWidget {
-  const getUserCredentials({super.key});
-
-
-  @override
-  Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController();
-
-
-  return AlertDialog(
-    title: const Text('This requires extra authentication. Please enter your password.'),
-    content: TextField(
-      autofocus: true,
-      controller: controller,
-    ),
-    actions: <Widget>[
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: const Text('Continue'),
-          onPressed: () {
-            Navigator.of(context).pop(controller.text);
-          },
-        ),
-      ],
-  );
-  }
+class InvalidEmailException implements Exception {
+  String cause;
+  InvalidEmailException(this.cause);
 }
 
 Future<void> signOut(BuildContext context) async {
