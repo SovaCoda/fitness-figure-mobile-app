@@ -90,7 +90,7 @@ class _ResearchOptionState extends State<ResearchOption> {
     task = widget.task;
     prefs = await SharedPreferences.getInstance();
 
-    _updateInvestment(0);
+    
 
     Map<String, bool> capabilities =
         Provider.of<FigureModel>(context, listen: false).capabilities;

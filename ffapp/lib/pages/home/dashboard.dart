@@ -7,6 +7,7 @@ import 'package:ffapp/components/dashboard/workout_numbers.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/message_sender.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/resuables/streak_shower.dart';
 import 'package:ffapp/components/resuables/week_to_go_shower.dart';
 import 'package:ffapp/components/robot_dialog_box.dart';
@@ -14,6 +15,7 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/robot_response.dart';
 import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/components/user_message.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/week_complete_showcase.dart';
 import 'package:ffapp/main.dart';
@@ -68,6 +70,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void initialize() async {
+    await Provider.of<ChatModel>(context, listen: false).init();
+    await Provider.of<ChatModel>(context, listen: false)
+        .sendMessage("", "system");
     Routes.User? databaseUser = await auth.getUserDBInfo();
     databaseUser!.lastLogin = DateTime.now().toUtc().toString();
     await auth.updateUserDBInfo(databaseUser);
@@ -125,13 +130,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 textColor: Theme.of(context).colorScheme.onPrimary,
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 onPressed: () async {
+                  double investment =
+                      Provider.of<HistoryModel>(context, listen: false)
+                          .investment;
+                  int investmentAdd = (investment / 100).toInt();
                   int numComplete =
                       Provider.of<HistoryModel>(context, listen: false)
                           .lastWeek
                           .where((element) => element == 2)
                           .length;
                   int chargeGain = numComplete * 3;
-                  int evGain = numComplete * 50;
+                  int evGain = numComplete * 50 + investmentAdd;
                   bool isComplete = isUsersFirstWeek
                       ? true
                       : Provider.of<HistoryModel>(context, listen: false)
@@ -211,7 +220,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     });
 
     return Stack(
-      alignment: Alignment.center,
+      alignment: Alignment.bottomCenter,
       children: [
         Container(
           padding: const EdgeInsets.all(10),
@@ -251,16 +260,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
               Expanded(
                 child: Stack(
+                  alignment: Alignment.bottomCenter,
                   children: [
                     Consumer<FigureModel>(
                       builder: (context, figure, child) {
                         return Center(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               RobotImageHolder(
                                 url: (figure.figure != null)
-                                    ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
+                                    ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}")
                                     : "robot1/robot1_skin0_evo0_cropped_happy",
                                 height:
                                     MediaQuery.of(context).size.height * 0.333,
@@ -272,20 +282,51 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       },
                     ),
                     Positioned(
+                      top: 5,
+                      left: 5,
+                      child: Consumer<ChatModel>(
+                        builder: (_, chat, __) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width * 0.75,
+                            child: GradientedContainer(
+                              padding: const EdgeInsets.all(4),
+                              child: Text(
+                                chat.messages.last.text,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall!
+                                    .copyWith(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Positioned(
                       top: 0,
                       right: 0,
-                      child: GestureDetector(
-                        onTap: () {
-                          showFFDialog(
-                              "Work In Progress",
-                              "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!",
-                              true,
-                              context);
+                      child: Consumer<UserModel>(
+                        builder: (_, user, __) {
+                          return GestureDetector(
+                            onTap: () {
+                              user.isPremium()
+                                  ? context.goNamed("Chat")
+                                  : showFFDialog(
+                                      "Work In Progress",
+                                      "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!",
+                                      true,
+                                      context);
+                            },
+                            child: Icon(
+                              Icons.chat,
+                              size: 60,
+                            ),
+                          );
                         },
-                        child: Icon(
-                          Icons.chat,
-                          size: 60,
-                        ),
                       ),
                     ),
                     Consumer<UserModel>(

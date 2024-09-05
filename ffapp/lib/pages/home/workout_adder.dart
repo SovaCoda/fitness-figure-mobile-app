@@ -63,7 +63,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final int sigfigs = 2;
   bool _goalMet = false;
   int minWorkoutTime = 30;
+  double _investment = 0;
   SharedPreferences? prefs;
+  bool hasInvested = false;
 
   late final AppLifecycleListener _listener;
   late AppLifecycleState? _lifeState;
@@ -106,7 +108,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     setState(() {
       if (timegoal != Int64.ZERO) {
-        // _timegoal = timegoal * 60; //convert to seconds
+         //_timegoal = timegoal * 60; //convert to seconds
         _timegoal = Int64(5);
       }
     });
@@ -118,7 +120,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Future<UserModel> getUserModel() async {
     UserModel userModel;
     do {
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
       userModel = Provider.of<UserModel>(context, listen: false);
     } while (userModel.user == User());
     return userModel;
@@ -170,9 +172,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   void startLogging(bool paused) {
     setState(() {
-      // states["logging"] = true;
-      // states["paused"] = paused;
-      // states["pre-logging"] = false;
       _logging = true;
       _startTime = DateTime.now().toUtc().toString();
     });
@@ -212,6 +211,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timePassed = time;
     setState(() {
       _timePassed = time;
+      
     });
     _timer.deleteTimer();
     time = Int64.ZERO;
@@ -219,6 +219,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     await awardAll(weeklyGoalMet: false, timeGoalMet: _goalMet);
     setState(() {
       _logging = false;
+      _goalMet = false;
+      _investment = 0;
+      _timePassed = Int64.ZERO;
     });
   }
 
@@ -226,7 +229,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   int addableCharge = 0;
   //function that does all the awarding in one
   Future<void> awardAll(
-      {required bool weeklyGoalMet, required bool timeGoalMet}) async {
+      {required bool weeklyGoalMet,
+      required bool timeGoalMet,
+      int investment = 0}) async {
     UserModel user = Provider.of<UserModel>(context, listen: false);
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
@@ -293,6 +298,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       email: await auth.getUser().then((value) => value!.email.toString()),
       chargeAdd: Int64(addableCharge),
       evoAdd: Int64(addableEV),
+      investment: _investment,
       countable: workoutPercent >= 1 ? 1 : 0,
     );
     Provider.of<HistoryModel>(context, listen: false).addWorkout(workout);
@@ -337,7 +343,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Theme.of(context).colorScheme.surface.withAlpha(126),
             onPressed: () => {
                   setState(() {
-                    endLogging();
+                    _timePassed = time;
                     states['chatting'] = true;
                     states['logging'] = false;
                   }),
@@ -346,7 +352,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       );
     } else {
       setState(() {
-        endLogging();
+        _timePassed = time;
         states['chatting'] = true;
         states['logging'] = false;
       });
@@ -413,8 +419,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     Expanded(
                       child: GradientedContainer(
                           radius: 2,
-                          margin: EdgeInsets.all(2),
-                          padding: EdgeInsets.all(20),
+                          margin: const EdgeInsets.all(2),
+                          padding: const EdgeInsets.all(20),
                           child: Consumer<UserModel>(builder: (_, user, __) {
                             return Consumer<FigureModel>(
                                 builder: (_, figure, __) {
@@ -481,7 +487,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                             .colorScheme
                                                             .onSurface),
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 10,
                                               ),
                                               WeekGoalShower(
@@ -491,15 +497,95 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                   weeklyGoal: user
                                                       .user!.weekGoal
                                                       .toInt()),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
                                               Consumer<HistoryModel>(
                                                 builder: (_, history, __) {
-                                                  return WeekToGoShower(
-                                                      boxSize: Size(32, 32),
-                                                      weekGoal: user
-                                                          .user!.weekGoal
-                                                          .toInt(),
-                                                      workouts:
-                                                          history.currentWeek);
+                                                  return Column(
+                                                    children: [
+                                                      WeekToGoShower(
+                                                          boxSize: Size(
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  0.11,
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  0.11),
+                                                          weekGoal: user
+                                                              .user!.weekGoal
+                                                              .toInt(),
+                                                          workouts: history
+                                                              .currentWeek),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Text(
+                                                        "Currently Invested: \$${history.investment.toStringAsFixed(2)}",
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                              Consumer<UserModel>(
+                                                builder:
+                                                    (context, value, child) {
+                                                  return FfButton(
+                                                    disabled: hasInvested,
+                                                      text:
+                                                          "Invest ${(user.user!.currency.toInt() * 0.2).toStringAsFixed(2)}",
+                                                      textColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .primary,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .surface,
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          hasInvested = true;
+                                                          _investment = value
+                                                                  .user!
+                                                                  .currency
+                                                                  .toInt() *
+                                                              0.2;
+                                                          Provider.of<HistoryModel>(
+                                                                  context,
+                                                                  listen: false)
+                                                              .setInvestment(Provider.of<
+                                                                              HistoryModel>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .investment +
+                                                                  _investment);
+                                                          User user = Provider
+                                                                  .of<UserModel>(
+                                                                      context,
+                                                                      listen:
+                                                                          false)
+                                                              .user!;
+                                                          user.currency = Int64((user
+                                                                      .currency
+                                                                      .toDouble() -
+                                                                  _investment)
+                                                              .toInt());
+                                                          Provider.of<UserModel>(
+                                                                  context,
+                                                                  listen: false)
+                                                              .setUser(user);
+                                                          Provider.of<CurrencyModel>(context, listen: false).setCurrency(user.currency.toString());
+                                                          auth.updateUserDBInfo(
+                                                              Routes.User(
+                                                                  email: user
+                                                                      .email,
+                                                                  currency: user
+                                                                      .currency));
+                                                        });
+                                                      });
                                                 },
                                               )
                                             ],
@@ -534,7 +620,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                         true,
                                                     showStatus: true,
                                                     goalMet: _goalMet),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 10,
                                                 ),
                                                 StreakShower(
@@ -547,7 +633,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                   showStatus: true,
                                                   goalMet: true,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 10,
                                                 ),
                                                 Consumer<HistoryModel>(builder:
@@ -557,7 +643,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                         weekGoal: user
                                                             .user!.weekGoal
                                                             .toInt(),
-                                                        boxSize: Size(16, 16),
+                                                        boxSize:
+                                                            const Size(16, 16),
                                                         workouts: workoutHistory
                                                             .currentWeek)
                                                   ]);
@@ -601,7 +688,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                 )
                                               ],
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 10,
                                             ),
                                             Row(
@@ -653,15 +740,16 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         onPressed: () => {
-                              if (_goalMet && !states['investing']!)
+                              if (states['investing']!)
                                 setState(() {
-                                  states['investing'] = true;
+                                  states['investing'] = false;
                                 })
                               else
                                 setState(() {
                                   states['post-logging'] = false;
                                   states['pre-logging'] = true;
                                   states['investing '] = false;
+                                  endLogging();
                                 })
                             }),
                     const SizedBox(
@@ -717,7 +805,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                               onPressed: () => {
                                     setState(() {
                                       states['chatting'] = false;
-                                      states['post-logging'] = true;
+                                      if (_goalMet) {
+                                        states['post-logging'] = true;
+                                        states['investing'] = true;
+                                      } else {
+                                        states['investing'] = false;
+                                        states['post-logging'] = true;
+                                      }
                                     })
                                   }),
                           const SizedBox(
@@ -921,7 +1015,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         Theme.of(context).colorScheme.onPrimary,
                                     backgroundColor:
                                         Theme.of(context).colorScheme.primary,
-                                    onPressed: () => {endWorkout()})
+                                    onPressed: () => 
+                                    { endWorkout()
+                                    })
                                 : FfButton(
                                     icon: Icons.add,
                                     iconSize: 50,

@@ -33,7 +33,7 @@ class UserMessage extends StatelessWidget {
                     Expanded(
                       child: Text(
                         text,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        style: Theme.of(context).textTheme.displaySmall!.copyWith(
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                       ),

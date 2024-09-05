@@ -87,6 +87,8 @@ message Workout {
     string End_Date = 5;
     int64 Charge_Add = 6;
     int32 Countable = 7;
+    string Robot_Name = 8;
+    double investment = 9;
 }
 
 message MultiWorkout {

@@ -12,6 +12,8 @@ class HistoryModel extends ChangeNotifier {
   List<Workout> workouts = List.empty();
   bool workedOutToday = false;
   AuthService? auth;
+  double investment = 0;
+  double lastWeekInvestment = 0;
 
   List<int> currentWeek = List.filled(7, 0, growable: false);
   List<int> lastWeek = List.filled(7, 0, growable: false);
@@ -35,7 +37,14 @@ class HistoryModel extends ChangeNotifier {
     return DateTime(date.year, date.month, date.day - date.weekday % 7);
   }
 
+  void setInvestment(double newInvestment) {
+    investment = newInvestment;
+    notifyListeners();
+  }
+
   void setWorkouts(List<Workout> newWorkouts) {
+    investment = 0;
+    lastWeekInvestment = 0;
     workedOutToday = false;
     DateTime now = DateTime.now().toLocal();
     DateTime weekstart = mostRecentSunday(now); // get week start (sunday is 7)
@@ -44,6 +53,7 @@ class HistoryModel extends ChangeNotifier {
     for (int i = 0; i < newWorkouts.length; i++) {
       DateTime curDate = DateTime.parse(newWorkouts[i].endDate).toLocal();
       int currentCountable = newWorkouts[i].countable;
+      
       bool goalMet = currentCountable == 1;
 
       if (curDate.isAfter(weekstart) && goalMet) {
@@ -56,6 +66,20 @@ class HistoryModel extends ChangeNotifier {
         workedOutToday = true;
       }
     }
+
+    for (int i = 0; i < 7; i++) {
+      DateTime curDate = weekstart.add(Duration(days: i));
+      for (int j = 0; j < newWorkouts.length; j++) {
+        DateTime workoutDate = DateTime.parse(newWorkouts[j].endDate);
+        if (workoutDate.day == curDate.day &&
+            workoutDate.month == curDate.month &&
+            workoutDate.year == curDate.year) {
+          investment += newWorkouts[j].investment;
+        }
+      }
+    }
+
+    
 
     // take the day subtract 7 days to get the last week
     // determine the start of that day's week
@@ -74,9 +98,12 @@ class HistoryModel extends ChangeNotifier {
             workoutDate.month == curDate.month &&
             workoutDate.year == curDate.year) {
           workoutsInLastWeek[curDate.weekday % 7] = curDate;
+          lastWeekInvestment += newWorkouts[j].investment;
         }
       }
     }
+
+    
 
     for (int i = 0; i < lastWeek.length; i++) {
       int status = 0;
