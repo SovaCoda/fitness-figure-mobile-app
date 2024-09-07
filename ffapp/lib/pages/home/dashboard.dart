@@ -71,8 +71,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void initialize() async {
     await Provider.of<ChatModel>(context, listen: false).init();
-    await Provider.of<ChatModel>(context, listen: false)
-        .sendMessage("", "system");
+    // if (mounted){
+    // Provider.of<ChatModel>(context, listen: false)
+    
+    //     .sendMessage("SYSTEM_COMMAND:WELCOME_USER", "system"); // no await here because we don't need to wait for the response
+    // } too expensive me thinks.
     Routes.User? databaseUser = await auth.getUserDBInfo();
     databaseUser!.lastLogin = DateTime.now().toUtc().toString();
     await auth.updateUserDBInfo(databaseUser);
@@ -290,8 +293,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             width: MediaQuery.of(context).size.width * 0.75,
                             child: GradientedContainer(
                               padding: const EdgeInsets.all(4),
-                              child: Text(
-                                chat.messages.last.text,
+                              child: Text( chat.messages.isNotEmpty ?
+                                chat.messages.last.text : "",
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall!

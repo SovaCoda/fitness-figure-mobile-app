@@ -26,6 +26,8 @@ class SubscribePage extends StatelessWidget {
 class _SubscribePageContent extends StatelessWidget {
   const _SubscribePageContent();
 
+  
+
   @override
   Widget build(BuildContext context) {
     final model = Provider.of<SubscribePageModel>(context);
@@ -39,6 +41,8 @@ class _SubscribePageContent extends StatelessWidget {
               : _buildSubscriptionOptions(context, model),
     );
   }
+
+  
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
@@ -77,7 +81,7 @@ class _SubscribePageContent extends StatelessWidget {
 
   Widget _buildSubscriptionOptions(
       BuildContext context, SubscribePageModel model) {
-        final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
+    final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
     return Container(
         height: MediaQuery.of(context).size.height * 0.9,
         decoration: BoxDecoration(color: Colors.grey[900]),
@@ -100,14 +104,13 @@ class _SubscribePageContent extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   RobotImageHolder(
-                                // Replace this with some custom skin that the user needs premium for
-                                url: (figure.figure != null)
-                                    ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
-                                    : "robot1/robot1_skin0_evo0_cropped_happy",
-                                height:
-                                    MediaQuery.of(context).size.height * 0.30,
-                                width: 500,
-                              ),
+                    // Replace this with some custom skin that the user needs premium for
+                    url: (figure.figure != null)
+                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
+                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                    height: MediaQuery.of(context).size.height * 0.30,
+                    width: 500,
+                  ),
                   _buildFeatureCard(context),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   SizedBox(
@@ -142,11 +145,25 @@ class _SubscribePageContent extends StatelessWidget {
                           ),
                     ),
                   ),
+                  _buildTogglePremiumButton(context: context)
                 ],
               ),
             ),
           ),
         ));
+  }
+
+  // Debugging button to toggle premium status
+  Widget _buildTogglePremiumButton({required BuildContext context}) {
+    return ElevatedButton(
+      onPressed: () {
+        Provider.of<SubscribePageModel>(context, listen: false).togglePremium();
+      },
+      child: Text(
+        "Toggle Premium Status",
+        style: Theme.of(context).textTheme.displayMedium,
+      ),
+    );
   }
 
   Widget _buildFeatureCard(BuildContext context) {
@@ -168,10 +185,7 @@ class _SubscribePageContent extends StatelessWidget {
                 Icons.auto_graph,
                 "Track Progress, Boost Performance",
                 Theme.of(context).colorScheme.error),
-            _buildFeatureItem(
-                context,
-                Icons.chat,
-                "Your AI Fitness Coach",
+            _buildFeatureItem(context, Icons.chat, "Your AI Fitness Coach",
                 Theme.of(context).colorScheme.primary),
             _buildFeatureItem(
                 context,
@@ -214,32 +228,36 @@ class _SubscribePageContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-              child: Text(
-                "You're already subscribed to Fitness Figure Plus!",
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                textAlign: TextAlign.center,
-              )),
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: Text(
+                    "You're already subscribed to Fitness Figure Plus!",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                    textAlign: TextAlign.center,
+                  )),
               const SizedBox(height: 20),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9,
-              child: Text(
-                "Enjoy your premium benefits!",
-                style: Theme.of(context).textTheme.displayMedium,
-                textAlign: TextAlign.center,
-              ),
+                child: Text(
+                  "Enjoy your premium benefits!",
+                  style: Theme.of(context).textTheme.displayMedium,
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-              child: _buildFeatureCard(context)),
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: _buildFeatureCard(context)),
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () => context.goNamed("Home"),
-                child: Text("Return to Home", style: Theme.of(context).textTheme.displayMedium,),
+                child: Text(
+                  "Return to Home",
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
               ),
+              _buildTogglePremiumButton(context: context)
             ],
           ),
         ));
@@ -356,4 +374,15 @@ class SubscribePageModel with ChangeNotifier {
       throw Exception(err.toString());
     }
   }
+
+  
+  // Toggles premium status for debugging purposes
+  void togglePremium() {
+    final userModel = Provider.of<UserModel>(context, listen: false);
+    userModel.setPremium(user?.premium == Int64(1) ? Int64(0) : Int64(1));
+    Provider.of<AuthService>(context, listen: false).updateUserDBInfo(userModel.user!);
+    refreshUserData();
+  }
+
+  
 }

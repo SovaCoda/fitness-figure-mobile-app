@@ -237,7 +237,7 @@ Future<void> main() async {
   // await dotenv.load(fileName: ".env");
   await dotenv.load(fileName: ".env");
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
-  OpenAI.apiKey = "sk-proj-QpCgg3HzPQvHSRjXu9HRT3BlbkFJ4aGGyeCD6DyYcw1qx1w7";
+  OpenAI.apiKey = dotenv.env['OPENAI_KEY']!;
   await Stripe.instance.applySettings();
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
@@ -266,7 +266,7 @@ Future<void> main() async {
         create: (context) => HistoryModel(),
       ),
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
-      ChangeNotifierProvider(create: (context) => ChatModel()),
+      ChangeNotifierProvider(create: (context) => ChatModel()..setContext(context)),
     ], child: const MyApp()),
   );
 }
