@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/components/utils/history_model.dart';
-import 'package:ffapp/pages/home/workout_adder.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/services/auth.dart' as auth;
 import 'package:fixnum/fixnum.dart';
+import 'package:ffapp/services/local_notification_service.dart';
+import 'dart:async';
+import 'package:ffapp/services/routes.pb.dart';
+import 'package:go_router/go_router.dart';
 
 /*
  *  When the program starts, four API calls will be made: 
@@ -67,8 +70,82 @@ class ChatModel extends ChangeNotifier {
   String? threadId;
   late BuildContext context;
   SharedPreferences? prefs;
+  late Timer _notificationTimer;
+  final LocalNotificationService _localNotificationService =
+      LocalNotificationService();
 
-  ChatModel(this.context);
+  ChatModel(this.context) {
+    _initNotificationTimer();
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer.cancel();
+    super.dispose();
+  }
+
+  void _initNotificationTimer() {
+    // Schedule a notification every 3 hours
+    _notificationTimer = Timer.periodic(Duration(hours: 6), (_) {
+      _sendExerciseReminder();
+    });
+  }
+
+  Future<void> _sendExerciseReminder() async {
+    if (Provider.of<HistoryModel>(context, listen: false).workedOutToday) {
+      // Check if the user has already worked out today
+      return;
+    }
+    try {
+      // Create a message in the thread
+
+      final createMessage = CreateMessage(
+        role: 'user',
+        content: "Generate a short, motivating exercise reminder message.",
+      );
+      await openAI.threads.v2.messages.createMessage(
+        threadId: threadId!,
+        request: createMessage,
+      );
+
+      // Run the assistant
+      final runRequest = CreateRun(assistantId: assistantId!);
+      final run = await openAI.threads.runs
+          .createRun(threadId: threadId!, request: runRequest);
+
+      // Wait for the run to complete
+      String runStatus = run.status;
+      while (runStatus != "completed") {
+        await Future.delayed(const Duration(seconds: 1));
+        final updatedRun = await openAI.threads.runs
+            .retrieveRun(threadId: threadId!, runId: run.id);
+        runStatus = updatedRun.status;
+
+        if (runStatus == "failed") {
+          print("Run failed: ${updatedRun.lastError.toString()}");
+          return;
+        }
+      }
+
+      // Retrieve the message
+      final messagesResponse =
+          await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+      if (messagesResponse.data.isNotEmpty) {
+        final assistantMessage = messagesResponse.data.first;
+        if (assistantMessage.content.isNotEmpty) {
+          String reminderMessage = assistantMessage.content.first.text.value;
+          await _localNotificationService.showNotification(
+            id: 0,
+            title: "Time to Exercise!",
+            body: reminderMessage,
+          );
+          print("Exercise reminder sent: $reminderMessage");
+        }
+      }
+    } catch (e) {
+      print("Error sending exercise reminder: $e");
+    }
+  }
 
   void updateChat() {
     notifyListeners();
@@ -89,14 +166,14 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    
-    var user = await Provider.of<auth.AuthService>(context, listen: false).getUserDBInfo();
-    if(user?.premium == Int64(0)) {
+    var user = await Provider.of<auth.AuthService>(context, listen: false)
+        .getUserDBInfo();
+    if (user?.premium == Int64(0)) {
       messages.add(ChatMessage(
-        "Welcome to Fitness Figure! Let's start an exercise!",
-        "assistant",
-        "robot1"));
-    notifyListeners();
+          "Welcome to Fitness Figure! Let's start an exercise!",
+          "assistant",
+          "robot1"));
+      notifyListeners();
       return;
     }
     await dotenv.load(fileName: ".env");
@@ -193,6 +270,21 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
+  // TODO: Allow OpenAI to access the user's workout history 
+  Future<Map<String, dynamic>> getWeekData() async {
+    DateTime date = DateTime.now();
+    date = date.toUtc();
+    User user = Provider.of<UserModel>(context, listen: false).user!;
+    FigureInstance figure =
+        Provider.of<FigureModel>(context, listen: false).figure!;
+    HistoryModel historyModel = Provider.of<HistoryModel>(context, listen: false);
+    return {
+      "workoutsThisWeek": historyModel.currentWeek,
+      "workoutsLastWeek": historyModel.lastWeek,
+      "workedOutToday": historyModel.workedOutToday,
+    };
+  }
+
   Future<Map<String, dynamic>> evolutionInfo() async {
     final figureModel = Provider.of<FigureModel>(context, listen: false);
 
@@ -212,10 +304,12 @@ class ChatModel extends ChangeNotifier {
     String timerName = "workout_timer";
     DateTime now = DateTime.now();
     await prefs!.setString('$timerName timerStarted', now.toString());
+    context.goNamed('Workout');
     return "Workout timer started successfully.";
   }
 
-  Future<void> sendMessage(String message, String role) async {
+  Future<void> sendMessage(String message, String role, BuildContext context) async {
+    this.context = await context;
     if (message.trim().isEmpty) {
       return;
     }
@@ -279,6 +373,14 @@ class ChatModel extends ChangeNotifier {
               "description": "Fetch evolution details for the robot",
               "parameters": {"type": "object", "properties": {}, "required": []}
             }
+          },
+          {
+            "type": "function",
+            "function": {
+              "name": "getWeekData",
+              "description": "Fetch the user's workout data for the week",
+              "parameters": {"type": "object", "properties": {}, "required": []}
+            }
           }
         ],
       );
@@ -289,7 +391,7 @@ class ChatModel extends ChangeNotifier {
       // Wait for the run to complete with proper polling
       String runStatus = run.status;
       int retries = 0;
-      const maxRetries = 5; // Adjust as needed
+      const maxRetries = 10; // Adjust as needed
       const pollingInterval = Duration(seconds: 1); // Adjust as needed
 
       while (runStatus != "completed" && retries < maxRetries) {
@@ -342,6 +444,12 @@ class ChatModel extends ChangeNotifier {
         });
       } else if (toolCall['function']['name'] == "evolutionInfo") {
         final stats = await evolutionInfo();
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': jsonEncode(stats),
+        });
+      } else if (toolCall['function']['name'] == "getWeekData") {
+        final stats = await getWeekData();
         toolOutputs.add({
           'tool_call_id': toolCall['id'],
           'output': jsonEncode(stats),

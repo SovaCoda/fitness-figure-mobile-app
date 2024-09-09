@@ -46,7 +46,7 @@ class _MessageSenderState extends State<MessageSender> {
               icon: const Icon(Icons.send),
               onPressed: () {
                 Provider.of<ChatModel>(context, listen: false)
-                    .sendMessage(_controller.text, "user");
+                    .sendMessage(_controller.text, "user", context);
                 _controller.clear();
               },
             ),

@@ -243,6 +243,7 @@ Future<void> main() async {
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();
+
   runApp(
     MultiProvider(providers: [
       Provider(
@@ -282,6 +283,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     name: 'Home',
     path: '/home', // Update the path to '/home'
     builder: (context, state) => const DashboardPage(),
+  ),
+  GoRoute(
+    name: 'Workout',
+    path: '/workout',
+    builder: (context, state) => const DashboardPage(index: 2),
   ),
   GoRoute(
       name: 'Register',

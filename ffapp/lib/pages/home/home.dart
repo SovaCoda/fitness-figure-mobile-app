@@ -15,8 +15,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
 
+  final int index;
+  const DashboardPage({super.key, this.index = 0});
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
@@ -35,8 +36,9 @@ class _DashboardPageState extends State<DashboardPage> {
     const Core(),
     const ChatPage(),
   ];
+  
 
-  int _selectedIndex = 0;
+  int? _selectedIndex;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -56,11 +58,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void initialize() async {
     try {
+      
       await user.initAuthService();
       await user.checkUser();
       String usrCurrency = await user.getCurrency();
       setState(() {
         currency = usrCurrency;
+        _selectedIndex = widget.index;
       });
     } catch (e) {
       print("Error initializing currency: $e");
@@ -216,7 +220,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   BottomNavigationBarItem(
                       icon: Icon(Icons.science), label: 'Coreß'),
                 ],
-                currentIndex: _selectedIndex,
+                currentIndex: _selectedIndex ?? 0,
                 onTap: _onItemTapped)));
   }
 }
