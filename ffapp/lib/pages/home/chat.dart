@@ -1,11 +1,11 @@
-import 'package:dart_openai/dart_openai.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/message_sender.dart';
 import 'package:ffapp/components/robot_response.dart';
 import 'package:ffapp/components/user_message.dart';
-import 'package:ffapp/components/utils/chat_model.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ffapp/main.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -15,60 +15,90 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  Map<RobotResponse, UserMessage?> interactions = {};
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        child: Consumer<FigureModel>(
-          builder: (context, figure, child) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Container(
-                    constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height,
-                        minHeight: MediaQuery.of(context).size.height - 500),
-                    width: MediaQuery.of(context).size.width,
-                    child: Consumer<ChatModel>(
-                      builder: (_, chat, __) {
-                        return ListView.builder(
-                            shrinkWrap: false,
-                            itemCount: chat.messages.length,
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  SizedBox(
-                                    width: MediaQuery.sizeOf(context).width,
-                                    child: (chat.messages[index].user ==
-                                                'assistant' ||
-                                            chat.messages[index].user ==
-                                                'system')
-                                        ? chat.messages[index].user == 'assistant'
-                                            ? RobotResponse(
-                                                text: chat.messages[index].text,
-                                                figure_url:
-                                                    figure.composeFigureUrl(),
-                                                datetime: "now")
-                                            : Container()
-                                        : UserMessage(
-                                            text: chat.messages[index].text,
-                                            datetime: 'now',
-                                          ),
-                                  ),
-                                ],
-                              );
-                            });
-                      },
-                    ),
-                  ),
-                ),
-                const MessageSender(),
-              ],
-            );
-          },
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.grey[900],
+          leading: IconButton(
+            icon: const Icon(Icons.chevron_left, size: 40),
+            onPressed: () => context.goNamed('Home'),
+          ),
+          title: Text('Chat'),
+          actions: [
+            Container(
+              margin: const EdgeInsets.only(right: 10),
+              child: IconButton(
+                icon: const Icon(Icons.psychology, size: 40),
+                onPressed: () => context.goNamed('Personality'),
+              ),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Consumer<ChatModel>(
+                builder: (context, chatModel, child) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: chatModel.messages.length + (chatModel.isRobotTyping ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == chatModel.messages.length && chatModel.isRobotTyping) {
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "Robot is typing...",
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        );
+                      }
+                      final message = chatModel.messages[index];
+                      return message.user == 'assistant' || message.user == 'system'
+                          ? RobotResponse(
+                              text: message.text,
+                              figure_url: Provider.of<FigureModel>(context).composeFigureUrl(),
+                              datetime: "now",
+                            )
+                          : UserMessage(
+                              text: message.text,
+                              datetime: 'now',
+                            );
+                    },
+                  );
+                },
+              ),
+            ),
+            const MessageSender(),
+          ],
         ),
       ),
     );

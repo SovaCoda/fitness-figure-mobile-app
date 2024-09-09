@@ -8,6 +8,9 @@ import 'package:ffapp/pages/home/workout_adder.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/services/auth.dart' as auth;
+import 'package:fixnum/fixnum.dart';
 
 /*
  *  When the program starts, four API calls will be made: 
@@ -48,38 +51,66 @@ class ChatMessage {
   final String text;
   final String user;
   final String robot;
+  final bool isTyping;
 
-  ChatMessage(this.text, this.user, this.robot);
+  ChatMessage(this.text, this.user, this.robot, {this.isTyping = false});
 }
 
 class ChatModel extends ChangeNotifier {
   List<ChatMessage> messages = List.empty(growable: true);
+  bool isRobotTyping = false;
   String? robot;
   String? instructions = "";
-  List<String?>? personalityModules;
+  List<String> personalityModules = [];
   late OpenAI openAI;
   String? assistantId;
   String? threadId;
   late BuildContext context;
   SharedPreferences? prefs;
 
-  void setContext(BuildContext context) {
-    this.context = context;
+  ChatModel(this.context);
+
+  void updateChat() {
+    notifyListeners();
+  }
+
+  Future<void> loadPersonalityModules() async {
+    prefs = await SharedPreferences.getInstance();
+    final String? modulesJson = prefs?.getString('personalityModules');
+    if (modulesJson != null) {
+      personalityModules = List<String>.from(json.decode(modulesJson));
+    }
+    notifyListeners(); // Notify listeners after loading
+  }
+
+  Future<void> savePersonalityModules() async {
+    await prefs?.setString(
+        'personalityModules', json.encode(personalityModules));
   }
 
   Future<void> init() async {
+    
+    var user = await Provider.of<auth.AuthService>(context, listen: false).getUserDBInfo();
+    if(user?.premium == Int64(0)) {
+      messages.add(ChatMessage(
+        "Welcome to Fitness Figure! Let's start an exercise!",
+        "assistant",
+        "robot1"));
+    notifyListeners();
+      return;
+    }
     await dotenv.load(fileName: ".env");
     prefs = await SharedPreferences.getInstance();
+    await loadPersonalityModules();
     openAI = OpenAI.instance.build(
         token: dotenv.env['OPENAI_KEY']!,
         baseOption: HttpSetup(
             receiveTimeout: const Duration(seconds: 20),
             connectTimeout: const Duration(seconds: 20)),
         enableLog: true);
-    personalityModules = ['strict', 'stubborn'];
     messages.clear();
     instructions =
-        "you are robot in an App, you have three statistics that are unique to you. 1. Charge - this is a percent based stat from 0 - 100% your charge increases when a user works out and increases more based on how consistent the user is in their workout schedule 2. evo - this a value that tracks your evolution progress, you have 8 different levels of evolution and the user has to gain enough evo points based on your level to increase your level of evolution. the user can generate evo points for you by working out, keeping your charge high, and doing research on the research tab. 3. Currency - this is a shared stat between you and the user. you generate currency per second based on how high your evolution level is. You have personality modules installed that affect your responses. Your current personality is: ${personalityModules.toString()}. Do not mention your personality modules in conversation. Your personality cores dictate everything about you and your responses. In your first message to the user, respond as if they have just walked through the door, keep your response short but only for the first message.";
+        "you are robot in an App, you have three statistics that are unique to you. 1. Charge - this is a percent based stat from 0 - 100% your charge increases when a user works out and increases more based on how consistent the user is in their workout schedule 2. evo - this a value that tracks your evolution progress, you have 8 different levels of evolution and the user has to gain enough evo points based on your level to increase your level of evolution. the user can generate evo points for you by working out, keeping your charge high, and doing research on the research tab. 3. Currency - this is a shared stat between you and the user. you generate currency per second based on how high your evolution level is. You have personality modules installed that affect your responses. Your current personality is: ${personalityModules.isEmpty ? "Happy" : personalityModules.join(", ")}. Do not mention your personality modules in conversation. Your personality cores dictate everything about you and your responses. In your first message to the user, respond as if they have just walked through the door, keep your response short but only for the first message.";
 
     // Create an assistant
     final assistant = Assistant(
@@ -119,6 +150,14 @@ class ChatModel extends ChangeNotifier {
             "description": "Start a timer for a workout session",
             "parameters": {"type": "object", "properties": {}, "required": []}
           }
+        },
+        {
+          "type": "function",
+          "function": {
+            "name": "evolutionInfo",
+            "description": "Fetch evolution details for the robot",
+            "parameters": {"type": "object", "properties": {}, "required": []}
+          }
         }
       ],
     );
@@ -133,7 +172,7 @@ class ChatModel extends ChangeNotifier {
     threadId = createdThread.id;
     messages.add(ChatMessage(
         "Welcome to Fitness Figure! Let's start an exercise!",
-        "system",
+        "assistant",
         "robot1"));
     notifyListeners();
   }
@@ -154,6 +193,21 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
+  Future<Map<String, dynamic>> evolutionInfo() async {
+    final figureModel = Provider.of<FigureModel>(context, listen: false);
+
+    int? evLevel = figureModel.figure?.evLevel;
+    int? evoPoints = figureModel.figure?.evPoints;
+    int? evoMax = figure1.EvCutoffs[evLevel!];
+
+    return {
+      "EVLevel": evLevel + 1,
+      "evo": evoPoints,
+      "EVMAX": evoMax,
+      "isEvolvable": evoPoints! >= evoMax ? true : false,
+    };
+  }
+
   Future<String> startWorkoutTimer() async {
     String timerName = "workout_timer";
     DateTime now = DateTime.now();
@@ -162,143 +216,167 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<void> sendMessage(String message, String role) async {
-  if (message.trim().isEmpty) {
-    throw Exception("Cannot send an empty message");
-  }
-
-  messages.add(ChatMessage(message, role, ""));
-  notifyListeners();
-
-  try {
-    // Create a message in the thread
-    final createMessage = CreateMessage(
-      role: 'user',
-      content: message,
-    );
-    await openAI.threads.v2.messages.createMessage(
-      threadId: threadId!,
-      request: createMessage,
-    );
-
-    // Run the assistant
-    final runRequest = CreateRun(
-      assistantId: assistantId!,
-      tools: [
-        {
-          "type": "function",
-          "function": {
-            "name": "get_robot_stats",
-            "description": "Get the current stats of the robot",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "charge": {
-                  "type": "number",
-                  "description": "The current charge of the robot (0-100%)"
-                },
-                "evo": {
-                  "type": "number",
-                  "description": "The current evolution points of the robot"
-                },
-                "currency": {
-                  "type": "number",
-                  "description": "The current amount of currency"
-                }
-              },
-              "required": ["charge", "evo", "currency"]
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "startWorkoutTimer",
-            "description": "Start a timer for a workout session",
-            "parameters": {"type": "object", "properties": {}, "required": []}
-          }
-        }
-      ],
-    );
-
-    final run = await openAI.threads.runs.createRun(threadId: threadId!, request: runRequest);
-
-    // Wait for the run to complete with proper polling
-    String runStatus = run.status;
-    int retries = 0;
-    const maxRetries = 30; // Adjust as needed
-    const pollingInterval = Duration(seconds: 2); // Adjust as needed
-
-    while (runStatus != "completed" && retries < maxRetries) {
-      await Future.delayed(pollingInterval);
-      final updatedRun = await openAI.threads.runs.retrieveRun(threadId: threadId!, runId: run.id);
-      runStatus = updatedRun.status;
-
-      if (runStatus == "requires_action") {
-        await handleRequiredAction(updatedRun);
-      } else if (runStatus == "failed") {
-        logger.e("Run failed: ${updatedRun.lastError.toString()}");
-        return;
-      }
-
-      retries++;
-    }
-
-    if (runStatus != "completed") {
-      logger.e("Run did not complete within the maximum number of retries");
+    if (message.trim().isEmpty) {
       return;
     }
 
-    // Retrieve and process the assistant's response
-    await retrieveAndProcessAssistantResponse();
+    messages.add(ChatMessage(message, role, ""));
+    setRobotTyping(true);
+    notifyListeners();
 
-  } catch (e) {
-    logger.e("An error occurred: $e");
-  }
-}
+    try {
+      // Create a message in the thread
+      final createMessage = CreateMessage(
+        role: 'user',
+        content: message,
+      );
+      await openAI.threads.v2.messages.createMessage(
+        threadId: threadId!,
+        request: createMessage,
+      );
 
-Future<void> handleRequiredAction(CreateRunResponse updatedRun) async {
-  final toolCalls = updatedRun.requiredAction?['submit_tool_outputs']?['tool_calls'] ?? [];
-  List<Map<String, dynamic>> toolOutputs = [];
+      // Run the assistant
+      final runRequest = CreateRun(
+        assistantId: assistantId!,
+        tools: [
+          {
+            "type": "function",
+            "function": {
+              "name": "get_robot_stats",
+              "description": "Get the current stats of the robot",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "charge": {
+                    "type": "number",
+                    "description": "The current charge of the robot (0-100%)"
+                  },
+                  "evo": {
+                    "type": "number",
+                    "description": "The current evolution points of the robot"
+                  },
+                  "currency": {
+                    "type": "number",
+                    "description": "The current amount of currency"
+                  }
+                },
+                "required": ["charge", "evo", "currency"]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "name": "startWorkoutTimer",
+              "description": "Start a timer for a workout session",
+              "parameters": {"type": "object", "properties": {}, "required": []}
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "name": "evolutionInfo",
+              "description": "Fetch evolution details for the robot",
+              "parameters": {"type": "object", "properties": {}, "required": []}
+            }
+          }
+        ],
+      );
 
-  for (var toolCall in toolCalls) {
-    if (toolCall['function']['name'] == "startWorkoutTimer") {
-      final result = await startWorkoutTimer();
-      toolOutputs.add({
-        'tool_call_id': toolCall['id'],
-        'output': result,
-      });
-    } else if (toolCall['function']['name'] == "get_robot_stats") {
-      final stats = await get_robot_stats();
-      toolOutputs.add({
-        'tool_call_id': toolCall['id'],
-        'output': jsonEncode(stats),
-      });
+      final run = await openAI.threads.runs
+          .createRun(threadId: threadId!, request: runRequest);
+
+      // Wait for the run to complete with proper polling
+      String runStatus = run.status;
+      int retries = 0;
+      const maxRetries = 5; // Adjust as needed
+      const pollingInterval = Duration(seconds: 1); // Adjust as needed
+
+      while (runStatus != "completed" && retries < maxRetries) {
+        await Future.delayed(pollingInterval);
+        final updatedRun = await openAI.threads.runs
+            .retrieveRun(threadId: threadId!, runId: run.id);
+        runStatus = updatedRun.status;
+
+        if (runStatus == "requires_action") {
+          await handleRequiredAction(updatedRun);
+        } else if (runStatus == "failed") {
+          logger.e("Run failed: ${updatedRun.lastError.toString()}");
+          setRobotTyping(false);
+          return;
+        }
+
+        retries++;
+      }
+
+      if (runStatus != "completed") {
+        logger.e("Run did not complete within the maximum number of retries");
+        setRobotTyping(false);
+        return;
+      }
+
+      // Retrieve and process the assistant's response
+      await retrieveAndProcessAssistantResponse();
+    } catch (e) {
+      logger.e("An error occurred: $e");
     }
   }
 
-  if (toolOutputs.isNotEmpty) {
-    await openAI.threads.runs.submitToolOutputsToRun(
-      threadId: threadId!,
-      runId: updatedRun.id,
-      toolOutputs: toolOutputs,
-    );
-  }
-}
+  Future<void> handleRequiredAction(CreateRunResponse updatedRun) async {
+    final toolCalls =
+        updatedRun.requiredAction?['submit_tool_outputs']?['tool_calls'] ?? [];
+    List<Map<String, dynamic>> toolOutputs = [];
 
-Future<void> retrieveAndProcessAssistantResponse() async {
-  final messagesResponse = await openAI.threads.v2.messages.listMessage(threadId: threadId!);
-  if (messagesResponse.data.isNotEmpty) {
-    final assistantMessage = messagesResponse.data.first;
-    if (assistantMessage.content.isNotEmpty) {
-      messages.add(ChatMessage(assistantMessage.content.first.text.value, "assistant", "robot1"));
-      notifyListeners();
+    for (var toolCall in toolCalls) {
+      if (toolCall['function']['name'] == "startWorkoutTimer") {
+        final result = await startWorkoutTimer();
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': result,
+        });
+      } else if (toolCall['function']['name'] == "get_robot_stats") {
+        final stats = await get_robot_stats();
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': jsonEncode(stats),
+        });
+      } else if (toolCall['function']['name'] == "evolutionInfo") {
+        final stats = await evolutionInfo();
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': jsonEncode(stats),
+        });
+      }
+    }
+
+    if (toolOutputs.isNotEmpty) {
+      await openAI.threads.runs.submitToolOutputsToRun(
+        threadId: threadId!,
+        runId: updatedRun.id,
+        toolOutputs: toolOutputs,
+      );
+    }
+  }
+
+  Future<void> retrieveAndProcessAssistantResponse() async {
+    final messagesResponse =
+        await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+    if (messagesResponse.data.isNotEmpty) {
+      final assistantMessage = messagesResponse.data.first;
+      if (assistantMessage.content.isNotEmpty) {
+        messages.add(ChatMessage(
+            assistantMessage.content.first.text.value, "assistant", "robot1"));
+        setRobotTyping(false);
+        notifyListeners();
+      } else {
+        logger.i("Received an empty message from the assistant");
+        setRobotTyping(false);
+      }
     } else {
-      logger.i("Received an empty message from the assistant");
+      logger.i("No messages received from the assistant");
+      setRobotTyping(false);
     }
-  } else {
-    logger.i("No messages received from the assistant");
   }
-}
 
   Future<void> _sendWelcomeMessage() async {
     try {
@@ -351,5 +429,25 @@ Future<void> retrieveAndProcessAssistantResponse() async {
     } catch (e) {
       logger.e("An error occurred while sending welcome message: $e");
     }
+  }
+
+  void addPersonalityModule(String module) {
+    if (!personalityModules.contains(module)) {
+      personalityModules.add(module);
+      savePersonalityModules();
+      notifyListeners();
+    }
+  }
+
+  void removePersonalityModule(String module) {
+    if (personalityModules.remove(module)) {
+      savePersonalityModules();
+      notifyListeners();
+    }
+  }
+
+  void setRobotTyping(bool isTyping) {
+    isRobotTyping = isTyping;
+    notifyListeners();
   }
 }

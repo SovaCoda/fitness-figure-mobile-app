@@ -70,7 +70,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void initialize() async {
-    await Provider.of<ChatModel>(context, listen: false).init();
+    // await Provider.of<ChatModel>(context, listen: false).init();
     // if (mounted){
     // Provider.of<ChatModel>(context, listen: false)
     

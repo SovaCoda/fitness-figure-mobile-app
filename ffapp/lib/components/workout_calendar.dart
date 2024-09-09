@@ -94,7 +94,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     indicatorsShown = weekData['charge']!.map((e) {
       return weekData['charge']!.indexWhere((element) => element == e);
     }).toList();
-
+    if(mounted) {
     setState(() {
       if (weekData['charge']!.isEmpty) {
         weekData['charge']!.add(FlSpot(1, 0));
@@ -120,6 +120,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         ),
       ];
     });
+    }
   }
 
   Widget _buildSelectedCellDate(

@@ -26,8 +26,6 @@ class SubscribePage extends StatelessWidget {
 class _SubscribePageContent extends StatelessWidget {
   const _SubscribePageContent();
 
-  
-
   @override
   Widget build(BuildContext context) {
     final model = Provider.of<SubscribePageModel>(context);
@@ -41,8 +39,6 @@ class _SubscribePageContent extends StatelessWidget {
               : _buildSubscriptionOptions(context, model),
     );
   }
-
-  
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
@@ -145,7 +141,7 @@ class _SubscribePageContent extends StatelessWidget {
                           ),
                     ),
                   ),
-                  _buildTogglePremiumButton(context: context)
+                  _buildTogglePremiumButton(context)
                 ],
               ),
             ),
@@ -154,8 +150,8 @@ class _SubscribePageContent extends StatelessWidget {
   }
 
   // Debugging button to toggle premium status
-  Widget _buildTogglePremiumButton({required BuildContext context}) {
-    return ElevatedButton(
+  Widget _buildTogglePremiumButton(context, {bool debugging = true}) {
+    return debugging ? ElevatedButton(
       onPressed: () {
         Provider.of<SubscribePageModel>(context, listen: false).togglePremium();
       },
@@ -163,7 +159,7 @@ class _SubscribePageContent extends StatelessWidget {
         "Toggle Premium Status",
         style: Theme.of(context).textTheme.displayMedium,
       ),
-    );
+    ) : Container();
   }
 
   Widget _buildFeatureCard(BuildContext context) {
@@ -257,7 +253,7 @@ class _SubscribePageContent extends StatelessWidget {
                   style: Theme.of(context).textTheme.displayMedium,
                 ),
               ),
-              _buildTogglePremiumButton(context: context)
+              _buildTogglePremiumButton(context)
             ],
           ),
         ));
@@ -285,6 +281,7 @@ class SubscribePageModel with ChangeNotifier {
     try {
       final auth = Provider.of<AuthService>(context, listen: false);
       user = await auth.getUserDBInfo();
+      logger.i('Refreshed user data: ${user?.toString()}');
     } catch (e) {
       logger.e('Error fetching user data: $e');
     } finally {
@@ -375,14 +372,32 @@ class SubscribePageModel with ChangeNotifier {
     }
   }
 
-  
   // Toggles premium status for debugging purposes
-  void togglePremium() {
-    final userModel = Provider.of<UserModel>(context, listen: false);
-    userModel.setPremium(user?.premium == Int64(1) ? Int64(0) : Int64(1));
-    Provider.of<AuthService>(context, listen: false).updateUserDBInfo(userModel.user!);
-    refreshUserData();
+  void togglePremium() async {
+    if (user == null) {
+      logger.e('Cannot toggle premium: user is null');
+      return;
+    }
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    // Toggle the premium status
+    Int64 newPremiumValue = user!.premium == Int64(1) ? Int64(-1) : Int64(1);
+    logger.i('Toggling premium from ${user!.premium} to $newPremiumValue');
+    User updatedUser = User(
+      email: user!.email,
+      premium: newPremiumValue,
+    );
+    logger.i('Updating user in database: ${updatedUser.toString()}');
+    try {
+      await authService.updateUserDBInfo(updatedUser);
+      Provider.of<UserModel>(context, listen: false).setPremium(newPremiumValue == Int64(-1) ? Int64(0) : Int64(1));
+    } catch (e) {
+      logger.e('Error updating user in database: $e'); 
+      return;
+    }
+    await refreshUserData();
+    notifyListeners();
   }
 
-  
 }
