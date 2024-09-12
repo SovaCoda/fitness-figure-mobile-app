@@ -61,6 +61,7 @@ class _ChatPageState extends State<ChatPage> {
         ),
         body: Column(
           children: [
+            const SizedBox(height: 10),
             Expanded(
               child: Consumer<ChatModel>(
                 builder: (context, chatModel, child) {

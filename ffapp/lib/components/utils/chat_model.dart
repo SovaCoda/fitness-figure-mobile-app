@@ -85,8 +85,8 @@ class ChatModel extends ChangeNotifier {
   }
 
   void _initNotificationTimer() {
-    // Schedule a notification every 3 hours
     _notificationTimer = Timer.periodic(Duration(hours: 6), (_) {
+      // Adjust timer as needed
       _sendExerciseReminder();
     });
   }
@@ -165,8 +165,8 @@ class ChatModel extends ChangeNotifier {
         'personalityModules', json.encode(personalityModules));
   }
 
-  Future<void> init() async {
-    var user = await Provider.of<auth.AuthService>(context, listen: false)
+  Future<void> init({changeFlag = false}) async {
+    User? user = await Provider.of<auth.AuthService>(context, listen: false)
         .getUserDBInfo();
     if (user?.premium == Int64(0)) {
       messages.add(ChatMessage(
@@ -190,8 +190,11 @@ class ChatModel extends ChangeNotifier {
         "you are robot in an App, you have three statistics that are unique to you. 1. Charge - this is a percent based stat from 0 - 100% your charge increases when a user works out and increases more based on how consistent the user is in their workout schedule 2. evo - this a value that tracks your evolution progress, you have 8 different levels of evolution and the user has to gain enough evo points based on your level to increase your level of evolution. the user can generate evo points for you by working out, keeping your charge high, and doing research on the research tab. 3. Currency - this is a shared stat between you and the user. you generate currency per second based on how high your evolution level is. You have personality modules installed that affect your responses. Your current personality is: ${personalityModules.isEmpty ? "Happy" : personalityModules.join(", ")}. Do not mention your personality modules in conversation. Your personality cores dictate everything about you and your responses. In your first message to the user, respond as if they have just walked through the door, keep your response short but only for the first message.";
 
     // Create an assistant
+    assistantId = prefs?.getString('assistantId');
+    if (assistantId == null || changeFlag) {
+
     final assistant = Assistant(
-      model: Gpt4AModel(),
+      model: Gpt4oMini2024Model(),
       name: 'Robot Assistant',
       instructions: instructions,
       tools: [
@@ -241,7 +244,8 @@ class ChatModel extends ChangeNotifier {
     final createdAssistant =
         await openAI.assistant.v2.create(assistant: assistant);
     assistantId = createdAssistant.id;
-
+    await prefs?.setString('assistantId', assistantId!);
+    }
     // Create a thread
     final threadRequest = ThreadRequest();
     final createdThread =
@@ -270,18 +274,15 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
-  // TODO: Allow OpenAI to access the user's workout history 
   Future<Map<String, dynamic>> getWeekData() async {
     DateTime date = DateTime.now();
     date = date.toUtc();
-    User user = Provider.of<UserModel>(context, listen: false).user!;
-    FigureInstance figure =
-        Provider.of<FigureModel>(context, listen: false).figure!;
-    HistoryModel historyModel = Provider.of<HistoryModel>(context, listen: false);
+    User? userModel = Provider.of<UserModel>(context, listen: false).user!;
+    HistoryModel historyModel =
+        Provider.of<HistoryModel>(context, listen: false);
     return {
-      "workoutsThisWeek": historyModel.currentWeek,
-      "workoutsLastWeek": historyModel.lastWeek,
       "workedOutToday": historyModel.workedOutToday,
+      "CurrentStreak": userModel.streak.toInt(),
     };
   }
 
@@ -297,6 +298,7 @@ class ChatModel extends ChangeNotifier {
       "evo": evoPoints,
       "EVMAX": evoMax,
       "isEvolvable": evoPoints! >= evoMax ? true : false,
+      "evolutionBenefits": figure1.figureEvUpgrades[evLevel + 2],
     };
   }
 
@@ -308,7 +310,8 @@ class ChatModel extends ChangeNotifier {
     return "Workout timer started successfully.";
   }
 
-  Future<void> sendMessage(String message, String role, BuildContext context) async {
+  Future<void> sendMessage(
+      String message, String role, BuildContext context) async {
     this.context = await context;
     if (message.trim().isEmpty) {
       return;
@@ -332,6 +335,7 @@ class ChatModel extends ChangeNotifier {
       // Run the assistant
       final runRequest = CreateRun(
         assistantId: assistantId!,
+        temperature: 1.4,
         tools: [
           {
             "type": "function",
@@ -339,7 +343,7 @@ class ChatModel extends ChangeNotifier {
               "name": "get_robot_stats",
               "description": "Get the current stats of the robot",
               "parameters": {
-                "type": "object",
+                "type": "object",      
                 "properties": {
                   "charge": {
                     "type": "number",
@@ -371,21 +375,30 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "evolutionInfo",
               "description": "Fetch evolution details for the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []}
+              "parameters": {"type": "object", "properties": {
+                "EVLevel": {"type": "number", "description": "The current evolution level of the robot"},
+                "evo": {"type": "number", "description": "The current evolution points of the robot"},
+                "EVMAX": {"type": "number", "description": "The maximum evolution points required for the next level"},
+                "isEvolvable": {"type": "boolean", "description": "Whether the robot can evolve to the next level"},
+                "evolutionBenefits": {"type": "string", "description": "The benefits of evolving to the next level"}
+              }, "required": ["EVLevel", "evo", "EVMAX", "isEvolvable", "evolutionBenefits"]}
             }
           },
           {
             "type": "function",
             "function": {
               "name": "getWeekData",
-              "description": "Fetch the user's workout data for the week",
-              "parameters": {"type": "object", "properties": {}, "required": []}
+              "description": "Fetch information such as if the user did a workout today and the current streak",
+              "parameters": {"type": "object", "properties": {
+                "workedOutToday": {"type": "boolean", "description": "Whether the user worked out today"},
+                "CurrentStreak": {"type": "number", "description": "The current streak of the user"}
+              }, "required": ["workedOutToday", "CurrentStreak"]}
             }
           }
         ],
       );
 
-      final run = await openAI.threads.runs
+      final run = await openAI.threads.v2.runs
           .createRun(threadId: threadId!, request: runRequest);
 
       // Wait for the run to complete with proper polling

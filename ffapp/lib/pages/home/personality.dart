@@ -52,10 +52,11 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
             onPressed: () async {
               final chatModel = Provider.of<ChatModel>(context, listen: false);
               await chatModel.savePersonalityModules(); // Save before navigating
-              if(!listEquals(initialPersonalityModules, chatModel.personalityModules)) {
-                chatModel.init();
-              }
               context.go('/chat');
+              if(!listEquals(initialPersonalityModules, chatModel.personalityModules)) {
+                chatModel.init(changeFlag: true);
+              }
+              
             },
           ),
         ],
