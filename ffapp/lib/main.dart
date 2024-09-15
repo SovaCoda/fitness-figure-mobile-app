@@ -1,5 +1,6 @@
 import 'package:dart_openai/dart_openai.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:ffapp/pages/home/evo.dart';
@@ -264,8 +265,8 @@ Future<void> main() async {
       ChangeNotifierProvider(
         create: (context) => HistoryModel(),
       ),
-      ChangeNotifierProvider(create: (context) => MessageProvider()),
-      ChangeNotifierProvider(create: (_) => SelectedFigureProvider())
+      ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
+      ChangeNotifierProvider(create: (context) => ChatModel()),
     ], child: const MyApp()),
   );
 }

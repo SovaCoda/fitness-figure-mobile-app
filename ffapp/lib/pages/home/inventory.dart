@@ -50,6 +50,9 @@ class _InventoryState extends State<Inventory> {
   }
 
   void selectFigure(int index) {
+    if(index == Provider.of<SelectedFigureProvider>(context, listen: false).selectedFigureIndex) {
+      return;
+    }
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .setSelectedFigureIndex(index);
     Provider.of<FigureModel>(context, listen: false)

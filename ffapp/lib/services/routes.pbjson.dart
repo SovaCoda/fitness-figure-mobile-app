@@ -36,6 +36,8 @@ const Workout$json = {
     {'1': 'End_Date', '3': 5, '4': 1, '5': 9, '10': 'EndDate'},
     {'1': 'Charge_Add', '3': 6, '4': 1, '5': 3, '10': 'ChargeAdd'},
     {'1': 'Countable', '3': 7, '4': 1, '5': 5, '10': 'Countable'},
+    {'1': 'Robot_Name', '3': 8, '4': 1, '5': 9, '10': 'RobotName'},
+    {'1': 'investment', '3': 9, '4': 1, '5': 1, '10': 'investment'},
   ],
 };
 
@@ -44,7 +46,8 @@ final $typed_data.Uint8List workoutDescriptor = $convert.base64Decode(
     'CgdXb3Jrb3V0EhQKBUVtYWlsGAEgASgJUgVFbWFpbBIdCgpTdGFydF9kYXRlGAIgASgJUglTdG'
     'FydERhdGUSGAoHRWxhcHNlZBgDIAEoA1IHRWxhcHNlZBIXCgdFdm9fQWRkGAQgASgDUgZFdm9B'
     'ZGQSGQoIRW5kX0RhdGUYBSABKAlSB0VuZERhdGUSHQoKQ2hhcmdlX0FkZBgGIAEoA1IJQ2hhcm'
-    'dlQWRkEhwKCUNvdW50YWJsZRgHIAEoBVIJQ291bnRhYmxl');
+    'dlQWRkEhwKCUNvdW50YWJsZRgHIAEoBVIJQ291bnRhYmxlEh0KClJvYm90X05hbWUYCCABKAlS'
+    'CVJvYm90TmFtZRIeCgppbnZlc3RtZW50GAkgASgBUgppbnZlc3RtZW50');
 
 @$core.Deprecated('Use multiWorkoutDescriptor instead')
 const MultiWorkout$json = {

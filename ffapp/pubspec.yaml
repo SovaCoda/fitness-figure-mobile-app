@@ -62,6 +62,7 @@ dependencies:
   uuid: ^4.4.2
   flutter_stripe: ^10.2.0
   bottom_picker: ^2.8.0
+  chat_gpt_sdk: ^3.1.0
 
 dev_dependencies:
   flutter_test:

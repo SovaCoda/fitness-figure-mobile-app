@@ -1,3 +1,4 @@
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/pages/home/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -39,8 +40,8 @@ class _MessageSenderState extends State<MessageSender> {
           IconButton(
             icon: const Icon(Icons.send),
             onPressed: () {
-              Provider.of<MessageProvider>(context, listen: false)
-                  .sendMessage(_controller.text);
+              Provider.of<ChatModel>(context, listen: false)
+                  .sendMessage(_controller.text, "user");
               _controller.clear();
             },
           ),

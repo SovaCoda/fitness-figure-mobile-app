@@ -279,7 +279,7 @@ func (s *server) DeleteDailySnapshot(ctx context.Context, in *pb.DailySnapshot) 
 func (s *server) CreateWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, error) {
 	var workout pb.Workout
 
-	_, err := s.db.ExecContext(ctx, "INSERT INTO workouts (email, start_date, elapsed, evo_add, end_date, charge_add, countable) VALUES (?, ?, ?, ?, ?, ?, ?)", in.Email, in.StartDate, in.Elapsed, in.Evo_Add, in.End_Date, in.Charge_Add, in.Countable)
+	_, err := s.db.ExecContext(ctx, "INSERT INTO workouts (email, start_date, elapsed, evo_add, end_date, charge_add, countable, robot_name, investment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, in.StartDate, in.Elapsed, in.Evo_Add, in.End_Date, in.Charge_Add, in.Countable, in.Robot_Name, in.Investment)
 	if err != nil {
 		return nil, fmt.Errorf("could not create workout: %v", err)
 	}
@@ -290,7 +290,7 @@ func (s *server) CreateWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 func (s *server) GetWorkouts(ctx context.Context, in *pb.User) (*pb.MultiWorkout, error) {
 	workouts := &pb.MultiWorkout{} // Initialize workouts
 
-	rows, err := s.db.QueryContext(ctx, "SELECT email, start_date, elapsed, evo_add, end_date, charge_add, countable FROM workouts WHERE email = ?", in.Email)
+	rows, err := s.db.QueryContext(ctx, "SELECT email, start_date, elapsed, evo_add, end_date, charge_add, countable, robot_name, investment FROM workouts WHERE email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get workouts: %v", err)
 	}
@@ -298,7 +298,7 @@ func (s *server) GetWorkouts(ctx context.Context, in *pb.User) (*pb.MultiWorkout
 
 	for rows.Next() {
 		var workout pb.Workout
-		err := rows.Scan(&workout.Email, &workout.StartDate, &workout.Elapsed, &workout.Evo_Add, &workout.End_Date, &workout.Charge_Add, &workout.Countable)
+		err := rows.Scan(&workout.Email, &workout.StartDate, &workout.Elapsed, &workout.Evo_Add, &workout.End_Date, &workout.Charge_Add, &workout.Countable, &workout.Robot_Name, &workout.Investment)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan workout: %v", err)
 		}
@@ -315,7 +315,7 @@ func (s *server) GetWorkouts(ctx context.Context, in *pb.User) (*pb.MultiWorkout
 func (s *server) GetWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, error) {
 	var workout pb.Workout
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, start_date, elapsed, evo_add, end_date, charge_add, countable FROM workouts WHERE email = ? AND start_date = ?", in.Email, in.StartDate).Scan(&workout.Email, &workout.StartDate, &workout.Elapsed, &workout.Evo_Add, &workout.End_Date, &workout.Charge_Add, &workout.Countable)
+	err := s.db.QueryRowContext(ctx, "SELECT email, start_date, elapsed, evo_add, end_date, charge_add, countable, robot_name, investment FROM workouts WHERE email = ? AND start_date = ?", in.Email, in.StartDate).Scan(&workout.Email, &workout.StartDate, &workout.Elapsed, &workout.Evo_Add, &workout.End_Date, &workout.Charge_Add, &workout.Countable, &workout.Robot_Name, &workout.Investment)
 	if err != nil {
 		return nil, fmt.Errorf("could not get workout: %v", err)
 	}
@@ -324,7 +324,7 @@ func (s *server) GetWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, e
 }
 
 func (s *server) UpdateWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, error) {
-	_, err := s.db.ExecContext(ctx, "UPDATE workouts SET elapsed = ?, evo_add = ?, end_date = ?, charge_add = ?, countable = ? WHERE email = ? AND start_date = ?", in.Elapsed, in.Evo_Add, in.End_Date, in.Charge_Add, in.Countable, in.Email, in.StartDate)
+	_, err := s.db.ExecContext(ctx, "UPDATE workouts SET elapsed = ?, evo_add = ?, end_date = ?, charge_add = ?, countable = ?, robot_name = ?, investment = ? WHERE email = ? AND start_date = ?", in.Elapsed, in.Evo_Add, in.End_Date, in.Charge_Add, in.Countable, in.Robot_Name, in.Investment, in.Email, in.StartDate)
 	if err != nil {
 		return nil, fmt.Errorf("could not update workout: %v", err)
 	}
@@ -335,7 +335,7 @@ func (s *server) UpdateWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout
 func (s *server) DeleteWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, error) {
 	var workout pb.Workout
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, start_date, elapsed, evo_add, end_date, charge_add, countable FROM workouts WHERE email = ? AND start_date = ?", in.Email, in.StartDate).Scan(&workout.Email, &workout.StartDate, &workout.Elapsed, &workout.Evo_Add, &workout.End_Date, &workout.Charge_Add, &workout.Countable)
+	err := s.db.QueryRowContext(ctx, "SELECT email, start_date, elapsed, evo_add, end_date, charge_add, countable, robot_name, investment FROM workouts WHERE email = ? AND start_date = ?", in.Email, in.StartDate).Scan(&workout.Email, &workout.StartDate, &workout.Elapsed, &workout.Evo_Add, &workout.End_Date, &workout.Charge_Add, &workout.Countable, &workout.Robot_Name, &workout.Investment)
 	if err != nil {
 		return nil, fmt.Errorf("could not get workout: %v", err)
 	}

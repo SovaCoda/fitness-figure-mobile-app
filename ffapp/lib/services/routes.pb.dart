@@ -73,6 +73,8 @@ class Workout extends $pb.GeneratedMessage {
     $core.String? endDate,
     $fixnum.Int64? chargeAdd,
     $core.int? countable,
+    $core.String? robotName,
+    $core.double? investment,
   }) {
     final $result = create();
     if (email != null) {
@@ -96,6 +98,12 @@ class Workout extends $pb.GeneratedMessage {
     if (countable != null) {
       $result.countable = countable;
     }
+    if (robotName != null) {
+      $result.robotName = robotName;
+    }
+    if (investment != null) {
+      $result.investment = investment;
+    }
     return $result;
   }
   Workout._() : super();
@@ -110,6 +118,8 @@ class Workout extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'EndDate', protoName: 'End_Date')
     ..aInt64(6, _omitFieldNames ? '' : 'ChargeAdd', protoName: 'Charge_Add')
     ..a<$core.int>(7, _omitFieldNames ? '' : 'Countable', $pb.PbFieldType.O3, protoName: 'Countable')
+    ..aOS(8, _omitFieldNames ? '' : 'RobotName', protoName: 'Robot_Name')
+    ..a<$core.double>(9, _omitFieldNames ? '' : 'investment', $pb.PbFieldType.OD)
     ..hasRequiredFields = false
   ;
 
@@ -196,6 +206,24 @@ class Workout extends $pb.GeneratedMessage {
   $core.bool hasCountable() => $_has(6);
   @$pb.TagNumber(7)
   void clearCountable() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get robotName => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set robotName($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasRobotName() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearRobotName() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.double get investment => $_getN(8);
+  @$pb.TagNumber(9)
+  set investment($core.double v) { $_setDouble(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasInvestment() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearInvestment() => clearField(9);
 }
 
 class MultiWorkout extends $pb.GeneratedMessage {

@@ -33,6 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
     const History(),
     const Profile(),
     const Core(),
+    const ChatPage(),
   ];
 
   int _selectedIndex = 0;

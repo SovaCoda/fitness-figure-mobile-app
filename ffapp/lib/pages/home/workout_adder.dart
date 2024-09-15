@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +63,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final int sigfigs = 2;
   bool _goalMet = false;
   int minWorkoutTime = 30;
+  double _investment = 0;
   SharedPreferences? prefs;
+  bool hasInvested = false;
 
   late final AppLifecycleListener _listener;
   late AppLifecycleState? _lifeState;
@@ -105,7 +108,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     setState(() {
       if (timegoal != Int64.ZERO) {
-        _timegoal = timegoal * 60; //convert to seconds
+         //_timegoal = timegoal * 60; //convert to seconds
+        _timegoal = Int64(5);
       }
     });
 
@@ -116,7 +120,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Future<UserModel> getUserModel() async {
     UserModel userModel;
     do {
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
       userModel = Provider.of<UserModel>(context, listen: false);
     } while (userModel.user == User());
     return userModel;
@@ -157,20 +161,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         time = Int64(_timer.getTimeInSeconds());
       });
     } else {
-      if (!isInit){ 
+      if (!isInit) {
         await _timer.start();
-      states["logging"] = true;
-      states["paused"] = false;
-      states["pre-logging"] = false;
-        }
+        states["logging"] = true;
+        states["paused"] = false;
+        states["pre-logging"] = false;
+      }
     }
   }
 
   void startLogging(bool paused) {
     setState(() {
-      // states["logging"] = true;
-      // states["paused"] = paused;
-      // states["pre-logging"] = false;
       _logging = true;
       _startTime = DateTime.now().toUtc().toString();
     });
@@ -210,6 +211,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timePassed = time;
     setState(() {
       _timePassed = time;
+      
     });
     _timer.deleteTimer();
     time = Int64.ZERO;
@@ -217,13 +219,19 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     await awardAll(weeklyGoalMet: false, timeGoalMet: _goalMet);
     setState(() {
       _logging = false;
+      _goalMet = false;
+      _investment = 0;
+      _timePassed = Int64.ZERO;
     });
   }
 
   int addableEV = 50;
   int addableCharge = 0;
   //function that does all the awarding in one
-  Future<void> awardAll({required bool weeklyGoalMet, required bool timeGoalMet}) async {
+  Future<void> awardAll(
+      {required bool weeklyGoalMet,
+      required bool timeGoalMet,
+      int investment = 0}) async {
     UserModel user = Provider.of<UserModel>(context, listen: false);
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
@@ -261,7 +269,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             : figureInstance.charge);
 
     // if we havent worked out today, update the user's streak and week complete
-    if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday && timeGoalMet) {
+    if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday &&
+        timeGoalMet) {
       await auth.updateUserDBInfo(Routes.User(
           email: user.user!.email,
           streak: Int64(user.user!.streak.toInt() + 1),
@@ -289,6 +298,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       email: await auth.getUser().then((value) => value!.email.toString()),
       chargeAdd: Int64(addableCharge),
       evoAdd: Int64(addableEV),
+      investment: _investment,
       countable: workoutPercent >= 1 ? 1 : 0,
     );
     Provider.of<HistoryModel>(context, listen: false).addWorkout(workout);
@@ -333,7 +343,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 Theme.of(context).colorScheme.surface.withAlpha(126),
             onPressed: () => {
                   setState(() {
-                    endLogging();
+                    _timePassed = time;
                     states['chatting'] = true;
                     states['logging'] = false;
                   }),
@@ -342,7 +352,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       );
     } else {
       setState(() {
-        endLogging();
+        _timePassed = time;
         states['chatting'] = true;
         states['logging'] = false;
       });
@@ -380,7 +390,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     "logging": false,
     "paused": false,
     "chatting": false,
-    "post-logging": false
+    "post-logging": false,
+    "investing": false,
   };
 
   @override
@@ -408,136 +419,316 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     Expanded(
                       child: GradientedContainer(
                           radius: 2,
-                          margin: EdgeInsets.all(2),
-                          padding: EdgeInsets.all(20),
+                          margin: const EdgeInsets.all(2),
+                          padding: const EdgeInsets.all(20),
                           child: Consumer<UserModel>(builder: (_, user, __) {
                             return Consumer<FigureModel>(
                                 builder: (_, figure, __) {
                               return Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      RobotImageHolder(
-                                        height:
-                                            MediaQuery.of(context).size.height /
-                                                4,
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                2,
-                                        url: figure.composeFigureUrl(),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          WorkoutTimeShower(
-                                              textStyle: Theme.of(context)
-                                                  .textTheme
-                                                  .displayMedium!,
-                                              workoutMinTime:
-                                                  _timePassed.toInt(),
-                                              secondsTrueMinutesFalse: true,
-                                              showStatus: true,
-                                              goalMet: _goalMet),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          StreakShower(
-                                            showChevron: false,
-                                            textStyle: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium!,
-                                            streak: user.user!.streak.toInt(),
-                                            showStatus: true,
-                                            goalMet: true,
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Consumer<HistoryModel>(
-                                              builder: (_, workoutHistory, __) {
-                                            return Row(children: [
-                                              WeekToGoShower(
-                                                  weekGoal: user.user!.weekGoal
+                                children: states['investing']!
+                                    ? [
+                                        Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Feeling Confident?",
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineLarge!
+                                                    .copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface),
+                                              ),
+                                              Center(
+                                                  child: Container(
+                                                margin: const EdgeInsets.only(
+                                                    top: 15, bottom: 15),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4),
+                                                    shape: BoxShape.rectangle,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface),
+                                                width:
+                                                    MediaQuery.sizeOf(context)
+                                                            .width *
+                                                        1,
+                                                height: 2,
+                                              )),
+                                              Text(
+                                                "Invest in your week to earn extra rewards if you reach your weekly workout goal. \n",
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .displaySmall!
+                                                    .copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface),
+                                              ),
+                                              Text(
+                                                "NOTE: If you don't reach your goal by end of the week, you will lose the investment.",
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .displaySmall!
+                                                    .copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              WeekGoalShower(
+                                                  weeklyCompleted: user
+                                                      .user!.weekComplete
                                                       .toInt(),
-                                                  boxSize: Size(16, 16),
-                                                  workouts: workoutHistory
-                                                      .currentWeek)
-                                            ]);
-                                          }),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          ChargeBar(
-                                            barHeight: 10,
-                                            barWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            fillColor: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            currentCharge:
-                                                figure.figure!.charge,
+                                                  weeklyGoal: user
+                                                      .user!.weekGoal
+                                                      .toInt()),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              Consumer<HistoryModel>(
+                                                builder: (_, history, __) {
+                                                  return Column(
+                                                    children: [
+                                                      WeekToGoShower(
+                                                          boxSize: Size(
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  0.11,
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  0.11),
+                                                          weekGoal: user
+                                                              .user!.weekGoal
+                                                              .toInt(),
+                                                          workouts: history
+                                                              .currentWeek),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Text(
+                                                        "Currently Invested: \$${history.investment.toStringAsFixed(2)}",
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                              Consumer<UserModel>(
+                                                builder:
+                                                    (context, value, child) {
+                                                  return FfButton(
+                                                    disabled: hasInvested,
+                                                      text:
+                                                          "Invest ${(user.user!.currency.toInt() * 0.2).toStringAsFixed(2)}",
+                                                      textColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .primary,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .surface,
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          hasInvested = true;
+                                                          _investment = value
+                                                                  .user!
+                                                                  .currency
+                                                                  .toInt() *
+                                                              0.2;
+                                                          Provider.of<HistoryModel>(
+                                                                  context,
+                                                                  listen: false)
+                                                              .setInvestment(Provider.of<
+                                                                              HistoryModel>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .investment +
+                                                                  _investment);
+                                                          User user = Provider
+                                                                  .of<UserModel>(
+                                                                      context,
+                                                                      listen:
+                                                                          false)
+                                                              .user!;
+                                                          user.currency = Int64((user
+                                                                      .currency
+                                                                      .toDouble() -
+                                                                  _investment)
+                                                              .toInt());
+                                                          Provider.of<UserModel>(
+                                                                  context,
+                                                                  listen: false)
+                                                              .setUser(user);
+                                                          Provider.of<CurrencyModel>(context, listen: false).setCurrency(user.currency.toString());
+                                                          auth.updateUserDBInfo(
+                                                              Routes.User(
+                                                                  email: user
+                                                                      .email,
+                                                                  currency: user
+                                                                      .currency));
+                                                        });
+                                                      });
+                                                },
+                                              )
+                                            ],
                                           ),
-                                          Text(
-                                            "[+$addableCharge%]",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium!
-                                                .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          EvBar(
-                                            currentXp: figure.figure!.evPoints,
-                                            maxXp: figure1
-                                                .EvCutoffs[figure.EVLevel],
-                                            fillColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            barHeight: 10,
-                                            barWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                          ),
-                                          Text(
-                                            "(+$addableEV)",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium!
-                                                .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary),
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        )
+                                      ]
+                                    : [
+                                        Row(
+                                          children: [
+                                            RobotImageHolder(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  4,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              url: figure.composeFigureUrl(),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                WorkoutTimeShower(
+                                                    textStyle: Theme.of(context)
+                                                        .textTheme
+                                                        .displayMedium!,
+                                                    workoutMinTime:
+                                                        _timePassed.toInt(),
+                                                    secondsTrueMinutesFalse:
+                                                        true,
+                                                    showStatus: true,
+                                                    goalMet: _goalMet),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                StreakShower(
+                                                  showChevron: false,
+                                                  textStyle: Theme.of(context)
+                                                      .textTheme
+                                                      .displayMedium!,
+                                                  streak:
+                                                      user.user!.streak.toInt(),
+                                                  showStatus: true,
+                                                  goalMet: true,
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Consumer<HistoryModel>(builder:
+                                                    (_, workoutHistory, __) {
+                                                  return Row(children: [
+                                                    WeekToGoShower(
+                                                        weekGoal: user
+                                                            .user!.weekGoal
+                                                            .toInt(),
+                                                        boxSize:
+                                                            const Size(16, 16),
+                                                        workouts: workoutHistory
+                                                            .currentWeek)
+                                                  ]);
+                                                }),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                ChargeBar(
+                                                  barHeight: 10,
+                                                  barWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2,
+                                                  fillColor: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  currentCharge:
+                                                      figure.figure!.charge,
+                                                ),
+                                                Text(
+                                                  "[+$addableCharge%]",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .displayMedium!
+                                                      .copyWith(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary),
+                                                )
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                EvBar(
+                                                  currentXp:
+                                                      figure.figure!.evPoints,
+                                                  maxXp: figure1.EvCutoffs[
+                                                      figure.EVLevel],
+                                                  fillColor: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                  barHeight: 10,
+                                                  barWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2,
+                                                ),
+                                                Text(
+                                                  "(+$addableEV)",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .displayMedium!
+                                                      .copyWith(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .secondary),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                               );
                             });
                           })),
@@ -549,10 +740,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         onPressed: () => {
-                              setState(() {
-                                states['post-logging'] = false;
-                                states['pre-logging'] = true;
-                              })
+                              if (states['investing']!)
+                                setState(() {
+                                  states['investing'] = false;
+                                })
+                              else
+                                setState(() {
+                                  states['post-logging'] = false;
+                                  states['pre-logging'] = true;
+                                  states['investing '] = false;
+                                  endLogging();
+                                })
                             }),
                     const SizedBox(
                       height: 10,
@@ -607,7 +805,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                               onPressed: () => {
                                     setState(() {
                                       states['chatting'] = false;
-                                      states['post-logging'] = true;
+                                      if (_goalMet) {
+                                        states['post-logging'] = true;
+                                        states['investing'] = true;
+                                      } else {
+                                        states['investing'] = false;
+                                        states['post-logging'] = true;
+                                      }
                                     })
                                   }),
                           const SizedBox(
@@ -811,7 +1015,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         Theme.of(context).colorScheme.onPrimary,
                                     backgroundColor:
                                         Theme.of(context).colorScheme.primary,
-                                    onPressed: () => {endWorkout()})
+                                    onPressed: () => 
+                                    { endWorkout()
+                                    })
                                 : FfButton(
                                     icon: Icons.add,
                                     iconSize: 50,
