@@ -6,6 +6,7 @@ import "package:ffapp/firebase_options.dart";
 import 'package:ffapp/routes.dart';
 import 'package:logger/logger.dart';
 import 'package:fixnum/fixnum.dart';
+import 'dart:async';
 
 var logger = Logger();
 
@@ -107,20 +108,61 @@ class AuthService {
     return await _routes.routesClient.resetUserWeekComplete(user);
   }
 
-  Future<void> updateEmail(
-      String oldEmail, String newEmail, FB.AuthCredential credential) async {
-    try {
-      await _auth.currentUser?.reauthenticateWithCredential(credential);
-      await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
-      await _auth.currentUser?.reload();
-      Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
-          Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail));
-      print("Email updated successfully to: ${updatedUser.email}");
-    } catch (e) {
-      print("Error updating email: $e");
-      rethrow;
-    }
+  Future updateEmail(String oldEmail, String newEmail, FB.AuthCredential credential) async {
+  try {
+    await _auth.currentUser?.reauthenticateWithCredential(credential);
+    await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
+    _startEmailVerificationListener(oldEmail, newEmail);
+    // listenToAuthChanges();
+    return "Verification email sent to: $newEmail";
+  } catch (e) {
+    logger.e("Error sending verification email: $e");
+    rethrow;
   }
+}
+
+  // TODO: regain brain cells and fix this
+  // Checks every 5 seconds if the user is verified, and, if so, updates the database
+  void _startEmailVerificationListener(String oldEmail, String newEmail) {
+    
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
+      try {
+      await _auth.currentUser?.reload();
+      } catch(e) { // if this errors out, it means there was an update to the account
+        completeEmailUpdate(oldEmail, newEmail);
+      }
+      if (_auth.currentUser?.email == newEmail && _auth.currentUser?.emailVerified == true) {
+        timer.cancel();
+        await completeEmailUpdate(oldEmail, newEmail);
+      }
+    });
+}
+
+// This doesn't work as far as I know
+// void listenToAuthChanges() {
+//   FB.FirebaseAuth.instance.authStateChanges().listen((FB.User? user) {
+//     if (user != null) {
+//       String? updatedEmail = user.email;
+
+//       completeEmailUpdate(user.email!, updatedEmail!);
+//     }
+//   });
+// }
+
+
+  Future completeEmailUpdate(String oldEmail, String newEmail) async {
+  try {
+    await _auth.currentUser?.reload();
+      Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
+        Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail)
+      );
+      logger.i("Email updated successfully in database to: ${updatedUser.email}");
+      return updatedUser;
+  } catch (e) {
+    logger.e("Error updating email in database: $e");
+    rethrow;
+  }
+}
 
   Future<void> deleteUser() async {
     await _auth.currentUser?.delete();
