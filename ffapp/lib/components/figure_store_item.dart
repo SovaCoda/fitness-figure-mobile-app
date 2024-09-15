@@ -10,7 +10,7 @@ class FigureStoreItem extends StatefulWidget {
     required this.owned,
     required this.skinName,
     required this.figureName,
-    required this.onViewSkin,
+    this.onViewSkin,
     this.isLocked = false,
   }) : super(key: key);
 
@@ -19,7 +19,7 @@ class FigureStoreItem extends StatefulWidget {
   final int itemPrice;
   final String skinName;
   final Function(BuildContext, int, String?) onOpenSkin;
-  final Function(BuildContext, String) onViewSkin;
+  final Function(BuildContext, String)? onViewSkin;
   final bool owned;
   final bool isLocked;
 
@@ -260,7 +260,7 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                 if (owned)
                   ElevatedButton(
                     onPressed:
-                        widget.isLocked ? null : () => widget.onViewSkin(context, widget.skinName),
+                        widget.isLocked ? null : () => widget.onViewSkin != null ? widget.onViewSkin!(context, widget.skinName) : null,
                     
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal.shade900,

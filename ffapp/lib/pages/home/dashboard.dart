@@ -70,9 +70,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void initialize() async {
-    await Provider.of<ChatModel>(context, listen: false).init();
-    await Provider.of<ChatModel>(context, listen: false)
-        .sendMessage("", "system");
+    // await Provider.of<ChatModel>(context, listen: false).init();
+    // await Provider.of<ChatModel>(context, listen: false)
+    //     .sendMessage("", "system");
     Routes.User? databaseUser = await auth.getUserDBInfo();
     databaseUser!.lastLogin = DateTime.now().toUtc().toString();
     await auth.updateUserDBInfo(databaseUser);
@@ -281,31 +281,31 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         );
                       },
                     ),
-                    Positioned(
-                      top: 5,
-                      left: 5,
-                      child: Consumer<ChatModel>(
-                        builder: (_, chat, __) {
-                          return Container(
-                            width: MediaQuery.of(context).size.width * 0.75,
-                            child: GradientedContainer(
-                              padding: const EdgeInsets.all(4),
-                              child: Text(
-                                chat.messages.last.text,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        fontSize: 12,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                    // Positioned(
+                    //   top: 5,
+                    //   left: 5,
+                    //   child: Consumer<ChatModel>(
+                    //     builder: (_, chat, __) {
+                    //       return Container(
+                    //         width: MediaQuery.of(context).size.width * 0.75,
+                    //         child: GradientedContainer(
+                    //           padding: const EdgeInsets.all(4),
+                    //           child: Text(
+                    //             chat.messages.last.text,
+                    //             style: Theme.of(context)
+                    //                 .textTheme
+                    //                 .displaySmall!
+                    //                 .copyWith(
+                    //                     fontSize: 12,
+                    //                     color: Theme.of(context)
+                    //                         .colorScheme
+                    //                         .onSurface),
+                    //           ),
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
                     Positioned(
                       top: 0,
                       right: 0,
