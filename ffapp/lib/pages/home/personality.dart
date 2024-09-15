@@ -54,7 +54,7 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
               await chatModel.savePersonalityModules(); // Save before navigating
               context.go('/chat');
               if(!listEquals(initialPersonalityModules, chatModel.personalityModules)) {
-                chatModel.init(changeFlag: true);
+                chatModel.init(changeFlag: true, context: context);
               }
               
             },
