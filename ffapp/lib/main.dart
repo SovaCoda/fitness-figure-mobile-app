@@ -269,6 +269,7 @@ Future<void> main() async {
       ChangeNotifierProvider(
         create: (context) => HistoryModel(),
       ),
+      ChangeNotifierProvider(create: (_) => FigureInstancesProvider()),
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
       ChangeNotifierProvider(create: (context) => ChatModel()..init(context: context)),
     ], child: const MyApp()),

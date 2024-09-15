@@ -79,27 +79,29 @@ class _SkinViewerState extends State<SkinViewer> {
   }
 
   void equipSkin(BuildContext context, String figureName, String skinName) {
-    print("Equipping skin: $skinName for figure: $figureName");
-    int selectedIndex =
-        Provider.of<SelectedFigureProvider>(context, listen: false)
-            .selectedFigureIndex;
+  print("Equipping skin: $skinName for figure: $figureName");
+  int selectedIndex = Provider.of<SelectedFigureProvider>(context, listen: false).selectedFigureIndex;
+  
+  // Update the FigureInstancesProvider
+  Provider.of<FigureInstancesProvider>(context, listen: false)
+    .setFigureInstanceCurSkin(figureName, skinName, selectedIndex);
+  
+  // Update the SelectedFigureProvider
+  Provider.of<FigureModel>(context, listen: false)
+    .setFigureSkin(skinName.substring(4));
 
-    Provider.of<FigureInstancesProvider>(context, listen: false)
-        .setFigureInstanceCurSkin(figureName, skinName, selectedIndex);
-
-    Provider.of<FigureModel>(context, listen: false)
-        .setFigureSkin(skinName.substring(4));
-
-    auth
-        .updateFigureInstance(Routes.FigureInstance(
-      figureName: figureName,
-      curSkin: skinName.substring(4),
-      userEmail: userModel.user?.email,
-    ))
-        .then((_) {
-      print("Figure instance updated in backend for $figureName");
-    });
-  }
+  // Update the backend
+  auth.updateFigureInstance(Routes.FigureInstance(
+    figureName: figureName,
+    curSkin: skinName.substring(4),
+    userEmail: userModel.user?.email,
+  )).then((_) {
+    print("Figure instance updated in backend for $figureName");
+    
+    // Force a rebuild of the entire inventory
+    Provider.of<SelectedFigureProvider>(context, listen: false).notifyListeners();
+  });
+}
 
   void purchaseSkin(BuildContext context, int price, String skinSkinName,
       String figureSkinName, bool owned) async {

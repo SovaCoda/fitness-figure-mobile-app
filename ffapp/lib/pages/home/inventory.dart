@@ -67,7 +67,7 @@ class _InventoryState extends State<Inventory> {
       builder: (context, selectedFigureProvider, _) {
         return Column(
           children: [
-            SizedBox(height: 10), // Top gap
+            SizedBox(height: 10),
             Consumer<UserModel>(
               builder: (context, userModel, _) {
                 int totalSlots = figureInstancesList.length + 2;
@@ -88,11 +88,21 @@ class _InventoryState extends State<Inventory> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10), // Gap between rows
+                      SizedBox(height: 10),
                     ],
                   ],
                 );
               },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => context.goNamed('SkinStore'),
+              child: Text('Go to Store'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
             ),
           ],
         );

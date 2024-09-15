@@ -263,12 +263,13 @@ class _StoreState extends State<Store> {
                                               ));
                                             }
                                           },
-                                          onViewSkin: (context, figureName) {
-                                            print("Viewing skin for figure: $figureName");
-                                            showSkinView(
-                                                listOfFigures[index * 2]
-                                                    .figureName);
-                                          },
+                                          onViewSkin: null,
+                                          // onViewSkin: (context, figureName) {
+                                          //   print("Viewing skin for figure: $figureName");
+                                          //   showSkinView(
+                                          //       listOfFigures[index * 2]
+                                          //           .figureName);
+                                          // },
                                           skinName: "",
                                           figureName: listOfFigures[index * 2]
                                               .figureName,
