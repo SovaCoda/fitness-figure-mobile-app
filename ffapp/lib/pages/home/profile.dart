@@ -25,6 +25,7 @@ class _ProfileState extends State<Profile> {
   late String email = "Loading...";
   late String password = "Loading...";
   late int weeklyGoal = 0;
+  late int minExerciseGoal = 0;
   late String manageSub = "Loading...";
 
   @override
@@ -42,6 +43,7 @@ class _ProfileState extends State<Profile> {
       String curName = databaseUser.name;
       String curEmail = databaseUser.email;
       int curGoal = databaseUser.weekGoal.toInt();
+      int minExerciseTime = databaseUser.workoutMinTime.toInt();
       bool premiumStatus =
           Provider.of<UserModel>(context, listen: false).isPremium();
 
@@ -50,6 +52,7 @@ class _ProfileState extends State<Profile> {
         email = curEmail;
         password = "*******";
         weeklyGoal = curGoal;
+        minExerciseGoal = minExerciseTime;
         manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
       });
     }
@@ -98,6 +101,49 @@ class _ProfileState extends State<Profile> {
     ).show(context);
   }
 
+  void _showMinGoalPicker() {
+    int safeWeeklyGoal = weeklyGoal.clamp(1, 4);
+    BottomPicker(
+      items: List.generate(
+          4,
+          (index) => Text("${(index + 1) * 15} minutes",
+              style: TextStyle(fontSize: 35))),
+      pickerTitle: const Text(
+        "Select Weekly Workout Goal",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      titleAlignment: Alignment.center,
+      pickerTextStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      height: MediaQuery.of(context).size.height * 0.5,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      selectedItemIndex: safeWeeklyGoal - 1,
+      itemExtent: 38,
+      dismissable: true,
+      onSubmit: (index) {
+        setState(() {
+          minExerciseGoal = (index + 1) * 15;
+        });
+        updateMinWorkoutTime(minExerciseGoal);
+      },
+      buttonAlignment: MainAxisAlignment.center,
+      displayCloseIcon: false,
+      buttonWidth: MediaQuery.of(context).size.width * 0.5,
+      buttonContent: Text("Confirm",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16),
+          textAlign: TextAlign.center),
+      buttonStyle: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: const BorderRadius.all(Radius.circular(13)),
+      ),
+      buttonSingleColor: Theme.of(context).colorScheme.primary,
+    ).show(context);
+  }
+
   void updateName(String newName) async {
     await auth.updateName(newName);
     setState(() {
@@ -127,14 +173,14 @@ class _ProfileState extends State<Profile> {
   void checkEmailVerification(String newEmail) {
     Timer.periodic(Duration(seconds: 5), (timer) async {
       try {
-      User? user = FirebaseAuth.instance.currentUser;
-      await user?.reload();
-      if (user?.email == newEmail && user?.emailVerified == true) {
-        timer.cancel();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Email updated successfully!")),
-        );
-      } 
+        User? user = FirebaseAuth.instance.currentUser;
+        await user?.reload();
+        if (user?.email == newEmail && user?.emailVerified == true) {
+          timer.cancel();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Email updated successfully!")),
+          );
+        }
       } on FirebaseAuthException {
         setState(() {
           email = newEmail;
@@ -164,6 +210,12 @@ class _ProfileState extends State<Profile> {
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
     Provider.of<UserModel>(context, listen: false).setUserWeekGoal(Int64(goal));
+  }
+
+  void updateMinWorkoutTime(int time) async {
+    await auth.updateUserDBInfo(
+        Routes.User(email: email, workoutMinTime: Int64(time)));
+    Provider.of<UserModel>(context, listen: false).setWorkoutMinTime(Int64(time));
   }
 
   @override
@@ -207,6 +259,7 @@ class _ProfileState extends State<Profile> {
                 onTap: () => _showPasswordChangeDialog(),
               ),
               _buildWeeklyGoalCard(),
+              _buildWorkoutGoalCard(),
               _buildSubscriptionCard(),
               SizedBox(height: 20),
               ElevatedButton(
@@ -259,6 +312,34 @@ class _ProfileState extends State<Profile> {
                 Text("$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}"),
                 ElevatedButton(
                   onPressed: _showWeeklyGoalPicker,
+                  child: Text("Change"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkoutGoalCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Minimum Workout Time',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                    "$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}"),
+                ElevatedButton(
+                  onPressed: _showMinGoalPicker,
                   child: Text("Change"),
                 ),
               ],

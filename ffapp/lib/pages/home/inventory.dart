@@ -123,6 +123,7 @@ class _InventoryState extends State<Inventory> {
           onEquip: (context) =>
               equipNew(figureInstancesList[index].figureName.toString(), index),
           isSelected: selectedFigureProvider.selectedFigureIndex == index,
+          index: index
         ),
       );
     } else if (index < figureInstancesList.length + 2) {
@@ -133,6 +134,7 @@ class _InventoryState extends State<Inventory> {
         photoPath: "null",
         equiped: false,
         onEquip: (context) => {},
+        index: index
       );
     } else {
       // Empty slot

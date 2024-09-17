@@ -108,8 +108,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     setState(() {
       if (timegoal != Int64.ZERO) {
-         //_timegoal = timegoal * 60; //convert to seconds
-        _timegoal = Int64(5);
+         _timegoal = timegoal * 60; //convert to seconds
+        // _timegoal = Int64(5);
       }
     });
 

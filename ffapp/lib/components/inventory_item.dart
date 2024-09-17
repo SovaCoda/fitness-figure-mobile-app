@@ -18,6 +18,7 @@ class InventoryItem extends StatefulWidget {
   final bool locked;
   final FigureInstance? figureInstance;
   final bool isSelected;
+  final int index;
 
   const InventoryItem({
     Key? key,
@@ -27,6 +28,7 @@ class InventoryItem extends StatefulWidget {
     required this.figureInstance,
     this.locked = false,
     this.isSelected = false,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -92,7 +94,6 @@ class _InventoryItemState extends State<InventoryItem> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Consumer<FigureModel>(
@@ -111,7 +112,15 @@ class _InventoryItemState extends State<InventoryItem> {
                   left: 10,
                   top: 10,
                   child: GestureDetector(
-                    onTap: () => {_showSkinDialog(context)},
+                    onTap: () => {
+                      if(!widget.isSelected) {
+                        figureModel.setFigure(widget.figureInstance!),
+                        Provider.of<SelectedFigureProvider>(context, listen: false)
+        .setSelectedFigureIndex(widget.index),
+                        widget.onEquip(context)
+                      },
+                      _showSkinDialog(context)
+                      },
                     child: Icon(Icons.swap_horiz,
                         size: 40, color: Theme.of(context).colorScheme.primary),
                   ),
