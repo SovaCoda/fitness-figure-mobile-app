@@ -236,7 +236,6 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await dotenv.load(fileName: ".env");
   await dotenv.load(fileName: ".env");
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
   OpenAI.apiKey = dotenv.env['OPENAI_KEY']!;

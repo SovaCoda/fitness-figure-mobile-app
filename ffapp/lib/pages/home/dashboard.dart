@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:ffi' as ffi;
 
 import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/button_themes.dart';
@@ -74,49 +74,57 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
     // await Provider.of<ChatModel>(context, listen: false).init(context: context);
     // await Provider.of<ChatModel>(context, listen: false)
-    //     .sendMessage("", "system", context);
-    Routes.User? databaseUser = await auth.getUserDBInfo();
-    databaseUser!.lastLogin = DateTime.now().toUtc().toString();
-    await auth.updateUserDBInfo(databaseUser);
-    Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
-        Routes.FigureInstance(
-            userEmail: databaseUser?.email,
-            figureName: databaseUser?.curFigure));
+    //     .sendMessage("", "system");
+    try {
+      Routes.User? databaseUser = await auth.getUserDBInfo();
+      if (databaseUser != null) {
+        databaseUser.lastLogin = DateTime.now().toUtc().toString();
+        await auth.updateUserDBInfo(databaseUser);
+        Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
+            Routes.FigureInstance(
+                userEmail: databaseUser.email,
+                figureName: databaseUser.curFigure));
+        if (!mounted) return;
 
-    String curEmail = databaseUser?.email ?? "Loading...";
-    int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
-    int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
-    String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
-    if (!mounted) return;
-    Provider.of<UserModel>(context, listen: false).setUser(databaseUser);
-    Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
-    Provider.of<FigureModel>(context, listen: false)
-        .setFigureLevel(databaseFigure!.evLevel ?? 0);
-    setState(() {
-      charge = curWeekly / curGoal;
-      email = curEmail;
-      weeklyGoal = curGoal;
-      weeklyCompleted = curWeekly;
+        String curEmail = databaseUser?.email ?? "Loading...";
+        int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
+        int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
+        String curFigure = databaseUser?.curFigure ?? "robot1_skin0_cropped";
+        if (!mounted) return;
+        Provider.of<UserModel>(context, listen: false).setUser(databaseUser);
+        Provider.of<FigureModel>(context, listen: false)
+            .setFigure(databaseFigure);
+        Provider.of<FigureModel>(context, listen: false)
+            .setFigureLevel(databaseFigure!.evLevel ?? 0);
+        setState(() {
+          charge = curWeekly / curGoal;
+          email = curEmail;
+          weeklyGoal = curGoal;
+          weeklyCompleted = curWeekly;
 
-      if (curFigure != "none" &&
-          Provider.of<FigureModel>(context, listen: false).figure?.charge !=
-              null) {
-        //logic for display sad character... theres nothing stopping this from
-        //display a broken url rn though
-        if (Provider.of<FigureModel>(context, listen: false).figure!.charge <
-            20) {
-          figureURL = "${curFigure}_sad";
-        } else if (Provider.of<FigureModel>(context, listen: false)
-                .figure!
-                .charge <
-            50) {
-          figureURL = curFigure;
-        } else {
-          figureURL = "${curFigure}_happy";
-        }
-      }
-    });
-
+          if (curFigure != "none" &&
+              Provider.of<FigureModel>(context, listen: false).figure?.charge !=
+                  null) {
+            //logic for display sad character... theres nothing stopping this from
+            //display a broken url rn though
+            if (Provider.of<FigureModel>(context, listen: false)
+                    .figure!
+                    .charge <
+                20) {
+              figureURL = "${curFigure}_sad";
+            } else if (Provider.of<FigureModel>(context, listen: false)
+                    .figure!
+                    .charge <
+                50) {
+              figureURL = curFigure;
+            } else {
+              figureURL = "${curFigure}_happy";
+            }
+          }
+        });
+        
+      
+      
     // offline notification stuff
     LocalNotificationService().initNotifications;
     Map<String, dynamic> gameState = {
@@ -192,11 +200,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     await auth.resetUserWeekComplete(user);
                     user.weekComplete = Int64(0);
                     user.readyForWeekReset = 'no';
-                    user.isInGracePeriod = 'no';
-
-                    figure.evPoints += evGain;
-                    figure.charge += chargeGain;
-
+                    await auth.resetUserStreak(user);
+                    await auth.resetUserWeekComplete(user);
                     await auth.updateUserDBInfo(user);
                     await auth.updateFigureInstance(figure);
                     Provider.of<UserModel>(context, listen: false)
@@ -205,25 +210,16 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         .setFigure(figure);
 
                     Navigator.of(context).pop();
-                    return;
-                  }
-                  user.streak = Int64(0);
-                  user.weekComplete = Int64(0);
-                  user.readyForWeekReset = 'no';
-                  await auth.resetUserStreak(user);
-                  await auth.resetUserWeekComplete(user);
-                  await auth.updateUserDBInfo(user);
-                  await auth.updateFigureInstance(figure);
-                  Provider.of<UserModel>(context, listen: false).setUser(user);
-                  Provider.of<FigureModel>(context, listen: false)
-                      .setFigure(figure);
-
-                  Navigator.of(context).pop();
-                }),
-            context);
+                  }}),
+              context);
+        }
+      });
+      logger.i(figureURL);
       }
-    });
-    logger.i(figureURL);
+    } catch (e, stacktrace) {
+      logger.e("Error initializing dashboard: ${e.toString()}");
+      logger.e("Stacktrace: ${stacktrace.toString()}");
+    }
   }
 
   void triggerFigureDecay() {
@@ -237,84 +233,85 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   double? usableScreenHeight;
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final appBarHeight =
-          appBarAndBottomNavigationBar.appBarKey.currentContext?.size?.height;
-      final bottomNavBarHeight = appBarAndBottomNavigationBar
-          .bottomNavBarKey.currentContext?.size?.height;
-      final screenheight = MediaQuery.sizeOf(context).height;
-      setState(() {
-        Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false)
-            .setUsableScreenHeight(
-                screenheight - (appBarHeight ?? 0) - (bottomNavBarHeight ?? 0));
-        usableScreenHeight =
-            screenheight - (appBarHeight ?? 0) - (bottomNavBarHeight ?? 0);
-      });
-    });
+    // Use MediaQuery to get screen size
+    final Size screenSize = MediaQuery.of(context).size;
+    final double screenWidth = screenSize.width;
+    final double screenHeight = screenSize.height;
 
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          margin: const EdgeInsets.only(top: 10, bottom: 10),
-          height: usableScreenHeight ?? 800,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(13)),
-            gradient: RadialGradient(
-              center: Alignment.center,
-              focalRadius: 0.1,
-              colors: [
-                Theme.of(context).colorScheme.onPrimary.withOpacity(0),
-                Theme.of(context).colorScheme.surface.withOpacity(0.45),
-              ],
-            ),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.surface,
-              width: 3,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Consumer<FigureModel>(
-                builder: (context, figure, child) {
-                  return ChargeBar(
-                    currentCharge: figure.figure?.charge ?? 0,
-                    fillColor: Theme.of(context).colorScheme.primary,
-                    barHeight: 30,
-                    barWidth: MediaQuery.of(context).size.width * 0.74,
-                    isVertical: false,
-                    showDashedLines: true,
-                    showInfoCircle: true,
-                  );
-                },
+    // Calculate responsive sizes
+    final double chargeBarHeight = screenHeight * 0.031;
+    final double chargeBarWidth = screenWidth * 0.74;
+    final double robotImageHeight = screenHeight * 0.333;
+    final double evBarHeight = 30;
+    final double evBarWidth = screenWidth * 0.9;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+              padding: EdgeInsets.all(screenWidth * 0.02),
+              margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
+              height: constraints.maxHeight,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13),
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  focalRadius: 0.1,
+                  colors: [
+                    Theme.of(context).colorScheme.onPrimary.withOpacity(0),
+                    Theme.of(context).colorScheme.surface.withOpacity(0.45),
+                  ],
+                ),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 3,
+                ),
               ),
-              Expanded(
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Consumer<FigureModel>(
-                      builder: (context, figure, child) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              RobotImageHolder(
-                                url: (figure.figure != null)
-                                    ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}")
-                                    : "robot1/robot1_skin0_evo0_cropped_happy",
-                                height:
-                                    MediaQuery.of(context).size.height * 0.333,
-                                width: 500,
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    Positioned(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Consumer<FigureModel>(
+                    builder: (context, figure, child) {
+                      return ChargeBar(
+                        currentCharge: figure.figure?.charge ?? 0,
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        barHeight: chargeBarHeight,
+                        barWidth: chargeBarWidth,
+                        isVertical: false,
+                        showDashedLines: true,
+                        showInfoCircle: true,
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Consumer<FigureModel>(
+                          builder: (context, figure, child) {
+                            return Center(
+                                child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  RobotImageHolder(
+                                    url: (figure.figure != null)
+                                        ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
+                                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                                    height: robotImageHeight,
+                                    width: screenWidth * 0.8,
+                                  ),
+                                ],
+                              ),
+                            ));
+                          },
+                        ),
+
+                        Positioned(
                       top: 5,
                       left: 5,
                       child: Consumer<ChatModel>(
@@ -339,7 +336,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         },
                       ),
                     ),
-                    Positioned(
+                        Positioned(
                       top: 0,
                       right: 0,
                       child: Consumer<UserModel>(
@@ -378,7 +375,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         },
                       ),
                     ),
-                    Consumer<UserModel>(
+                        Consumer<UserModel>(
                       builder: (context, user, child) => (user.user != null &&
                                   user.user?.email == "chb263@msstate.ed" ||
                               user.user?.email == "blizard265@gmail.com")
@@ -389,46 +386,50 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                               button2Text: "Weekly Reset User",
                             )
                           : Container(),
-                    )
-                  ],
-                ),
-              ),
-              Consumer<FigureModel>(
-                builder: (context, figure, child) {
-                  if (figure.figure == null) {
-                    return const CircularProgressIndicator();
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: EvBar(
-                      currentXp: figure.figure?.evPoints ?? 0,
-                      maxXp: figure1.EvCutoffs[figure.EVLevel],
-                      fillColor: Theme.of(context).colorScheme.secondary,
-                      barHeight: 30,
-                      barWidth: MediaQuery.of(context).size.width * 0.9,
-                      isVertical: false,
-                      showInfoBox: true,
-                      isMaxLevel: figure.EVLevel == 7,
                     ),
-                  );
-                },
+                      ],
+                    ),
+                  ),
+                  Consumer<FigureModel>(
+                    builder: (context, figure, child) {
+                      if (figure.figure == null) {
+                        return const CircularProgressIndicator();
+                      }
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: screenHeight * 0.01),
+                        child: EvBar(
+                          currentXp: figure.figure?.evPoints ?? 0,
+                          maxXp: figure1.EvCutoffs[figure.EVLevel],
+                          fillColor: Theme.of(context).colorScheme.secondary,
+                          barHeight: evBarHeight,
+                          barWidth: evBarWidth,
+                          isVertical: false,
+                          showInfoBox: true,
+                          isMaxLevel: figure.EVLevel == 7,
+                        ),
+                      );
+                    },
+                  ),
+                  Consumer<UserModel>(
+                    builder: (context, user, child) {
+                      if (user.user == null) {
+                        return const CircularProgressIndicator();
+                      }
+                      return WorkoutNumbersRow(
+                        streak: user.user!.streak.toInt(),
+                        weeklyCompleted: user.user!.weekComplete.toInt(),
+                        weeklyGoal: user.user!.weekGoal.toInt(),
+                        lifeTimeCompleted: 10,
+                        availableWidth: screenWidth *0.91,
+                      );
+                    },
+                  ),
+                ],
               ),
-              Consumer<UserModel>(builder: (context, user, child) {
-                if (user.user == null) {
-                  return const CircularProgressIndicator();
-                }
-                return WorkoutNumbersRow(
-                  streak: user.user!.streak.toInt(),
-                  weeklyCompleted: user.user!.weekComplete.toInt(),
-                  weeklyGoal: user.user!.weekGoal.toInt(),
-                  lifeTimeCompleted: 10,
-                  availableWidth: MediaQuery.of(context).size.width - 40,
-                );
-              }),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

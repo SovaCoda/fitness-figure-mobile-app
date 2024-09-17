@@ -78,39 +78,44 @@ class ChargeBar extends StatelessWidget {
             Visibility(
               visible: showInfoCircle,
               child: Container(
-                width: 60,
-                height: 60,
+                width: MediaQuery.of(context).size.width * 0.14,
+                height: MediaQuery.of(context).size.width * 0.14,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(13),
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "$currentCharge%",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayMedium!
-                            .copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary),
-                      ),
-                      SizedBox(
-                        width: 60,
-                        height: 30,
-                        child: OverflowBox(
-                          maxHeight: 150,
-                          maxWidth: 150,
-                          child: Transform.rotate(
-                            angle: 3.14 / 2,
-                            child: Icon(Icons.battery_charging_full_outlined,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                size: 40),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$currentCharge%",
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayMedium!
+                              .copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.14,
+                          height: MediaQuery.of(context).size.width * 0.07,
+                          child: OverflowBox(
+                            maxHeight: 150,
+                            maxWidth: 150,
+                            child: Transform.rotate(
+                              angle: 3.14 / 2,
+                              child: Icon(Icons.battery_charging_full_outlined,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  size: 40),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
