@@ -12,7 +12,8 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:mockito/annotations.dart';
 import 'package:ffapp/components/charge_bar.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 
 @GenerateMocks([
   AuthService,
@@ -21,7 +22,8 @@ import 'package:ffapp/components/charge_bar.dart';
   CurrencyModel,
   UserModel,
   FigureModel,
-  InventoryModel
+  InventoryModel,
+  ChatModel
 ])
 import 'dashboard_test.mocks.dart';
 
@@ -68,11 +70,14 @@ void main() {
       when(mockFigureModel.EVLevel).thenReturn(1);
       when(mockAppBarModel.appBarKey).thenReturn(GlobalKey());
       when(mockAppBarModel.bottomNavBarKey).thenReturn(GlobalKey());
-      
+
       // Mock AuthService methods
-      when(mockAuthService.getUserDBInfo()).thenAnswer((_) => Future.value(mockUser));
-      when(mockAuthService.updateUserDBInfo(any)).thenAnswer((_) => Future.value(mockUser));
-      when(mockAuthService.getFigureInstance(any)).thenAnswer((_) => Future.value(mockFigure));
+      when(mockAuthService.getUserDBInfo())
+          .thenAnswer((_) => Future.value(mockUser));
+      when(mockAuthService.updateUserDBInfo(any))
+          .thenAnswer((_) => Future.value(mockUser));
+      when(mockAuthService.getFigureInstance(any))
+          .thenAnswer((_) => Future.value(mockFigure));
     });
 
     Widget createWidgetUnderTest() {
@@ -81,11 +86,14 @@ void main() {
           providers: [
             Provider<AuthService>.value(value: mockAuthService),
             Provider<FlutterUser>.value(value: mockFlutterUser),
-            ChangeNotifierProvider<AppBarAndBottomNavigationBarModel>.value(value: mockAppBarModel),
-            ChangeNotifierProvider<CurrencyModel>.value(value: mockCurrencyModel),
+            ChangeNotifierProvider<AppBarAndBottomNavigationBarModel>.value(
+                value: mockAppBarModel),
+            ChangeNotifierProvider<CurrencyModel>.value(
+                value: mockCurrencyModel),
             ChangeNotifierProvider<UserModel>.value(value: mockUserModel),
             ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
-            ChangeNotifierProvider<InventoryModel>.value(value: mockInventoryModel),
+            ChangeNotifierProvider<InventoryModel>.value(
+                value: mockInventoryModel),
           ],
           child: const Dashboard(),
         ),
@@ -100,7 +108,6 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
       }
 
-
       // Verify that the Dashboard widget is present
       expect(find.byType(Dashboard), findsOneWidget);
       // Verify that the weekly completed workouts are displayed
@@ -111,10 +118,11 @@ void main() {
       expect(find.textContaining('2'), findsWidgets);
     });
 
-    testWidgets('Dashboard adapts layout for small screens', (WidgetTester tester) async {
+    testWidgets('Dashboard adapts layout for small screens',
+        (WidgetTester tester) async {
       tester.view.physicalSize = const Size(320, 568);
       tester.view.devicePixelRatio = 2.0;
-      
+
       await tester.pumpWidget(createWidgetUnderTest());
       for (int i = 0; i < 5; i++) {
         await tester.pump(const Duration(seconds: 1));
@@ -133,13 +141,13 @@ void main() {
       expect(robotImageSize.height, lessThan(200));
 
       // Add more specific checks for small screen layout
-      
     });
 
-    testWidgets('Dashboard adapts layout for large screens', (WidgetTester tester) async {
+    testWidgets('Dashboard adapts layout for large screens',
+        (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1024, 1366);
       tester.view.devicePixelRatio = 2.0;
-      
+
       await tester.pumpWidget(createWidgetUnderTest());
       for (int i = 0; i < 5; i++) {
         await tester.pump(const Duration(seconds: 1));
@@ -171,6 +179,7 @@ void main() {
     late MockUserModel mockUserModel;
     late MockFigureModel mockFigureModel;
     late MockInventoryModel mockInventoryModel;
+    late MockChatModel mockChatModel;
 
     setUp(() {
       mockAuthService = MockAuthService();
@@ -180,6 +189,7 @@ void main() {
       mockUserModel = MockUserModel();
       mockFigureModel = MockFigureModel();
       mockInventoryModel = MockInventoryModel();
+      mockChatModel = MockChatModel();
 
       // Set up mock data
       final mockUser = User(
@@ -189,7 +199,7 @@ void main() {
         streak: Int64(2),
         email: 'test@example.com',
         curFigure: 'robot1',
-        premium: Int64(1),
+        premium: Int64(0), // Start as non-premium user
       );
 
       final mockFigure = FigureInstance(
@@ -206,75 +216,96 @@ void main() {
       when(mockFigureModel.EVLevel).thenReturn(1);
       when(mockAppBarModel.appBarKey).thenReturn(GlobalKey());
       when(mockAppBarModel.bottomNavBarKey).thenReturn(GlobalKey());
-      
-      // Mock AuthService methods
-      when(mockAuthService.getUserDBInfo()).thenAnswer((_) => Future.value(mockUser));
-      when(mockAuthService.updateUserDBInfo(any)).thenAnswer((_) => Future.value(mockUser));
-      when(mockAuthService.getFigureInstance(any)).thenAnswer((_) => Future.value(mockFigure));
 
+      // Mock AuthService methods
+      when(mockAuthService.getUserDBInfo())
+          .thenAnswer((_) => Future.value(mockUser));
+      when(mockAuthService.updateUserDBInfo(any))
+          .thenAnswer((_) => Future.value(mockUser));
+      when(mockAuthService.getFigureInstance(any))
+          .thenAnswer((_) => Future.value(mockFigure));
+
+      // Mock ChatModel methods
+      when(mockChatModel.messages).thenReturn(<ChatMessage>[]);
       
     });
+
     Widget createWidgetUnderTest() {
-      return MaterialApp(
-        home: MultiProvider(
-          providers: [
-            Provider<AuthService>.value(value: mockAuthService),
-            Provider<FlutterUser>.value(value: mockFlutterUser),
-            ChangeNotifierProvider<AppBarAndBottomNavigationBarModel>.value(value: mockAppBarModel),
-            ChangeNotifierProvider<CurrencyModel>.value(value: mockCurrencyModel),
-            ChangeNotifierProvider<UserModel>.value(value: mockUserModel),
-            ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
-            ChangeNotifierProvider<InventoryModel>.value(value: mockInventoryModel),
-          ],
-          child: const Dashboard(),
-        ),
+      final GoRouter goRouter = GoRouter(
+        routes: [
+          GoRoute(
+            name: 'Dashboard',
+            path: '/',
+            builder: (context, state) => const Dashboard(),
+          ),
+          GoRoute(
+            name: 'Chat',
+            path: '/chat',
+            builder: (context, state) => const ChatPage(),
+          ),
+        ],
+      );
+
+      return MaterialApp.router(
+        routerConfig: goRouter,
+        builder: (context, child) {
+          return MultiProvider(
+            providers: [
+              Provider<AuthService>.value(value: mockAuthService),
+              Provider<FlutterUser>.value(value: mockFlutterUser),
+              ChangeNotifierProvider<AppBarAndBottomNavigationBarModel>.value(
+                  value: mockAppBarModel),
+              ChangeNotifierProvider<CurrencyModel>.value(
+                  value: mockCurrencyModel),
+              ChangeNotifierProvider<UserModel>.value(value: mockUserModel),
+              ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
+              ChangeNotifierProvider<InventoryModel>.value(
+                  value: mockInventoryModel),
+              ChangeNotifierProvider<ChatModel>.value(value: mockChatModel),
+            ],
+            child: child!,
+          );
+        },
       );
     }
 
-    testWidgets('Chat icon behavior based on premium status', (WidgetTester tester) async {
-  // Set up for non-premium user
-  final mockUser = User(
-    weekComplete: Int64(3),
-    weekGoal: Int64(5),
-    workoutMinTime: Int64(30),
-    streak: Int64(2),
-    email: 'test@example.com',
-    curFigure: 'robot1',
-    premium: Int64(0), // Non-premium user
-  );
-  when(mockUserModel.user).thenReturn(mockUser);
-  when(mockUserModel.isPremium()).thenReturn(false);
+    testWidgets('Chat icon behavior based on premium status',
+        (WidgetTester tester) async {
+      // Set up for non-premium user
+      when(mockUserModel.isPremium()).thenReturn(false);
 
-  await tester.pumpWidget(createWidgetUnderTest());
-  await tester.pumpAndSettle();
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
 
-  // Find and tap the chat icon
-  final chatIcon = find.byIcon(Icons.chat);
-  expect(chatIcon, findsOneWidget);
-  await tester.tap(chatIcon);
-  await tester.pumpAndSettle();
+      // Find and tap the chat icon
+      final chatIcon = find.byIcon(Icons.chat);
+      expect(chatIcon, findsOneWidget);
+      await tester.tap(chatIcon);
+      await tester.pumpAndSettle();
 
-  // Verify that the dialog for non-premium users is shown
-  expect(find.text('Work In Progress'), findsOneWidget);
-  expect(find.text("Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!"), findsOneWidget);
+      // Verify that the dialog for non-premium users is shown
+      expect(find.text('Work In Progress'), findsOneWidget);
+      expect(
+          find.text(
+              "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!"),
+          findsOneWidget);
 
-  // Dismiss the dialog
-  await tester.tap(find.text('Get Fit'));
-  await tester.pumpAndSettle();
+      // Dismiss the dialog
+      await tester.ensureVisible(find.text('Get Fit'));
+      await tester.tap(find.text('Get Fit'));
+      await tester.pumpAndSettle();
 
-  // Set up for premium user
-  mockUser.premium = Int64(1); // Premium user
-  when(mockUserModel.isPremium()).thenReturn(true);
+      // Set up for premium user
+      when(mockUserModel.isPremium()).thenReturn(true);
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
 
-  await tester.pumpWidget(createWidgetUnderTest());
-  await tester.pumpAndSettle();
+      // Find and tap the chat icon again
+      await tester.tap(chatIcon);
+      await tester.pumpAndSettle();
 
-  // Find and tap the chat icon again
-  await tester.tap(chatIcon);
-  await tester.pumpAndSettle();
-
-  // Verify that the app navigates to the Chat page
-  expect(find.byType(ChatPage), findsOneWidget);
-});
+      // Verify that the app navigates to the Chat page
+      expect(find.byType(ChatPage), findsOneWidget);
+    });
   });
 }
