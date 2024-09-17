@@ -32,6 +32,7 @@ import 'package:ffapp/components/double_line_divider.dart';
 import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:go_router/go_router.dart';
+import 'package:live_activities/live_activities.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 
@@ -70,6 +71,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void initialize() async {
+
     await Provider.of<ChatModel>(context, listen: false).init();
     await Provider.of<ChatModel>(context, listen: false)
         .sendMessage("", "system");
@@ -291,7 +293,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             child: GradientedContainer(
                               padding: const EdgeInsets.all(4),
                               child: Text(
-                                chat.messages.last.text,
+                                "nothing",
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall!

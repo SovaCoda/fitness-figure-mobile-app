@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
+import 'package:ffapp/services/dynamic_island_manager.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
-import 'package:ffapp/components/animated_points.dart';
-import 'package:ffapp/components/backed_figure_holder.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/ev_bar.dart';
@@ -30,7 +28,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logger/logger.dart';
-import 'package:intl/intl.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,6 +67,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   late final AppLifecycleListener _listener;
   late AppLifecycleState? _lifeState;
   final List<String> _lifeStates = <String>[];
+  DynamicIslandManager liveActivityManager = DynamicIslandManager(channelKey: "LI"); // class that can use method channels to communicate with Ios App
 
   @override
   void initState() {
@@ -109,7 +107,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     setState(() {
       if (timegoal != Int64.ZERO) {
          //_timegoal = timegoal * 60; //convert to seconds
-        _timegoal = Int64(5);
+        _timegoal = Int64(60);
       }
     });
 
@@ -132,6 +130,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         timerName: "workout_timer",
         onTick: () {
           if (mounted) {
+            liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1).toMap());
             setState(() {
               if (mounted) {
                 time = Int64(_timer.getTimeInSeconds());
@@ -153,15 +152,20 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         tickSpeedMS: 1000,
         milliseconds: 0);
     if (_timer.hasStoredTime()) {
+
       states["logging"] = true;
       states["paused"] = _timer.hasStoredPauseTime();
       states["pre-logging"] = false;
       await _timer.start();
+      
       setState(() {
         time = Int64(_timer.getTimeInSeconds());
       });
+      
+      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt()).toMap());
     } else {
       if (!isInit) {
+        liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0).toMap());
         await _timer.start();
         states["logging"] = true;
         states["paused"] = false;
@@ -199,10 +203,12 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     }
 
     if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
+    //_liveActivitiesPlugin.endActivity(activityId!);
     super.dispose();
   }
 
   Future<void> endLogging() async {
+    liveActivityManager.stopLiveActivity();
     prefs!.setBool("hasOngoingWorkout", false);
     prefs!.setBool("hasOngoingWorkoutPaused", false);
     prefs!.remove("workout lastTicked");

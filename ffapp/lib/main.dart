@@ -30,6 +30,7 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:live_activities/live_activities.dart';
 
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
@@ -239,6 +240,7 @@ Future<void> main() async {
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
   OpenAI.apiKey = "sk-proj-QpCgg3HzPQvHSRjXu9HRT3BlbkFJ4aGGyeCD6DyYcw1qx1w7";
   await Stripe.instance.applySettings();
+
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();

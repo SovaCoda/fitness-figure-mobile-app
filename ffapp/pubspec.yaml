@@ -62,6 +62,7 @@ dependencies:
   uuid: ^4.4.2
   flutter_stripe: ^10.2.0
   chat_gpt_sdk: ^3.1.0
+  live_activities: ^1.9.5
 
 dev_dependencies:
   flutter_test:
