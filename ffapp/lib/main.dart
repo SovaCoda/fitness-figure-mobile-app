@@ -95,6 +95,11 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setWorkoutMinTime(Int64 newValue) {
+    user?.workoutMinTime = newValue;
+    notifyListeners();
+  }
+
   void setPremium(Int64 premium) {
     user?.premium = premium;
     notifyListeners();
