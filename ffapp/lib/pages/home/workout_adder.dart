@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:ffapp/components/resuables/week_goal_shower.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:ffapp/services/dynamic_island_manager.dart';
 import 'package:flutter/scheduler.dart';
@@ -63,6 +64,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   double _investment = 0;
   SharedPreferences? prefs;
   bool hasInvested = false;
+  late Future<String> _postWorkoutMessage;
+
 
   late final AppLifecycleListener _listener;
   late AppLifecycleState? _lifeState;
@@ -352,6 +355,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     _timePassed = time;
                     states['chatting'] = true;
                     states['logging'] = false;
+                    _postWorkoutMessage = generatePostWorkoutComment();
                   }),
                   Navigator.of(context).pop()
                 }),
@@ -361,8 +365,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         _timePassed = time;
         states['chatting'] = true;
         states['logging'] = false;
+        _postWorkoutMessage = generatePostWorkoutComment();
       });
     }
+  }
+
+  Future<String> generatePostWorkoutComment () async { 
+    return await Provider.of<ChatModel>(context, listen: false).sendSystemMessage("User just completed workout: timeElapsed= $time seconds, time goal $_timegoal seconds");
   }
 
   void chatMore(context) async {
@@ -755,7 +764,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                   states['post-logging'] = false;
                                   states['pre-logging'] = true;
                                   states['investing '] = false;
-                                  endLogging();
                                 })
                             }),
                     const SizedBox(
@@ -763,13 +771,22 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     ),
                   ],
                 )
-              : Column(
+              : 
+              Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: states['chatting']!
                       ? [
-                          const ChatBubble(
-                              message:
-                                  "Great workout today, were really keeping our charge in tip top shape! Just a few more workouts and we will be on track to meet our weekly goal. I can't wait to evolve!"),
+                          FutureBuilder<String> (
+                            future: _postWorkoutMessage,
+                            builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ChatBubble(message: snapshot.data!);
+                            } else if (snapshot.hasError) {
+                              return const ChatBubble(message: "[CRITICAL CHAT MODULE ERR ::Code 402::]");
+                            } else {
+                              return const SizedBox(width: 100, height: 60, child: CircularProgressIndicator(),);
+                            }
+                          },),
                           Container(
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,

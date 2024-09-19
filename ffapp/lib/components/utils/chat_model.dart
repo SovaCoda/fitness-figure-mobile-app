@@ -47,6 +47,39 @@ class ChatModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String> sendSystemMessage(String systemMessage) async {
+    messages.add(ChatMessage(systemMessage, "system", ""));
+    notifyListeners();
+
+    var request = ChatCompleteText(
+    model: Gpt4oMini2024ChatModel(),
+    messages:
+      messages.map((e) => {"role": e.user, "content": e.text}).toList(),
+      maxToken: 450);
+
+    ChatCTResponse? response = await openAI.onChatCompletion(request: request);
+    logger.i(response!.choices.first.message!.content);
+    messages.add(ChatMessage(
+      response.choices.first.message!.content, "assistant", "robot1"));
+    notifyListeners();
+    return response.choices.first.message!.content;
+  }
+
+  Future<String> generatePremiumOfflineStatusMessage(Map<String, dynamic> gameState) async {
+    List<ChatMessage> copiedMessages = messages;
+    String prompt = "Send a message to a user that would appear in a push notification on their phone based on this info $gameState. Only pick one or two of the stats to mention. Don't use emoji's, Be personable and human. Take into account your personality cores.";
+    copiedMessages.add(ChatMessage(prompt, "system", ""));
+
+    var request = ChatCompleteText(
+    model: Gpt4oMini2024ChatModel(),
+    messages:
+      copiedMessages.map((e) => {"role": e.user, "content": e.text}).toList(),
+      maxToken: 450);
+
+    ChatCTResponse? response = await openAI.onChatCompletion(request: request);
+    return response!.choices.first.message!.content;
+  }
+
   void addMessage(ChatMessage message) {
     messages.add(message);
     notifyListeners();

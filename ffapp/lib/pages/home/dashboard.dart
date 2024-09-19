@@ -116,6 +116,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         }
       }
     });
+
+    // offline notification stuff
+    LocalNotificationService().initNotifications;
+    Map<String, dynamic> gameState = {
+      "charge": databaseFigure.charge,
+      "evo": databaseFigure.evPoints,
+      "currency": databaseUser.currency,
+      "evoNeededForLevel": figure1.EvCutoffs[databaseFigure.evLevel],
+      "workoutsCompleteThisWeek": weeklyCompleted,
+      "workoutsNeededThisWeek": weeklyGoal,
+    };
+
+
+    if(databaseUser.hasPremium() && await LocalNotificationService().isReadyForNotification()) {
+      String premiumOfflineNotification = await Provider.of<ChatModel>(context, listen: false).generatePremiumOfflineStatusMessage(gameState);
+      LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: premiumOfflineNotification);
+    }
+    //LocalNotificationService().scheduleOfflineNotification(body: );
+
+
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (databaseUser!.readyForWeekReset == 'yes') {
         bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
