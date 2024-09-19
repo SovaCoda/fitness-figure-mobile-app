@@ -30,7 +30,7 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:live_activities/live_activities.dart';
+import 'package:ffapp/pages/home/personality.dart';
 
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
@@ -238,12 +238,13 @@ Future<void> main() async {
   // await dotenv.load(fileName: ".env");
   await dotenv.load(fileName: ".env");
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
-  OpenAI.apiKey = "sk-proj-QpCgg3HzPQvHSRjXu9HRT3BlbkFJ4aGGyeCD6DyYcw1qx1w7";
+  OpenAI.apiKey = dotenv.env['OPENAI_KEY']!;
   await Stripe.instance.applySettings();
 
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();
+
   runApp(
     MultiProvider(providers: [
       Provider(
@@ -268,7 +269,7 @@ Future<void> main() async {
         create: (context) => HistoryModel(),
       ),
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
-      ChangeNotifierProvider(create: (context) => ChatModel()),
+      ChangeNotifierProvider(create: (context) => ChatModel()..init(context: context)),
     ], child: const MyApp()),
   );
 }
@@ -283,6 +284,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     name: 'Home',
     path: '/home', // Update the path to '/home'
     builder: (context, state) => const DashboardPage(),
+  ),
+  GoRoute(
+    name: 'Workout',
+    path: '/workout',
+    builder: (context, state) => const DashboardPage(index: 2),
   ),
   GoRoute(
       name: 'Register',
@@ -327,7 +333,12 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     name: 'Chat',
     path: '/chat',
     builder: (context, state) => const ChatPage(),
-  )
+  ),
+  GoRoute(
+      name: 'Personality',
+      path: '/edit_personality',
+      builder: (context, state) => EditPersonalityPage(),
+    ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',

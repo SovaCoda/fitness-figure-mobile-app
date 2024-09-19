@@ -35,6 +35,7 @@ type server struct {
 func newServer(db *sql.DB) *server {
 	return &server{db: db}
 }
+
 // BEGIN USER METHODS //
 
 /* all methods return a user object and an error if there is one */
@@ -53,7 +54,7 @@ func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	var user pb.User
 
 	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, time.Now().Format("2006-01-02 15:04:05"), 0, 0, "no", "yes")
-	
+
 	return &user, nil
 }
 
@@ -79,7 +80,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	if in.WeekComplete != 0 { // temp fix for resetting user goal
 		user.WeekComplete = in.WeekComplete
 	}
-	if in.WeekGoal != 0 { 
+	if in.WeekGoal != 0 {
 		user.WeekGoal = in.WeekGoal
 	}
 	if in.CurWorkout != "" {
@@ -94,7 +95,9 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	if in.Streak != 0 { // temp fix for resetting user streak
 		user.Streak = in.Streak
 	}
-	if in.Premium != 0 {
+	if in.Premium == -1 { // temp fix next to a temp fix how funny
+		user.Premium = 0
+	} else if in.Premium != 0 {
 		user.Premium = in.Premium
 	}
 	if in.ReadyForWeekReset != "" {
@@ -131,13 +134,13 @@ func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 
 func (s *server) ResetUserStreak(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
-	result ,err := s.db.ExecContext(ctx, "UPDATE users SET Streak = ? WHERE email = ?", int64(0), in.Email)
+	result, err := s.db.ExecContext(ctx, "UPDATE users SET Streak = ? WHERE email = ?", int64(0), in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not reset user streak: %v", err)
 	}
 
 	rowsAffected, _ := result.RowsAffected()
- 	fmt.Printf("Number of rows affected: %d\n", rowsAffected)
+	fmt.Printf("Number of rows affected: %d\n", rowsAffected)
 
 	return &user, nil
 }
@@ -273,7 +276,6 @@ func (s *server) DeleteDailySnapshot(ctx context.Context, in *pb.DailySnapshot) 
 }
 
 // END DAILY SNAPSHOT METHODS //
-
 
 // BEGIN WORKOUT METHODS //
 func (s *server) CreateWorkout(ctx context.Context, in *pb.Workout) (*pb.Workout, error) {

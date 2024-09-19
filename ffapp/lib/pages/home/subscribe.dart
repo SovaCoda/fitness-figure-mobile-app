@@ -77,7 +77,7 @@ class _SubscribePageContent extends StatelessWidget {
 
   Widget _buildSubscriptionOptions(
       BuildContext context, SubscribePageModel model) {
-        final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
+    final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
     return Container(
         height: MediaQuery.of(context).size.height * 0.9,
         decoration: BoxDecoration(color: Colors.grey[900]),
@@ -100,14 +100,13 @@ class _SubscribePageContent extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   RobotImageHolder(
-                                // Replace this with some custom skin that the user needs premium for
-                                url: (figure.figure != null)
-                                    ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
-                                    : "robot1/robot1_skin0_evo0_cropped_happy",
-                                height:
-                                    MediaQuery.of(context).size.height * 0.30,
-                                width: 500,
-                              ),
+                    // Replace this with some custom skin that the user needs premium for
+                    url: (figure.figure != null)
+                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
+                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                    height: MediaQuery.of(context).size.height * 0.30,
+                    width: 500,
+                  ),
                   _buildFeatureCard(context),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   SizedBox(
@@ -142,11 +141,25 @@ class _SubscribePageContent extends StatelessWidget {
                           ),
                     ),
                   ),
+                  _buildTogglePremiumButton(context)
                 ],
               ),
             ),
           ),
         ));
+  }
+
+  // Debugging button to toggle premium status
+  Widget _buildTogglePremiumButton(context, {bool debugging = true}) {
+    return debugging ? ElevatedButton(
+      onPressed: () {
+        Provider.of<SubscribePageModel>(context, listen: false).togglePremium();
+      },
+      child: Text(
+        "Toggle Premium Status",
+        style: Theme.of(context).textTheme.displayMedium,
+      ),
+    ) : Container();
   }
 
   Widget _buildFeatureCard(BuildContext context) {
@@ -168,10 +181,7 @@ class _SubscribePageContent extends StatelessWidget {
                 Icons.auto_graph,
                 "Track Progress, Boost Performance",
                 Theme.of(context).colorScheme.error),
-            _buildFeatureItem(
-                context,
-                Icons.chat,
-                "Your AI Fitness Coach",
+            _buildFeatureItem(context, Icons.chat, "Your AI Fitness Coach",
                 Theme.of(context).colorScheme.primary),
             _buildFeatureItem(
                 context,
@@ -214,32 +224,36 @@ class _SubscribePageContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-              child: Text(
-                "You're already subscribed to Fitness Figure Plus!",
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                textAlign: TextAlign.center,
-              )),
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: Text(
+                    "You're already subscribed to Fitness Figure Plus!",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                    textAlign: TextAlign.center,
+                  )),
               const SizedBox(height: 20),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9,
-              child: Text(
-                "Enjoy your premium benefits!",
-                style: Theme.of(context).textTheme.displayMedium,
-                textAlign: TextAlign.center,
-              ),
+                child: Text(
+                  "Enjoy your premium benefits!",
+                  style: Theme.of(context).textTheme.displayMedium,
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-              child: _buildFeatureCard(context)),
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: _buildFeatureCard(context)),
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () => context.goNamed("Home"),
-                child: Text("Return to Home", style: Theme.of(context).textTheme.displayMedium,),
+                child: Text(
+                  "Return to Home",
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
               ),
+              _buildTogglePremiumButton(context)
             ],
           ),
         ));
@@ -267,6 +281,7 @@ class SubscribePageModel with ChangeNotifier {
     try {
       final auth = Provider.of<AuthService>(context, listen: false);
       user = await auth.getUserDBInfo();
+      logger.i('Refreshed user data: ${user?.toString()}');
     } catch (e) {
       logger.e('Error fetching user data: $e');
     } finally {
@@ -356,4 +371,33 @@ class SubscribePageModel with ChangeNotifier {
       throw Exception(err.toString());
     }
   }
+
+  // Toggles premium status for debugging purposes
+  void togglePremium() async {
+    if (user == null) {
+      logger.e('Cannot toggle premium: user is null');
+      return;
+    }
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    // Toggle the premium status
+    Int64 newPremiumValue = user!.premium == Int64(1) ? Int64(-1) : Int64(1);
+    logger.i('Toggling premium from ${user!.premium} to $newPremiumValue');
+    User updatedUser = User(
+      email: user!.email,
+      premium: newPremiumValue,
+    );
+    logger.i('Updating user in database: ${updatedUser.toString()}');
+    try {
+      await authService.updateUserDBInfo(updatedUser);
+      Provider.of<UserModel>(context, listen: false).setPremium(newPremiumValue == Int64(-1) ? Int64(0) : Int64(1));
+    } catch (e) {
+      logger.e('Error updating user in database: $e'); 
+      return;
+    }
+    await refreshUserData();
+    notifyListeners();
+  }
+
 }

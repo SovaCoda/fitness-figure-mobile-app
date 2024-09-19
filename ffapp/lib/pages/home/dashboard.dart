@@ -72,9 +72,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void initialize() async {
 
-    await Provider.of<ChatModel>(context, listen: false).init();
+    await Provider.of<ChatModel>(context, listen: false).init(context: context);
     await Provider.of<ChatModel>(context, listen: false)
-        .sendMessage("", "system");
+        .sendMessage("", "system", context);
     Routes.User? databaseUser = await auth.getUserDBInfo();
     databaseUser!.lastLogin = DateTime.now().toUtc().toString();
     await auth.updateUserDBInfo(databaseUser);
@@ -312,8 +312,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             width: MediaQuery.of(context).size.width * 0.75,
                             child: GradientedContainer(
                               padding: const EdgeInsets.all(4),
-                              child: Text(
-                                "nothing",
+                              child: Text( chat.messages.isNotEmpty ?
+                                chat.messages.last.text : "",
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall!

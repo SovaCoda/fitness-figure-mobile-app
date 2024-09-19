@@ -75,7 +75,15 @@ class PersistantTimer {
 
     String? timerStarted = prefs!.getString('$timerName timerStarted');
     //String? pausedAt = prefs!.getString('$timerName pausedAt');
-    DateTime timerStartedDate = DateTime.parse(timerStarted!);
+    DateTime timerStartedDate;
+    try {
+      timerStartedDate = DateTime.parse(timerStarted!);
+    } catch (e) {
+      print("Error parsing timerStartedDate: $e");
+      milliseconds = 0;
+      deleteTimer();
+      return;
+    }
 
     // if (pausedAt != null) {
     //   DateTime pausedAtDate = DateTime.parse(pausedAt);
