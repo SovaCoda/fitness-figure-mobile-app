@@ -30,6 +30,7 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:live_activities/live_activities.dart';
 import 'package:ffapp/pages/home/personality.dart';
 
 class SelectedFigureProvider extends ChangeNotifier {

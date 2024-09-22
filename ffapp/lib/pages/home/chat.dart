@@ -84,7 +84,7 @@ class _ChatPageState extends State<ChatPage> {
                       }
                       final message = chatModel.messages[index];
                       return message.user == 'assistant' || message.user == 'system'
-                          ? RobotResponse(
+                          ? message.user == 'system' ? null : RobotResponse(
                               text: message.text,
                               figure_url: Provider.of<FigureModel>(context).composeFigureUrl(),
                               datetime: "now",

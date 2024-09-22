@@ -58,7 +58,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void initialize() async {
     try {
-      
       await user.initAuthService();
       await user.checkUser();
       String usrCurrency = await user.getCurrency();
@@ -148,13 +147,12 @@ class _DashboardPageState extends State<DashboardPage> {
             //question mark area that displays an alert on tap
             InkWell(
                 onTap: () => {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return FfAlertDialog(
-                              child: Text('no content'),
-                            );
-                          })
+                      showFFDialog(
+                        "Questions/Concerns",
+                        "Feel free to email us at fitnessfigure01@gmail.com with any feedback or questions, we'd love to hear from you!",
+                        true,
+                        context
+                      )
                     },
                 child: Row(
                   children: [

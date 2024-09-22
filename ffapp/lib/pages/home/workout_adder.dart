@@ -64,7 +64,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   double _investment = 0;
   SharedPreferences? prefs;
   bool hasInvested = false;
-  late Future<String> _postWorkoutMessage;
+  late Future<String>? _postWorkoutMessage;
 
 
   late final AppLifecycleListener _listener;
@@ -109,8 +109,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     setState(() {
       if (timegoal != Int64.ZERO) {
-         //_timegoal = timegoal * 60; //convert to seconds
-        _timegoal = Int64(60);
+         _timegoal = timegoal * 60; //convert to seconds
       }
     });
 
@@ -133,7 +132,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         timerName: "workout_timer",
         onTick: () {
           if (mounted) {
-            liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1).toMap());
+            liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt()).toMap());
             setState(() {
               if (mounted) {
                 time = Int64(_timer.getTimeInSeconds());
@@ -165,10 +164,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         time = Int64(_timer.getTimeInSeconds());
       });
       
-      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt()).toMap());
+      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt(), timeGoal: _timegoal.toInt()).toMap());
     } else {
       if (!isInit) {
-        liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0).toMap());
+        liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0, timeGoal: _timegoal.toInt()).toMap());
         await _timer.start();
         states["logging"] = true;
         states["paused"] = false;
@@ -206,7 +205,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     }
 
     if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
-    //_liveActivitiesPlugin.endActivity(activityId!);
+    liveActivityManager.stopLiveActivity();
     super.dispose();
   }
 
@@ -225,13 +224,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timer.deleteTimer();
     time = Int64.ZERO;
     _endTime = DateTime.now().toUtc().toString();
-    await awardAll(weeklyGoalMet: false, timeGoalMet: _goalMet);
-    setState(() {
-      _logging = false;
-      _goalMet = false;
-      _investment = 0;
-      _timePassed = Int64.ZERO;
-    });
+    await awardAll(weeklyGoalMet: false, timeGoalMet: _goalMet, investment: _investment);
+
   }
 
   int addableEV = 50;
@@ -240,7 +234,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Future<void> awardAll(
       {required bool weeklyGoalMet,
       required bool timeGoalMet,
-      int investment = 0}) async {
+      double investment = 0}) async {
     UserModel user = Provider.of<UserModel>(context, listen: false);
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
@@ -307,7 +301,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       email: await auth.getUser().then((value) => value!.email.toString()),
       chargeAdd: Int64(addableCharge),
       evoAdd: Int64(addableEV),
-      investment: _investment,
+      investment: investment,
       countable: workoutPercent >= 1 ? 1 : 0,
     );
     Provider.of<HistoryModel>(context, listen: false).addWorkout(workout);
@@ -350,7 +344,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             textColor: Theme.of(context).colorScheme.onSurface,
             backgroundColor:
                 Theme.of(context).colorScheme.surface.withAlpha(126),
-            onPressed: () => {
+            onPressed: () async => {
+               liveActivityManager.stopLiveActivity(),
                   setState(() {
                     _timePassed = time;
                     states['chatting'] = true;
@@ -361,6 +356,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 }),
       );
     } else {
+      liveActivityManager.stopLiveActivity();
       setState(() {
         _timePassed = time;
         states['chatting'] = true;
@@ -370,8 +366,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     }
   }
 
-  Future<String> generatePostWorkoutComment () async { 
-    return await Provider.of<ChatModel>(context, listen: false).sendSystemMessage("User just completed workout: timeElapsed= $time seconds, time goal $_timegoal seconds");
+  Future<String>? generatePostWorkoutComment () async { 
+    if(Provider.of<UserModel>(context, listen: false).user!.hasPremium()) {
+      return Provider.of<ChatModel>(context, listen: false).generatePostWorkoutMessage({"workoutTimeMinutes" : _timePassed.toDouble()/60, "workoutTimeNeededMinutes" : _timegoal.toDouble()/60})!;
+    } else {
+      if(_goalMet) {return ("Awesome job! Keep up workouts like this and we'll evolve in no time at all!");}
+      else {return ("Looks like we were short of our workout goal... if we want to make progress we need to train hard!");}
+    }
   }
 
   void chatMore(context) async {
@@ -758,12 +759,19 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                               if (states['investing']!)
                                 setState(() {
                                   states['investing'] = false;
+                                  endLogging();
                                 })
                               else
                                 setState(() {
                                   states['post-logging'] = false;
                                   states['pre-logging'] = true;
                                   states['investing '] = false;
+        
+                                _logging = false;
+                                _goalMet = false;
+                                _investment = 0;
+                                _timePassed = Int64.ZERO;
+
                                 })
                             }),
                     const SizedBox(
@@ -833,8 +841,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                         states['investing'] = true;
                                       } else {
                                         states['investing'] = false;
+                                        endLogging();
                                         states['post-logging'] = true;
                                       }
+                                      
                                     })
                                   }),
                           const SizedBox(

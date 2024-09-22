@@ -16,6 +16,7 @@ struct LiveActivitiesAppAttributes: ActivityAttributes {
     
   public struct ContentState: Codable, Hashable {
       var elapsedTime: Int
+      var timeGoal: Int
   }
 }
 
@@ -42,7 +43,7 @@ struct ffigureliveactionsLiveActivity: Widget {
                 }.padding()
                  
                  // Progress view with green color
-                ProgressView(value: Double(context.state.elapsedTime)/60.0)
+                ProgressView(value: Double(context.state.elapsedTime)/Double(context.state.timeGoal))
                      .progressViewStyle(LinearProgressViewStyle(tint: .green))
                      
              }

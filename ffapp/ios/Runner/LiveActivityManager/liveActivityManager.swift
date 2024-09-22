@@ -19,7 +19,8 @@ class LiveActivityManager {
 
       if let info = data as? [String: Any] {
         let state = LiveActivitiesAppAttributes.ContentState(
-          elapsedTime: info["elapsedSeconds"] as? Int ?? 0
+          elapsedTime: info["elapsedSeconds"] as? Int ?? 0,
+          timeGoal: info["timeGoal"] as? Int ?? 0
         )
         stopwatchActivity = try? Activity<LiveActivitiesAppAttributes>.request(
           attributes: attributes, contentState: state, pushType: nil)
@@ -31,7 +32,8 @@ class LiveActivityManager {
   func updateLiveActivity(data: [String: Any]?, result: FlutterResult) {
     if let info = data as? [String: Any] {
       let updatedState = LiveActivitiesAppAttributes.ContentState(
-        elapsedTime: info["elapsedSeconds"] as? Int ?? 0
+        elapsedTime: info["elapsedSeconds"] as? Int ?? 0,
+        timeGoal: info["timeGoal"] as? Int ?? 0
       )
 
       Task {

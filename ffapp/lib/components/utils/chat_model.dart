@@ -308,6 +308,7 @@ class ChatModel extends ChangeNotifier {
     return "Workout timer started successfully.";
   }
 
+
   Future<void> sendMessage(
       String message, String role, BuildContext context) async {
     if (message.trim().isEmpty) {
@@ -481,7 +482,7 @@ class ChatModel extends ChangeNotifier {
     try {
       // Create a message in the thread
       final createMessage = CreateMessage(
-        role: 'user',
+        role: 'system',
         content:
             "The user has just signed in. Give them a short, warm welcome and encourage them to start exercising.",
       );
@@ -541,6 +542,156 @@ class ChatModel extends ChangeNotifier {
     if (personalityModules.remove(module)) {
       savePersonalityModules();
       notifyListeners();
+    }
+  }
+
+
+  Future<String>? generatePostWorkoutMessage(Map<String, dynamic> gameState) async {
+
+    String message = "The user just completed a workout with these stats create a message congratulating and encouraging them $gameState. Don't use emoji's, Be personable and human. Take into account your personality cores.";
+
+    try {
+      // Create a message in the thread
+      final createMessage = CreateMessage(
+        role: 'assistant',
+        content: message,
+      );
+      await openAI.threads.v2.messages.createMessage(
+        threadId: threadId!,
+        request: createMessage,
+      );
+
+      // Run the assistant
+      final runRequest = CreateRun(
+        assistantId: assistantId!,
+        temperature: 0.8,
+      );
+
+      final run = await openAI.threads.v2.runs
+          .createRun(threadId: threadId!, request: runRequest);
+      // logger.i("Run created: ${run.id}");
+      // logger.i("Run status: ${run.status}");
+      // logger.i("Run requires action: ${run.requiredAction}");
+      // Wait for the run to complete with proper polling
+      String runStatus = run.status;
+      int retries = 0;
+      const maxRetries = 30; // Adjust as needed
+      const pollingInterval = Duration(milliseconds: 0); // Adjust as needed
+
+      while (runStatus != "completed" && retries < maxRetries) {
+        await Future.delayed(pollingInterval);
+        final updatedRun = await openAI.threads.runs.retrieveRun(
+            threadId: threadId!,
+            runId: run.id); // starts api call (probably doesn't use tokens?)
+        runStatus = updatedRun.status;
+        // logger.i("Run created: ${updatedRun.id}");
+        // logger.i("Run status: ${updatedRun.status}");
+        // logger.i("Run requires action: ${updatedRun.requiredAction}");
+        if (runStatus == "failed") {
+          logger.e("Run failed: ${updatedRun.lastError.toString()}");
+        }
+
+        retries++;
+      }
+
+      if (runStatus != "completed") {
+        logger.e("Run did not complete within the maximum number of retries");
+      }
+      
+      // Retrieve and process the assistant's response
+      final messagesResponse =
+        await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+      
+    if (messagesResponse.data.isNotEmpty) {
+      final assistantMessage = messagesResponse.data.first;
+      if (assistantMessage.content.isNotEmpty) {
+        logger.i('${assistantMessage.content.first.text}');
+        return assistantMessage.content.first.text.value;
+      } else {
+        logger.i("Received an empty message from the assistant");
+      }
+    } else {
+      logger.i("No messages received from the assistant");
+    }
+    } catch (e) {
+      logger.e("An error occurred: $e");
+    }
+    return "";
+  }
+  
+
+
+  Future<String?> generatePremiumOfflineStatusMessage(Map<String, dynamic> gameState) async {
+
+    String message = "Send a message to a user that would appear in a push notification on their phone based on this info $gameState. Only pick two of the stats to mention. Don't use emoji's, Be personable and human. Take into account your personality cores.";
+
+    try {
+      // Create a message in the thread
+      final createMessage = CreateMessage(
+        role: 'assistant',
+        content: message,
+      );
+      await openAI.threads.v2.messages.createMessage(
+        threadId: threadId!,
+        request: createMessage,
+      );
+
+      // Run the assistant
+      final runRequest = CreateRun(
+        assistantId: assistantId!,
+        temperature: 0.8,
+      );
+
+      final run = await openAI.threads.v2.runs
+          .createRun(threadId: threadId!, request: runRequest);
+      // logger.i("Run created: ${run.id}");
+      // logger.i("Run status: ${run.status}");
+      // logger.i("Run requires action: ${run.requiredAction}");
+      // Wait for the run to complete with proper polling
+      String runStatus = run.status;
+      int retries = 0;
+      const maxRetries = 30; // Adjust as needed
+      const pollingInterval = Duration(milliseconds: 0); // Adjust as needed
+
+      while (runStatus != "completed" && retries < maxRetries) {
+        await Future.delayed(pollingInterval);
+        final updatedRun = await openAI.threads.runs.retrieveRun(
+            threadId: threadId!,
+            runId: run.id); // starts api call (probably doesn't use tokens?)
+        runStatus = updatedRun.status;
+        // logger.i("Run created: ${updatedRun.id}");
+        // logger.i("Run status: ${updatedRun.status}");
+        // logger.i("Run requires action: ${updatedRun.requiredAction}");
+        if (runStatus == "failed") {
+          logger.e("Run failed: ${updatedRun.lastError.toString()}");
+          return null;
+        }
+
+        retries++;
+      }
+
+      if (runStatus != "completed") {
+        logger.e("Run did not complete within the maximum number of retries");
+        return null;
+      }
+      
+      // Retrieve and process the assistant's response
+      final messagesResponse =
+        await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+      
+    if (messagesResponse.data.isNotEmpty) {
+      final assistantMessage = messagesResponse.data.first;
+      if (assistantMessage.content.isNotEmpty) {
+        logger.i('${assistantMessage.content.first.text}');
+        return assistantMessage.content.first.text.value;
+      } else {
+        logger.i("Received an empty message from the assistant");
+      }
+    } else {
+      logger.i("No messages received from the assistant");
+    }
+    } catch (e) {
+      logger.e("An error occurred: $e");
     }
   }
 

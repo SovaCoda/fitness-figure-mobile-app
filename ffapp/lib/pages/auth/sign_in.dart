@@ -1,4 +1,5 @@
 import 'package:ffapp/components/custom_button.dart';
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
@@ -220,14 +221,17 @@ class _SignInState extends State<SignIn> {
 
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Get help logging in.',
-                        style: TextStyle(
-                          color: Colors.blue.shade900,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                    child: GestureDetector(
+                      onTap: () => {showFFDialog("Forgot Password?", "If you're having trouble logging in email fitnessfigure01@gmail.com with your email and we will reset your password for you.", true, context)},
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Get help logging in.',
+                          style: TextStyle(
+                            color: Colors.blue.shade900,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     )),
@@ -257,81 +261,7 @@ class _SignInState extends State<SignIn> {
                   height: 10,
                 ),
 
-                // OR
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: Text(
-                          'OR',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                //spacer
-                const SizedBox(height: 40),
-
-                // Google or Apple
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //google button
-                    // Google sign-in button
-                    SquareTile(
-                      onTap: () async {
-                        logger.i("Pressed Google!");
-                        UserCredential? userCredential =
-                            await signInWithGoogleMobile();
-                        if (userCredential?.user != null) {
-                          logger.i(
-                              "Successfully signed in with Google. Email: ${userCredential!.user!.email}");
-                          context.goNamed('Home');
-                        } else {
-                          logger.i(
-                              "Google sign-in failed or was cancelled by the user.");
-                        }
-                      },
-                      imagePath: 'lib/assets/icons/google.svg',
-                      height: 90,
-                    ),
-
-                    const SizedBox(width: 20),
-                    // apple button
-                    SquareTile(
-                      onTap: () {
-                        logger.i("Pressed Apple!");
-                        try {
-                          signInWithApple();
-                        } catch (e) {
-                          logger.i("Invalid Apple login.");
-                          showSnackBar(
-                              context, "Apple could not authorize this login.");
-                        }
-
-                        context.goNamed('Home');
-                      },
-                      imagePath: 'lib/assets/icons/apple.svg',
-                      height: 60,
-                    ),
-                  ],
-                ),
+                
                 const SizedBox(height: 50)
               ])),
         ),

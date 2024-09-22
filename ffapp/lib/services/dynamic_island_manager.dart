@@ -37,14 +37,17 @@ class DynamicIslandManager {
 
 class DynamicIslandStopwatchDataModel {
   final int elapsedSeconds;
+  final int timeGoal;
 
   DynamicIslandStopwatchDataModel({
     required this.elapsedSeconds,
+    required this.timeGoal,
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'elapsedSeconds': elapsedSeconds,
+      'timeGoal' : timeGoal,
     };
   }
 }

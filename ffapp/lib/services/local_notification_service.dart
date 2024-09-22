@@ -17,7 +17,7 @@ class LocalNotificationService {
     else {
       lastNotificationTimestamp = DateTime.parse(prefsLastOfflineNotificationTime);
       Duration difference = lastNotificationTimestamp!.difference(DateTime.now().toUtc());
-      if(difference.inSeconds.abs() > 20) {
+      if(difference.inHours.abs() > 24) {
         return true;
       } else {return false;}
     }
@@ -52,7 +52,7 @@ class LocalNotificationService {
     0,
     title,
     body,
-    tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+    tz.TZDateTime.now(tz.local).add(const Duration(hours: 2)),
     await notificationDetails(),
     uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime);

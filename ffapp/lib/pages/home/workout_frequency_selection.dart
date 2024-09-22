@@ -1,5 +1,7 @@
+import 'package:ffapp/main.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wheel_slider/wheel_slider.dart';
 import 'package:go_router/go_router.dart';
 import "package:ffapp/services/routes.pb.dart" as Routes;
@@ -54,10 +56,13 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
 
   void submitFrequency() {
     if (_mCurrentValue == 0 || _nCurrentValue ==0) {return;}
-    user.updateUser(Routes.User(
+    Routes.User newUser = Routes.User(
         weekGoal: _nCurrentValue,
         email: curEmail,
-        workoutMinTime: _mCurrentValue)); // Updated workoutMinTime value
+        workoutMinTime: _mCurrentValue);
+    user.updateUser(newUser); // Updated workoutMinTime value
+
+    Provider.of<UserModel>(context, listen: false).setUser(newUser);
     context.goNamed('Home');
   }
 

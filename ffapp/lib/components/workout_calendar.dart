@@ -34,6 +34,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   List<int> indicatorsShown = [];
   Map<String, List<FlSpot>> weekData = {};
   int maxEv = 0;
+  UserModel? usermodelref;
 
   @override
   void initState() {
@@ -57,6 +58,12 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     initialize();
   }
 
+  @override
+  void dispose() {
+    usermodelref!.removeListener(() => getWeekDataForDate(DateTime.now()));
+    super.dispose();
+  }
+
   DateTime mostRecentSunday(DateTime date) {
     return DateTime(date.year, date.month, date.day - date.weekday % 7);
   }
@@ -67,6 +74,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       _selectedColor = Theme.of(context).colorScheme.primary;
     });
     getWeekDataForDate(DateTime.now());
+    usermodelref = Provider.of<UserModel>(context, listen: false);
+    usermodelref!.addListener(() => getWeekDataForDate(DateTime.now()));
   }
 
   int? _chargeChange;
@@ -76,6 +85,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   DateTime? _weekOfDate;
 
   void getWeekDataForDate(DateTime date) async {
+    if (!mounted) {return;}
     date = date.toUtc();
     User user = Provider.of<UserModel>(context, listen: false).user!;
     FigureInstance figure =

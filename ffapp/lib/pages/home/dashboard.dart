@@ -72,9 +72,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void initialize() async {
 
-    await Provider.of<ChatModel>(context, listen: false).init(context: context);
-    await Provider.of<ChatModel>(context, listen: false)
-        .sendMessage("", "system", context);
+    // await Provider.of<ChatModel>(context, listen: false).init(context: context);
+    // await Provider.of<ChatModel>(context, listen: false)
+    //     .sendMessage("", "system", context);
     Routes.User? databaseUser = await auth.getUserDBInfo();
     databaseUser!.lastLogin = DateTime.now().toUtc().toString();
     await auth.updateUserDBInfo(databaseUser);
@@ -127,11 +127,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       "workoutsCompleteThisWeek": weeklyCompleted,
       "workoutsNeededThisWeek": weeklyGoal,
     };
-
+    
 
     if(databaseUser.hasPremium() && await LocalNotificationService().isReadyForNotification()) {
-      String premiumOfflineNotification = await Provider.of<ChatModel>(context, listen: false).generatePremiumOfflineStatusMessage(gameState);
-      LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: premiumOfflineNotification);
+      await Future.delayed(Duration(milliseconds: 500));
+      String? premiumOfflineNotification = await Provider.of<ChatModel>(context, listen: false).generatePremiumOfflineStatusMessage(gameState);
+      if (premiumOfflineNotification == null ) {logger.e('recieved null response from openai for push notification');}
+      else {
+        LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: premiumOfflineNotification);
+      }
+    } else if (await LocalNotificationService().isReadyForNotification()) {
+      if (databaseFigure.charge > 50 ) {
+        LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: "My charge is at ${databaseFigure.charge}, great job! Lets keep it that way by staying consistent");
+      } else {
+        LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online");
+      }
+      
     }
     //LocalNotificationService().scheduleOfflineNotification(body: );
 
@@ -337,11 +348,27 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             onTap: () {
                               user.isPremium()
                                   ? context.goNamed("Chat")
-                                  : showFFDialog(
-                                      "Work In Progress",
-                                      "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!",
-                                      true,
-                                      context);
+                                  : showFFDialogBinary(
+            "FF+ Premium Feature",
+            "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
+            false,
+            context,
+            FfButton(
+              height: 50,
+              text: "Subscribe Now \$1.99",
+              textStyle: Theme.of(context).textTheme.displayMedium!,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              onPressed: () => {GoRouter.of(context).go('/subscribe')},
+            ),
+            FfButton(
+                height: 50,
+                text: "No Thanks",
+                textStyle: Theme.of(context).textTheme.displayMedium!,
+                textColor: Theme.of(context).colorScheme.onSurface,
+                backgroundColor:
+                    Theme.of(context).colorScheme.surface.withAlpha(126),
+                onPressed: () => {Navigator.of(context).pop()}));
                             },
                             child: Icon(
                               Icons.chat,
