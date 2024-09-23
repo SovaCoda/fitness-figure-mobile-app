@@ -38,7 +38,8 @@ class _InventoryState extends State<Inventory> {
   }
 
   void initialize() async {
-    Routes.User? databaseUser = await auth.getUserDBInfo();
+    try {
+      Routes.User? databaseUser = await auth.getUserDBInfo();
     String stringCur = databaseUser?.currency.toString() ?? "0";
     currency = int.parse(stringCur);
     await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
@@ -47,6 +48,9 @@ class _InventoryState extends State<Inventory> {
     await auth.getFigures().then((value) => setState(() {
           figureList = value.figures;
         }));
+    } catch (e) {
+      logger.e(e);
+    }
   }
 
   void selectFigure(int index) {
@@ -64,12 +68,13 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     return Consumer<SelectedFigureProvider>(
       builder: (context, selectedFigureProvider, _) {
-        return Column(
+        return SingleChildScrollView(
+          child: Column(
           children: [
             SizedBox(height: 10),
             Consumer<UserModel>(
               builder: (context, userModel, _) {
-                int totalSlots = figureInstancesList.length + 2;
+                int totalSlots = 4; // 4 slots for now
                 return Column(
                   children: [
                     for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
@@ -78,12 +83,12 @@ class _InventoryState extends State<Inventory> {
                         children: [
                           Expanded(
                             child: _buildInventorySlot(context, i * 2,
-                                userModel, selectedFigureProvider),
+                                userModel, selectedFigureProvider, totalSlots),
                           ),
                           SizedBox(width: 10),
                           Expanded(
                             child: _buildInventorySlot(context, i * 2 + 1,
-                                userModel, selectedFigureProvider),
+                                userModel, selectedFigureProvider, totalSlots),
                           ),
                         ],
                       ),
@@ -104,13 +109,13 @@ class _InventoryState extends State<Inventory> {
               ),
             ),
           ],
-        );
+        ));
       },
     );
   }
 
   Widget _buildInventorySlot(BuildContext context, int index,
-      UserModel userModel, SelectedFigureProvider selectedFigureProvider) {
+      UserModel userModel, SelectedFigureProvider selectedFigureProvider, int totalSlots) {
     if (index < figureInstancesList.length) {
       return GestureDetector(
         onTap: () => selectFigure(index),
@@ -126,7 +131,7 @@ class _InventoryState extends State<Inventory> {
           index: index
         ),
       );
-    } else if (index < figureInstancesList.length + 2) {
+    } else if (index < totalSlots) {
       // Additional slots for future figures
       return InventoryItem(
         figureInstance: null,
@@ -136,7 +141,8 @@ class _InventoryState extends State<Inventory> {
         onEquip: (context) => {},
         index: index
       );
-    } else {
+    } 
+    else {
       // Empty slot
       return SizedBox();
     }

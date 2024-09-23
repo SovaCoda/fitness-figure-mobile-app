@@ -74,6 +74,8 @@ class CurrencyModel extends ChangeNotifier {
 class UserModel extends ChangeNotifier {
   Routes.User? user = Routes.User();
 
+  String newEmail = "";
+
   int get baseGain => 5;
 
   int get streak => 5;
@@ -109,6 +111,11 @@ class UserModel extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  void setNewEmail(String newEmail) {
+    this.newEmail = newEmail;
+    notifyListeners();
   }
 }
 

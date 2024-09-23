@@ -103,8 +103,8 @@ class ChargeBar extends StatelessWidget {
                           width: MediaQuery.of(context).size.width * 0.14,
                           height: MediaQuery.of(context).size.width * 0.07,
                           child: OverflowBox(
-                            maxHeight: 150,
-                            maxWidth: 150,
+                            // maxHeight: 150,
+                            // maxWidth: 150,
                             child: Transform.rotate(
                               angle: 3.14 / 2,
                               child: Icon(Icons.battery_charging_full_outlined,

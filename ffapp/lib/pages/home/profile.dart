@@ -10,6 +10,7 @@ import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/main.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bottom_picker/bottom_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -24,9 +25,11 @@ class _ProfileState extends State<Profile> {
   late String name = "Loading...";
   late String email = "Loading...";
   late String password = "Loading...";
-  late int weeklyGoal = 0;
-  late int minExerciseGoal = 0;
+  late int weeklyGoal = 4; // default values
+  late int minExerciseGoal = 30;
   late String manageSub = "Loading...";
+  late SharedPreferences prefs;
+  late Timer _timer = Timer(Duration.zero, () {});
 
   @override
   void initState() {
@@ -36,10 +39,20 @@ class _ProfileState extends State<Profile> {
   }
 
   void initialize() async {
+    try {
     Routes.User? databaseUser = await auth.getUserDBInfo();
+    prefs = await SharedPreferences.getInstance();
     if (mounted) {
       Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
-
+      if (prefs.getString("isVerified") == "false" && 
+      prefs.getString("oldEmail") == databaseUser.email) // make sure our listener doesn't mistrigger from potential alt accounts
+      { 
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("You have still not verified your new email at ${prefs.getString("newEmail")}. Please check your inbox.")),
+      );
+        auth.startEmailVerificationListener(databaseUser.email, prefs.getString("newEmail")!);
+        checkEmailVerification(prefs.getString("newEmail")!);
+      }
       String curName = databaseUser.name;
       String curEmail = databaseUser.email;
       int curGoal = databaseUser.weekGoal.toInt();
@@ -56,6 +69,15 @@ class _ProfileState extends State<Profile> {
         manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
       });
     }
+    } catch (e) {
+      logger.e(e);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   void _showWeeklyGoalPicker() {
@@ -157,6 +179,9 @@ class _ProfileState extends State<Profile> {
       AuthCredential credential = EmailAuthProvider.credential(
           email: userEmail, password: userPassword);
       String result = await auth.updateEmail(userEmail, newEmail, credential);
+      prefs.setString("oldEmail", userEmail);
+      prefs.setString("newEmail", newEmail);
+      prefs.setString("isVerified", "false");
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result)),
@@ -171,7 +196,7 @@ class _ProfileState extends State<Profile> {
   }
 
   void checkEmailVerification(String newEmail) {
-    Timer.periodic(Duration(seconds: 5), (timer) async {
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       try {
         User? user = FirebaseAuth.instance.currentUser;
         await user?.reload();
@@ -182,9 +207,16 @@ class _ProfileState extends State<Profile> {
           );
         }
       } on FirebaseAuthException {
-        setState(() {
-          email = newEmail;
-        });
+        // setState(() {
+        //   email = newEmail;
+        // });
+        prefs.setString("isVerified", "true");
+        prefs.setString("newEmail", "");
+        signOut(context);
+        GoRouter.of(context).go("/");
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Success! Please sign back in.")),
+      );
       }
     });
   }

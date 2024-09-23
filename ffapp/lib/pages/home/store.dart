@@ -103,6 +103,16 @@ class _StoreState extends State<Store> {
   void subtractCurrency(BuildContext context, int subtractCurrency) async {
     Routes.User databaseUser = Provider.of<UserModel>(context, listen: false)
         .user!; // Changed to use provider
+    if (listOfFigureInstances.length > 4) { // Added check for max figures
+      logger.i("User already has 4 figures. Cannot purchase more.");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("You already have the maximum amount of figures.")),
+        );
+        return;
+      }
+    }
     int currentCurrency = databaseUser.currency.toInt();
     logger.i(
         "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
