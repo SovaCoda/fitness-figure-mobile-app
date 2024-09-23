@@ -91,49 +91,55 @@ void showFFDialogBinary(String title, String message, bool dismissable,
       context: context,
       builder: (context) {
         return FfAlertDialog(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.start,
-                style: Theme.of(context)
-                    .textTheme
-                    .displayMedium!
-                    .copyWith(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              Center(
-                  child: Container(
-                margin: const EdgeInsets.only(top: 15, bottom: 15),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    shape: BoxShape.rectangle,
-                    color: Theme.of(context).colorScheme.onSurface),
-                width: MediaQuery.sizeOf(context).width * 0.6,
-                height: 2,
-              )),
-              Text(
-                message,
-                textAlign: TextAlign.start,
-                style: Theme.of(context)
-                    .textTheme
-                    .displaySmall!
-                    .copyWith(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              Expanded(
-                  child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          yesButton,
-                          SizedBox(
-                            height: 10,
-                          ),
-                          noButton,
-                        ],
-                      )))
-            ],
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.45, // Adjust as needed
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.start,
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayMedium!
+                      .copyWith(color: Theme.of(context).colorScheme.onSurface),
+                ),
+                Center(
+                    child: Container(
+                  margin: const EdgeInsets.only(top: 15, bottom: 15),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      shape: BoxShape.rectangle,
+                      color: Theme.of(context).colorScheme.onSurface),
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  height: 2,
+                )),
+                Text(
+                  message,
+                  textAlign: TextAlign.start,
+                  style: Theme.of(context)
+                      .textTheme
+                      .displaySmall!
+                      .copyWith(color: Theme.of(context).colorScheme.onSurface),
+                ),
+                Expanded(
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            yesButton,
+                            SizedBox(
+                              height: 10,
+                            ),
+                            noButton,
+                          ],
+                        )))
+              ],
+            ),
           ),
         );
       });

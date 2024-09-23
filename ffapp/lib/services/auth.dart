@@ -112,7 +112,7 @@ class AuthService {
   try {
     await _auth.currentUser?.reauthenticateWithCredential(credential);
     await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
-    _startEmailVerificationListener(oldEmail, newEmail);
+    startEmailVerificationListener(oldEmail, newEmail);
     // listenToAuthChanges();
     return "Verification email sent to: $newEmail";
   } catch (e) {
@@ -123,7 +123,7 @@ class AuthService {
 
   // TODO: regain brain cells and fix this
   // Checks every 5 seconds if the user is verified, and, if so, updates the database
-  void _startEmailVerificationListener(String oldEmail, String newEmail) {
+  void startEmailVerificationListener(String oldEmail, String newEmail) {
     
     Timer.periodic(const Duration(seconds: 5), (timer) async {
       try {

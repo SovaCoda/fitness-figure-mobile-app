@@ -116,6 +116,8 @@ void main() {
       expect(find.textContaining('5'), findsWidgets);
       // Verify that the streak is displayed
       expect(find.textContaining('2'), findsWidgets);
+
+      expect(find.byType(RobotImageHolder), findsOneWidget);
     });
 
     testWidgets('Dashboard adapts layout for small screens',
@@ -164,11 +166,7 @@ void main() {
       expect(robotImageFinder, findsOneWidget);
       final robotImageSize = tester.getSize(robotImageFinder);
       expect(robotImageSize.height, greaterThan(220));
-
-      // Add more specific checks for large screen layout
     });
-
-    // Don't forget to reset the window properties after each test
   });
 
   group('Premium Features test', () {
@@ -227,7 +225,6 @@ void main() {
 
       // Mock ChatModel methods
       when(mockChatModel.messages).thenReturn(<ChatMessage>[]);
-      
     });
 
     Widget createWidgetUnderTest() {
@@ -306,6 +303,119 @@ void main() {
 
       // Verify that the app navigates to the Chat page
       expect(find.byType(ChatPage), findsOneWidget);
+    });
+  });
+
+  group('RobotImageHolder URL Tests', () {
+    late MockAuthService mockAuthService;
+    late MockFlutterUser mockFlutterUser;
+    late MockAppBarAndBottomNavigationBarModel mockAppBarModel;
+    late MockCurrencyModel mockCurrencyModel;
+    late MockUserModel mockUserModel;
+    late MockFigureModel mockFigureModel;
+    late MockInventoryModel mockInventoryModel;
+
+    setUp(() {
+      mockAuthService = MockAuthService();
+      mockFlutterUser = MockFlutterUser();
+      mockAppBarModel = MockAppBarAndBottomNavigationBarModel();
+      mockCurrencyModel = MockCurrencyModel();
+      mockUserModel = MockUserModel();
+      mockFigureModel = MockFigureModel();
+      mockInventoryModel = MockInventoryModel();
+
+      // Set up mock data
+      final mockUser = User(
+        weekComplete: Int64(3),
+        weekGoal: Int64(5),
+        workoutMinTime: Int64(30),
+        streak: Int64(2),
+        email: 'test@example.com',
+        curFigure: 'robot1',
+      );
+
+      final mockFigure = FigureInstance(
+        figureName: 'robot1',
+        curSkin: '0',
+        evLevel: 1,
+        evPoints: 50,
+        charge: 49,
+      );
+
+      when(mockCurrencyModel.currency).thenReturn('1000');
+      when(mockUserModel.user).thenReturn(mockUser);
+      when(mockFigureModel.figure).thenReturn(mockFigure);
+      when(mockFigureModel.EVLevel).thenReturn(1);
+      when(mockAppBarModel.appBarKey).thenReturn(GlobalKey());
+      when(mockAppBarModel.bottomNavBarKey).thenReturn(GlobalKey());
+
+      // Mock AuthService methods
+      when(mockAuthService.getUserDBInfo())
+          .thenAnswer((_) => Future.value(mockUser));
+      when(mockAuthService.updateUserDBInfo(any))
+          .thenAnswer((_) => Future.value(mockUser));
+      when(mockAuthService.getFigureInstance(any))
+          .thenAnswer((_) => Future.value(mockFigure));
+    });
+
+    Widget createWidgetUnderTest() {
+      return MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<AuthService>.value(value: mockAuthService),
+            Provider<FlutterUser>.value(value: mockFlutterUser),
+            ChangeNotifierProvider<AppBarAndBottomNavigationBarModel>.value(
+                value: mockAppBarModel),
+            ChangeNotifierProvider<CurrencyModel>.value(
+                value: mockCurrencyModel),
+            ChangeNotifierProvider<UserModel>.value(value: mockUserModel),
+            ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
+            ChangeNotifierProvider<InventoryModel>.value(
+                value: mockInventoryModel),
+          ],
+          child: const Dashboard(),
+        ),
+      );
+    }
+
+    testWidgets('RobotImageHolder uses happy URL when charge is 50 or greater',
+        (WidgetTester tester) async {
+      when(mockFigureModel.figure).thenReturn(FigureInstance(
+        figureName: 'robot1',
+        curSkin: '0',
+        evLevel: 1,
+        charge: 50,
+      ));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      final robotImageHolder = find.byType(RobotImageHolder);
+      expect(robotImageHolder, findsOneWidget);
+
+      final RobotImageHolder widget = tester.widget(robotImageHolder);
+      expect(widget.url, 'robot1/robot1_skin0_evo1_cropped_happy');
+    });
+
+    testWidgets('RobotImageHolder uses sad URL when charge is less than 50',
+        (WidgetTester tester) async {
+      when(mockFigureModel.figure).thenReturn(FigureInstance(
+        figureName: 'robot1',
+        curSkin: '0',
+        evLevel: 1,
+        charge: 49,
+      ));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      await tester.pumpAndSettle();
+
+      final robotImageHolder = find.byType(RobotImageHolder);
+      expect(robotImageHolder, findsOneWidget);
+
+      final RobotImageHolder widget = tester.widget(robotImageHolder);
+      expect(widget.url, 'robot1/robot1_skin0_evo1_cropped_sad');
     });
   });
 }

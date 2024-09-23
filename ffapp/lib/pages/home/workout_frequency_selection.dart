@@ -6,21 +6,27 @@ import 'package:wheel_slider/wheel_slider.dart';
 import 'package:go_router/go_router.dart';
 import "package:ffapp/services/routes.pb.dart" as Routes;
 import 'package:fixnum/fixnum.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:provider/provider.dart';
+import 'package:ffapp/main.dart';
+import 'package:bottom_picker/bottom_picker.dart';
+import 'package:ffapp/services/auth.dart';
 
 class WorkoutFrequencySelection extends StatefulWidget {
   const WorkoutFrequencySelection({super.key});
 
   @override
-  State<WorkoutFrequencySelection> createState() =>
-      _WorkoutFrequencySelectionState();
+  State<WorkoutFrequencySelection> createState() => _WorkoutFrequencySelectionState();
 }
 
 class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
-  bool _sliderDisplayed = false;
   Int64 _nCurrentValue = Int64(4);
-  Int64 _mCurrentValue = Int64(30); // Added variable for minutes selection
+  Int64 _mCurrentValue = Int64(30);
   FlutterUser user = FlutterUser();
   String curEmail = "Loading...";
+  late AuthService auth;
+  int weeklyGoal = 4;
+  int minExerciseGoal = 30;
 
   @override
   void initState() {
@@ -31,26 +37,119 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
   void initialize() async {
     await user.initAuthService();
     await user.checkUser();
+    auth = Provider.of<AuthService>(context, listen: false);
+    
     curEmail = await user.getEmail();
   }
 
   void showSnackBar(BuildContext context, String text) {
-    final snackBar = SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(text),
-      duration: const Duration(seconds: 1),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      duration: const Duration(seconds: 2),
+      behavior: SnackBarBehavior.floating,
+    ));
   }
 
-  void displaySlider() {
+  void _showWeeklyGoalPicker() {
+    int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
+    BottomPicker(
+      items: List.generate(
+          7,
+          (index) => Text("${index + 1} ${index == 0 ? "day" : "days"}",
+              style: TextStyle(fontSize: 35))),
+      pickerTitle: const Text(
+        "Select Weekly Workout Goal",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      titleAlignment: Alignment.center,
+      pickerTextStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      height: MediaQuery.of(context).size.height * 0.5,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      selectedItemIndex: safeWeeklyGoal - 1,
+      itemExtent: 38,
+      dismissable: true,
+      onSubmit: (index) {
+        setState(() {
+          weeklyGoal = index + 1;
+        });
+        updateWeeklyGoal(weeklyGoal);
+      },
+      buttonAlignment: MainAxisAlignment.center,
+      displayCloseIcon: false,
+      buttonWidth: MediaQuery.of(context).size.width * 0.5,
+      buttonContent: Text("Confirm",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16),
+          textAlign: TextAlign.center),
+      buttonStyle: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: const BorderRadius.all(Radius.circular(13)),
+      ),
+      buttonSingleColor: Theme.of(context).colorScheme.primary,
+    ).show(context);
+  }
+
+  void updateWeeklyGoal(int goal) async {
+    // await auth.updateWeeklyGoal(goal);
+    Provider.of<UserModel>(context, listen: false).setUserWeekGoal(Int64(goal));
     setState(() {
-      _sliderDisplayed = true;
+      _nCurrentValue = Int64(goal);
     });
   }
 
-  void closeSlider() {
+  void _showMinGoalPicker() {
+    int safeWeeklyGoal = weeklyGoal.clamp(1, 4);
+    BottomPicker(
+      items: List.generate(
+          4,
+          (index) => Text("${(index + 1) * 15} minutes",
+              style: TextStyle(fontSize: 35))),
+      pickerTitle: const Text(
+        "Select Weekly Workout Goal",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      titleAlignment: Alignment.center,
+      pickerTextStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      height: MediaQuery.of(context).size.height * 0.5,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      selectedItemIndex: safeWeeklyGoal - 1,
+      itemExtent: 38,
+      dismissable: true,
+      onSubmit: (index) {
+        setState(() {
+          minExerciseGoal = (index + 1) * 15;
+        });
+        updateMinWorkoutTime(minExerciseGoal);
+      },
+      buttonAlignment: MainAxisAlignment.center,
+      displayCloseIcon: false,
+      buttonWidth: MediaQuery.of(context).size.width * 0.5,
+      buttonContent: Text("Confirm",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16),
+          textAlign: TextAlign.center),
+      buttonStyle: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: const BorderRadius.all(Radius.circular(13)),
+      ),
+      buttonSingleColor: Theme.of(context).colorScheme.primary,
+    ).show(context);
+  }
+
+  void updateMinWorkoutTime(int time) async {
+    // await auth.updateUserDBInfo(
+    //     Routes.User(email: curEmail, workoutMinTime: Int64(time)));
+    Provider.of<UserModel>(context, listen: false).setWorkoutMinTime(Int64(time));
     setState(() {
-      _sliderDisplayed = false;
+      _mCurrentValue = Int64(time);
     });
   }
 
@@ -68,99 +167,123 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
 
   @override
   Widget build(BuildContext context) {
-    return (Scaffold(
-      body: SafeArea(
-          child: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Select your weekly workout goal: ",
-              style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-              )
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.grey[900]!, Theme.of(context).colorScheme.surface],
           ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 40),
+                Text(
+                  "Set Your Workout Goals",
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Consumer<FigureModel>(
+                  builder: (context, figure, _) {
+                    
+                return Center(
+                child: RobotImageHolder(
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  width: MediaQuery.of(context).size.height * 0.3,
+                  url: "${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo0_cropped_happy",
+                ),
+                );
+                  }
+                ),
+                const SizedBox(height: 40),
+                _buildWeeklyGoalCard(),
+                const SizedBox(height: 40),
+                _buildWorkoutGoalCard(),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: submitFrequency,
+                  
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: Text("Activate Workout Mode", style: Theme.of(context).textTheme.displayMedium!),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-          const SizedBox(height: 30),
+  Widget _buildWeeklyGoalCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Weekly Workout Goal',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}"),
+                ElevatedButton(
+                  onPressed: _showWeeklyGoalPicker,
+                  child: Text("Change"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-          //if slider is displayed the show the slider, else show the selection
-          _sliderDisplayed
-              ? Column(children: [
-                  // TO DO: FIGURE OUT WHY THIS ISNT WORKING... IT LOOKS REALLY GOOD BUT DOESNT SLIDE ON MY DEVICE AT LEAST - REESE
-                  WheelSlider.number(
-                    allowPointerTappable: true,
-                    perspective: 0.01,
-                    totalCount: 10,
-                    initValue: 4,
-                    selectedNumberStyle: TextStyle(
-                      fontSize: 28,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      decoration: TextDecoration.none,
-                    ),
-                    unSelectedNumberStyle: TextStyle(
-                      fontSize: 20.0,
-                      color: Theme.of(context).colorScheme.outline,
-                      decoration: TextDecoration.none,
-                    ),
-                    currentIndex: _nCurrentValue.toInt(),
-                    onValueChanged: (val) {
-                      setState(() {
-                        if(_nCurrentValue == 0) {showSnackBar(context, 'Workout weekly goal cannot be zero');}
-                        _nCurrentValue = Int64(val.toInt());
-                      });
-                    },
-                    hapticFeedbackType: HapticFeedbackType.heavyImpact,
-                  ),
-                  const SizedBox(height: 60,),
-                  Text("Select your minutes per workout goal: ",
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                      )
-                  ),
-                  const SizedBox(height: 30),
-                  WheelSlider.number( // Added another WheelSlider for minutes selection
-                    allowPointerTappable: true,
-                    perspective: 0.0015,
-                    totalCount: 60,
-                    initValue: 30,
-                    itemSize: 50,
-                    interval: 5,
-                    selectedNumberStyle: TextStyle(
-                      fontSize: 28,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      decoration: TextDecoration.none,
-                    ),
-                    unSelectedNumberStyle: TextStyle(
-                      fontSize: 20.0,
-                      color: Theme.of(context).colorScheme.outline,
-                      decoration: TextDecoration.none,
-                    ),
-                    currentIndex: _mCurrentValue.toInt(),
-                    onValueChanged: (val) {
-                      setState(() {
-                        if(_mCurrentValue == 0) {showSnackBar(context, 'Workout time cannot be zero');}
-                        _mCurrentValue = Int64(val.toInt());
-                      });
-                    },
-                    hapticFeedbackType: HapticFeedbackType.heavyImpact,
-                  ),
-                  const SizedBox(height: 60),
-                  ElevatedButton(
-                      onPressed: closeSlider, child: const Text("Close Slider"))
-                ])
-              : Column(children: [
-                  SizedBox(
-                    height: 100,
-                    width: 150,
-                    child: ElevatedButton(
-                        onPressed: displaySlider,
-                        child: Text("$_nCurrentValue days\n$_mCurrentValue mins",
-                            style: const TextStyle(fontSize: 22))),
-                  ),
-                  const SizedBox(height: 60),
-                  ElevatedButton(
-                      onPressed: submitFrequency,
-                      child: const Text("Submit Workout Frequency"))
-                ])
-        ]),
-      )),
-    ));
+  Widget _buildWorkoutGoalCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Minimum Workout Time',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                    "$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}"),
+                ElevatedButton(
+                  onPressed: _showMinGoalPicker,
+                  child: Text("Change"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
