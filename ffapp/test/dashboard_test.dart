@@ -1,6 +1,8 @@
 import 'package:ffapp/pages/home/chat.dart';
+import 'package:ffapp/pages/home/subscribe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/web.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -14,7 +16,10 @@ import 'package:mockito/annotations.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
+import 'package:logger/logger.dart';
 
+// if an update was made to any of these models, you can run the command below in the ffapp directory to regenerate the mocks
+// dart run build_runner build
 @GenerateMocks([
   AuthService,
   FlutterUser,
@@ -27,6 +32,8 @@ import 'package:ffapp/components/utils/chat_model.dart';
 ])
 import 'dashboard_test.mocks.dart';
 
+Logger logger = Logger();
+
 void main() {
   group('Dashboard Widget Tests', () {
     late MockAuthService mockAuthService;
@@ -36,6 +43,7 @@ void main() {
     late MockUserModel mockUserModel;
     late MockFigureModel mockFigureModel;
     late MockInventoryModel mockInventoryModel;
+    late MockChatModel mockChatModel;
 
     setUp(() {
       mockAuthService = MockAuthService();
@@ -45,6 +53,7 @@ void main() {
       mockUserModel = MockUserModel();
       mockFigureModel = MockFigureModel();
       mockInventoryModel = MockInventoryModel();
+      mockChatModel = MockChatModel();
 
       // Set up mock data
       final mockUser = User(
@@ -78,6 +87,9 @@ void main() {
           .thenAnswer((_) => Future.value(mockUser));
       when(mockAuthService.getFigureInstance(any))
           .thenAnswer((_) => Future.value(mockFigure));
+
+      // Mock ChatModel methods
+      when(mockChatModel.messages).thenReturn(<ChatMessage>[]);
     });
 
     Widget createWidgetUnderTest() {
@@ -94,6 +106,7 @@ void main() {
             ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
             ChangeNotifierProvider<InventoryModel>.value(
                 value: mockInventoryModel),
+            ChangeNotifierProvider<ChatModel>.value(value: mockChatModel),
           ],
           child: const Dashboard(),
         ),
@@ -141,7 +154,6 @@ void main() {
       expect(robotImageFinder, findsOneWidget);
       final robotImageSize = tester.getSize(robotImageFinder);
       expect(robotImageSize.height, lessThan(200));
-
       // Add more specific checks for small screen layout
     });
 
@@ -214,6 +226,8 @@ void main() {
       when(mockFigureModel.EVLevel).thenReturn(1);
       when(mockAppBarModel.appBarKey).thenReturn(GlobalKey());
       when(mockAppBarModel.bottomNavBarKey).thenReturn(GlobalKey());
+      when(mockFigureModel.composeFigureUrl())
+          .thenReturn('robot1/robot1_skin0_evo1_cropped_happy');
 
       // Mock AuthService methods
       when(mockAuthService.getUserDBInfo())
@@ -224,14 +238,18 @@ void main() {
           .thenAnswer((_) => Future.value(mockFigure));
 
       // Mock ChatModel methods
-      when(mockChatModel.messages).thenReturn(<ChatMessage>[]);
+      when(mockChatModel.messages).thenReturn(<ChatMessage>[
+        ChatMessage("Welcome to Fitness Figure! Let's start an exercise!",
+            "assistant", "robot1")
+      ]);
+      when(mockChatModel.isRobotTyping).thenReturn(false);
     });
 
     Widget createWidgetUnderTest() {
       final GoRouter goRouter = GoRouter(
         routes: [
           GoRoute(
-            name: 'Dashboard',
+            name: 'Home',
             path: '/',
             builder: (context, state) => const Dashboard(),
           ),
@@ -240,6 +258,11 @@ void main() {
             path: '/chat',
             builder: (context, state) => const ChatPage(),
           ),
+          GoRoute(
+            name: 'Subscribe',
+            path: '/subscribe',
+            builder: (context, state) => const SubscribePage(),
+          )
         ],
       );
 
@@ -281,15 +304,37 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that the dialog for non-premium users is shown
-      expect(find.text('Work In Progress'), findsOneWidget);
+      expect(find.text("FF+ Premium Feature"), findsOneWidget);
       expect(
           find.text(
-              "Sorry, we're still installing the conversational chips into the figures, check back later to see some progress!"),
+              "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!"),
           findsOneWidget);
 
       // Dismiss the dialog
-      await tester.ensureVisible(find.text('Get Fit'));
-      await tester.tap(find.text('Get Fit'));
+      await tester.ensureVisible(find.text("Subscribe Now \$1.99"));
+      await tester.tap(find.text("Subscribe Now \$1.99"));
+      await tester.pumpAndSettle();
+      expect(find.byType(SubscribePage), findsOneWidget);
+
+      // Warns if 'Toggle Premium Status' button is found
+      if (find
+          .text("Toggle Premium Status", skipOffstage: false)
+          .evaluate()
+          .isNotEmpty) {
+        logger.w(
+            "Debug feature detected: 'Toggle Premium Status' button present. Remove before production release.");
+      }
+
+      await tester.ensureVisible(find.text("Maybe Later"));
+      await tester.tap(find.text("Maybe Later"));
+      await tester.pumpAndSettle();
+      expect(find.byType(Dashboard), findsOneWidget);
+
+      await tester.tap(chatIcon);
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text("No Thanks"));
+      await tester.tap(find.text("No Thanks"));
       await tester.pumpAndSettle();
 
       // Set up for premium user
@@ -314,6 +359,7 @@ void main() {
     late MockUserModel mockUserModel;
     late MockFigureModel mockFigureModel;
     late MockInventoryModel mockInventoryModel;
+    late MockChatModel mockChatModel;
 
     setUp(() {
       mockAuthService = MockAuthService();
@@ -323,6 +369,7 @@ void main() {
       mockUserModel = MockUserModel();
       mockFigureModel = MockFigureModel();
       mockInventoryModel = MockInventoryModel();
+      mockChatModel = MockChatModel();
 
       // Set up mock data
       final mockUser = User(
@@ -356,6 +403,12 @@ void main() {
           .thenAnswer((_) => Future.value(mockUser));
       when(mockAuthService.getFigureInstance(any))
           .thenAnswer((_) => Future.value(mockFigure));
+
+      // Mock ChatModel methods
+      when(mockChatModel.messages).thenReturn(<ChatMessage>[
+        ChatMessage("Welcome to Fitness Figure! Let's start an exercise!",
+            "assistant", "robot1")
+      ]);
     });
 
     Widget createWidgetUnderTest() {
@@ -372,6 +425,7 @@ void main() {
             ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
             ChangeNotifierProvider<InventoryModel>.value(
                 value: mockInventoryModel),
+            ChangeNotifierProvider<ChatModel>.value(value: mockChatModel),
           ],
           child: const Dashboard(),
         ),

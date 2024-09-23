@@ -17,6 +17,7 @@ import 'package:fixnum/fixnum.dart' as _i12;
 import 'package:flutter/material.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i9;
+import 'package:shared_preferences/shared_preferences.dart' as _i14;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -371,6 +372,22 @@ class MockAuthService extends _i1.Mock implements _i3.AuthService {
         ),
         returnValue: _i6.Future<dynamic>.value(),
       ) as _i6.Future<dynamic>);
+
+  @override
+  void startEmailVerificationListener(
+    String? oldEmail,
+    String? newEmail,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #startEmailVerificationListener,
+          [
+            oldEmail,
+            newEmail,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i6.Future<dynamic> completeEmailUpdate(
@@ -1538,6 +1555,24 @@ class MockUserModel extends _i1.Mock implements _i10.UserModel {
       );
 
   @override
+  String get newEmail => (super.noSuchMethod(
+        Invocation.getter(#newEmail),
+        returnValue: _i9.dummyValue<String>(
+          this,
+          Invocation.getter(#newEmail),
+        ),
+      ) as String);
+
+  @override
+  set newEmail(String? _newEmail) => super.noSuchMethod(
+        Invocation.setter(
+          #newEmail,
+          _newEmail,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   int get baseGain => (super.noSuchMethod(
         Invocation.getter(#baseGain),
         returnValue: 0,
@@ -1608,6 +1643,15 @@ class MockUserModel extends _i1.Mock implements _i10.UserModel {
         ),
         returnValue: false,
       ) as bool);
+
+  @override
+  void setNewEmail(String? newEmail) => super.noSuchMethod(
+        Invocation.method(
+          #setNewEmail,
+          [newEmail],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void addListener(_i11.VoidCallback? listener) => super.noSuchMethod(
@@ -1947,6 +1991,21 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
       );
 
   @override
+  bool get isRobotTyping => (super.noSuchMethod(
+        Invocation.getter(#isRobotTyping),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  set isRobotTyping(bool? _isRobotTyping) => super.noSuchMethod(
+        Invocation.setter(
+          #isRobotTyping,
+          _isRobotTyping,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   set robot(String? _robot) => super.noSuchMethod(
         Invocation.setter(
           #robot,
@@ -1965,7 +2024,13 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
       );
 
   @override
-  set personalityModules(List<String?>? _personalityModules) =>
+  List<String> get personalityModules => (super.noSuchMethod(
+        Invocation.getter(#personalityModules),
+        returnValue: <String>[],
+      ) as List<String>);
+
+  @override
+  set personalityModules(List<String>? _personalityModules) =>
       super.noSuchMethod(
         Invocation.setter(
           #personalityModules,
@@ -1993,15 +2058,60 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
       );
 
   @override
+  set assistantId(String? _assistantId) => super.noSuchMethod(
+        Invocation.setter(
+          #assistantId,
+          _assistantId,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set threadId(String? _threadId) => super.noSuchMethod(
+        Invocation.setter(
+          #threadId,
+          _threadId,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set prefs(_i14.SharedPreferences? _prefs) => super.noSuchMethod(
+        Invocation.setter(
+          #prefs,
+          _prefs,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   bool get hasListeners => (super.noSuchMethod(
         Invocation.getter(#hasListeners),
         returnValue: false,
       ) as bool);
 
   @override
-  _i6.Future<void> init() => (super.noSuchMethod(
+  void dispose() => super.noSuchMethod(
         Invocation.method(
-          #init,
+          #dispose,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void updateChat() => super.noSuchMethod(
+        Invocation.method(
+          #updateChat,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i6.Future<void> loadPersonalityModules() => (super.noSuchMethod(
+        Invocation.method(
+          #loadPersonalityModules,
           [],
         ),
         returnValue: _i6.Future<void>.value(),
@@ -2009,9 +2119,87 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
       ) as _i6.Future<void>);
 
   @override
+  _i6.Future<void> savePersonalityModules() => (super.noSuchMethod(
+        Invocation.method(
+          #savePersonalityModules,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> init({
+    dynamic changeFlag = false,
+    required _i4.BuildContext? context,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [],
+          {
+            #changeFlag: changeFlag,
+            #context: context,
+          },
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<Map<String, dynamic>> get_robot_stats(_i4.BuildContext? context) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #get_robot_stats,
+          [context],
+        ),
+        returnValue:
+            _i6.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i6.Future<Map<String, dynamic>>);
+
+  @override
+  _i6.Future<Map<String, dynamic>> getWeekData(_i4.BuildContext? context) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getWeekData,
+          [context],
+        ),
+        returnValue:
+            _i6.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i6.Future<Map<String, dynamic>>);
+
+  @override
+  _i6.Future<Map<String, dynamic>> evolutionInfo(_i4.BuildContext? context) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #evolutionInfo,
+          [context],
+        ),
+        returnValue:
+            _i6.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i6.Future<Map<String, dynamic>>);
+
+  @override
+  _i6.Future<String> startWorkoutTimer(_i4.BuildContext? context) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startWorkoutTimer,
+          [context],
+        ),
+        returnValue: _i6.Future<String>.value(_i9.dummyValue<String>(
+          this,
+          Invocation.method(
+            #startWorkoutTimer,
+            [context],
+          ),
+        )),
+      ) as _i6.Future<String>);
+
+  @override
   _i6.Future<void> sendMessage(
     String? message,
     String? role,
+    _i4.BuildContext? context,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2019,6 +2207,7 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
           [
             message,
             role,
+            context,
           ],
         ),
         returnValue: _i6.Future<void>.value(),
@@ -2026,10 +2215,74 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
       ) as _i6.Future<void>);
 
   @override
-  void addMessage(_i13.ChatMessage? message) => super.noSuchMethod(
+  _i6.Future<void> handleRequiredAction(
+    _i5.CreateRunResponse? updatedRun,
+    _i4.BuildContext? context,
+  ) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #addMessage,
-          [message],
+          #handleRequiredAction,
+          [
+            updatedRun,
+            context,
+          ],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> retrieveAndProcessAssistantResponse() => (super.noSuchMethod(
+        Invocation.method(
+          #retrieveAndProcessAssistantResponse,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  void addPersonalityModule(String? module) => super.noSuchMethod(
+        Invocation.method(
+          #addPersonalityModule,
+          [module],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removePersonalityModule(String? module) => super.noSuchMethod(
+        Invocation.method(
+          #removePersonalityModule,
+          [module],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i6.Future<String>? generatePostWorkoutMessage(
+          Map<String, dynamic>? gameState) =>
+      (super.noSuchMethod(Invocation.method(
+        #generatePostWorkoutMessage,
+        [gameState],
+      )) as _i6.Future<String>?);
+
+  @override
+  _i6.Future<String?> generatePremiumOfflineStatusMessage(
+          Map<String, dynamic>? gameState) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #generatePremiumOfflineStatusMessage,
+          [gameState],
+        ),
+        returnValue: _i6.Future<String?>.value(),
+      ) as _i6.Future<String?>);
+
+  @override
+  void setRobotTyping(bool? isTyping) => super.noSuchMethod(
+        Invocation.method(
+          #setRobotTyping,
+          [isTyping],
         ),
         returnValueForMissingStub: null,
       );
@@ -2048,15 +2301,6 @@ class MockChatModel extends _i1.Mock implements _i13.ChatModel {
         Invocation.method(
           #removeListener,
           [listener],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void dispose() => super.noSuchMethod(
-        Invocation.method(
-          #dispose,
-          [],
         ),
         returnValueForMissingStub: null,
       );

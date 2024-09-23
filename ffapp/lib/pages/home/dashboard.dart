@@ -71,7 +71,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void initialize() async {
-
     // await Provider.of<ChatModel>(context, listen: false).init(context: context);
     // await Provider.of<ChatModel>(context, listen: false)
     //     .sendMessage("", "system");
@@ -122,99 +121,108 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             }
           }
         });
-        
-      
-      
-    // offline notification stuff
-    LocalNotificationService().initNotifications;
-    Map<String, dynamic> gameState = {
-      "charge": databaseFigure.charge,
-      "evo": databaseFigure.evPoints,
-      "currency": databaseUser.currency,
-      "evoNeededForLevel": figure1.EvCutoffs[databaseFigure.evLevel],
-      "workoutsCompleteThisWeek": weeklyCompleted,
-      "workoutsNeededThisWeek": weeklyGoal,
-    };
-    
 
-    if(databaseUser.hasPremium() && await LocalNotificationService().isReadyForNotification()) {
-      await Future.delayed(Duration(milliseconds: 500));
-      String? premiumOfflineNotification = await Provider.of<ChatModel>(context, listen: false).generatePremiumOfflineStatusMessage(gameState);
-      if (premiumOfflineNotification == null ) {logger.e('recieved null response from openai for push notification');}
-      else {
-        LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: premiumOfflineNotification);
-      }
-    } else if (await LocalNotificationService().isReadyForNotification()) {
-      if (databaseFigure.charge > 50 ) {
-        LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: "My charge is at ${databaseFigure.charge}, great job! Lets keep it that way by staying consistent");
-      } else {
-        LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online");
-      }
-      
-    }
-    //LocalNotificationService().scheduleOfflineNotification(body: );
+        // offline notification stuff
+        LocalNotificationService().initNotifications;
+        Map<String, dynamic> gameState = {
+          "charge": databaseFigure.charge,
+          "evo": databaseFigure.evPoints,
+          "currency": databaseUser.currency,
+          "evoNeededForLevel": figure1.EvCutoffs[databaseFigure.evLevel],
+          "workoutsCompleteThisWeek": weeklyCompleted,
+          "workoutsNeededThisWeek": weeklyGoal,
+        };
 
+        if (databaseUser.hasPremium() &&
+            await LocalNotificationService().isReadyForNotification()) {
+          await Future.delayed(Duration(milliseconds: 500));
+          String? premiumOfflineNotification =
+              await Provider.of<ChatModel>(context, listen: false)
+                  .generatePremiumOfflineStatusMessage(gameState);
+          if (premiumOfflineNotification == null) {
+            logger
+                .e('recieved null response from openai for push notification');
+          } else {
+            LocalNotificationService().scheduleOfflineNotification(
+                title: "Your Figure", body: premiumOfflineNotification);
+          }
+        } else if (await LocalNotificationService().isReadyForNotification()) {
+          if (databaseFigure.charge > 50) {
+            LocalNotificationService().scheduleOfflineNotification(
+                title: "Your Figure",
+                body:
+                    "My charge is at ${databaseFigure.charge}, great job! Lets keep it that way by staying consistent");
+          } else {
+            LocalNotificationService().scheduleOfflineNotification(
+                title: "Your Figure",
+                body:
+                    "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online");
+          }
+        }
+        //LocalNotificationService().scheduleOfflineNotification(body: );
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      if (databaseUser!.readyForWeekReset == 'yes') {
-        bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
-        showFFDialogWithChildren(
-            "Week Complete!",
-            [
-              WeekCompleteShowcase(
-                isUserFirstWeek: isUsersFirstWeek,
-              )
-            ],
-            false,
-            FfButton(
-                text: "Get Fit",
-                textColor: Theme.of(context).colorScheme.onPrimary,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                onPressed: () async {
-                  double investment =
-                      Provider.of<HistoryModel>(context, listen: false)
-                          .investment;
-                  int investmentAdd = (investment / 100).toInt();
-                  int numComplete =
-                      Provider.of<HistoryModel>(context, listen: false)
-                          .lastWeek
-                          .where((element) => element == 2)
-                          .length;
-                  int chargeGain = numComplete * 3;
-                  int evGain = numComplete * 50 + investmentAdd;
-                  bool isComplete = isUsersFirstWeek
-                      ? true
-                      : Provider.of<HistoryModel>(context, listen: false)
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          if (databaseUser!.readyForWeekReset == 'yes') {
+            bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
+            showFFDialogWithChildren(
+                "Week Complete!",
+                [
+                  WeekCompleteShowcase(
+                    isUserFirstWeek: isUsersFirstWeek,
+                  )
+                ],
+                false,
+                FfButton(
+                    text: "Get Fit",
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    onPressed: () async {
+                      double investment =
+                          Provider.of<HistoryModel>(context, listen: false)
+                              .investment;
+                      int investmentAdd = (investment / 100).toInt();
+                      int numComplete =
+                          Provider.of<HistoryModel>(context, listen: false)
                               .lastWeek
                               .where((element) => element == 2)
-                              .length >=
-                          Provider.of<UserModel>(context, listen: false)
-                              .user!
-                              .weekGoal
-                              .toInt();
-                  User user =
-                      Provider.of<UserModel>(context, listen: false).user!;
-                  FigureInstance figure =
-                      Provider.of<FigureModel>(context, listen: false).figure!;
-                  if (isComplete) {
-                    await auth.resetUserWeekComplete(user);
-                    user.weekComplete = Int64(0);
-                    user.readyForWeekReset = 'no';
-                    await auth.resetUserStreak(user);
-                    await auth.resetUserWeekComplete(user);
-                    await auth.updateUserDBInfo(user);
-                    await auth.updateFigureInstance(figure);
-                    Provider.of<UserModel>(context, listen: false)
-                        .setUser(user);
-                    Provider.of<FigureModel>(context, listen: false)
-                        .setFigure(figure);
+                              .length;
+                      int chargeGain = numComplete * 3;
+                      int evGain = numComplete * 50 + investmentAdd;
+                      bool isComplete = isUsersFirstWeek
+                          ? true
+                          : Provider.of<HistoryModel>(context, listen: false)
+                                  .lastWeek
+                                  .where((element) => element == 2)
+                                  .length >=
+                              Provider.of<UserModel>(context, listen: false)
+                                  .user!
+                                  .weekGoal
+                                  .toInt();
+                      User user =
+                          Provider.of<UserModel>(context, listen: false).user!;
+                      FigureInstance figure =
+                          Provider.of<FigureModel>(context, listen: false)
+                              .figure!;
+                      if (isComplete) {
+                        await auth.resetUserWeekComplete(user);
+                        user.weekComplete = Int64(0);
+                        user.readyForWeekReset = 'no';
+                        await auth.resetUserStreak(user);
+                        await auth.resetUserWeekComplete(user);
+                        await auth.updateUserDBInfo(user);
+                        await auth.updateFigureInstance(figure);
+                        Provider.of<UserModel>(context, listen: false)
+                            .setUser(user);
+                        Provider.of<FigureModel>(context, listen: false)
+                            .setFigure(figure);
 
-                    Navigator.of(context).pop();
-                  }}),
-              context);
-        }
-      });
-      logger.i(figureURL);
+                        Navigator.of(context).pop();
+                      }
+                    }),
+                context);
+          }
+        });
+        logger.i(figureURL);
       }
     } catch (e, stacktrace) {
       logger.e("Error initializing dashboard: ${e.toString()}");
@@ -310,83 +318,102 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             ));
                           },
                         ),
-
                         Positioned(
-                      top: 5,
-                      left: 5,
-                      child: Consumer<ChatModel>(
-                        builder: (_, chat, __) {
-                          return Container(
-                            width: MediaQuery.of(context).size.width * 0.75,
-                            child: GradientedContainer(
-                              padding: const EdgeInsets.all(4),
-                              child: Text( chat.messages.isNotEmpty ?
-                                chat.messages.last.text : "",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall!
-                                    .copyWith(
-                                        fontSize: 12,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                        Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Consumer<UserModel>(
-                        builder: (_, user, __) {
-                          return GestureDetector(
-                            onTap: () {
-                              user.isPremium()
-                                  ? context.goNamed("Chat")
-                                  : showFFDialogBinary(
-            "FF+ Premium Feature",
-            "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
-            false,
-            context,
-            FfButton(
-              height: 50,
-              text: "Subscribe Now \$1.99",
-              textStyle: Theme.of(context).textTheme.displayMedium!,
-              textColor: Theme.of(context).colorScheme.onPrimary,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              onPressed: () => {GoRouter.of(context).go('/subscribe')},
-            ),
-            FfButton(
-                height: 50,
-                text: "No Thanks",
-                textStyle: Theme.of(context).textTheme.displayMedium!,
-                textColor: Theme.of(context).colorScheme.onSurface,
-                backgroundColor:
-                    Theme.of(context).colorScheme.surface.withAlpha(126),
-                onPressed: () => {Navigator.of(context).pop()}));
+                          top: 5,
+                          left: 5,
+                          child: Consumer<ChatModel>(
+                            builder: (_, chat, __) {
+                              return Container(
+                                width: MediaQuery.of(context).size.width * 0.75,
+                                child: GradientedContainer(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Text(
+                                    chat.messages.isNotEmpty
+                                        ? chat.messages.last.text
+                                        : "",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall!
+                                        .copyWith(
+                                            fontSize: 12,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface),
+                                  ),
+                                ),
+                              );
                             },
-                            child: Icon(
-                              Icons.chat,
-                              size: 60,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Consumer<UserModel>(
+                            builder: (_, user, __) {
+                              return GestureDetector(
+                                onTap: () {
+                                  user.isPremium()
+                                      ? context.goNamed("Chat")
+                                      : showFFDialogBinary(
+                                          "FF+ Premium Feature",
+                                          "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
+                                          false,
+                                          context,
+                                          FfButton(
+                                            height: 50,
+                                            text: "Subscribe Now \$1.99",
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .displayMedium!,
+                                            textColor: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            onPressed: () => {
+                                              GoRouter.of(context)
+                                                  .go('/subscribe')
+                                            },
+                                          ),
+                                          FfButton(
+                                              height: 50,
+                                              text: "No Thanks",
+                                              textStyle: Theme.of(context)
+                                                  .textTheme
+                                                  .displayMedium!,
+                                              textColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .surface
+                                                  .withAlpha(126),
+                                              onPressed: () => {
+                                                    Navigator.of(context).pop()
+                                                  }));
+                                },
+                                child: Icon(
+                                  Icons.chat,
+                                  size: 60,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                         Consumer<UserModel>(
-                      builder: (context, user, child) => (user.user != null &&
-                                  user.user?.email == "chb263@msstate.ed" ||
-                              user.user?.email == "blizard265@gmail.com")
-                          ? DraggableAdminPanel(
-                              onButton1Pressed: triggerFigureDecay,
-                              onButton2Pressed: triggerUserReset,
-                              button1Text: "Daily Decay Figure",
-                              button2Text: "Weekly Reset User",
-                            )
-                          : Container(),
-                    ),
+                          builder: (context, user, child) => (user.user !=
+                                          null &&
+                                      user.user?.email == "chb263@msstate.ed" ||
+                                  user.user?.email == "blizard265@gmail.com")
+                              ? DraggableAdminPanel(
+                                  onButton1Pressed: triggerFigureDecay,
+                                  onButton2Pressed: triggerUserReset,
+                                  button1Text: "Daily Decay Figure",
+                                  button2Text: "Weekly Reset User",
+                                )
+                              : Container(),
+                        ),
                       ],
                     ),
                   ),
@@ -420,7 +447,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         weeklyCompleted: user.user!.weekComplete.toInt(),
                         weeklyGoal: user.user!.weekGoal.toInt(),
                         lifeTimeCompleted: 10,
-                        availableWidth: screenWidth *0.91,
+                        availableWidth: screenWidth * 0.91,
                       );
                     },
                   ),
