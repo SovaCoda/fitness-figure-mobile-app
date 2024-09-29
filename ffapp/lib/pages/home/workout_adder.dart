@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
@@ -77,8 +78,23 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     super.initState();
     _lifeState = SchedulerBinding.instance!.lifecycleState;
     _listener = AppLifecycleListener(
+
+      onRestart: () {
+         logger.i("restarted");
+      },
+      onResume: () async {
+        logger.i("resumed");
+        
+        _timer.loadTime();
+      },
+      onExitRequested: () async{
+        logger.i('shutting down ');
+        liveActivityManager.stopLiveActivity();
+        return AppExitResponse.exit;
+      },
       onDetach: () {
-        _timer.deleteTimer();
+        logger.i("detached");
+        liveActivityManager.stopLiveActivity();
         if (states['logging']! && !states['paused']!) {
           prefs!.setBool("hasOngoingWorkout", true);
           prefs!.setBool("hasOngoingWorkoutPaused", false);
@@ -100,7 +116,22 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  void initialize() async {
+  void stopLiveActivities(DynamicIslandManager liveActivityManager) {
+  for (int i = 0; i < 5; i++) {
+    try {
+      liveActivityManager.stopLiveActivity();
+      print('Successfully stopped live activity on attempt ${i + 1}');
+      break; 
+    } catch (err) {
+      print('Attempt ${i + 1} failed: $err');
+
+    }
+  }
+  print('Finished trying to stop live activities.');
+}
+
+  void initialize({bool restartLiveActivity = true}) async {
+    stopLiveActivities(liveActivityManager);
     prefs = await SharedPreferences.getInstance();
     User user = await getUserModel().then((value) => value.user!);
     Int64 timegoal = user.workoutMinTime;
@@ -114,7 +145,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
 
     startLogging(false);
-    startTimer(true, false);
+    startTimer(true, restartLiveActivity);
   }
 
   Future<UserModel> getUserModel() async {
@@ -126,13 +157,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     return userModel;
   }
 
-  void startTimer(bool isInit, bool paused) async {
+  void startTimer(bool isInit, bool restartLiveActivity) async {
     _timer = PersistantTimer(
         prefs: prefs,
         timerName: "workout_timer",
         onTick: () {
           if (mounted) {
-            liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt()).toMap());
+            liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt(), paused: false).toMap());
             setState(() {
               if (mounted) {
                 time = Int64(_timer.getTimeInSeconds());
@@ -154,7 +185,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         tickSpeedMS: 1000,
         milliseconds: 0);
     if (_timer.hasStoredTime()) {
-
       states["logging"] = true;
       states["paused"] = _timer.hasStoredPauseTime();
       states["pre-logging"] = false;
@@ -164,10 +194,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         time = Int64(_timer.getTimeInSeconds());
       });
       
-      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt(), timeGoal: _timegoal.toInt()).toMap());
+      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt(), timeGoal: _timegoal.toInt(), paused: false).toMap());
     } else {
       if (!isInit) {
-        liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0, timeGoal: _timegoal.toInt()).toMap());
+        liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0, timeGoal: _timegoal.toInt(), paused: false).toMap());
         await _timer.start();
         states["logging"] = true;
         states["paused"] = false;
@@ -184,6 +214,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void resumeTimer() async {
+    liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt(), paused: false).toMap());
     _timer.resume();
     setState(() {
       states['paused'] = false;
@@ -191,6 +222,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void pauseTimer() async {
+    liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt(), paused: true).toMap());
     _timer.pause();
     setState(() {
       states["paused"] = true;
@@ -206,6 +238,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
     liveActivityManager.stopLiveActivity();
+    _timer.dispose();
     super.dispose();
   }
 
@@ -862,12 +895,12 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     width: MediaQuery.of(context).size.width,
                                     url: figure.composeFigureUrl(),
                                   ),
-                                  DraggableAdminPanel(
-                                    onButton1Pressed: add10Minutes,
-                                    onButton2Pressed: add30Seconds,
-                                    button1Text: "add 10 min",
-                                    button2Text: "add 30 sec",
-                                  ),
+                                  // DraggableAdminPanel(
+                                  //   onButton1Pressed: add10Minutes,
+                                  //   onButton2Pressed: add30Seconds,
+                                  //   button1Text: "add 10 min",
+                                  //   button2Text: "add 30 sec",
+                                  // ),
                                 ],
                               );
                             },

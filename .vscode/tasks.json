@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "conda init",
+            "type": "shell",
+            "command": "conda init",
+            "problemMatcher": [],
+            "group": "build",
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "conda activate",
+            "type": "shell",
+            "command": "conda activate",
+            "problemMatcher": [],
+            "group": "build",
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "runCondaTasks",
+            "dependsOn": [
+                
+                "conda activate",
+                "conda init",
+            ],
+            "group": "build"
+        }
+    ]
+}

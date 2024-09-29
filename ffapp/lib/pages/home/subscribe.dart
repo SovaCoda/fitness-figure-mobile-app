@@ -141,7 +141,7 @@ class _SubscribePageContent extends StatelessWidget {
                           ),
                     ),
                   ),
-                  _buildTogglePremiumButton(context)
+                  //_buildTogglePremiumButton(context)
                 ],
               ),
             ),
@@ -253,7 +253,7 @@ class _SubscribePageContent extends StatelessWidget {
                   style: Theme.of(context).textTheme.displayMedium,
                 ),
               ),
-              _buildTogglePremiumButton(context)
+              //_buildTogglePremiumButton(context)
             ],
           ),
         ));

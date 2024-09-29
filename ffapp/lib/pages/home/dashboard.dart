@@ -28,11 +28,8 @@ import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:fixnum/src/int64.dart';
 import 'package:flutter/material.dart';
-import 'package:ffapp/components/double_line_divider.dart';
-import 'package:ffapp/components/progress_bar.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:go_router/go_router.dart';
-import 'package:live_activities/live_activities.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 
@@ -189,7 +186,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   FigureInstance figure =
                       Provider.of<FigureModel>(context, listen: false).figure!;
                   if (isComplete) {
-                    await auth.resetUserWeekComplete(user);
+                    auth.resetUserWeekComplete(user);
                     user.weekComplete = Int64(0);
                     user.readyForWeekReset = 'no';
                     user.isInGracePeriod = 'no';
@@ -197,8 +194,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     figure.evPoints += evGain;
                     figure.charge += chargeGain;
 
-                    await auth.updateUserDBInfo(user);
-                    await auth.updateFigureInstance(figure);
+                    auth.updateUserDBInfo(user);
+                    auth.updateFigureInstance(figure);
                     Provider.of<UserModel>(context, listen: false)
                         .setUser(user);
                     Provider.of<FigureModel>(context, listen: false)
@@ -210,15 +207,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   user.streak = Int64(0);
                   user.weekComplete = Int64(0);
                   user.readyForWeekReset = 'no';
-                  await auth.resetUserStreak(user);
-                  await auth.resetUserWeekComplete(user);
-                  await auth.updateUserDBInfo(user);
-                  await auth.updateFigureInstance(figure);
+                  
+
+                  auth.resetUserStreak(user);
+                  auth.resetUserWeekComplete(user);
+                  auth.updateUserDBInfo(user);
+                  auth.updateFigureInstance(figure);
                   Provider.of<UserModel>(context, listen: false).setUser(user);
                   Provider.of<FigureModel>(context, listen: false)
                       .setFigure(figure);
-
                   Navigator.of(context).pop();
+                  
                 }),
             context);
       }
@@ -378,18 +377,19 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         },
                       ),
                     ),
-                    Consumer<UserModel>(
-                      builder: (context, user, child) => (user.user != null &&
-                                  user.user?.email == "chb263@msstate.ed" ||
-                              user.user?.email == "blizard265@gmail.com")
-                          ? DraggableAdminPanel(
-                              onButton1Pressed: triggerFigureDecay,
-                              onButton2Pressed: triggerUserReset,
-                              button1Text: "Daily Decay Figure",
-                              button2Text: "Weekly Reset User",
-                            )
-                          : Container(),
-                    )
+                    // Consumer<UserModel>(
+                    //   builder: (context, user, child) => (user.user != null &&
+                    //               user.user?.email == "chb263@msstate.ed" ||
+                    //           user.user?.email == "blizard265@gmail.com")
+                    //       ? 
+                    //       DraggableAdminPanel(
+                    //           onButton1Pressed: triggerFigureDecay,
+                    //           onButton2Pressed: triggerUserReset,
+                    //           button1Text: "Daily Decay Figure",
+                    //           button2Text: "Weekly Reset User",
+                    //         )
+                    //       : Container(),
+                    // )
                   ],
                 ),
               ),

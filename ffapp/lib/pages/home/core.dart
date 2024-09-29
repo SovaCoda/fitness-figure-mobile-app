@@ -250,7 +250,7 @@ class _CoreState extends State<Core> {
       builder: (_, figure, __) {
         return Container(
           width: MediaQuery.of(context).size.width * 0.95,
-          height: MediaQuery.of(context).size.height * 0.51,
+          height: MediaQuery.of(context).size.height * 0.42,
           decoration: BoxDecoration(
             color: Colors.grey[900],
             borderRadius: BorderRadius.circular(10),
@@ -264,7 +264,7 @@ class _CoreState extends State<Core> {
                   _taskManager.isDailyLimitReached()
                       ? _buildDailyLimitReachedMessage()
                       : _buildAvailableTasks(),
-                  _buildResetTasksButton(),
+                  //_buildResetTasksButton(),
                 ],
               ),
               if (!figure.capabilities['Research Unlocked']!)

@@ -70,6 +70,9 @@ class PersistantTimer {
       prefs!.setString('$timerName timerStarted', newStartDate.toString());
       int difference = now.difference(newStartDate).inMilliseconds;
       milliseconds = difference;
+      if(classTimer != null){
+        classTimer!.cancel();
+      }
       return;
     }
 
@@ -101,6 +104,9 @@ class PersistantTimer {
     int difference = ((now.difference(timerStartedDate).inMilliseconds *
             ((1 - (tickSpeedMS / 1000)) + 1)))
         .round();
+          if(classTimer != null){
+        classTimer!.cancel();
+      }
     milliseconds = difference;
     classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
       milliseconds += addableTime;
