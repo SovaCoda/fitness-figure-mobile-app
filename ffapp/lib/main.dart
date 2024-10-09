@@ -76,6 +76,8 @@ class CurrencyModel extends ChangeNotifier {
 class UserModel extends ChangeNotifier {
   Routes.User? user = Routes.User();
 
+  String newEmail = "";
+
   int get baseGain => 5;
 
   int get streak => 5;
@@ -95,6 +97,11 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setWorkoutMinTime(Int64 newValue) {
+    user?.workoutMinTime = newValue;
+    notifyListeners();
+  }
+
   void setPremium(Int64 premium) {
     user?.premium = premium;
     notifyListeners();
@@ -106,6 +113,11 @@ class UserModel extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  void setNewEmail(String newEmail) {
+    this.newEmail = newEmail;
+    notifyListeners();
   }
 }
 
@@ -236,7 +248,6 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await dotenv.load(fileName: ".env");
   await dotenv.load(fileName: ".env");
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
   OpenAI.apiKey = dotenv.env['OPENAI_KEY']!;
@@ -269,6 +280,7 @@ Future<void> main() async {
       ChangeNotifierProvider(
         create: (context) => HistoryModel(),
       ),
+      ChangeNotifierProvider(create: (_) => FigureInstancesProvider()),
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
       ChangeNotifierProvider(create: (context) => ChatModel()..init(context: context)),
     ], child: const MyApp()),
