@@ -164,10 +164,40 @@ class AuthService {
   }
 }
 
-  Future<void> deleteUser() async {
-    await _auth.currentUser?.delete();
-    await _routes.routesClient
+  Future<void> deleteUser(credential) async {
+    // I'll opt for the braindead solution for now
+    // get everything from db
+    Future<List<Routes.FigureInstance>> figureInstances = 
+        getFigureInstances(Routes.User(email: _auth.currentUser!.email!))
+        .then((value) => value.figureInstances);
+    Future<List<Routes.SkinInstance>> skinInstances = getSkinInstances(Routes.User(email: _auth.currentUser!.email!)).then((value) => value.skinInstances);
+    Future<List<Routes.SurveyResponse>> surveyResponses = getSurveyResponses(Routes.User(email: _auth.currentUser!.email!)).then((value) => value.surveyResponses);
+    Future<List<Routes.Workout>> workouts = getWorkouts().then((value) => value.workouts);
+    Future<List<Routes.DailySnapshot>> dailySnapshot = getDailySnapshots(Routes.DailySnapshot(userEmail: _auth.currentUser!.email!)).then((value) => value.dailySnapshots);
+    Future<Routes.OfflineDateTime> offlineDateTime = getOfflineDateTime(Routes.OfflineDateTime(email: _auth.currentUser!.email!));
+    // then loop over them and delete them, dont want to edit proto bc what happened last time, but please add multi delete methods to proto
+    // or create a delete everything method to proto, either is fine
+    for(Routes.FigureInstance figureInstance in await figureInstances) {
+      deleteFigureInstance(figureInstance);
+    }
+    for(Routes.SkinInstance skinInstance in await skinInstances) {
+      deleteSkinInstance(skinInstance);
+    }
+    for (Routes.Workout workout in await workouts) {
+      deleteWorkout(workout);
+    }
+    for (Routes.SurveyResponse surveyResponse in await surveyResponses) {
+      deleteSurveyResponse(surveyResponse);
+    }
+    for (Routes.DailySnapshot snapshot in await dailySnapshot) {
+      deleteDailySnapshot(snapshot);
+    }
+    await deleteOfflineDateTime(await offlineDateTime);
+    _routes.routesClient
         .deleteUser(Routes.User(email: _auth.currentUser!.email!));
+    await _auth.currentUser?.reauthenticateWithCredential(credential);
+    _auth.currentUser?.delete();
+    
   }
 
   Future<Routes.MultiDailySnapshot> getDailySnapshots(

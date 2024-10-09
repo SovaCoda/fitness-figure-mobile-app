@@ -406,7 +406,7 @@ class MockAuthService extends _i1.Mock implements _i3.AuthService {
       ) as _i6.Future<dynamic>);
 
   @override
-  _i6.Future<void> deleteUser() => (super.noSuchMethod(
+  _i6.Future<void> deleteUser(credential) => (super.noSuchMethod(
         Invocation.method(
           #deleteUser,
           [],

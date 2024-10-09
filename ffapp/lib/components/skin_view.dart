@@ -7,6 +7,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:logger/logger.dart';
 
 class SkinViewer extends StatefulWidget {
   final List<Routes.Skin> listOfSkins;
@@ -32,6 +33,7 @@ class _SkinViewerState extends State<SkinViewer> {
   int currentSkinIndex = 0;
   late String figureName;
   late int selectedFigureIndex;
+  Logger logger = Logger();
 
   @override
   void initState() {
@@ -41,10 +43,10 @@ class _SkinViewerState extends State<SkinViewer> {
     selectedFigureIndex =
         Provider.of<SelectedFigureProvider>(context, listen: false)
             .selectedFigureIndex;
-    figureName = widget.figureName;
-    print("SkinViewer initialized with figureName: ${widget.figureName}");
-    print("listOfSkins: ${widget.listOfSkins}");
-    print("listOfFigureInstances: ${widget.listOfFigureInstances}");
+    figureName = widget.listOfFigureInstances[selectedFigureIndex].figureName;
+    logger.i("SkinViewer initialized with figureName: ${widget.figureName}");
+    logger.i("listOfSkins: ${widget.listOfSkins}");
+    logger.i("listOfFigureInstances: ${widget.listOfFigureInstances}");
   }
 
   void showOverlayAlert(
@@ -79,7 +81,7 @@ class _SkinViewerState extends State<SkinViewer> {
   }
 
   void equipSkin(BuildContext context, String figureName, String skinName) {
-  print("Equipping skin: $skinName for figure: $figureName");
+  logger.i("Equipping skin: $skinName for figure: $figureName");
   int selectedIndex = Provider.of<SelectedFigureProvider>(context, listen: false).selectedFigureIndex;
   
   // Update the FigureInstancesProvider
@@ -96,7 +98,7 @@ class _SkinViewerState extends State<SkinViewer> {
     curSkin: skinName.substring(4),
     userEmail: userModel.user?.email,
   )).then((_) {
-    print("Figure instance updated in backend for $figureName");
+    logger.i("Figure instance updated in backend for $figureName");
     
     // Force a rebuild of the entire inventory
     Provider.of<SelectedFigureProvider>(context, listen: false).notifyListeners();
