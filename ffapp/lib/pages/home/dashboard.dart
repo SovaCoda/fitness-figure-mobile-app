@@ -1,4 +1,4 @@
-import 'dart:ffi' as ffi;
+
 
 import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/button_themes.dart';
@@ -26,6 +26,7 @@ import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/robotDialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:fixnum/src/int64.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
@@ -175,17 +176,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     textColor: Theme.of(context).colorScheme.onPrimary,
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     onPressed: () async {
-                      double investment =
-                          Provider.of<HistoryModel>(context, listen: false)
-                              .investment;
-                      int investmentAdd = (investment / 100).toInt();
-                      int numComplete =
-                          Provider.of<HistoryModel>(context, listen: false)
-                              .lastWeek
-                              .where((element) => element == 2)
-                              .length;
-                      int chargeGain = numComplete * 3;
-                      int evGain = numComplete * 50 + investmentAdd;
+
                       bool isComplete = isUsersFirstWeek
                           ? true
                           : Provider.of<HistoryModel>(context, listen: false)
@@ -196,16 +187,34 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   .user!
                                   .weekGoal
                                   .toInt();
+
+                                            double investment =
+                          Provider.of<HistoryModel>(context, listen: false)
+                              .lastWeekInvestment;
+                      int investmentAdd = (investment / 100).toInt();
+                      int numComplete =
+                          Provider.of<HistoryModel>(context, listen: false)
+                              .lastWeek
+                              .where((element) => element == 2)
+                              .length;
+
+                      int chargeGain = isComplete ? numComplete * 3 : numComplete;
+                      int evGain = isComplete ? numComplete * 50 + investmentAdd : numComplete * 25;
+
                       User user =
                           Provider.of<UserModel>(context, listen: false).user!;
                       FigureInstance figure =
                           Provider.of<FigureModel>(context, listen: false)
                               .figure!;
+                      figure.charge += chargeGain;
+                      if(figure.charge > 100){ figure.charge = 100;}
+                      figure.evPoints += evGain;
                       if (isComplete) {
+                        Navigator.of(context).pop();
                         await auth.resetUserWeekComplete(user);
-                        user.weekComplete = Int64(0);
                         user.readyForWeekReset = 'no';
-                        await auth.resetUserStreak(user);
+                        user.weekComplete = Int64.ZERO;
+                        
                         await auth.resetUserWeekComplete(user);
                         await auth.updateUserDBInfo(user);
                         await auth.updateFigureInstance(figure);
@@ -213,9 +222,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             .setUser(user);
                         Provider.of<FigureModel>(context, listen: false)
                             .setFigure(figure);
-
-                        Navigator.of(context).pop();
+                        
+                        return;
                       }
+                      Navigator.of(context).pop();
+                      user.readyForWeekReset = 'no';
+                      user.weekComplete = Int64.ZERO;
+                      user.streak = Int64.ZERO;
+                      await auth.updateUserDBInfo(user);
+                        await auth.updateFigureInstance(figure);
+                        Provider.of<UserModel>(context, listen: false)
+                            .setUser(user);
+                        Provider.of<FigureModel>(context, listen: false)
+                            .setFigure(figure);
+                      await auth.resetUserWeekComplete(user);
+                      await auth.resetUserStreak(user);
                     }),
                 context);
           }
@@ -355,7 +376,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                       : showFFDialogBinary(
                                           "FF+ Premium Feature",
                                           "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
-                                          false,
+                                          true,
                                           context,
                                           FfButton(
                                             height: 50,

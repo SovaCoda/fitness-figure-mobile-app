@@ -1,3 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
@@ -23,6 +30,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,6 +40,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:ffapp/pages/home/personality.dart';
+
 
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
@@ -361,129 +370,215 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
 // ),   !!THIS WAS REMOVED IN FAVOR OF POPUP INSTEAD OF ACUTAL ROUTE BUT IM KEEPING IT CAUSE I DONT KNOW IF REESE WANTS IT!!
 ]);
 
-class MyApp extends StatelessWidget {
+
+final bool _kAutoConsume = Platform.isIOS || true;
+const String _fitnessFigurePlusSubscriptionId = 'ffigure_purchase';
+
+const List<String> _kProductIds = <String>[ _fitnessFigurePlusSubscriptionId];
+
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  late StreamSubscription<List<PurchaseDetails>> _subscription;
+  List<String> _notFoundIds = <String>[];
+  List<ProductDetails> _products = <ProductDetails>[];
+  List<PurchaseDetails> _purchases = <PurchaseDetails>[];
+  List<String> _consumables = <String>[];
+  bool _isAvailable = false;
+  bool _purchasePending = false;
+  bool _loading = true;
+  String? _queryProductError;
+
+    @override
+  void initState() {
+    final Stream<List<PurchaseDetails>> purchaseUpdated =
+        _inAppPurchase.purchaseStream;
+    _subscription =
+        purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
+      _listenToPurchaseUpdated(purchaseDetailsList);
+    }, onDone: () {
+      _subscription.cancel();
+    }, onError: (Object error) {
+      // handle error here.
+    });
+    initStoreInfo();
+    super.initState();
+  }
+
+  Future<void> initStoreInfo() async {
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    if (!isAvailable) {
+      setState(() {
+        _isAvailable = isAvailable;
+        _products = <ProductDetails>[];
+        _purchases = <PurchaseDetails>[];
+        _notFoundIds = <String>[];
+        _consumables = <String>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    if (Platform.isIOS) {
+      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
+          _inAppPurchase
+              .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
+    }
+
+    final ProductDetailsResponse productDetailResponse =
+        await _inAppPurchase.queryProductDetails(_kProductIds.toSet());
+    if (productDetailResponse.error != null) {
+      setState(() {
+        _queryProductError = productDetailResponse.error!.message;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _notFoundIds = productDetailResponse.notFoundIDs;
+        _consumables = <String>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    if (productDetailResponse.productDetails.isEmpty) {
+      setState(() {
+        _queryProductError = null;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _notFoundIds = productDetailResponse.notFoundIDs;
+        _consumables = <String>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (Platform.isIOS) {
+      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
+          _inAppPurchase
+              .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+      iosPlatformAddition.setDelegate(null);
+    }
+    _subscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _listenToPurchaseUpdated(
+      List<PurchaseDetails> purchaseDetailsList) async {
+    for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
+      if (purchaseDetails.status == PurchaseStatus.pending) {
+        print("pending purchase");
+      } else {
+        if (purchaseDetails.status == PurchaseStatus.error) {
+          handleError(purchaseDetails.error!);
+        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored) {
+          final bool valid = await _verifyPurchase(purchaseDetails);
+          if (valid) {
+            unawaited(deliverProduct(purchaseDetails));
+          } else {
+            _handleInvalidPurchase(purchaseDetails);
+            return;
+          }
+        }
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _inAppPurchase.completePurchase(purchaseDetails);
+        }
+      }
+    }
+  }
+
+   Future<void> deliverProduct(PurchaseDetails purchaseDetails) async {
+    // IMPORTANT!! Always verify purchase details before delivering the product.
+    if (purchaseDetails.productID == _fitnessFigurePlusSubscriptionId) {
+      AuthService auth = Provider.of<AuthService>(context, listen: false);
+      
+      setState(() {
+        _purchasePending = false;
+      });
+    } else {
+      setState(() {
+        _purchases.add(purchaseDetails);
+      });
+    }
+  }
+
+  void handleError(IAPError error) {
+    setState(() {
+      _purchasePending = false;
+    });
+  }
+  
+
+  Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) {
+    // IMPORTANT!! Always verify a purchase before delivering the product.
+    // For the purpose of an example, we directly return true.
+    return Future<bool>.value(true);
+  }
+
+  void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
+    // handle invalid purchase here if  _verifyPurchase` failed.
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Fitness Figure',
       theme: ThemeData(
         useMaterial3: true,
-
-        // Default green theme
-        // colorScheme: const ColorScheme(
-        //   primary: Color.fromARGB(255, 0, 0, 0),
-        //   brightness: Brightness.light,
-        //   onPrimary: Color.fromRGBO(31, 112, 41, 1),
-        //   onPrimaryContainer: Color.fromRGBO(31, 255, 61, 1),
-        //   primaryFixedDim: Color.fromRGBO(0, 29, 1, 1),
-        //   secondary: Color.fromRGBO(203, 222, 50, 1),
-        //   onSecondary: Color.fromRGBO(52, 71, 6, 1),
-        //   secondaryFixed: Color.fromRGBO(30, 157, 60, 1),
-        //   error: Colors.red,
-        //   onError: Colors.black,
-        //   surface: Color.fromRGBO(239, 255, 239, 1),
-        //   onSurface: Color.fromRGBO(226, 255, 227, 0.345),
-        //   surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
-        //   surfaceBright: Color.fromRGBO(76, 117, 18, 1), // Alert Dialog
-        //   surfaceDim: Color.fromRGBO(59, 64, 13, 1), // Alert
-        //   tertiary: Color.fromRGBO(28, 206, 255, 1),
-        //   tertiaryFixedDim: Color.fromRGBO(10, 93, 101, 1),
-        // ),
-
         colorScheme: const ColorScheme(
           brightness: Brightness.dark,
-
           primary: Color.fromARGB(255, 89, 255, 0),
           primaryContainer: Color.fromRGBO(0, 185, 27, 1),
           onPrimary: Color.fromRGBO(0, 0, 0, 1),
           primaryFixedDim: Color.fromRGBO(38, 64, 15, 1),
-
           secondary: Color.fromRGBO(15, 213, 255, 1),
           secondaryContainer: Color.fromRGBO(0, 141, 171, 1),
           onSecondary: Color.fromRGBO(0, 0, 0, 1),
           secondaryFixedDim: Color.fromRGBO(28, 112, 130, 1),
-
           tertiary: Color.fromRGBO(255, 119, 0, 1),
-
           surface: Color.fromRGBO(68, 68, 68, 1),
           onSurface: Color.fromRGBO(255, 255, 255, 1),
           surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
           surfaceBright: Color.fromRGBO(76, 117, 18, 1), // Alert Dialog
           surfaceDim: Color.fromRGBO(59, 64, 13, 1), // Alert
-
           error: Colors.red,
           onError: Colors.black,
         ),
-
-        // A blue theme
-        // colorScheme: const ColorScheme(
-        //     primary: Color.fromARGB(125, 31, 236, 255),
-        //     brightness: Brightness.light,
-        //     onPrimary: Color.fromRGBO(31, 101, 112, 1),
-        //     onPrimaryContainer: Color.fromRGBO(31, 255, 255, 1),
-        //     primaryFixedDim: Color.fromRGBO(0, 29, 29, 1),
-        //     secondary: Color.fromRGBO(27, 218, 225, 1),
-        //     onSecondary: Color.fromRGBO(6, 71, 44, 1),
-        //     secondaryFixed: Color.fromRGBO(30, 146, 157, 1),
-        //     error: Colors.red,
-        //     surface: Color.fromRGBO(239, 255, 239, 1),
-        //     onSurface: Color.fromRGBO(226, 255, 227, 0.345),
-        //     surfaceContainerHighest: Color.fromRGBO(200, 253, 196, 0.81),
-        //     surfaceBright: Color.fromRGBO(18, 117, 81, 1), // Alert Dialog
-        //     surfaceDim: Color.fromRGBO(13, 55, 64, 1) // Alert Dialog
-        //     ),
-
-        // Define the default `TextTheme`. Use this to specify the default
-        // text styling for headlines, titles, bodies of text, and more.
-        // I've assigned these to different elements in the app, be careful
-        // though because adding more might change the display of default
-        // stuff like buttons and popups - Reese
         textTheme: TextTheme(
-            //really big things like the timer counter
-            displayLarge: GoogleFonts.novaSquare(
-              fontSize: 64,
-            ),
-            displayMedium: GoogleFonts.novaSquare(
-              fontSize: 20,
-            ),
-            displaySmall: GoogleFonts.novaSquare(
-              fontSize: 16,
-            ),
-
-            //top bar
-            headlineLarge: GoogleFonts.novaSquare(
-              fontSize: 26,
-              letterSpacing: 2.0,
-            ),
-            //page titles
-            headlineMedium: GoogleFonts.novaSquare(
-              fontSize: 36,
-            ),
-            //less important big stuff, ex. numbers in the dashboard
-            headlineSmall: GoogleFonts.novaSquare(
-              fontSize: 48,
-            ),
-            bodyMedium: GoogleFonts.novaSquare(
-              fontSize: 24,
-            ),
-            //medium title ex. frequency selection prompt
-            titleMedium: GoogleFonts.novaSquare(fontSize: 20),
-            //small titles, ex. dashboard message and settings
-            titleSmall: GoogleFonts.novaSquare(fontSize: 14),
-            //small labels, ex. shop labels and dashboard disclaimer
-            labelMedium: GoogleFonts.novaSquare(
-              fontSize: 12,
-            ),
-            labelSmall: GoogleFonts.novaSquare(fontSize: 16)),
+          displayLarge: GoogleFonts.novaSquare(fontSize: 64),
+          displayMedium: GoogleFonts.novaSquare(fontSize: 20),
+          displaySmall: GoogleFonts.novaSquare(fontSize: 16),
+          headlineLarge: GoogleFonts.novaSquare(fontSize: 26, letterSpacing: 2.0),
+          headlineMedium: GoogleFonts.novaSquare(fontSize: 36),
+          headlineSmall: GoogleFonts.novaSquare(fontSize: 48),
+          bodyMedium: GoogleFonts.novaSquare(fontSize: 24),
+          titleMedium: GoogleFonts.novaSquare(fontSize: 20),
+          titleSmall: GoogleFonts.novaSquare(fontSize: 14),
+          labelMedium: GoogleFonts.novaSquare(fontSize: 12),
+          labelSmall: GoogleFonts.novaSquare(fontSize: 16),
+        ),
       ),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
     );
   }
 }
+
 
 class TestApp extends StatelessWidget {
   const TestApp({super.key});
@@ -499,5 +594,18 @@ class TestApp extends StatelessWidget {
       ),
       home: const SignIn(),
     );
+  }
+}
+
+class ExamplePaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
+  @override
+  bool shouldContinueTransaction(
+      SKPaymentTransactionWrapper transaction, SKStorefrontWrapper storefront) {
+    return true;
+  }
+
+  @override
+  bool shouldShowPriceConsent() {
+    return false;
   }
 }

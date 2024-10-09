@@ -65,6 +65,8 @@ dependencies:
   chat_gpt_sdk: ^3.1.0
   live_activities: ^1.9.5
   build_runner: ^2.0.0 # used for creating mockups for tests 
+  connectivity_plus: ^6.0.5
+  in_app_purchase: ^3.2.0
 
 dev_dependencies:
   flutter_test:

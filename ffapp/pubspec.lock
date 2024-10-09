@@ -201,6 +201,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  connectivity_plus:
+    dependency: "direct main"
+    description:
+      name: connectivity_plus
+      sha256: "2056db5241f96cdc0126bd94459fc4cdc13876753768fc7a31c425e50a7177d0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.5"
+  connectivity_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: connectivity_plus_platform_interface
+      sha256: "42657c1715d48b167930d5f34d00222ac100475f73d10162ddf43e714932f204"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   convert:
     dependency: transitive
     description:
@@ -632,6 +648,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  in_app_purchase:
+    dependency: "direct main"
+    description:
+      name: in_app_purchase
+      sha256: "960f26a08d9351fb8f89f08901f8a829d41b04d45a694b8f776121d9e41dcad6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
+  in_app_purchase_android:
+    dependency: transitive
+    description:
+      name: in_app_purchase_android
+      sha256: b5ec117e3483fbca0fc5c546e9ed420c126e97fc5952aa891d01f9cf87661d44
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.6+7"
+  in_app_purchase_platform_interface:
+    dependency: transitive
+    description:
+      name: in_app_purchase_platform_interface
+      sha256: "1d353d38251da5b9fea6635c0ebfc6bb17a2d28d0e86ea5e083bf64244f1fb4c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.0"
+  in_app_purchase_storekit:
+    dependency: transitive
+    description:
+      name: in_app_purchase_storekit
+      sha256: e9a408da11d055f9af9849859e1251b2b0a2f84f256fa3bf1285c5614a397079
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.18+1"
   intl:
     dependency: "direct main"
     description:
@@ -776,6 +824,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nm:
+    dependency: transitive
+    description:
+      name: nm
+      sha256: "2c9aae4127bdc8993206464fcc063611e0e36e72018696cd9631023a31b24254"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   package_config:
     dependency: transitive
     description:
@@ -967,7 +1023,7 @@ packages:
       sha256: "94ef0f72b2d71bc3e700e025db3710911bd51a71cefb65cc609dd0d9a982e3c1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.4.1"
   shelf:
     dependency: transitive
     description:

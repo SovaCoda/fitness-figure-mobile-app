@@ -195,7 +195,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         time = Int64(_timer.getTimeInSeconds());
       });
       
-      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt(), timeGoal: _timegoal.toInt(), paused: false).toMap());
+      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt(), timeGoal: _timegoal.toInt(), paused: _timer.hasStoredPauseTime()).toMap());
     } else {
       if (!isInit) {
         liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0, timeGoal: _timegoal.toInt(), paused: false).toMap());
@@ -239,7 +239,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
     if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
     liveActivityManager.stopLiveActivity();
-    _timer.dispose();
+    if(_timer.classTimer != null){
+      _timer.dispose();
+    }
     super.dispose();
   }
 

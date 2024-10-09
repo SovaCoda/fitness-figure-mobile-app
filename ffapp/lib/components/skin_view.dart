@@ -41,7 +41,7 @@ class _SkinViewerState extends State<SkinViewer> {
     selectedFigureIndex =
         Provider.of<SelectedFigureProvider>(context, listen: false)
             .selectedFigureIndex;
-    figureName = widget.listOfFigureInstances[selectedFigureIndex].figureName;
+    figureName = widget.figureName;
     print("SkinViewer initialized with figureName: ${widget.figureName}");
     print("listOfSkins: ${widget.listOfSkins}");
     print("listOfFigureInstances: ${widget.listOfFigureInstances}");
