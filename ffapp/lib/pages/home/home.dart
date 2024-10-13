@@ -58,12 +58,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void initState() {
-    super.initState();
     LocalNotificationService().initNotifications();
     initConnectivity();
 
 
     initialize();
+    super.initState();
+
   }
 
   Future<void> initConnectivity() async {
@@ -91,7 +92,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
-    
+    if(mounted){
     setState(() {
       _connectionStatus = result;
     });
@@ -102,12 +103,15 @@ class _DashboardPageState extends State<DashboardPage> {
       List<ConnectivityResult> secondTry = await _connectivity.checkConnectivity();
       
       if(secondTry[0] == ConnectivityResult.none) {
+        if(mounted) {
         logger.i("Status was twice no connection, sending reset request.");
         showFFDialogWithChildren("Offline", [Text('It looks like youre offline, connect to the internet and reload!')], false, FfButton(text: "Okay!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {context.goNamed("SignIn")}), context);
+        }
       }
     }
     // ignore: avoid_print
     print('Connectivity changed: $_connectionStatus');
+    }
   }
   @override
   void dispose() {

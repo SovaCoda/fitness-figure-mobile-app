@@ -372,7 +372,7 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
 
 
 final bool _kAutoConsume = Platform.isIOS || true;
-const String _fitnessFigurePlusSubscriptionId = 'ffigure_purchase';
+const String _fitnessFigurePlusSubscriptionId = 'ffigure';
 
 const List<String> _kProductIds = <String>[ _fitnessFigurePlusSubscriptionId];
 
@@ -398,6 +398,7 @@ class _MyAppState extends State<MyApp> {
 
     @override
   void initState() {
+    //_inAppPurchase.restorePurchases();
     final Stream<List<PurchaseDetails>> purchaseUpdated =
         _inAppPurchase.purchaseStream;
     _subscription =
@@ -407,12 +408,15 @@ class _MyAppState extends State<MyApp> {
       _subscription.cancel();
     }, onError: (Object error) {
       // handle error here.
-    });
+    },);
     initStoreInfo();
     super.initState();
   }
 
+
+
   Future<void> initStoreInfo() async {
+    //InAppPurchase.instance.restorePurchases();
     final bool isAvailable = await _inAppPurchase.isAvailable();
     if (!isAvailable) {
       setState(() {
@@ -506,6 +510,9 @@ class _MyAppState extends State<MyApp> {
     // IMPORTANT!! Always verify purchase details before delivering the product.
     if (purchaseDetails.productID == _fitnessFigurePlusSubscriptionId) {
       AuthService auth = Provider.of<AuthService>(context, listen: false);
+      User user = Provider.of<UserModel>(context,listen: false).user!;
+      user.premium = Int64.ONE;
+      auth.updateUserDBInfo(user);
       
       setState(() {
         _purchasePending = false;
@@ -515,6 +522,13 @@ class _MyAppState extends State<MyApp> {
         _purchases.add(purchaseDetails);
       });
     }
+  }
+
+  Future<void> revokeProduct() async {
+    AuthService auth = Provider.of<AuthService>(context, listen: false);
+    User user = Provider.of<UserModel>(context,listen: false).user!;
+    user.premium = Int64(-1);
+    auth.updateUserDBInfo(user);
   }
 
   void handleError(IAPError error) {

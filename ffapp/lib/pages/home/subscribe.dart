@@ -1,8 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
@@ -10,33 +15,263 @@ import 'package:fixnum/fixnum.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+
 
 class SubscribePage extends StatelessWidget {
   const SubscribePage({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => SubscribePageModel(context),
-      child: const _SubscribePageContent(),
-    );
+      return _SubscribePageContent();
   }
 }
 
-class _SubscribePageContent extends StatelessWidget {
+class _SubscribePageContent extends StatefulWidget {
   const _SubscribePageContent();
 
   @override
-  Widget build(BuildContext context) {
-    final model = Provider.of<SubscribePageModel>(context);
+  State<_SubscribePageContent> createState() => _SubscribePageState();
+}
 
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: model.isLoading
-          ? _buildSkeletonLoader()
-          : model.user?.premium == Int64(1)
-              ? _buildSubscribedContent(context)
-              : _buildSubscriptionOptions(context, model),
+class _SubscribePageState extends State<_SubscribePageContent> {
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  late StreamSubscription<List<PurchaseDetails>> _subscription;
+  List<String> _notFoundIds = <String>[];
+  List<ProductDetails> _products = <ProductDetails>[];
+  List<PurchaseDetails> _purchases = <PurchaseDetails>[];
+  List<String> _consumables = <String>[];
+  bool _isAvailable = false;
+  bool _purchasePending = false;
+  bool _loading = true;
+  String? _queryProductError;
+  List<ProductDetails> products = [];
+
+
+  final List<String> _kProductIds = <String>['ffigure'];
+
+  @override
+  void initState() {
+    final Stream<List<PurchaseDetails>> purchaseUpdated =
+        _inAppPurchase.purchaseStream;
+    _subscription =
+        purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
+      _listenToPurchaseUpdated(purchaseDetailsList);
+    }, onDone: () {
+      _subscription.cancel();
+    }, onError: (Object error) {
+      // handle error here.
+    },);
+    initStoreInfo();
+    
+    super.initState();
+
+  }
+
+  @override
+  void dispose() {
+    if (Platform.isIOS) {
+      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
+          _inAppPurchase
+              .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+      iosPlatformAddition.setDelegate(null);
+    }
+    _subscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> initStoreInfo() async {
+    //InAppPurchase.instance.restorePurchases();
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    if (!isAvailable) {
+      setState(() {
+        _isAvailable = isAvailable;
+        _products = <ProductDetails>[];
+        _purchases = <PurchaseDetails>[];
+        _notFoundIds = <String>[];
+        _consumables = <String>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+    
+    final paymentWrapper = SKPaymentQueueWrapper();
+    final transactions = await paymentWrapper.transactions();
+    transactions.forEach((transaction) async {
+        await paymentWrapper.finishTransaction(transaction);
+    });
+
+    const Set<String> _kIds = <String>{'ffigure'};
+    final ProductDetailsResponse response =
+        await InAppPurchase.instance.queryProductDetails(_kIds);
+    if (response.notFoundIDs.isNotEmpty) {
+      logger.i("Could not retrieve product ID's");
+    }
+    products = response.productDetails;
+    logger.i("Retreived ${products.length} product codes");
+
+    if (Platform.isIOS) {
+      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
+          _inAppPurchase
+              .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
+    }
+
+    final ProductDetailsResponse productDetailResponse =
+        await _inAppPurchase.queryProductDetails(_kProductIds.toSet());
+    if (productDetailResponse.error != null) {
+      setState(() {
+        _queryProductError = productDetailResponse.error!.message;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _notFoundIds = productDetailResponse.notFoundIDs;
+        _consumables = <String>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    if (productDetailResponse.productDetails.isEmpty) {
+      setState(() {
+        _queryProductError = null;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _notFoundIds = productDetailResponse.notFoundIDs;
+        _consumables = <String>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+    Future<void> _listenToPurchaseUpdated(
+      List<PurchaseDetails> purchaseDetailsList) async {
+    for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
+      if (purchaseDetails.status == PurchaseStatus.pending) {
+        print("pending purchase");
+      } else {
+        if (purchaseDetails.status == PurchaseStatus.error) {
+          handleError(purchaseDetails.error!);
+        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored) {
+          final bool valid = await _verifyPurchase(purchaseDetails);
+          if (valid) {
+            unawaited(deliverProduct(purchaseDetails));
+          } else {
+            _handleInvalidPurchase(purchaseDetails);
+            return;
+          }
+        }
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _inAppPurchase.completePurchase(purchaseDetails);
+        }
+      }
+    }
+  }
+
+  Future<void> _initiateAppStorePurchase () async {
+    if (Provider.of<UserModel>(context, listen: false).user!.premium == Int64(1)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You are already subscribed!')),
+      );
+      return;
+    }
+
+    // final paymentWrapper = SKPaymentQueueWrapper();
+    // final transactions = await paymentWrapper.transactions();
+    // transactions.forEach((transaction) async {
+    //     await paymentWrapper.finishTransaction(transaction);
+    // });
+
+    try {
+      final PurchaseParam purchaseParam = PurchaseParam(productDetails: products[0]);
+      await InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+    } catch (e) {
+      logger.e('Error: $e');
+    }
+  }
+
+  Future<void> deliverProduct(PurchaseDetails purchaseDetails) async {
+  // IMPORTANT!! Always verify purchase details before delivering the product.
+  if (purchaseDetails.productID == 'ffigure') {
+    AuthService auth = Provider.of<AuthService>(context, listen: false);
+    User user = Provider.of<UserModel>(context,listen: false).user!;
+    user.premium = Int64.ONE;
+    auth.updateUserDBInfo(user);
+    
+    setState(() {
+      _purchasePending = false;
+    });
+  } else {
+    setState(() {
+      _purchases.add(purchaseDetails);
+    });
+  }
+}
+
+Future<void> revokeProduct() async {
+  AuthService auth = Provider.of<AuthService>(context, listen: false);
+  User user = Provider.of<UserModel>(context,listen: false).user!;
+  user.premium = Int64(-1);
+  auth.updateUserDBInfo(user);
+}
+
+void handleError(IAPError error) {
+  setState(() {
+    _purchasePending = false;
+  });
+}
+
+
+Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) {
+  // IMPORTANT!! Always verify a purchase before delivering the product.
+  // For the purpose of an example, we directly return true.
+  return Future<bool>.value(true);
+}
+
+void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
+  // handle invalid purchase here if  _verifyPurchase` failed.
+}
+
+  Future<User?> refreshUserData() async {
+    _loading = true;
+    User? user;
+
+    try {
+      final auth = Provider.of<AuthService>(context, listen: false);
+      user = await auth.getUserDBInfo();
+      logger.i('Refreshed user data: ${user?.toString()}');
+      return user;
+    } catch (e) {
+      logger.e('Error fetching user data: $e');
+      return null;
+    } finally {
+      _loading = false;
+      if(user != null) {Provider.of<UserModel>(context, listen: false).setUser(user);}
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<UserModel>(
+      builder: (_, user, __) {
+      return Scaffold(
+        appBar: _buildAppBar(context),
+        body: _loading
+            ? _buildSkeletonLoader()
+            : user.user!.premium == Int64(1)
+                ? _buildSubscribedContent(context)
+                : _buildSubscriptionOptions(context),
+      );}
     );
   }
 
@@ -76,13 +311,13 @@ class _SubscribePageContent extends StatelessWidget {
   }
 
   Widget _buildSubscriptionOptions(
-      BuildContext context, SubscribePageModel model) {
+      BuildContext context) {
     final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
     return Container(
         height: MediaQuery.of(context).size.height * 0.9,
         decoration: BoxDecoration(color: Colors.grey[900]),
         child: RefreshIndicator(
-          onRefresh: model.refreshUserData,
+          onRefresh: refreshUserData,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
@@ -112,7 +347,7 @@ class _SubscribePageContent extends StatelessWidget {
                   SizedBox(
                       width: MediaQuery.of(context).size.width * 0.9,
                       child: ElevatedButton(
-                        onPressed: model.makePayment,
+                        onPressed: _initiateAppStorePurchase,
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -153,7 +388,7 @@ class _SubscribePageContent extends StatelessWidget {
   Widget _buildTogglePremiumButton(context, {bool debugging = true}) {
     return debugging ? ElevatedButton(
       onPressed: () {
-        Provider.of<SubscribePageModel>(context, listen: false).togglePremium();
+        //Provider.of<SubscribePageModel>(context, listen: false).togglePremium();
       },
       child: Text(
         "Toggle Premium Status",
@@ -260,144 +495,167 @@ class _SubscribePageContent extends StatelessWidget {
   }
 }
 
-class SubscribePageModel with ChangeNotifier {
-  final BuildContext context;
-  User? user;
-  bool isLoading = true;
-  Map<String, dynamic>? paymentIntent;
+// class SubscribePageModel with ChangeNotifier {
+//   final BuildContext context;
+//   User? user;
+//   bool isLoading = true;
+//   Map<String, dynamic>? paymentIntent;
+//   List<ProductDetails> products = [];
 
-  SubscribePageModel(this.context) {
-    _init();
-  }
+//   SubscribePageModel(this.context) {
+//     _init();
+//   }
 
-  Future<void> _init() async {
-    await refreshUserData();
-  }
+//   Future<void> _init() async {
+//         final paymentWrapper = SKPaymentQueueWrapper();
+//     final transactions = await paymentWrapper.transactions();
+//     transactions.forEach((transaction) async {
+//         await paymentWrapper.finishTransaction(transaction);
+//     });
 
-  Future<void> refreshUserData() async {
-    isLoading = true;
-    notifyListeners();
+//     final bool available = await InAppPurchase.instance.isAvailable();
+//     if (!available) {
+//       //Store could not be accessed for some reason 
+//       showFFDialog("Oops", "Something is currently wrong with the store right now, check back later", true, context);
+//     }
+//     const Set<String> _kIds = <String>{'ffigure'};
+//     final ProductDetailsResponse response =
+//         await InAppPurchase.instance.queryProductDetails(_kIds);
+//     if (response.notFoundIDs.isNotEmpty) {
+//       logger.e("Could not retrieve product ID's");
+//     }
+//     products = response.productDetails;
+//     logger.i("Retreived ${products.length} product codes");
+//     User? user = await refreshUserData();
+//     //await InAppPurchase.instance.restorePurchases(applicationUserName: user!.email);
+//     // Maybe restore purchases? not sure if this restores all purchases or just ones that need to be restored to the user.
+//   }
 
-    try {
-      final auth = Provider.of<AuthService>(context, listen: false);
-      user = await auth.getUserDBInfo();
-      logger.i('Refreshed user data: ${user?.toString()}');
-    } catch (e) {
-      logger.e('Error fetching user data: $e');
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
+//   Future<User?> refreshUserData() async {
+//     isLoading = true;
+//     notifyListeners();
 
-  Future<void> makePayment() async {
-    if (user?.premium == Int64(1)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You are already subscribed!')),
-      );
-      return;
-    }
+//     try {
+//       final auth = Provider.of<AuthService>(context, listen: false);
+//       user = await auth.getUserDBInfo();
+//       logger.i('Refreshed user data: ${user?.toString()}');
+//       return user;
+//     } catch (e) {
+//       logger.e('Error fetching user data: $e');
+//       return null;
+//     } finally {
+//       isLoading = false;
+//       notifyListeners();
+//     }
+//   }
 
-    try {
-      paymentIntent = await createPaymentIntent('1.99', 'USD');
-      await stripe.Stripe.instance.initPaymentSheet(
-        paymentSheetParameters: stripe.SetupPaymentSheetParameters(
-          paymentIntentClientSecret: paymentIntent!['client_secret'],
-          style: ThemeMode.dark,
-          merchantDisplayName: 'Fitness Figure Plus',
-        ),
-      );
-      await displayPaymentSheet();
-    } catch (e) {
-      logger.e('Error: $e');
-    }
-  }
+//   Future<void> makePayment() async {
+//     if (user?.premium == Int64(1)) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('You are already subscribed!')),
+//       );
+//       return;
+//     }
 
-  Future<void> displayPaymentSheet() async {
-    try {
-      await stripe.Stripe.instance.presentPaymentSheet();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Payment successful')),
-      );
+//     // final paymentWrapper = SKPaymentQueueWrapper();
+//     // final transactions = await paymentWrapper.transactions();
+//     // transactions.forEach((transaction) async {
+//     //     await paymentWrapper.finishTransaction(transaction);
+//     // });
 
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      userModel.setPremium(Int64(1));
-      await Provider.of<AuthService>(context, listen: false)
-          .updateUserDBInfo(userModel.user!);
-      await refreshUserData();
-    } on stripe.StripeException catch (e) {
-      _handleStripeError(e);
-    } catch (e) {
-      logger.e('Unexpected error: $e');
-    }
-  }
+//     try {
+//       final PurchaseParam purchaseParam = PurchaseParam(productDetails: products[0]);
+//       await InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+//     } catch (e) {
+//       logger.e('Error: $e');
+//     }
+//   }
 
-  void _handleStripeError(stripe.StripeException e) {
-    String displayMessage;
-    if (e.error.code == stripe.FailureCode.Canceled) {
-      displayMessage = 'Payment canceled';
-    } else if (e.error.localizedMessage != null) {
-      displayMessage = e.error.localizedMessage!;
-    } else if (e.error.message != null) {
-      displayMessage = e.error.message!;
-    } else {
-      displayMessage = 'An error occurred during payment';
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(displayMessage)),
-    );
-  }
+//   Future<void> displayPaymentSheet() async {
+//     try {
+//       await stripe.Stripe.instance.presentPaymentSheet();
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Payment successful')),
+//       );
 
-  Future<Map<String, dynamic>> createPaymentIntent(
-      String amount, String currency) async {
-    try {
-      int amountInSmallestUnit = (double.parse(amount) * 100).round();
+//       final userModel = Provider.of<UserModel>(context, listen: false);
+//       userModel.setPremium(Int64(1));
+//       await Provider.of<AuthService>(context, listen: false)
+//           .updateUserDBInfo(userModel.user!);
+//       await refreshUserData();
+//     } on stripe.StripeException catch (e) {
+//       _handleStripeError(e);
+//     } catch (e) {
+//       logger.e('Unexpected error: $e');
+//     }
+//   }
 
-      Map<String, dynamic> body = {
-        'amount': amountInSmallestUnit.toString(),
-        'currency': currency,
-      };
+//   void _handleStripeError(stripe.StripeException e) {
+//     String displayMessage;
+//     if (e.error.code == stripe.FailureCode.Canceled) {
+//       displayMessage = 'Payment canceled';
+//     } else if (e.error.localizedMessage != null) {
+//       displayMessage = e.error.localizedMessage!;
+//     } else if (e.error.message != null) {
+//       displayMessage = e.error.message!;
+//     } else {
+//       displayMessage = 'An error occurred during payment';
+//     }
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text(displayMessage)),
+//     );
+//   }
 
-      var response = await http.post(
-        Uri.parse('https://api.stripe.com/v1/payment_intents'),
-        headers: {
-          'Authorization': 'Bearer ${dotenv.env['STRIPE_SECRET_KEY']}',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: body,
-      );
-      return json.decode(response.body);
-    } catch (err) {
-      throw Exception(err.toString());
-    }
-  }
+//   Future<Map<String, dynamic>> createPaymentIntent(
+//       String amount, String currency) async {
+//     try {
+//       int amountInSmallestUnit = (double.parse(amount) * 100).round();
 
-  // Toggles premium status for debugging purposes
-  void togglePremium() async {
-    if (user == null) {
-      logger.e('Cannot toggle premium: user is null');
-      return;
-    }
+//       Map<String, dynamic> body = {
+//         'amount': amountInSmallestUnit.toString(),
+//         'currency': currency,
+//       };
 
-    final authService = Provider.of<AuthService>(context, listen: false);
+//       var response = await http.post(
+//         Uri.parse('https://api.stripe.com/v1/payment_intents'),
+//         headers: {
+//           'Authorization': 'Bearer ${dotenv.env['STRIPE_SECRET_KEY']}',
+//           'Content-Type': 'application/x-www-form-urlencoded'
+//         },
+//         body: body,
+//       );
+//       return json.decode(response.body);
+//     } catch (err) {
+//       throw Exception(err.toString());
+//     }
+//   }
 
-    // Toggle the premium status
-    Int64 newPremiumValue = user!.premium == Int64(1) ? Int64(-1) : Int64(1);
-    logger.i('Toggling premium from ${user!.premium} to $newPremiumValue');
-    User updatedUser = User(
-      email: user!.email,
-      premium: newPremiumValue,
-    );
-    logger.i('Updating user in database: ${updatedUser.toString()}');
-    try {
-      await authService.updateUserDBInfo(updatedUser);
-      Provider.of<UserModel>(context, listen: false).setPremium(newPremiumValue == Int64(-1) ? Int64(0) : Int64(1));
-    } catch (e) {
-      logger.e('Error updating user in database: $e'); 
-      return;
-    }
-    await refreshUserData();
-    notifyListeners();
-  }
+//   // Toggles premium status for debugging purposes
+//   void togglePremium() async {
+//     if (user == null) {
+//       logger.e('Cannot toggle premium: user is null');
+//       return;
+//     }
 
-}
+//     final authService = Provider.of<AuthService>(context, listen: false);
+
+//     // Toggle the premium status
+//     Int64 newPremiumValue = user!.premium == Int64(1) ? Int64(-1) : Int64(1);
+//     logger.i('Toggling premium from ${user!.premium} to $newPremiumValue');
+//     User updatedUser = User(
+//       email: user!.email,
+//       premium: newPremiumValue,
+//     );
+//     logger.i('Updating user in database: ${updatedUser.toString()}');
+//     try {
+//       await authService.updateUserDBInfo(updatedUser);
+//       Provider.of<UserModel>(context, listen: false).setPremium(newPremiumValue == Int64(-1) ? Int64(0) : Int64(1));
+//     } catch (e) {
+//       logger.e('Error updating user in database: $e'); 
+//       return;
+//     }
+//     await refreshUserData();
+//     notifyListeners();
+//   }
+
+// }
