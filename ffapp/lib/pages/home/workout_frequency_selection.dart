@@ -167,23 +167,23 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.grey[900]!, Theme.of(context).colorScheme.surface],
-          ),
+  return Scaffold(
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.grey[900]!, Theme.of(context).colorScheme.surface],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 40),
-                Text(
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: ListView(
+            children: [
+              const SizedBox(height: 40),
+              Center(
+                child: Text(
                   "Set Your Workout Goals",
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     color: Colors.white,
@@ -191,46 +191,45 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
-                Consumer<FigureModel>(
-                  builder: (context, figure, _) {
-                    
-                return Center(
-                child: RobotImageHolder(
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  width: MediaQuery.of(context).size.height * 0.3,
-                  url: "${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo0_cropped_happy",
-                ),
-                );
-                  }
-                ),
-                const SizedBox(height: 40),
-                _buildWeeklyGoalCard(),
-                const SizedBox(height: 40),
-                _buildWorkoutGoalCard(),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: submitFrequency,
-                  
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+              ),
+              const SizedBox(height: 20),
+              Consumer<FigureModel>(
+                builder: (context, figure, _) {
+                  return Center(
+                    child: RobotImageHolder(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      width: MediaQuery.of(context).size.height * 0.3,
+                      url: "${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo0_cropped_happy",
                     ),
+                  );
+                },
+              ),
+              const SizedBox(height: 40),
+              _buildWeeklyGoalCard(),
+              const SizedBox(height: 40),
+              _buildWorkoutGoalCard(),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: submitFrequency,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  child: Text("Activate Workout Mode", style: Theme.of(context).textTheme.displayMedium!),
                 ),
-                const SizedBox(height: 40),
-              ],
-            ),
+                child: Text("Activate Workout Mode", style: Theme.of(context).textTheme.displayMedium),
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildWeeklyGoalCard() {
     return Card(

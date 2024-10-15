@@ -40,35 +40,40 @@ class _ProfileState extends State<Profile> {
 
   void initialize() async {
     try {
-    Routes.User? databaseUser = await auth.getUserDBInfo();
-    prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
-      if (prefs.getString("isVerified") == "false" && 
-      prefs.getString("oldEmail") == databaseUser.email) // make sure our listener doesn't mistrigger from potential alt accounts
-      { 
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You have still not verified your new email at ${prefs.getString("newEmail")}. Please check your inbox.")),
-      );
-        auth.startEmailVerificationListener(databaseUser.email, prefs.getString("newEmail")!);
-        checkEmailVerification(prefs.getString("newEmail")!);
-      }
-      String curName = databaseUser.name;
-      String curEmail = databaseUser.email;
-      int curGoal = databaseUser.weekGoal.toInt();
-      int minExerciseTime = databaseUser.workoutMinTime.toInt();
-      bool premiumStatus =
-          Provider.of<UserModel>(context, listen: false).isPremium();
+      Routes.User? databaseUser = await auth.getUserDBInfo();
+      prefs = await SharedPreferences.getInstance();
+      if (mounted) {
+        Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
+        if (prefs.getString("isVerified") == "false" &&
+            prefs.getString("oldEmail") ==
+                databaseUser
+                    .email) // make sure our listener doesn't mistrigger from potential alt accounts
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    "You have still not verified your new email at ${prefs.getString("newEmail")}. Please check your inbox.")),
+          );
+          auth.startEmailVerificationListener(
+              databaseUser.email, prefs.getString("newEmail")!);
+          checkEmailVerification(prefs.getString("newEmail")!);
+        }
+        String curName = databaseUser.name;
+        String curEmail = databaseUser.email;
+        int curGoal = databaseUser.weekGoal.toInt();
+        int minExerciseTime = databaseUser.workoutMinTime.toInt();
+        bool premiumStatus =
+            Provider.of<UserModel>(context, listen: false).isPremium();
 
-      setState(() {
-        name = curName;
-        email = curEmail;
-        password = "*******";
-        weeklyGoal = curGoal;
-        minExerciseGoal = minExerciseTime;
-        manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
-      });
-    }
+        setState(() {
+          name = curName;
+          email = curEmail;
+          password = "*******";
+          weeklyGoal = curGoal;
+          minExerciseGoal = minExerciseTime;
+          manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
+        });
+      }
     } catch (e) {
       logger.e(e);
     }
@@ -215,8 +220,8 @@ class _ProfileState extends State<Profile> {
         signOut(context);
         GoRouter.of(context).go("/");
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Success! Please sign back in.")),
-      );
+          SnackBar(content: Text("Success! Please sign back in.")),
+        );
       }
     });
   }
@@ -247,7 +252,8 @@ class _ProfileState extends State<Profile> {
   void updateMinWorkoutTime(int time) async {
     await auth.updateUserDBInfo(
         Routes.User(email: email, workoutMinTime: Int64(time)));
-    Provider.of<UserModel>(context, listen: false).setWorkoutMinTime(Int64(time));
+    Provider.of<UserModel>(context, listen: false)
+        .setWorkoutMinTime(Int64(time));
   }
 
   @override
@@ -256,58 +262,207 @@ class _ProfileState extends State<Profile> {
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
         backgroundColor: Colors.grey[900],
-        title: Text("Profile", style: Theme.of(context).textTheme.displayLarge),
+        title: Text("Profile", style: Theme.of(context).textTheme.displayLarge!.copyWith(color: Colors.white)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 20),
-              _buildProfileCard(
-                icon: Icons.person,
-                title: "Name",
-                value: name,
-                onTap: () => _showEditDialog("Name", name, updateName),
-              ),
-              _buildProfileCard(
-                icon: Icons.email,
-                title: "Email",
-                value: email,
-                onTap: () => _showEditDialog("Email", email, (newEmail) async {
-                  print("in edit function");
-                  final userPassword = await _showPasswordConfirmDialog();
-                  if (userPassword != null) {
-                    updateEmail(email, userPassword, newEmail);
-                  }
-                }),
-              ),
-              _buildProfileCard(
-                icon: Icons.lock,
-                title: "Password",
-                value: "********",
-                onTap: () => _showPasswordChangeDialog(),
-              ),
-              _buildWeeklyGoalCard(),
-              _buildWorkoutGoalCard(),
-              _buildSubscriptionCard(),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => _showSignOutConfirmation(),
-                child: Text('Sign Out'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Theme.of(context).colorScheme.onError,
-                ),
-              ),
+              _buildProfileSection(),
+              SizedBox(height: 24),
+              _buildGoalsSection(),
+              SizedBox(height: 24),
+              _buildSubscriptionSection(),
+              SizedBox(height: 32),
+              _buildActionButtons(),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _buildProfileSection() {
+    return Card(
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Personal Information', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            _buildProfileItem(Icons.person, 'Name', name, () => _showEditDialog("Name", name, updateName)),
+            _buildProfileItem(Icons.email, 'Email', email, () => _showEditDialog("Email", email, (newEmail) async {
+              final userPassword = await _showPasswordConfirmDialog();
+              if (userPassword != null) {
+                updateEmail(email, userPassword, newEmail);
+              }
+            })),
+            _buildProfileItem(Icons.lock, 'Password', '********', _showPasswordChangeDialog),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileItem(IconData icon, String title, String value, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.blue),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(color: Colors.grey[400])),
+                  Text(value, style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+            Icon(Icons.edit, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoalsSection() {
+    return Card(
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Workout Goals', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            _buildGoalItem('Weekly Workout Goal', '$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}', _showWeeklyGoalPicker),
+            _buildGoalItem('Minimum Workout Time', '$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}', _showMinGoalPicker),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoalItem(String title, String value, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: TextStyle(color: Colors.grey[400], fontSize: 20)),
+              Text(value, style: TextStyle(color: Colors.white, fontSize: 28)),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: onTap,
+            child: Text("Change"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionSection() {
+    return Card(
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(Icons.card_membership, color: Colors.blue),
+        title: Text("Subscription", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        subtitle: Text(manageSub, style: TextStyle(color: Colors.grey[400])),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        ElevatedButton.icon(
+          onPressed: () => _showSignOutConfirmation(),
+          icon: Icon(Icons.logout, color: Colors.white),
+          label: Text('Sign Out'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+        SizedBox(height: 16),
+        TextButton.icon(
+          onPressed: () => _showDeleteAccountConfirmation(),
+          icon: Icon(Icons.delete_forever, color: Colors.red[300]),
+          label: Text('Delete Account', style: TextStyle(color: Colors.red[300])),
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.red.withOpacity(0.1),
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: Colors.red[300]!, width: 1),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDeleteAccountConfirmation() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Delete Account'),
+        content: Text('Are you sure you want to delete your account? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              // TODO: FIGURE OUT HOW TO DELETE ACCOUNT
+              // current issue: auth.deleteUser() requires user reauthorization
+              final userPassword = await _showPasswordConfirmDialog();
+              if (userPassword != null) {
+              AuthCredential credential = EmailAuthProvider.credential(
+          email: email, password: userPassword);
+              await auth.deleteUser(credential);
+              signOut(context);
+              GoRouter.of(context).go("/");
+              }
+              
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            child: Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Widget _buildProfileCard({
     required IconData icon,
@@ -337,7 +492,7 @@ class _ProfileState extends State<Profile> {
           children: [
             Text('Weekly Workout Goal',
                 style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
+            SizedBox(height: MediaQuery.of(context).size.width*0.05),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -354,45 +509,6 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildWorkoutGoalCard() {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Minimum Workout Time',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                    "$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}"),
-                ElevatedButton(
-                  onPressed: _showMinGoalPicker,
-                  child: Text("Change"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubscriptionCard() {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Icon(Icons.card_membership),
-        title:
-            Text("Subscription", style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(manageSub),
-      ),
-    );
-  }
 
   void _showEditDialog(
       String title, String currentValue, Function(String) onSave) {

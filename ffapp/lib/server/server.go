@@ -873,12 +873,12 @@ func (s *server) DeleteOfflineDateTime(ctx context.Context, in *pb.OfflineDateTi
 	// Implement logic to delete offline date time for the given email
 	var offlineDateTime pb.OfflineDateTime
 
-	err := s.db.QueryRowContext(ctx, "SELECT Email, Currency FROM offline_date_time WHERE Email = ?", in.Email).Scan(&offlineDateTime.Email, &offlineDateTime.Currency)
+	err := s.db.QueryRowContext(ctx, "SELECT Email, Currency FROM offline_date_times WHERE Email = ?", in.Email).Scan(&offlineDateTime.Email, &offlineDateTime.Currency)
 	if err != nil {
 		return nil, fmt.Errorf("could not get offline date time: %v", err)
 	}
 
-	_, err = s.db.ExecContext(ctx, "DELETE FROM offline_date_time WHERE Email = ?", in.Email)
+	_, err = s.db.ExecContext(ctx, "DELETE FROM offline_date_times WHERE Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not delete offline date time: %v", err)
 	}

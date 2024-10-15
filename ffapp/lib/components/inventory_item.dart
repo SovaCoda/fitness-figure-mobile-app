@@ -108,7 +108,7 @@ class _InventoryItemState extends State<InventoryItem> {
                 ? constraints.maxWidth
                 : constraints.maxHeight;
             return GradientedContainer(
-              height: size,
+              height: MediaQuery.of(context).size.height * 0.35,
               // width: size,
               borderColor: widget.isSelected
                   ? Theme.of(context).colorScheme.primary
@@ -202,14 +202,14 @@ class _InventoryItemState extends State<InventoryItem> {
     if (widget.locked) {
       return Icon(
         Icons.lock,
-        size: size * 0.4,
+        size: size * 0.5,
         color: Theme.of(context).colorScheme.onSurface,
       );
     } else {
       return RobotImageHolder(
         url: widget.photoPath,
-        height: size * 0.6,
-        width: size * 0.6,
+        height: MediaQuery.of(context).size.height * 0.25,
+        width: MediaQuery.of(context).size.height * 0.25,
       );
     }
   }
