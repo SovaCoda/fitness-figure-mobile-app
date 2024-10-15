@@ -69,6 +69,12 @@ service Routes {
     rpc GetOfflineDateTime(OfflineDateTime) returns (OfflineDateTime) {}
     rpc UpdateOfflineDateTime(OfflineDateTime) returns (OfflineDateTime) {}
     rpc DeleteOfflineDateTime(OfflineDateTime) returns (OfflineDateTime) {} 
+
+    // SUBSCRIPTION ROUTES //
+    rpc CreateSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+    rpc GetSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+    rpc UpdateSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+    rpc DeleteSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
     
     // SERVER ACTIONS //
     rpc FigureDecay(FigureInstance) returns (GenericStringResponse) {}
@@ -205,6 +211,13 @@ message MultiSurveyResponse {
 message OfflineDateTime { 
     string Email = 1;
     string Currency = 2;
+}
+
+message SubscriptionTimeStamp {
+    string Email = 1;
+    string SubscribedOn = 2;
+    string ExpiresOn = 3;
+    string Transaction_Id = 4;
 }
 
 message UpdateEmailRequest {

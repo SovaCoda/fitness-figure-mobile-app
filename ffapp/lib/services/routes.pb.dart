@@ -1706,6 +1706,98 @@ class OfflineDateTime extends $pb.GeneratedMessage {
   void clearCurrency() => clearField(2);
 }
 
+class SubscriptionTimeStamp extends $pb.GeneratedMessage {
+  factory SubscriptionTimeStamp({
+    $core.String? email,
+    $core.String? subscribedOn,
+    $core.String? expiresOn,
+    $core.String? transactionId,
+  }) {
+    final $result = create();
+    if (email != null) {
+      $result.email = email;
+    }
+    if (subscribedOn != null) {
+      $result.subscribedOn = subscribedOn;
+    }
+    if (expiresOn != null) {
+      $result.expiresOn = expiresOn;
+    }
+    if (transactionId != null) {
+      $result.transactionId = transactionId;
+    }
+    return $result;
+  }
+  SubscriptionTimeStamp._() : super();
+  factory SubscriptionTimeStamp.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SubscriptionTimeStamp.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SubscriptionTimeStamp', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'Email', protoName: 'Email')
+    ..aOS(2, _omitFieldNames ? '' : 'SubscribedOn', protoName: 'SubscribedOn')
+    ..aOS(3, _omitFieldNames ? '' : 'ExpiresOn', protoName: 'ExpiresOn')
+    ..aOS(4, _omitFieldNames ? '' : 'TransactionId', protoName: 'Transaction_Id')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SubscriptionTimeStamp clone() => SubscriptionTimeStamp()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SubscriptionTimeStamp copyWith(void Function(SubscriptionTimeStamp) updates) => super.copyWith((message) => updates(message as SubscriptionTimeStamp)) as SubscriptionTimeStamp;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SubscriptionTimeStamp create() => SubscriptionTimeStamp._();
+  SubscriptionTimeStamp createEmptyInstance() => create();
+  static $pb.PbList<SubscriptionTimeStamp> createRepeated() => $pb.PbList<SubscriptionTimeStamp>();
+  @$core.pragma('dart2js:noInline')
+  static SubscriptionTimeStamp getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SubscriptionTimeStamp>(create);
+  static SubscriptionTimeStamp? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get subscribedOn => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set subscribedOn($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSubscribedOn() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSubscribedOn() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get expiresOn => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set expiresOn($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasExpiresOn() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearExpiresOn() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get transactionId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set transactionId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTransactionId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTransactionId() => clearField(4);
+}
+
 class UpdateEmailRequest extends $pb.GeneratedMessage {
   factory UpdateEmailRequest({
     $core.String? oldEmail,

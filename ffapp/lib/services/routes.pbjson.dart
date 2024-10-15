@@ -331,6 +331,23 @@ final $typed_data.Uint8List offlineDateTimeDescriptor = $convert.base64Decode(
     'Cg9PZmZsaW5lRGF0ZVRpbWUSFAoFRW1haWwYASABKAlSBUVtYWlsEhoKCEN1cnJlbmN5GAIgAS'
     'gJUghDdXJyZW5jeQ==');
 
+@$core.Deprecated('Use subscriptionTimeStampDescriptor instead')
+const SubscriptionTimeStamp$json = {
+  '1': 'SubscriptionTimeStamp',
+  '2': [
+    {'1': 'Email', '3': 1, '4': 1, '5': 9, '10': 'Email'},
+    {'1': 'SubscribedOn', '3': 2, '4': 1, '5': 9, '10': 'SubscribedOn'},
+    {'1': 'ExpiresOn', '3': 3, '4': 1, '5': 9, '10': 'ExpiresOn'},
+    {'1': 'Transaction_Id', '3': 4, '4': 1, '5': 9, '10': 'TransactionId'},
+  ],
+};
+
+/// Descriptor for `SubscriptionTimeStamp`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List subscriptionTimeStampDescriptor = $convert.base64Decode(
+    'ChVTdWJzY3JpcHRpb25UaW1lU3RhbXASFAoFRW1haWwYASABKAlSBUVtYWlsEiIKDFN1YnNjcm'
+    'liZWRPbhgCIAEoCVIMU3Vic2NyaWJlZE9uEhwKCUV4cGlyZXNPbhgDIAEoCVIJRXhwaXJlc09u'
+    'EiUKDlRyYW5zYWN0aW9uX0lkGAQgASgJUg1UcmFuc2FjdGlvbklk');
+
 @$core.Deprecated('Use updateEmailRequestDescriptor instead')
 const UpdateEmailRequest$json = {
   '1': 'UpdateEmailRequest',

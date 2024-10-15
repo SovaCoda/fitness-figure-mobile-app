@@ -206,6 +206,22 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/DeleteOfflineDateTime',
       ($0.OfflineDateTime value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value));
+  static final _$createSubscriptionTimeStamp = $grpc.ClientMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+      '/routes.Routes/CreateSubscriptionTimeStamp',
+      ($0.SubscriptionTimeStamp value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value));
+  static final _$getSubscriptionTimeStamp = $grpc.ClientMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+      '/routes.Routes/GetSubscriptionTimeStamp',
+      ($0.SubscriptionTimeStamp value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value));
+  static final _$updateSubscriptionTimeStamp = $grpc.ClientMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+      '/routes.Routes/UpdateSubscriptionTimeStamp',
+      ($0.SubscriptionTimeStamp value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value));
+  static final _$deleteSubscriptionTimeStamp = $grpc.ClientMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+      '/routes.Routes/DeleteSubscriptionTimeStamp',
+      ($0.SubscriptionTimeStamp value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value));
   static final _$figureDecay = $grpc.ClientMethod<$0.FigureInstance, $0.GenericStringResponse>(
       '/routes.Routes/FigureDecay',
       ($0.FigureInstance value) => value.writeToBuffer(),
@@ -403,6 +419,22 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.OfflineDateTime> deleteOfflineDateTime($0.OfflineDateTime request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$deleteOfflineDateTime, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SubscriptionTimeStamp> createSubscriptionTimeStamp($0.SubscriptionTimeStamp request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$createSubscriptionTimeStamp, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SubscriptionTimeStamp> getSubscriptionTimeStamp($0.SubscriptionTimeStamp request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getSubscriptionTimeStamp, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SubscriptionTimeStamp> updateSubscriptionTimeStamp($0.SubscriptionTimeStamp request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateSubscriptionTimeStamp, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SubscriptionTimeStamp> deleteSubscriptionTimeStamp($0.SubscriptionTimeStamp request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteSubscriptionTimeStamp, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.GenericStringResponse> figureDecay($0.FigureInstance request, {$grpc.CallOptions? options}) {
@@ -741,6 +773,34 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.OfflineDateTime.fromBuffer(value),
         ($0.OfflineDateTime value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+        'CreateSubscriptionTimeStamp',
+        createSubscriptionTimeStamp_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value),
+        ($0.SubscriptionTimeStamp value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+        'GetSubscriptionTimeStamp',
+        getSubscriptionTimeStamp_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value),
+        ($0.SubscriptionTimeStamp value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+        'UpdateSubscriptionTimeStamp',
+        updateSubscriptionTimeStamp_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value),
+        ($0.SubscriptionTimeStamp value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SubscriptionTimeStamp, $0.SubscriptionTimeStamp>(
+        'DeleteSubscriptionTimeStamp',
+        deleteSubscriptionTimeStamp_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.SubscriptionTimeStamp.fromBuffer(value),
+        ($0.SubscriptionTimeStamp value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.FigureInstance, $0.GenericStringResponse>(
         'FigureDecay',
         figureDecay_Pre,
@@ -941,6 +1001,22 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return deleteOfflineDateTime(call, await request);
   }
 
+  $async.Future<$0.SubscriptionTimeStamp> createSubscriptionTimeStamp_Pre($grpc.ServiceCall call, $async.Future<$0.SubscriptionTimeStamp> request) async {
+    return createSubscriptionTimeStamp(call, await request);
+  }
+
+  $async.Future<$0.SubscriptionTimeStamp> getSubscriptionTimeStamp_Pre($grpc.ServiceCall call, $async.Future<$0.SubscriptionTimeStamp> request) async {
+    return getSubscriptionTimeStamp(call, await request);
+  }
+
+  $async.Future<$0.SubscriptionTimeStamp> updateSubscriptionTimeStamp_Pre($grpc.ServiceCall call, $async.Future<$0.SubscriptionTimeStamp> request) async {
+    return updateSubscriptionTimeStamp(call, await request);
+  }
+
+  $async.Future<$0.SubscriptionTimeStamp> deleteSubscriptionTimeStamp_Pre($grpc.ServiceCall call, $async.Future<$0.SubscriptionTimeStamp> request) async {
+    return deleteSubscriptionTimeStamp(call, await request);
+  }
+
   $async.Future<$0.GenericStringResponse> figureDecay_Pre($grpc.ServiceCall call, $async.Future<$0.FigureInstance> request) async {
     return figureDecay(call, await request);
   }
@@ -995,6 +1071,10 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.OfflineDateTime> getOfflineDateTime($grpc.ServiceCall call, $0.OfflineDateTime request);
   $async.Future<$0.OfflineDateTime> updateOfflineDateTime($grpc.ServiceCall call, $0.OfflineDateTime request);
   $async.Future<$0.OfflineDateTime> deleteOfflineDateTime($grpc.ServiceCall call, $0.OfflineDateTime request);
+  $async.Future<$0.SubscriptionTimeStamp> createSubscriptionTimeStamp($grpc.ServiceCall call, $0.SubscriptionTimeStamp request);
+  $async.Future<$0.SubscriptionTimeStamp> getSubscriptionTimeStamp($grpc.ServiceCall call, $0.SubscriptionTimeStamp request);
+  $async.Future<$0.SubscriptionTimeStamp> updateSubscriptionTimeStamp($grpc.ServiceCall call, $0.SubscriptionTimeStamp request);
+  $async.Future<$0.SubscriptionTimeStamp> deleteSubscriptionTimeStamp($grpc.ServiceCall call, $0.SubscriptionTimeStamp request);
   $async.Future<$0.GenericStringResponse> figureDecay($grpc.ServiceCall call, $0.FigureInstance request);
   $async.Future<$0.GenericStringResponse> userWeeklyReset($grpc.ServiceCall call, $0.User request);
 }

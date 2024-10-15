@@ -888,6 +888,51 @@ func (s *server) DeleteOfflineDateTime(ctx context.Context, in *pb.OfflineDateTi
 
 // END OFFLINE DATE TIME METHODS //
 
+// BEGIN SUBSCRIPTION METHODS //
+// rpc CreateSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+// rpc GetSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+// rpc UpdateSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+// rpc DeleteSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
+
+// message SubscriptionTimeStamp {
+//     string Email = 1;
+//     string SubscribedOn = 2;
+//     string ExpiresOn = 3;
+//     string transaction_id = 4;
+// }
+func (s *server) CreateSubscriptionTimeStamp(ctx context.Context, in *pb.SubscriptionTimeStamp) (*pb.SubscriptionTimeStamp, error) {
+	_, err := s.db.ExecContext(ctx, "INSERT INTO subscription_timestamps (Email, SubscribedOn, ExpiresOn, transaction_id) VALUES (?, ?, ?, ?)", in.Email, in.SubscribedOn, in.ExpiresOn, in.Transaction_Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not create subscription timestamp: %v", err)
+	}
+	return in, nil
+}
+
+func (s *server) GetSubscriptionTimeStamp(ctx context.Context, in *pb.SubscriptionTimeStamp) (*pb.SubscriptionTimeStamp, error) {
+	var subscriptionTimeStamp pb.SubscriptionTimeStamp
+	err := s.db.QueryRowContext(ctx, "SELECT Email, SubscribedOn, ExpiresOn, transaction_id FROM subscription_timestamps WHERE Email = ?", in.Email).Scan(&subscriptionTimeStamp.Email, &subscriptionTimeStamp.SubscribedOn, &subscriptionTimeStamp.ExpiresOn, &subscriptionTimeStamp.Transaction_Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not get subscription timestamp: %v", err)
+	}
+	return &subscriptionTimeStamp, nil
+}
+
+func (s *server) UpdateSubscriptionTimeStamp(ctx context.Context, in *pb.SubscriptionTimeStamp) (*pb.SubscriptionTimeStamp, error) {
+	_, err := s.db.ExecContext(ctx, "UPDATE subscription_timestamps SET SubscribedOn = ?, ExpiresOn = ?, transaction_id = ? WHERE Email = ?", in.SubscribedOn, in.ExpiresOn, in.Transaction_Id, in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not update subscription timestamp: %v", err)
+	}
+	return in, nil
+}
+
+func (s *server) DeleteSubscriptionTimeStamp(ctx context.Context, in *pb.SubscriptionTimeStamp) (*pb.SubscriptionTimeStamp, error) {
+	_, err := s.db.ExecContext(ctx, "DELETE FROM subscription_timestamps WHERE Email = ?", in.Email)
+	if err != nil {
+		return nil, fmt.Errorf("could not delete subscription timestamp: %v", err)
+	}
+	return in, nil
+}
+
 // BEGIN SERVER ACTIONS //
 
 func (s *server) FigureDecay(ctx context.Context, in *pb.FigureInstance) (*pb.GenericStringResponse, error) {

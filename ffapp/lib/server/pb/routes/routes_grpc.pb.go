@@ -78,6 +78,11 @@ type RoutesClient interface {
 	GetOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error)
 	UpdateOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error)
 	DeleteOfflineDateTime(ctx context.Context, in *OfflineDateTime, opts ...grpc.CallOption) (*OfflineDateTime, error)
+	// SUBSCRIPTION ROUTES //
+	CreateSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error)
+	GetSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error)
+	UpdateSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error)
+	DeleteSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error)
 	// SERVER ACTIONS //
 	FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error)
 	UserWeeklyReset(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericStringResponse, error)
@@ -505,6 +510,42 @@ func (c *routesClient) DeleteOfflineDateTime(ctx context.Context, in *OfflineDat
 	return out, nil
 }
 
+func (c *routesClient) CreateSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error) {
+	out := new(SubscriptionTimeStamp)
+	err := c.cc.Invoke(ctx, "/routes.Routes/CreateSubscriptionTimeStamp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) GetSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error) {
+	out := new(SubscriptionTimeStamp)
+	err := c.cc.Invoke(ctx, "/routes.Routes/GetSubscriptionTimeStamp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) UpdateSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error) {
+	out := new(SubscriptionTimeStamp)
+	err := c.cc.Invoke(ctx, "/routes.Routes/UpdateSubscriptionTimeStamp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routesClient) DeleteSubscriptionTimeStamp(ctx context.Context, in *SubscriptionTimeStamp, opts ...grpc.CallOption) (*SubscriptionTimeStamp, error) {
+	out := new(SubscriptionTimeStamp)
+	err := c.cc.Invoke(ctx, "/routes.Routes/DeleteSubscriptionTimeStamp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *routesClient) FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error) {
 	out := new(GenericStringResponse)
 	err := c.cc.Invoke(ctx, "/routes.Routes/FigureDecay", in, out, opts...)
@@ -582,6 +623,11 @@ type RoutesServer interface {
 	GetOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error)
 	UpdateOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error)
 	DeleteOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error)
+	// SUBSCRIPTION ROUTES //
+	CreateSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error)
+	GetSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error)
+	UpdateSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error)
+	DeleteSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error)
 	// SERVER ACTIONS //
 	FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error)
 	UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error)
@@ -729,6 +775,18 @@ func (UnimplementedRoutesServer) UpdateOfflineDateTime(context.Context, *Offline
 }
 func (UnimplementedRoutesServer) DeleteOfflineDateTime(context.Context, *OfflineDateTime) (*OfflineDateTime, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteOfflineDateTime not implemented")
+}
+func (UnimplementedRoutesServer) CreateSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSubscriptionTimeStamp not implemented")
+}
+func (UnimplementedRoutesServer) GetSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscriptionTimeStamp not implemented")
+}
+func (UnimplementedRoutesServer) UpdateSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSubscriptionTimeStamp not implemented")
+}
+func (UnimplementedRoutesServer) DeleteSubscriptionTimeStamp(context.Context, *SubscriptionTimeStamp) (*SubscriptionTimeStamp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSubscriptionTimeStamp not implemented")
 }
 func (UnimplementedRoutesServer) FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FigureDecay not implemented")
@@ -1577,6 +1635,78 @@ func _Routes_DeleteOfflineDateTime_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_CreateSubscriptionTimeStamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscriptionTimeStamp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).CreateSubscriptionTimeStamp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/CreateSubscriptionTimeStamp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).CreateSubscriptionTimeStamp(ctx, req.(*SubscriptionTimeStamp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_GetSubscriptionTimeStamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscriptionTimeStamp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).GetSubscriptionTimeStamp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/GetSubscriptionTimeStamp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).GetSubscriptionTimeStamp(ctx, req.(*SubscriptionTimeStamp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_UpdateSubscriptionTimeStamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscriptionTimeStamp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).UpdateSubscriptionTimeStamp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/UpdateSubscriptionTimeStamp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).UpdateSubscriptionTimeStamp(ctx, req.(*SubscriptionTimeStamp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Routes_DeleteSubscriptionTimeStamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscriptionTimeStamp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).DeleteSubscriptionTimeStamp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/routes.Routes/DeleteSubscriptionTimeStamp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).DeleteSubscriptionTimeStamp(ctx, req.(*SubscriptionTimeStamp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Routes_FigureDecay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FigureInstance)
 	if err := dec(in); err != nil {
@@ -1803,6 +1933,22 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteOfflineDateTime",
 			Handler:    _Routes_DeleteOfflineDateTime_Handler,
+		},
+		{
+			MethodName: "CreateSubscriptionTimeStamp",
+			Handler:    _Routes_CreateSubscriptionTimeStamp_Handler,
+		},
+		{
+			MethodName: "GetSubscriptionTimeStamp",
+			Handler:    _Routes_GetSubscriptionTimeStamp_Handler,
+		},
+		{
+			MethodName: "UpdateSubscriptionTimeStamp",
+			Handler:    _Routes_UpdateSubscriptionTimeStamp_Handler,
+		},
+		{
+			MethodName: "DeleteSubscriptionTimeStamp",
+			Handler:    _Routes_DeleteSubscriptionTimeStamp_Handler,
 		},
 		{
 			MethodName: "FigureDecay",

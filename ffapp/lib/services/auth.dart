@@ -469,6 +469,51 @@ class AuthService {
   }
 
   // END SKIN METHODS //
+
+  // BEGIN SUBSCRIPTION METHODS //
+  
+  Future<Routes.SubscriptionTimeStamp> createSubscriptionTimeStamp(
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    try {
+    return await _routes.routesClient.createSubscriptionTimeStamp(subscriptionTimeStamp);
+    } catch (e) {
+    logger.e(e);
+    throw Exception("Failed to create subscription timestamp");
+    }
+  }
+
+  Future<Routes.SubscriptionTimeStamp> getSubscriptionTimeStamp(
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    try {
+    return await _routes.routesClient.getSubscriptionTimeStamp(subscriptionTimeStamp);
+    } catch (e) {
+    logger.e(e);
+    throw Exception("Failed to get subscription timestamp");
+    }
+  }
+
+  Future<Routes.SubscriptionTimeStamp> updateSubscriptionTimeStamp(
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    try {
+    return await _routes.routesClient.updateSubscriptionTimeStamp(subscriptionTimeStamp);
+    } catch (e) {
+    logger.e(e);
+    throw Exception("Failed to update subscription timestamp");
+    }
+  }
+
+  Future<Routes.SubscriptionTimeStamp> deleteSubscriptionTimeStamp(
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    try {
+    return await _routes.routesClient.deleteSubscriptionTimeStamp(subscriptionTimeStamp);
+    } catch (e) {
+    logger.e(e);
+    throw Exception("Failed to delete subscription timestamp");
+    }
+  }
+
+  // END SUBSCRIPTION METHODS //
+
   // BEGIN SURVEY METHODS //
   Future<Routes.SurveyResponse> getSurveyResponse(
       Routes.SurveyResponse surveyResponse) async {
