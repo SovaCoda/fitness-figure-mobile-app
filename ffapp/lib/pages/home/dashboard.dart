@@ -69,11 +69,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   void initialize() async {
-    // await Provider.of<ChatModel>(context, listen: false).init(context: context);
-    // await Provider.of<ChatModel>(context, listen: false)
-    //     .sendMessage("", "system");
     try {
       Routes.User? databaseUser = await auth.getUserDBInfo();
+      
       if (databaseUser != null) {
         databaseUser.lastLogin = DateTime.now().toUtc().toString();
         await auth.updateUserDBInfo(databaseUser);
@@ -159,8 +157,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         }
         //LocalNotificationService().scheduleOfflineNotification(body: );
 
+        Routes.SubscriptionTimeStamp? subscription;
+        try {
+          subscription = await auth.getSubscriptionTimeStamp(Routes.SubscriptionTimeStamp(email: curEmail));
+        } catch (err) {
+          logger.i("user has no subscription logs");
+        }
 
         WidgetsBinding.instance!.addPostFrameCallback((_) {
+          if(subscription != null){
+            DateTime expirary = DateTime.parse(subscription.expiresOn);
+            DateTime start = DateTime.parse(subscription.subscribedOn);
+            DateTime now = DateTime.now().toUtc();
+            if (now.isAfter(expirary))
+            {
+              showFFDialog("FF+ Subscription Expired!", "Visit the subscription page if you need to renew or if auto-renew is enabled", true, context);
+              databaseUser.premium = Int64(-1);
+              auth.updateUserDBInfo(databaseUser);
+            }
+          }
+          
           if (databaseUser!.readyForWeekReset == 'yes') {
             bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
             showFFDialogWithChildren(

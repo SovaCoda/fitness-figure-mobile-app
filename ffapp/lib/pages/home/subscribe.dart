@@ -4,12 +4,13 @@ import 'dart:io';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/services/routes.pb.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:fixnum/fixnum.dart';
 import 'package:http/http.dart' as http;
@@ -109,6 +110,8 @@ class _SubscribePageState extends State<_SubscribePageContent> {
       logger.i("Could not retrieve product ID's");
     }
     products = response.productDetails;
+    AppStoreProductDetails appStoreProduct = products[0] as AppStoreProductDetails;
+    appStoreProduct.skProduct.subscriptionPeriod.toString();
     logger.i("Retreived ${products.length} product codes");
 
     if (Platform.isIOS) {
@@ -133,6 +136,7 @@ class _SubscribePageState extends State<_SubscribePageContent> {
       });
       return;
     }
+    
 
     if (productDetailResponse.productDetails.isEmpty) {
       setState(() {
@@ -152,9 +156,12 @@ class _SubscribePageState extends State<_SubscribePageContent> {
       _loading = false;
     });
   }
+  
 
     Future<void> _listenToPurchaseUpdated(
       List<PurchaseDetails> purchaseDetailsList) async {
+        AuthService auth = Provider.of<AuthService>(context, listen:false);
+        Routes.User user = Provider.of<UserModel>(context, listen: false).user!;
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
         print("pending purchase");
@@ -165,6 +172,27 @@ class _SubscribePageState extends State<_SubscribePageContent> {
             purchaseDetails.status == PurchaseStatus.restored) {
           final bool valid = await _verifyPurchase(purchaseDetails);
           if (valid) {
+            Routes.SubscriptionTimeStamp subscription = Routes.SubscriptionTimeStamp(email: user.email);
+            try {
+              subscription = await auth.getSubscriptionTimeStamp(subscription);
+            } catch (err) {
+              DateTime now = DateTime.now();
+              DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+              int daysRemaning = lastDayOfMonth.difference(now).inDays;
+              DateTime expiraryDate = now.add(Duration(days: daysRemaning));
+              subscription = await auth.createSubscriptionTimeStamp(Routes.SubscriptionTimeStamp(email: user.email, subscribedOn: now.toUtc().toString(), expiresOn: expiraryDate.toUtc().toString(), transactionId: purchaseDetails.purchaseID));
+            }
+            DateTime transactionDate = DateTime.fromMillisecondsSinceEpoch(int.parse(purchaseDetails.transactionDate!));
+            if(DateTime.parse(subscription.expiresOn!).isAfter(transactionDate) ){
+              logger.e("User transaction date is before the expirary date!");
+            } else {
+              DateTime now = transactionDate;
+              DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+              int daysRemaning = lastDayOfMonth.difference(now).inDays;
+              DateTime expiraryDate = now.add(Duration(days: daysRemaning));
+              subscription = await auth.createSubscriptionTimeStamp(Routes.SubscriptionTimeStamp(email: user.email, subscribedOn: now.toUtc().toString(), expiresOn: expiraryDate.toUtc().toString(), transactionId: purchaseDetails.purchaseID));
+            }
+            
             unawaited(deliverProduct(purchaseDetails));
           } else {
             _handleInvalidPurchase(purchaseDetails);
@@ -191,7 +219,7 @@ class _SubscribePageState extends State<_SubscribePageContent> {
     // transactions.forEach((transaction) async {
     //     await paymentWrapper.finishTransaction(transaction);
     // });
-
+    
     try {
       final PurchaseParam purchaseParam = PurchaseParam(productDetails: products[0]);
       await InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
@@ -204,7 +232,7 @@ class _SubscribePageState extends State<_SubscribePageContent> {
   // IMPORTANT!! Always verify purchase details before delivering the product.
   if (purchaseDetails.productID == 'ffigure') {
     AuthService auth = Provider.of<AuthService>(context, listen: false);
-    User user = Provider.of<UserModel>(context,listen: false).user!;
+    Routes.User user = Provider.of<UserModel>(context,listen: false).user!;
     user.premium = Int64.ONE;
     auth.updateUserDBInfo(user);
     
@@ -220,7 +248,7 @@ class _SubscribePageState extends State<_SubscribePageContent> {
 
 Future<void> revokeProduct() async {
   AuthService auth = Provider.of<AuthService>(context, listen: false);
-  User user = Provider.of<UserModel>(context,listen: false).user!;
+  Routes.User user = Provider.of<UserModel>(context,listen: false).user!;
   user.premium = Int64(-1);
   auth.updateUserDBInfo(user);
 }
@@ -242,9 +270,9 @@ void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
   // handle invalid purchase here if  _verifyPurchase` failed.
 }
 
-  Future<User?> refreshUserData() async {
+  Future<Routes.User?> refreshUserData() async {
     _loading = true;
-    User? user;
+    Routes.User? user;
 
     try {
       final auth = Provider.of<AuthService>(context, listen: false);
