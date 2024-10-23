@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:in_app_purchase_android/billing_client_wrappers.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:dart_openai/dart_openai.dart';
-import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/pages/home/chat.dart';
@@ -22,23 +20,19 @@ import 'package:ffapp/pages/home/survey.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/firebaseApi.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/pages/home/home.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:live_activities/live_activities.dart';
 import 'package:ffapp/pages/home/personality.dart';
 
 
@@ -385,167 +379,27 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  late StreamSubscription<List<PurchaseDetails>> _subscription;
-  List<String> _notFoundIds = <String>[];
-  List<ProductDetails> _products = <ProductDetails>[];
-  List<PurchaseDetails> _purchases = <PurchaseDetails>[];
-  List<String> _consumables = <String>[];
-  bool _isAvailable = false;
-  bool _purchasePending = false;
-  bool _loading = true;
-  String? _queryProductError;
 
     @override
   void initState() {
-    //_inAppPurchase.restorePurchases();
-    final Stream<List<PurchaseDetails>> purchaseUpdated =
-        _inAppPurchase.purchaseStream;
-    _subscription =
-        purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
-      _listenToPurchaseUpdated(purchaseDetailsList);
-    }, onDone: () {
-      _subscription.cancel();
-    }, onError: (Object error) {
-      // handle error here.
-    },);
-    initStoreInfo();
+    initRevenueCatPlatform();
     super.initState();
   }
 
+  Future<void> initRevenueCatPlatform() async {
+    await dotenv.load(fileName: ".env");
 
-
-  Future<void> initStoreInfo() async {
-    //InAppPurchase.instance.restorePurchases();
-    final bool isAvailable = await _inAppPurchase.isAvailable();
-    if (!isAvailable) {
-      setState(() {
-        _isAvailable = isAvailable;
-        _products = <ProductDetails>[];
-        _purchases = <PurchaseDetails>[];
-        _notFoundIds = <String>[];
-        _consumables = <String>[];
-        _purchasePending = false;
-        _loading = false;
-      });
-      return;
+    if(kDebugMode) {
+      await Purchases.Purchases.setLogLevel(Purchases.LogLevel.debug);
     }
-
-    if (Platform.isIOS) {
-      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
-          _inAppPurchase
-              .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
-      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
+    
+    Purchases.PurchasesConfiguration? configuration;
+    if (Platform.isAndroid) {
+      // Do later (Sorry Aswin)
+    } else if (Platform.isIOS) {
+      configuration = Purchases.PurchasesConfiguration(dotenv.env['REVENUECAT_PROJECT_APPLE_API_KEY']!);
     }
-
-    final ProductDetailsResponse productDetailResponse =
-        await _inAppPurchase.queryProductDetails(_kProductIds.toSet());
-    if (productDetailResponse.error != null) {
-      setState(() {
-        _queryProductError = productDetailResponse.error!.message;
-        _isAvailable = isAvailable;
-        _products = productDetailResponse.productDetails;
-        _purchases = <PurchaseDetails>[];
-        _notFoundIds = productDetailResponse.notFoundIDs;
-        _consumables = <String>[];
-        _purchasePending = false;
-        _loading = false;
-      });
-      return;
-    }
-
-    if (productDetailResponse.productDetails.isEmpty) {
-      setState(() {
-        _queryProductError = null;
-        _isAvailable = isAvailable;
-        _products = productDetailResponse.productDetails;
-        _purchases = <PurchaseDetails>[];
-        _notFoundIds = productDetailResponse.notFoundIDs;
-        _consumables = <String>[];
-        _purchasePending = false;
-        _loading = false;
-      });
-      return;
-    }
-  }
-
-  @override
-  void dispose() {
-    if (Platform.isIOS) {
-      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
-          _inAppPurchase
-              .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
-      iosPlatformAddition.setDelegate(null);
-    }
-    _subscription.cancel();
-    super.dispose();
-  }
-
-  Future<void> _listenToPurchaseUpdated(
-      List<PurchaseDetails> purchaseDetailsList) async {
-    for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
-      if (purchaseDetails.status == PurchaseStatus.pending) {
-        print("pending purchase");
-      } else {
-        if (purchaseDetails.status == PurchaseStatus.error) {
-          handleError(purchaseDetails.error!);
-        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
-            purchaseDetails.status == PurchaseStatus.restored) {
-          final bool valid = await _verifyPurchase(purchaseDetails);
-          if (valid) {
-            unawaited(deliverProduct(purchaseDetails));
-          } else {
-            _handleInvalidPurchase(purchaseDetails);
-            return;
-          }
-        }
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _inAppPurchase.completePurchase(purchaseDetails);
-        }
-      }
-    }
-  }
-
-   Future<void> deliverProduct(PurchaseDetails purchaseDetails) async {
-    // IMPORTANT!! Always verify purchase details before delivering the product.
-    if (purchaseDetails.productID == _fitnessFigurePlusSubscriptionId) {
-      AuthService auth = Provider.of<AuthService>(context, listen: false);
-      User user = Provider.of<UserModel>(context,listen: false).user!;
-      user.premium = Int64.ONE;
-      auth.updateUserDBInfo(user);
-      
-      setState(() {
-        _purchasePending = false;
-      });
-    } else {
-      setState(() {
-        _purchases.add(purchaseDetails);
-      });
-    }
-  }
-
-  Future<void> revokeProduct() async {
-    AuthService auth = Provider.of<AuthService>(context, listen: false);
-    User user = Provider.of<UserModel>(context,listen: false).user!;
-    user.premium = Int64(-1);
-    auth.updateUserDBInfo(user);
-  }
-
-  void handleError(IAPError error) {
-    setState(() {
-      _purchasePending = false;
-    });
-  }
-  
-
-  Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) {
-    // IMPORTANT!! Always verify a purchase before delivering the product.
-    // For the purpose of an example, we directly return true.
-    return Future<bool>.value(true);
-  }
-
-  void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
-    // handle invalid purchase here if  _verifyPurchase` failed.
+    await Purchases.Purchases.configure(configuration!);
   }
 
   @override
@@ -608,18 +462,5 @@ class TestApp extends StatelessWidget {
       ),
       home: const SignIn(),
     );
-  }
-}
-
-class ExamplePaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
-  @override
-  bool shouldContinueTransaction(
-      SKPaymentTransactionWrapper transaction, SKStorefrontWrapper storefront) {
-    return true;
-  }
-
-  @override
-  bool shouldShowPriceConsent() {
-    return false;
   }
 }

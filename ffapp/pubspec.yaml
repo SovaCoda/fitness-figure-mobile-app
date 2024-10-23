@@ -67,6 +67,8 @@ dependencies:
   build_runner: ^2.0.0 # used for creating mockups for tests 
   connectivity_plus: ^6.0.5
   in_app_purchase: ^3.2.0
+  purchases_flutter: ^8.1.6
+  purchases_ui_flutter: ^8.1.6
 
 dev_dependencies:
   flutter_test:

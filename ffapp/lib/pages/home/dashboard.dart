@@ -6,21 +6,12 @@ import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/dashboard/workout_numbers.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
-import 'package:ffapp/components/message_sender.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
-import 'package:ffapp/components/resuables/streak_shower.dart';
-import 'package:ffapp/components/resuables/week_to_go_shower.dart';
-import 'package:ffapp/components/robot_dialog_box.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
-import 'package:ffapp/components/robot_response.dart';
-import 'package:ffapp/components/skin_view.dart';
-import 'package:ffapp/components/user_message.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/week_complete_showcase.dart';
 import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/chat.dart';
-import 'package:ffapp/pages/home/store.dart' as store;
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/robotDialog.dart';
@@ -30,9 +21,15 @@ import 'package:fixnum/fixnum.dart';
 import 'package:fixnum/src/int64.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:purchases_flutter/models/customer_info_wrapper.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'dart:async';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -72,7 +69,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     try {
       Routes.User? databaseUser = await auth.getUserDBInfo();
       
+      
       if (databaseUser != null) {
+        CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+        if (customerInfo.entitlements.active['ff_plus'] != null) {
+          databaseUser.premium = Int64.ONE;
+        } else {
+          databaseUser.premium = Int64(-1);
+        }
         databaseUser.lastLogin = DateTime.now().toUtc().toString();
         await auth.updateUserDBInfo(databaseUser);
         Routes.FigureInstance? databaseFigure = await auth.getFigureInstance(
@@ -80,6 +84,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 userEmail: databaseUser.email,
                 figureName: databaseUser.curFigure));
         if (!mounted) return;
+        
+       
+        // access latest customerInfo
+
+
 
         String curEmail = databaseUser?.email ?? "Loading...";
         int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
@@ -92,6 +101,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         Provider.of<FigureModel>(context, listen: false)
             .setFigureLevel(databaseFigure!.evLevel ?? 0);
         setState(() {
+          SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+            FocusManager.instance.primaryFocus?.unfocus();
+        FocusScope.of(context).unfocus();
           charge = curWeekly / curGoal;
           email = curEmail;
           weeklyGoal = curGoal;
@@ -155,28 +168,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online");
           }
         }
-        //LocalNotificationService().scheduleOfflineNotification(body: );
-
-        Routes.SubscriptionTimeStamp? subscription;
-        try {
-          subscription = await auth.getSubscriptionTimeStamp(Routes.SubscriptionTimeStamp(email: curEmail));
-        } catch (err) {
-          logger.i("user has no subscription logs");
-        }
-
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
-          if(subscription != null){
-            DateTime expirary = DateTime.parse(subscription.expiresOn);
-            DateTime start = DateTime.parse(subscription.subscribedOn);
-            DateTime now = DateTime.now().toUtc();
-            if (now.isAfter(expirary))
-            {
-              showFFDialog("FF+ Subscription Expired!", "Visit the subscription page if you need to renew or if auto-renew is enabled", true, context);
-              databaseUser.premium = Int64(-1);
-              auth.updateUserDBInfo(databaseUser);
-            }
-          }
-          
+        WidgetsBinding.instance!.addPostFrameCallback((_) { 
+        
           if (databaseUser!.readyForWeekReset == 'yes') {
             bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
             showFFDialogWithChildren(
@@ -258,6 +251,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           }
         });
         logger.i(figureURL);
+        
       }
     } catch (e, stacktrace) {
       logger.e("Error initializing dashboard: ${e.toString()}");
@@ -406,9 +400,29 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                             backgroundColor: Theme.of(context)
                                                 .colorScheme
                                                 .primary,
-                                            onPressed: () => {
-                                              GoRouter.of(context)
-                                                  .go('/subscribe')
+                                            onPressed: () async {
+                                              try {
+                                                CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+                                                // access latest customerInfo
+                                                if (customerInfo.entitlements.active['ff_plus'] != null)
+                                                {
+                                                  DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
+                                                  DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
+                                                  showFFDialogWithChildren("Youre Subscribed!", [
+                                                    Column(children: [
+                                                      Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
+                                                    ],)
+                                                  ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
+                                                }
+                                                else {
+                                                  final offers = await Purchases.getOfferings();
+                                                  final offer = offers.getOffering('ffigure_offering');
+                                                  final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
+                                                  logger.i('Paywall Result $paywallresult');
+                                                }
+                                              } on PlatformException catch (e) {
+                                                  // Error fetching customer info
+                                                }
                                             },
                                           ),
                                           FfButton(

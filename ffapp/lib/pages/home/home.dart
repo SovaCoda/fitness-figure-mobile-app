@@ -16,9 +16,12 @@ import 'package:ffapp/services/local_notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -61,7 +64,7 @@ class _DashboardPageState extends State<DashboardPage> {
     LocalNotificationService().initNotifications();
     initConnectivity();
 
-
+    
     initialize();
     super.initState();
 
@@ -189,7 +192,30 @@ class _DashboardPageState extends State<DashboardPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: InkWell(
-                onTap: () => context.goNamed('Subscribe'),
+                onTap: () async {
+                try {
+                  CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+                  // access latest customerInfo
+                  if (customerInfo.entitlements.active['ff_plus'] != null)
+                  {
+                    DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
+                    DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
+                    showFFDialogWithChildren("Youre Subscribed!", [
+                      Column(children: [
+                        Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
+                      ],)
+                    ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
+                  }
+                  else {
+                    final offers = await Purchases.getOfferings();
+                    final offer = offers.getOffering('ffigure_offering');
+                    final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
+                    logger.i('Paywall Result $paywallresult');
+                  }
+                } on PlatformException catch (e) {
+                    // Error fetching customer info
+                  }
+                },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

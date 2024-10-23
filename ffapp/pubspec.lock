@@ -968,6 +968,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  purchases_flutter:
+    dependency: "direct main"
+    description:
+      name: purchases_flutter
+      sha256: "2f660c92ddb14b47f65b9423d346c7d5e0cc24de3eb5c79a25686ba0c42787b9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.1.6"
+  purchases_ui_flutter:
+    dependency: "direct main"
+    description:
+      name: purchases_ui_flutter
+      sha256: "1098a61c8d98d8ff487b4bcfffe470052afbea43920bd91ac8931219cd9ee49f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.1.6"
   shared_preferences:
     dependency: "direct main"
     description:

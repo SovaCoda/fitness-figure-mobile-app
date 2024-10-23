@@ -118,7 +118,7 @@ class _SubscribePageState extends State<_SubscribePageContent> {
       final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
           _inAppPurchase
               .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
-      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
+      //await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
     }
 
     final ProductDetailsResponse productDetailResponse =

@@ -5,6 +5,7 @@ import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:ffapp/services/dynamic_island_manager.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
@@ -29,9 +30,13 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:provider/provider.dart';
+import 'package:purchases_flutter/models/customer_info_wrapper.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -417,7 +422,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         : showFFDialogBinary(
             "FF+ Premium Feature",
             "Subscribe now to FF+ to gain acess to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
-            false,
+            true,
             context,
             FfButton(
               height: 50,
@@ -425,7 +430,29 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               textStyle: Theme.of(context).textTheme.displayMedium!,
               textColor: Theme.of(context).colorScheme.onPrimary,
               backgroundColor: Theme.of(context).colorScheme.primary,
-              onPressed: () => {GoRouter.of(context).go('/subscribe')},
+              onPressed: () async {
+                try {
+                  CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+                  // access latest customerInfo
+                  if (customerInfo.entitlements.active['ff_plus'] != null)
+                  {
+                    DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
+                    DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
+                    showFFDialogWithChildren("Youre Subscribed!", [
+                      Column(children: [
+                        Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
+                      ],)
+                    ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
+                  }
+                  else {
+                    final offers = await Purchases.getOfferings();
+                    final offer = offers.getOffering('ffigure_offering');
+                    final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
+                    logger.i('Paywall Result $paywallresult');
+                  }
+                } on PlatformException catch (e) {
+                    // Error fetching customer info
+                  }}
             ),
             FfButton(
                 height: 50,
