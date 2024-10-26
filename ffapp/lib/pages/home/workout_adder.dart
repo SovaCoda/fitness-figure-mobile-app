@@ -449,6 +449,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                     final offer = offers.getOffering('ffigure_offering');
                     final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
                     logger.i('Paywall Result $paywallresult');
+                    if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
+                      Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
+                    }
                   }
                 } on PlatformException catch (e) {
                     // Error fetching customer info

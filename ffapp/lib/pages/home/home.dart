@@ -13,6 +13,7 @@ import 'package:ffapp/pages/home/profile.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:flutter/services.dart';
@@ -211,6 +212,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     final offer = offers.getOffering('ffigure_offering');
                     final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
                     logger.i('Paywall Result $paywallresult');
+                    if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
+                      Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
+                    }
                   }
                 } on PlatformException catch (e) {
                     // Error fetching customer info

@@ -84,12 +84,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 userEmail: databaseUser.email,
                 figureName: databaseUser.curFigure));
         if (!mounted) return;
-        
-       
-        // access latest customerInfo
-
-
-
         String curEmail = databaseUser?.email ?? "Loading...";
         int curGoal = databaseUser?.weekGoal.toInt() ?? 0;
         int curWeekly = databaseUser?.weekComplete.toInt() ?? 0;
@@ -406,6 +400,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                 // access latest customerInfo
                                                 if (customerInfo.entitlements.active['ff_plus'] != null)
                                                 {
+                                                  
                                                   DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
                                                   DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
                                                   showFFDialogWithChildren("Youre Subscribed!", [
@@ -419,6 +414,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                   final offer = offers.getOffering('ffigure_offering');
                                                   final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
                                                   logger.i('Paywall Result $paywallresult');
+                                                  if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
+                                                    Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
+                                                    Navigator.of(context).pop();
+                                                  }
                                                 }
                                               } on PlatformException catch (e) {
                                                   // Error fetching customer info
