@@ -13,6 +13,32 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use leaderboardTypeDescriptor instead')
+const LeaderboardType$json = {
+  '1': 'LeaderboardType',
+  '2': [
+    {'1': 'GLOBAL', '2': 0},
+    {'1': 'FRIENDS_ONLY', '2': 1},
+  ],
+};
+
+/// Descriptor for `LeaderboardType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List leaderboardTypeDescriptor = $convert.base64Decode(
+    'Cg9MZWFkZXJib2FyZFR5cGUSCgoGR0xPQkFMEAASEAoMRlJJRU5EU19PTkxZEAE=');
+
+@$core.Deprecated('Use leaderboardTimeFrameDescriptor instead')
+const LeaderboardTimeFrame$json = {
+  '1': 'LeaderboardTimeFrame',
+  '2': [
+    {'1': 'WEEKLY', '2': 0},
+    {'1': 'ALL_TIME', '2': 1},
+  ],
+};
+
+/// Descriptor for `LeaderboardTimeFrame`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List leaderboardTimeFrameDescriptor = $convert.base64Decode(
+    'ChRMZWFkZXJib2FyZFRpbWVGcmFtZRIKCgZXRUVLTFkQABIMCghBTExfVElNRRAB');
+
 @$core.Deprecated('Use genericStringResponseDescriptor instead')
 const GenericStringResponse$json = {
   '1': 'GenericStringResponse',
@@ -361,4 +387,144 @@ const UpdateEmailRequest$json = {
 final $typed_data.Uint8List updateEmailRequestDescriptor = $convert.base64Decode(
     'ChJVcGRhdGVFbWFpbFJlcXVlc3QSGwoJb2xkX2VtYWlsGAEgASgJUghvbGRFbWFpbBIbCgluZX'
     'dfZW1haWwYAiABKAlSCG5ld0VtYWls');
+
+@$core.Deprecated('Use friendRequestDescriptor instead')
+const FriendRequest$json = {
+  '1': 'FriendRequest',
+  '2': [
+    {'1': 'user_email', '3': 1, '4': 1, '5': 9, '10': 'userEmail'},
+    {'1': 'friend_email', '3': 2, '4': 1, '5': 9, '10': 'friendEmail'},
+  ],
+};
+
+/// Descriptor for `FriendRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendRequestDescriptor = $convert.base64Decode(
+    'Cg1GcmllbmRSZXF1ZXN0Eh0KCnVzZXJfZW1haWwYASABKAlSCXVzZXJFbWFpbBIhCgxmcmllbm'
+    'RfZW1haWwYAiABKAlSC2ZyaWVuZEVtYWls');
+
+@$core.Deprecated('Use friendDescriptor instead')
+const Friend$json = {
+  '1': 'Friend',
+  '2': [
+    {'1': 'user_email', '3': 1, '4': 1, '5': 9, '10': 'userEmail'},
+    {'1': 'friend_email', '3': 2, '4': 1, '5': 9, '10': 'friendEmail'},
+    {'1': 'status', '3': 3, '4': 1, '5': 9, '10': 'status'},
+    {'1': 'created_at', '3': 4, '4': 1, '5': 9, '10': 'createdAt'},
+    {'1': 'updated_at', '3': 5, '4': 1, '5': 9, '10': 'updatedAt'},
+  ],
+};
+
+/// Descriptor for `Friend`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendDescriptor = $convert.base64Decode(
+    'CgZGcmllbmQSHQoKdXNlcl9lbWFpbBgBIAEoCVIJdXNlckVtYWlsEiEKDGZyaWVuZF9lbWFpbB'
+    'gCIAEoCVILZnJpZW5kRW1haWwSFgoGc3RhdHVzGAMgASgJUgZzdGF0dXMSHQoKY3JlYXRlZF9h'
+    'dBgEIAEoCVIJY3JlYXRlZEF0Eh0KCnVwZGF0ZWRfYXQYBSABKAlSCXVwZGF0ZWRBdA==');
+
+@$core.Deprecated('Use multiFriendsDescriptor instead')
+const MultiFriends$json = {
+  '1': 'MultiFriends',
+  '2': [
+    {'1': 'friends', '3': 1, '4': 3, '5': 11, '6': '.routes.Friend', '10': 'friends'},
+    {'1': 'total_count', '3': 2, '4': 1, '5': 5, '10': 'totalCount'},
+  ],
+};
+
+/// Descriptor for `MultiFriends`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiFriendsDescriptor = $convert.base64Decode(
+    'CgxNdWx0aUZyaWVuZHMSKAoHZnJpZW5kcxgBIAMoCzIOLnJvdXRlcy5GcmllbmRSB2ZyaWVuZH'
+    'MSHwoLdG90YWxfY291bnQYAiABKAVSCnRvdGFsQ291bnQ=');
+
+@$core.Deprecated('Use friendListRequestDescriptor instead')
+const FriendListRequest$json = {
+  '1': 'FriendListRequest',
+  '2': [
+    {'1': 'user_email', '3': 1, '4': 1, '5': 9, '10': 'userEmail'},
+    {'1': 'status', '3': 2, '4': 1, '5': 9, '10': 'status'},
+    {'1': 'page', '3': 3, '4': 1, '5': 5, '10': 'page'},
+    {'1': 'page_size', '3': 4, '4': 1, '5': 5, '10': 'pageSize'},
+  ],
+};
+
+/// Descriptor for `FriendListRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendListRequestDescriptor = $convert.base64Decode(
+    'ChFGcmllbmRMaXN0UmVxdWVzdBIdCgp1c2VyX2VtYWlsGAEgASgJUgl1c2VyRW1haWwSFgoGc3'
+    'RhdHVzGAIgASgJUgZzdGF0dXMSEgoEcGFnZRgDIAEoBVIEcGFnZRIbCglwYWdlX3NpemUYBCAB'
+    'KAVSCHBhZ2VTaXpl');
+
+@$core.Deprecated('Use userStatsDescriptor instead')
+const UserStats$json = {
+  '1': 'UserStats',
+  '2': [
+    {'1': 'user_email', '3': 1, '4': 1, '5': 9, '10': 'userEmail'},
+    {'1': 'weekly_points', '3': 2, '4': 1, '5': 3, '10': 'weeklyPoints'},
+    {'1': 'total_points', '3': 3, '4': 1, '5': 3, '10': 'totalPoints'},
+    {'1': 'last_weekly_reset', '3': 4, '4': 1, '5': 9, '10': 'lastWeeklyReset'},
+  ],
+};
+
+/// Descriptor for `UserStats`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userStatsDescriptor = $convert.base64Decode(
+    'CglVc2VyU3RhdHMSHQoKdXNlcl9lbWFpbBgBIAEoCVIJdXNlckVtYWlsEiMKDXdlZWtseV9wb2'
+    'ludHMYAiABKANSDHdlZWtseVBvaW50cxIhCgx0b3RhbF9wb2ludHMYAyABKANSC3RvdGFsUG9p'
+    'bnRzEioKEWxhc3Rfd2Vla2x5X3Jlc2V0GAQgASgJUg9sYXN0V2Vla2x5UmVzZXQ=');
+
+@$core.Deprecated('Use leaderboardResponseDescriptor instead')
+const LeaderboardResponse$json = {
+  '1': 'LeaderboardResponse',
+  '2': [
+    {'1': 'entries', '3': 1, '4': 3, '5': 11, '6': '.routes.LeaderboardEntry', '10': 'entries'},
+    {'1': 'user_rank', '3': 2, '4': 1, '5': 5, '10': 'userRank'},
+    {'1': 'total_users', '3': 3, '4': 1, '5': 3, '10': 'totalUsers'},
+    {'1': 'user_points', '3': 4, '4': 1, '5': 3, '10': 'userPoints'},
+  ],
+};
+
+/// Descriptor for `LeaderboardResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List leaderboardResponseDescriptor = $convert.base64Decode(
+    'ChNMZWFkZXJib2FyZFJlc3BvbnNlEjIKB2VudHJpZXMYASADKAsyGC5yb3V0ZXMuTGVhZGVyYm'
+    '9hcmRFbnRyeVIHZW50cmllcxIbCgl1c2VyX3JhbmsYAiABKAVSCHVzZXJSYW5rEh8KC3RvdGFs'
+    'X3VzZXJzGAMgASgDUgp0b3RhbFVzZXJzEh8KC3VzZXJfcG9pbnRzGAQgASgDUgp1c2VyUG9pbn'
+    'Rz');
+
+@$core.Deprecated('Use leaderboardEntryDescriptor instead')
+const LeaderboardEntry$json = {
+  '1': 'LeaderboardEntry',
+  '2': [
+    {'1': 'user_email', '3': 1, '4': 1, '5': 9, '10': 'userEmail'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    {'1': 'figure_name', '3': 3, '4': 1, '5': 9, '10': 'figureName'},
+    {'1': 'weekly_points', '3': 4, '4': 1, '5': 3, '10': 'weeklyPoints'},
+    {'1': 'total_points', '3': 5, '4': 1, '5': 3, '10': 'totalPoints'},
+    {'1': 'streak', '3': 6, '4': 1, '5': 5, '10': 'streak'},
+    {'1': 'rank', '3': 7, '4': 1, '5': 5, '10': 'rank'},
+    {'1': 'is_friend', '3': 8, '4': 1, '5': 8, '10': 'isFriend'},
+  ],
+};
+
+/// Descriptor for `LeaderboardEntry`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List leaderboardEntryDescriptor = $convert.base64Decode(
+    'ChBMZWFkZXJib2FyZEVudHJ5Eh0KCnVzZXJfZW1haWwYASABKAlSCXVzZXJFbWFpbBISCgRuYW'
+    '1lGAIgASgJUgRuYW1lEh8KC2ZpZ3VyZV9uYW1lGAMgASgJUgpmaWd1cmVOYW1lEiMKDXdlZWts'
+    'eV9wb2ludHMYBCABKANSDHdlZWtseVBvaW50cxIhCgx0b3RhbF9wb2ludHMYBSABKANSC3RvdG'
+    'FsUG9pbnRzEhYKBnN0cmVhaxgGIAEoBVIGc3RyZWFrEhIKBHJhbmsYByABKAVSBHJhbmsSGwoJ'
+    'aXNfZnJpZW5kGAggASgIUghpc0ZyaWVuZA==');
+
+@$core.Deprecated('Use leaderboardRequestDescriptor instead')
+const LeaderboardRequest$json = {
+  '1': 'LeaderboardRequest',
+  '2': [
+    {'1': 'user_email', '3': 1, '4': 1, '5': 9, '10': 'userEmail'},
+    {'1': 'type', '3': 2, '4': 1, '5': 14, '6': '.routes.LeaderboardType', '10': 'type'},
+    {'1': 'time_frame', '3': 3, '4': 1, '5': 14, '6': '.routes.LeaderboardTimeFrame', '10': 'timeFrame'},
+    {'1': 'page', '3': 4, '4': 1, '5': 5, '10': 'page'},
+    {'1': 'page_size', '3': 5, '4': 1, '5': 5, '10': 'pageSize'},
+  ],
+};
+
+/// Descriptor for `LeaderboardRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List leaderboardRequestDescriptor = $convert.base64Decode(
+    'ChJMZWFkZXJib2FyZFJlcXVlc3QSHQoKdXNlcl9lbWFpbBgBIAEoCVIJdXNlckVtYWlsEisKBH'
+    'R5cGUYAiABKA4yFy5yb3V0ZXMuTGVhZGVyYm9hcmRUeXBlUgR0eXBlEjsKCnRpbWVfZnJhbWUY'
+    'AyABKA4yHC5yb3V0ZXMuTGVhZGVyYm9hcmRUaW1lRnJhbWVSCXRpbWVGcmFtZRISCgRwYWdlGA'
+    'QgASgFUgRwYWdlEhsKCXBhZ2Vfc2l6ZRgFIAEoBVIIcGFnZVNpemU=');
 

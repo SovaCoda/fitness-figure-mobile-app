@@ -79,6 +79,20 @@ service Routes {
     // SERVER ACTIONS //
     rpc FigureDecay(FigureInstance) returns (GenericStringResponse) {}
     rpc UserWeeklyReset(User) returns (GenericStringResponse) {}
+
+    // FRIEND ACTIONS //
+    rpc SendFriendRequest(FriendRequest) returns (Friend) {}
+    rpc AcceptFriendRequest(FriendRequest) returns (Friend) {}
+    rpc RejectFriendRequest(FriendRequest) returns (Friend) {}
+    rpc RemoveFriend(FriendRequest) returns (GenericStringResponse) {}
+    rpc GetFriends(FriendListRequest) returns (MultiFriends) {}
+    rpc GetPendingRequests(FriendListRequest) returns (MultiFriends) {}
+    rpc CheckFriendshipStatus(FriendRequest) returns (Friend) {}
+
+    // LEADERBOARD ACTIONS //
+    rpc GetLeaderboard(LeaderboardRequest) returns (LeaderboardResponse) {}
+    rpc GetUserStats(User) returns (UserStats) {}
+    rpc ResetWeeklyStats(google.protobuf.Empty) returns (GenericStringResponse) {}
 }
 
 message GenericStringResponse {
@@ -223,4 +237,73 @@ message SubscriptionTimeStamp {
 message UpdateEmailRequest {
     string old_email = 1;
     string new_email = 2;
+}
+
+message FriendRequest {
+    string user_email = 1;
+    string friend_email = 2;
+}
+
+message Friend {
+    string user_email = 1;
+    string friend_email = 2;
+    string status = 3; // "pending", "accepted", "blocked"
+    string created_at = 4;
+    string updated_at = 5;
+}
+
+message MultiFriends {
+    repeated Friend friends = 1;
+    int32 total_count = 2;
+}
+
+message FriendListRequest {
+    string user_email = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// maybe useful for showing the user's stats
+message UserStats {
+    string user_email = 1;
+    int64 weekly_points = 2;
+    int64 total_points = 3;
+    string last_weekly_reset = 4;
+}
+
+message LeaderboardResponse {
+    repeated LeaderboardEntry entries = 1;
+    int32 user_rank = 2; // used for requesting the user's rank
+    int64 total_users = 3; // Total number of users in this leaderboard
+    int64 user_points = 4;
+}
+
+message LeaderboardEntry {
+    string user_email = 1;
+    string name = 2;
+    string figure_name = 3;
+    int64 weekly_points = 4;
+    int64 total_points = 5;
+    int32 streak = 6;
+    int32 rank = 7;
+    bool is_friend = 8;
+}
+
+enum LeaderboardType {
+    GLOBAL = 0;
+    FRIENDS_ONLY = 1;
+}
+
+enum LeaderboardTimeFrame {
+    WEEKLY = 0;
+    ALL_TIME = 1;
+}
+
+message LeaderboardRequest {
+    string user_email = 1;
+    LeaderboardType type = 2;
+    LeaderboardTimeFrame time_frame = 3;
+    int32 page = 4; 
+    int32 page_size = 5; // Used to set limit on how many friends to show up on the leaderboard
 }

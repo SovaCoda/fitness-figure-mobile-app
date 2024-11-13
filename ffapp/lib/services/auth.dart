@@ -1,3 +1,5 @@
+import "package:ffapp/pages/home/friends.dart";
+import "package:ffapp/pages/home/profile.dart";
 import "package:ffapp/services/google/protobuf/empty.pb.dart";
 import "package:ffapp/services/routes.pb.dart" as Routes;
 import "package:firebase_auth/firebase_auth.dart" as FB;
@@ -84,6 +86,10 @@ class AuthService {
 
   Future<FB.User?> getUser() async {
     return _auth.currentUser;
+  }
+
+  Future<Routes.User> getUserFromEmail(Routes.User user) async {
+    return await _routes.routesClient.getUser(user);
   }
 
   Future<Routes.User?> getUserDBInfo() async {
@@ -198,6 +204,56 @@ class AuthService {
     await _auth.currentUser?.reauthenticateWithCredential(credential);
     _auth.currentUser?.delete();
     
+  }
+
+  Future<Routes.MultiFriends> getFriends(int page) async {
+    Routes.FriendListRequest friendList = Routes.FriendListRequest(page: page, pageSize: 10, userEmail: _auth.currentUser!.email, status: "accepted");
+    Routes.MultiFriends friends = await _routes.routesClient.getFriends(friendList);
+    logger.i("${friends.friends.length} friends found");
+    return friends;
+  }
+
+  Future<Routes.MultiFriends> getRequests(int page) async {
+    Routes.FriendListRequest friendList = Routes.FriendListRequest(page: page, pageSize: 10, userEmail: _auth.currentUser!.email, status: "pending");
+    Routes.MultiFriends requests = await _routes.routesClient.getFriends(friendList);
+    logger.i("${requests.friends.length} requests found");
+    return requests;
+  }
+
+  Future<Routes.Friend> sendFriendRequest(String friendEmail) async {
+    Routes.FriendRequest friendRequest = Routes.FriendRequest(friendEmail: friendEmail, userEmail: _auth.currentUser!.email);
+    logger.i("Sending friend request...");
+    try {
+    Routes.Friend friend = await _routes.routesClient.sendFriendRequest(friendRequest);
+    logger.i("Sent friend request $friend");
+    return friend;
+    } catch(e) {
+      throw InvalidEmailException("No user found with this email. Please check the email address and try again.");
+    }
+  }
+
+  Future<Routes.Friend> acceptFriendRequest(String friendEmail) async {
+    Routes.FriendRequest friendRequest = Routes.FriendRequest(friendEmail: _auth.currentUser!.email, userEmail: friendEmail);
+    logger.i("Accepting friend request... $friendRequest");
+    Routes.Friend friend = await _routes.routesClient.acceptFriendRequest(friendRequest);
+    logger.i("Friend request successfully accepted: $friend");
+    return friend;
+  }
+
+  Future<Routes.Friend> rejectFriendRequest(String friendEmail) async {
+    Routes.FriendRequest friendRequest = Routes.FriendRequest(friendEmail: _auth.currentUser!.email, userEmail: friendEmail);
+    logger.i("Rejecting friend request... $friendRequest");
+    Routes.Friend friend = await _routes.routesClient.rejectFriendRequest(friendRequest);
+    logger.i("Friend request successfully rejected: $friend");
+    return friend;
+  }
+
+  Future<String> removeFriend(String friendEmail) async {
+    Routes.FriendRequest friendRequest = Routes.FriendRequest(friendEmail: _auth.currentUser!.email);
+    logger.i("Removing friend... $friendRequest");
+    Routes.GenericStringResponse response = await _routes.routesClient.removeFriend(friendRequest);
+    logger.i("Friend successfully removed");
+    return response.message;
   }
 
   Future<Routes.MultiDailySnapshot> getDailySnapshots(

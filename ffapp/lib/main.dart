@@ -34,6 +34,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ffapp/pages/home/personality.dart';
+import 'package:ffapp/pages/home/friends.dart';
 
 
 class SelectedFigureProvider extends ChangeNotifier {
@@ -123,6 +124,7 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 }
+
 
 class InventoryModel extends ChangeNotifier {
   List<Routes.FigureInstance> figureInstancesList = List.empty();
@@ -249,6 +251,30 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
   }
 }
 
+// TODO: Define friend class with needed components
+class FriendModel extends ChangeNotifier {
+  List<Routes.Friend> _friends = [];
+  List<Routes.Friend> _requests = [];
+
+  List<Friend> get friends => _friends;
+  List<Friend> get requests => _requests;
+
+  void setFriendList(List<Routes.Friend> friends) {
+    _friends = friends;
+    notifyListeners(); 
+  }
+
+  void setRequestList(List<Routes.Friend> requests) {
+    _requests = requests;
+    notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return "friends: ${_friends.toString()} requests: ${_requests.toString()}";
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
@@ -286,6 +312,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (_) => FigureInstancesProvider()),
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
       ChangeNotifierProvider(create: (context) => ChatModel()..init(context: context)),
+      ChangeNotifierProvider(create: (_) => FriendModel())
     ], child: const MyApp()),
   );
 }
@@ -355,6 +382,11 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
       path: '/edit_personality',
       builder: (context, state) => EditPersonalityPage(),
     ),
+  GoRoute(
+    name: 'Friends',
+    path: '/friends',
+    builder: (context, state) => Friends(),
+  )
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',

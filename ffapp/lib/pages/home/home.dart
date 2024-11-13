@@ -239,6 +239,23 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: InkWell(
+                onTap: () => context.goNamed('Friends'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 10.0),
+                    Icon(
+                      Icons.person_add,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
 
             //question mark area that displays an alert on tap
             InkWell(

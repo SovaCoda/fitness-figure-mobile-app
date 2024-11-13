@@ -230,6 +230,46 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/UserWeeklyReset',
       ($0.User value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value));
+  static final _$sendFriendRequest = $grpc.ClientMethod<$0.FriendRequest, $0.Friend>(
+      '/routes.Routes/SendFriendRequest',
+      ($0.FriendRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Friend.fromBuffer(value));
+  static final _$acceptFriendRequest = $grpc.ClientMethod<$0.FriendRequest, $0.Friend>(
+      '/routes.Routes/AcceptFriendRequest',
+      ($0.FriendRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Friend.fromBuffer(value));
+  static final _$rejectFriendRequest = $grpc.ClientMethod<$0.FriendRequest, $0.Friend>(
+      '/routes.Routes/RejectFriendRequest',
+      ($0.FriendRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Friend.fromBuffer(value));
+  static final _$removeFriend = $grpc.ClientMethod<$0.FriendRequest, $0.GenericStringResponse>(
+      '/routes.Routes/RemoveFriend',
+      ($0.FriendRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value));
+  static final _$getFriends = $grpc.ClientMethod<$0.FriendListRequest, $0.MultiFriends>(
+      '/routes.Routes/GetFriends',
+      ($0.FriendListRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiFriends.fromBuffer(value));
+  static final _$getPendingRequests = $grpc.ClientMethod<$0.FriendListRequest, $0.MultiFriends>(
+      '/routes.Routes/GetPendingRequests',
+      ($0.FriendListRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.MultiFriends.fromBuffer(value));
+  static final _$checkFriendshipStatus = $grpc.ClientMethod<$0.FriendRequest, $0.Friend>(
+      '/routes.Routes/CheckFriendshipStatus',
+      ($0.FriendRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Friend.fromBuffer(value));
+  static final _$getLeaderboard = $grpc.ClientMethod<$0.LeaderboardRequest, $0.LeaderboardResponse>(
+      '/routes.Routes/GetLeaderboard',
+      ($0.LeaderboardRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.LeaderboardResponse.fromBuffer(value));
+  static final _$getUserStats = $grpc.ClientMethod<$0.User, $0.UserStats>(
+      '/routes.Routes/GetUserStats',
+      ($0.User value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.UserStats.fromBuffer(value));
+  static final _$resetWeeklyStats = $grpc.ClientMethod<$1.Empty, $0.GenericStringResponse>(
+      '/routes.Routes/ResetWeeklyStats',
+      ($1.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -443,6 +483,46 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.GenericStringResponse> userWeeklyReset($0.User request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$userWeeklyReset, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Friend> sendFriendRequest($0.FriendRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$sendFriendRequest, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Friend> acceptFriendRequest($0.FriendRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$acceptFriendRequest, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Friend> rejectFriendRequest($0.FriendRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$rejectFriendRequest, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GenericStringResponse> removeFriend($0.FriendRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$removeFriend, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiFriends> getFriends($0.FriendListRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFriends, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.MultiFriends> getPendingRequests($0.FriendListRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getPendingRequests, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Friend> checkFriendshipStatus($0.FriendRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$checkFriendshipStatus, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.LeaderboardResponse> getLeaderboard($0.LeaderboardRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getLeaderboard, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.UserStats> getUserStats($0.User request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getUserStats, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GenericStringResponse> resetWeeklyStats($1.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$resetWeeklyStats, request, options: options);
   }
 }
 
@@ -815,6 +895,76 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.User.fromBuffer(value),
         ($0.GenericStringResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendRequest, $0.Friend>(
+        'SendFriendRequest',
+        sendFriendRequest_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendRequest.fromBuffer(value),
+        ($0.Friend value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendRequest, $0.Friend>(
+        'AcceptFriendRequest',
+        acceptFriendRequest_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendRequest.fromBuffer(value),
+        ($0.Friend value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendRequest, $0.Friend>(
+        'RejectFriendRequest',
+        rejectFriendRequest_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendRequest.fromBuffer(value),
+        ($0.Friend value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendRequest, $0.GenericStringResponse>(
+        'RemoveFriend',
+        removeFriend_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendRequest.fromBuffer(value),
+        ($0.GenericStringResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendListRequest, $0.MultiFriends>(
+        'GetFriends',
+        getFriends_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendListRequest.fromBuffer(value),
+        ($0.MultiFriends value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendListRequest, $0.MultiFriends>(
+        'GetPendingRequests',
+        getPendingRequests_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendListRequest.fromBuffer(value),
+        ($0.MultiFriends value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FriendRequest, $0.Friend>(
+        'CheckFriendshipStatus',
+        checkFriendshipStatus_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FriendRequest.fromBuffer(value),
+        ($0.Friend value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.LeaderboardRequest, $0.LeaderboardResponse>(
+        'GetLeaderboard',
+        getLeaderboard_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.LeaderboardRequest.fromBuffer(value),
+        ($0.LeaderboardResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.User, $0.UserStats>(
+        'GetUserStats',
+        getUserStats_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.User.fromBuffer(value),
+        ($0.UserStats value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$1.Empty, $0.GenericStringResponse>(
+        'ResetWeeklyStats',
+        resetWeeklyStats_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $1.Empty.fromBuffer(value),
+        ($0.GenericStringResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
@@ -1025,6 +1175,46 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return userWeeklyReset(call, await request);
   }
 
+  $async.Future<$0.Friend> sendFriendRequest_Pre($grpc.ServiceCall call, $async.Future<$0.FriendRequest> request) async {
+    return sendFriendRequest(call, await request);
+  }
+
+  $async.Future<$0.Friend> acceptFriendRequest_Pre($grpc.ServiceCall call, $async.Future<$0.FriendRequest> request) async {
+    return acceptFriendRequest(call, await request);
+  }
+
+  $async.Future<$0.Friend> rejectFriendRequest_Pre($grpc.ServiceCall call, $async.Future<$0.FriendRequest> request) async {
+    return rejectFriendRequest(call, await request);
+  }
+
+  $async.Future<$0.GenericStringResponse> removeFriend_Pre($grpc.ServiceCall call, $async.Future<$0.FriendRequest> request) async {
+    return removeFriend(call, await request);
+  }
+
+  $async.Future<$0.MultiFriends> getFriends_Pre($grpc.ServiceCall call, $async.Future<$0.FriendListRequest> request) async {
+    return getFriends(call, await request);
+  }
+
+  $async.Future<$0.MultiFriends> getPendingRequests_Pre($grpc.ServiceCall call, $async.Future<$0.FriendListRequest> request) async {
+    return getPendingRequests(call, await request);
+  }
+
+  $async.Future<$0.Friend> checkFriendshipStatus_Pre($grpc.ServiceCall call, $async.Future<$0.FriendRequest> request) async {
+    return checkFriendshipStatus(call, await request);
+  }
+
+  $async.Future<$0.LeaderboardResponse> getLeaderboard_Pre($grpc.ServiceCall call, $async.Future<$0.LeaderboardRequest> request) async {
+    return getLeaderboard(call, await request);
+  }
+
+  $async.Future<$0.UserStats> getUserStats_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
+    return getUserStats(call, await request);
+  }
+
+  $async.Future<$0.GenericStringResponse> resetWeeklyStats_Pre($grpc.ServiceCall call, $async.Future<$1.Empty> request) async {
+    return resetWeeklyStats(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
@@ -1077,4 +1267,14 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.SubscriptionTimeStamp> deleteSubscriptionTimeStamp($grpc.ServiceCall call, $0.SubscriptionTimeStamp request);
   $async.Future<$0.GenericStringResponse> figureDecay($grpc.ServiceCall call, $0.FigureInstance request);
   $async.Future<$0.GenericStringResponse> userWeeklyReset($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.Friend> sendFriendRequest($grpc.ServiceCall call, $0.FriendRequest request);
+  $async.Future<$0.Friend> acceptFriendRequest($grpc.ServiceCall call, $0.FriendRequest request);
+  $async.Future<$0.Friend> rejectFriendRequest($grpc.ServiceCall call, $0.FriendRequest request);
+  $async.Future<$0.GenericStringResponse> removeFriend($grpc.ServiceCall call, $0.FriendRequest request);
+  $async.Future<$0.MultiFriends> getFriends($grpc.ServiceCall call, $0.FriendListRequest request);
+  $async.Future<$0.MultiFriends> getPendingRequests($grpc.ServiceCall call, $0.FriendListRequest request);
+  $async.Future<$0.Friend> checkFriendshipStatus($grpc.ServiceCall call, $0.FriendRequest request);
+  $async.Future<$0.LeaderboardResponse> getLeaderboard($grpc.ServiceCall call, $0.LeaderboardRequest request);
+  $async.Future<$0.UserStats> getUserStats($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.GenericStringResponse> resetWeeklyStats($grpc.ServiceCall call, $1.Empty request);
 }

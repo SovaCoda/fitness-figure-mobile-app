@@ -14,6 +14,10 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'routes.pbenum.dart';
+
+export 'routes.pbenum.dart';
+
 class GenericStringResponse extends $pb.GeneratedMessage {
   factory GenericStringResponse({
     $core.String? message,
@@ -1860,6 +1864,759 @@ class UpdateEmailRequest extends $pb.GeneratedMessage {
   $core.bool hasNewEmail() => $_has(1);
   @$pb.TagNumber(2)
   void clearNewEmail() => clearField(2);
+}
+
+class FriendRequest extends $pb.GeneratedMessage {
+  factory FriendRequest({
+    $core.String? userEmail,
+    $core.String? friendEmail,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (friendEmail != null) {
+      $result.friendEmail = friendEmail;
+    }
+    return $result;
+  }
+  FriendRequest._() : super();
+  factory FriendRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FriendRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FriendRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userEmail')
+    ..aOS(2, _omitFieldNames ? '' : 'friendEmail')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FriendRequest clone() => FriendRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FriendRequest copyWith(void Function(FriendRequest) updates) => super.copyWith((message) => updates(message as FriendRequest)) as FriendRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FriendRequest create() => FriendRequest._();
+  FriendRequest createEmptyInstance() => create();
+  static $pb.PbList<FriendRequest> createRepeated() => $pb.PbList<FriendRequest>();
+  @$core.pragma('dart2js:noInline')
+  static FriendRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FriendRequest>(create);
+  static FriendRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get friendEmail => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set friendEmail($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFriendEmail() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFriendEmail() => clearField(2);
+}
+
+class Friend extends $pb.GeneratedMessage {
+  factory Friend({
+    $core.String? userEmail,
+    $core.String? friendEmail,
+    $core.String? status,
+    $core.String? createdAt,
+    $core.String? updatedAt,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (friendEmail != null) {
+      $result.friendEmail = friendEmail;
+    }
+    if (status != null) {
+      $result.status = status;
+    }
+    if (createdAt != null) {
+      $result.createdAt = createdAt;
+    }
+    if (updatedAt != null) {
+      $result.updatedAt = updatedAt;
+    }
+    return $result;
+  }
+  Friend._() : super();
+  factory Friend.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Friend.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Friend', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userEmail')
+    ..aOS(2, _omitFieldNames ? '' : 'friendEmail')
+    ..aOS(3, _omitFieldNames ? '' : 'status')
+    ..aOS(4, _omitFieldNames ? '' : 'createdAt')
+    ..aOS(5, _omitFieldNames ? '' : 'updatedAt')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Friend clone() => Friend()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Friend copyWith(void Function(Friend) updates) => super.copyWith((message) => updates(message as Friend)) as Friend;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Friend create() => Friend._();
+  Friend createEmptyInstance() => create();
+  static $pb.PbList<Friend> createRepeated() => $pb.PbList<Friend>();
+  @$core.pragma('dart2js:noInline')
+  static Friend getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Friend>(create);
+  static Friend? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get friendEmail => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set friendEmail($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFriendEmail() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFriendEmail() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get status => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set status($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasStatus() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearStatus() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get createdAt => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set createdAt($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCreatedAt() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCreatedAt() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get updatedAt => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set updatedAt($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasUpdatedAt() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearUpdatedAt() => clearField(5);
+}
+
+class MultiFriends extends $pb.GeneratedMessage {
+  factory MultiFriends({
+    $core.Iterable<Friend>? friends,
+    $core.int? totalCount,
+  }) {
+    final $result = create();
+    if (friends != null) {
+      $result.friends.addAll(friends);
+    }
+    if (totalCount != null) {
+      $result.totalCount = totalCount;
+    }
+    return $result;
+  }
+  MultiFriends._() : super();
+  factory MultiFriends.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MultiFriends.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MultiFriends', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<Friend>(1, _omitFieldNames ? '' : 'friends', $pb.PbFieldType.PM, subBuilder: Friend.create)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'totalCount', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MultiFriends clone() => MultiFriends()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MultiFriends copyWith(void Function(MultiFriends) updates) => super.copyWith((message) => updates(message as MultiFriends)) as MultiFriends;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiFriends create() => MultiFriends._();
+  MultiFriends createEmptyInstance() => create();
+  static $pb.PbList<MultiFriends> createRepeated() => $pb.PbList<MultiFriends>();
+  @$core.pragma('dart2js:noInline')
+  static MultiFriends getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MultiFriends>(create);
+  static MultiFriends? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Friend> get friends => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.int get totalCount => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set totalCount($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTotalCount() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTotalCount() => clearField(2);
+}
+
+class FriendListRequest extends $pb.GeneratedMessage {
+  factory FriendListRequest({
+    $core.String? userEmail,
+    $core.String? status,
+    $core.int? page,
+    $core.int? pageSize,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (status != null) {
+      $result.status = status;
+    }
+    if (page != null) {
+      $result.page = page;
+    }
+    if (pageSize != null) {
+      $result.pageSize = pageSize;
+    }
+    return $result;
+  }
+  FriendListRequest._() : super();
+  factory FriendListRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FriendListRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FriendListRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userEmail')
+    ..aOS(2, _omitFieldNames ? '' : 'status')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'page', $pb.PbFieldType.O3)
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'pageSize', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FriendListRequest clone() => FriendListRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FriendListRequest copyWith(void Function(FriendListRequest) updates) => super.copyWith((message) => updates(message as FriendListRequest)) as FriendListRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FriendListRequest create() => FriendListRequest._();
+  FriendListRequest createEmptyInstance() => create();
+  static $pb.PbList<FriendListRequest> createRepeated() => $pb.PbList<FriendListRequest>();
+  @$core.pragma('dart2js:noInline')
+  static FriendListRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FriendListRequest>(create);
+  static FriendListRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get status => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set status($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasStatus() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStatus() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get page => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set page($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPage() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPage() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get pageSize => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set pageSize($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasPageSize() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPageSize() => clearField(4);
+}
+
+/// maybe useful for showing the user's stats
+class UserStats extends $pb.GeneratedMessage {
+  factory UserStats({
+    $core.String? userEmail,
+    $fixnum.Int64? weeklyPoints,
+    $fixnum.Int64? totalPoints,
+    $core.String? lastWeeklyReset,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (weeklyPoints != null) {
+      $result.weeklyPoints = weeklyPoints;
+    }
+    if (totalPoints != null) {
+      $result.totalPoints = totalPoints;
+    }
+    if (lastWeeklyReset != null) {
+      $result.lastWeeklyReset = lastWeeklyReset;
+    }
+    return $result;
+  }
+  UserStats._() : super();
+  factory UserStats.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UserStats.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UserStats', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userEmail')
+    ..aInt64(2, _omitFieldNames ? '' : 'weeklyPoints')
+    ..aInt64(3, _omitFieldNames ? '' : 'totalPoints')
+    ..aOS(4, _omitFieldNames ? '' : 'lastWeeklyReset')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UserStats clone() => UserStats()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UserStats copyWith(void Function(UserStats) updates) => super.copyWith((message) => updates(message as UserStats)) as UserStats;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UserStats create() => UserStats._();
+  UserStats createEmptyInstance() => create();
+  static $pb.PbList<UserStats> createRepeated() => $pb.PbList<UserStats>();
+  @$core.pragma('dart2js:noInline')
+  static UserStats getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserStats>(create);
+  static UserStats? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get weeklyPoints => $_getI64(1);
+  @$pb.TagNumber(2)
+  set weeklyPoints($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasWeeklyPoints() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearWeeklyPoints() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get totalPoints => $_getI64(2);
+  @$pb.TagNumber(3)
+  set totalPoints($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTotalPoints() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTotalPoints() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get lastWeeklyReset => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set lastWeeklyReset($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasLastWeeklyReset() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearLastWeeklyReset() => clearField(4);
+}
+
+class LeaderboardResponse extends $pb.GeneratedMessage {
+  factory LeaderboardResponse({
+    $core.Iterable<LeaderboardEntry>? entries,
+    $core.int? userRank,
+    $fixnum.Int64? totalUsers,
+    $fixnum.Int64? userPoints,
+  }) {
+    final $result = create();
+    if (entries != null) {
+      $result.entries.addAll(entries);
+    }
+    if (userRank != null) {
+      $result.userRank = userRank;
+    }
+    if (totalUsers != null) {
+      $result.totalUsers = totalUsers;
+    }
+    if (userPoints != null) {
+      $result.userPoints = userPoints;
+    }
+    return $result;
+  }
+  LeaderboardResponse._() : super();
+  factory LeaderboardResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LeaderboardResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LeaderboardResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..pc<LeaderboardEntry>(1, _omitFieldNames ? '' : 'entries', $pb.PbFieldType.PM, subBuilder: LeaderboardEntry.create)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'userRank', $pb.PbFieldType.O3)
+    ..aInt64(3, _omitFieldNames ? '' : 'totalUsers')
+    ..aInt64(4, _omitFieldNames ? '' : 'userPoints')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LeaderboardResponse clone() => LeaderboardResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LeaderboardResponse copyWith(void Function(LeaderboardResponse) updates) => super.copyWith((message) => updates(message as LeaderboardResponse)) as LeaderboardResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static LeaderboardResponse create() => LeaderboardResponse._();
+  LeaderboardResponse createEmptyInstance() => create();
+  static $pb.PbList<LeaderboardResponse> createRepeated() => $pb.PbList<LeaderboardResponse>();
+  @$core.pragma('dart2js:noInline')
+  static LeaderboardResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LeaderboardResponse>(create);
+  static LeaderboardResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<LeaderboardEntry> get entries => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.int get userRank => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set userRank($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUserRank() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUserRank() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get totalUsers => $_getI64(2);
+  @$pb.TagNumber(3)
+  set totalUsers($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTotalUsers() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTotalUsers() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get userPoints => $_getI64(3);
+  @$pb.TagNumber(4)
+  set userPoints($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasUserPoints() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearUserPoints() => clearField(4);
+}
+
+class LeaderboardEntry extends $pb.GeneratedMessage {
+  factory LeaderboardEntry({
+    $core.String? userEmail,
+    $core.String? name,
+    $core.String? figureName,
+    $fixnum.Int64? weeklyPoints,
+    $fixnum.Int64? totalPoints,
+    $core.int? streak,
+    $core.int? rank,
+    $core.bool? isFriend,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (figureName != null) {
+      $result.figureName = figureName;
+    }
+    if (weeklyPoints != null) {
+      $result.weeklyPoints = weeklyPoints;
+    }
+    if (totalPoints != null) {
+      $result.totalPoints = totalPoints;
+    }
+    if (streak != null) {
+      $result.streak = streak;
+    }
+    if (rank != null) {
+      $result.rank = rank;
+    }
+    if (isFriend != null) {
+      $result.isFriend = isFriend;
+    }
+    return $result;
+  }
+  LeaderboardEntry._() : super();
+  factory LeaderboardEntry.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LeaderboardEntry.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LeaderboardEntry', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userEmail')
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..aOS(3, _omitFieldNames ? '' : 'figureName')
+    ..aInt64(4, _omitFieldNames ? '' : 'weeklyPoints')
+    ..aInt64(5, _omitFieldNames ? '' : 'totalPoints')
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'streak', $pb.PbFieldType.O3)
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'rank', $pb.PbFieldType.O3)
+    ..aOB(8, _omitFieldNames ? '' : 'isFriend')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LeaderboardEntry clone() => LeaderboardEntry()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LeaderboardEntry copyWith(void Function(LeaderboardEntry) updates) => super.copyWith((message) => updates(message as LeaderboardEntry)) as LeaderboardEntry;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static LeaderboardEntry create() => LeaderboardEntry._();
+  LeaderboardEntry createEmptyInstance() => create();
+  static $pb.PbList<LeaderboardEntry> createRepeated() => $pb.PbList<LeaderboardEntry>();
+  @$core.pragma('dart2js:noInline')
+  static LeaderboardEntry getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LeaderboardEntry>(create);
+  static LeaderboardEntry? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get figureName => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set figureName($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFigureName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFigureName() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get weeklyPoints => $_getI64(3);
+  @$pb.TagNumber(4)
+  set weeklyPoints($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasWeeklyPoints() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearWeeklyPoints() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get totalPoints => $_getI64(4);
+  @$pb.TagNumber(5)
+  set totalPoints($fixnum.Int64 v) { $_setInt64(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasTotalPoints() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTotalPoints() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get streak => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set streak($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasStreak() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearStreak() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get rank => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set rank($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasRank() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRank() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.bool get isFriend => $_getBF(7);
+  @$pb.TagNumber(8)
+  set isFriend($core.bool v) { $_setBool(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasIsFriend() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearIsFriend() => clearField(8);
+}
+
+class LeaderboardRequest extends $pb.GeneratedMessage {
+  factory LeaderboardRequest({
+    $core.String? userEmail,
+    LeaderboardType? type,
+    LeaderboardTimeFrame? timeFrame,
+    $core.int? page,
+    $core.int? pageSize,
+  }) {
+    final $result = create();
+    if (userEmail != null) {
+      $result.userEmail = userEmail;
+    }
+    if (type != null) {
+      $result.type = type;
+    }
+    if (timeFrame != null) {
+      $result.timeFrame = timeFrame;
+    }
+    if (page != null) {
+      $result.page = page;
+    }
+    if (pageSize != null) {
+      $result.pageSize = pageSize;
+    }
+    return $result;
+  }
+  LeaderboardRequest._() : super();
+  factory LeaderboardRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LeaderboardRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LeaderboardRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userEmail')
+    ..e<LeaderboardType>(2, _omitFieldNames ? '' : 'type', $pb.PbFieldType.OE, defaultOrMaker: LeaderboardType.GLOBAL, valueOf: LeaderboardType.valueOf, enumValues: LeaderboardType.values)
+    ..e<LeaderboardTimeFrame>(3, _omitFieldNames ? '' : 'timeFrame', $pb.PbFieldType.OE, defaultOrMaker: LeaderboardTimeFrame.WEEKLY, valueOf: LeaderboardTimeFrame.valueOf, enumValues: LeaderboardTimeFrame.values)
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'page', $pb.PbFieldType.O3)
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'pageSize', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LeaderboardRequest clone() => LeaderboardRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LeaderboardRequest copyWith(void Function(LeaderboardRequest) updates) => super.copyWith((message) => updates(message as LeaderboardRequest)) as LeaderboardRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static LeaderboardRequest create() => LeaderboardRequest._();
+  LeaderboardRequest createEmptyInstance() => create();
+  static $pb.PbList<LeaderboardRequest> createRepeated() => $pb.PbList<LeaderboardRequest>();
+  @$core.pragma('dart2js:noInline')
+  static LeaderboardRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LeaderboardRequest>(create);
+  static LeaderboardRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userEmail => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userEmail($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserEmail() => clearField(1);
+
+  @$pb.TagNumber(2)
+  LeaderboardType get type => $_getN(1);
+  @$pb.TagNumber(2)
+  set type(LeaderboardType v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasType() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearType() => clearField(2);
+
+  @$pb.TagNumber(3)
+  LeaderboardTimeFrame get timeFrame => $_getN(2);
+  @$pb.TagNumber(3)
+  set timeFrame(LeaderboardTimeFrame v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTimeFrame() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTimeFrame() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get page => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set page($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasPage() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPage() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get pageSize => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set pageSize($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasPageSize() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPageSize() => clearField(5);
 }
 
 

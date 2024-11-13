@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+
 	pb "server/pb/routes"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -933,6 +934,194 @@ func (s *server) DeleteSubscriptionTimeStamp(ctx context.Context, in *pb.Subscri
 	return in, nil
 }
 
+// BEGIN FRIEND ACTIONS //
+func (s *server) SendFriendRequest(ctx context.Context, in *pb.FriendRequest) (*pb.Friend, error) {
+	var existing pb.Friend
+	err := s.db.QueryRowContext(ctx, "SELECT user_email, friend_email, status, created_at, updated_at FROM friends WHERE (user_email = ? AND friend_email = ?) OR (user_email = ? AND friend_email = ?)", in.UserEmail, in.FriendEmail, in.FriendEmail, in.UserEmail).Scan(&existing.UserEmail, &existing.FriendEmail, &existing.Status, &existing.CreatedAt, &existing.UpdatedAt)
+
+	if err == nil {
+		return nil, fmt.Errorf("friendship already exists with status: %s", existing.Status)
+	}
+	_, err = s.db.ExecContext(ctx, "INSERT INTO friends (user_email, friend_email, status) VALUES (?, ?, 'pending')", in.UserEmail, in.FriendEmail)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.Friend{
+		UserEmail:   in.UserEmail,
+		FriendEmail: in.FriendEmail,
+		Status:      "pending",
+		CreatedAt:   time.Now().String(),
+		UpdatedAt:   time.Now().String(),
+	}, nil
+
+}
+
+// TODO: just coded some terrible stuff
+func (s *server) AcceptFriendRequest(ctx context.Context, in *pb.FriendRequest) (*pb.Friend, error) {
+	var status string
+	var createdAt string
+	err := s.db.QueryRowContext(ctx, "SELECT status, created_at FROM friends WHERE user_email = ? AND friend_email = ?", in.UserEmail, in.FriendEmail).Scan(&status, &createdAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("friend request not found: %v", err)
+		}
+		return nil, fmt.Errorf("failed to query friend request: %v", err)
+	}
+	switch status {
+	case "online":
+		return nil, fmt.Errorf("friend request not found")
+	case "offline":
+		return nil, fmt.Errorf("friend request not found")
+	case "pending":
+		// This is what we want - continue processing
+	default:
+		return nil, fmt.Errorf("invalid friend request")
+	}
+
+	// Update the status to accepted
+	_, err = s.db.ExecContext(ctx, `
+        UPDATE friends 
+        SET status = 'accepted', 
+            updated_at = CURRENT_TIMESTAMP 
+        WHERE user_email = ? 
+        AND friend_email = ? 
+        AND status = 'pending'`,
+		in.FriendEmail,
+		in.UserEmail,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update friend request: %v", err)
+	}
+
+	// Create reciprocal friendship record
+	_, err = s.db.ExecContext(ctx, `
+        INSERT INTO friends (user_email, friend_email, status, created_at)
+        VALUES (?, ?, 'online', CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE 
+            status = 'online',
+            updated_at = CURRENT_TIMESTAMP`,
+		in.UserEmail,   // Current user becomes the user_email
+		in.FriendEmail, // Original sender becomes the friend_email
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create activity records: %v", err)
+	}
+	return &pb.Friend{
+		UserEmail:   in.UserEmail,
+		FriendEmail: in.FriendEmail,
+		Status:      "online",
+		CreatedAt:   createdAt,
+		UpdatedAt:   time.Now().String(),
+	}, nil
+
+}
+
+func (s *server) GetFriends(ctx context.Context, in *pb.FriendListRequest) (*pb.MultiFriends, error) {
+	friends := &pb.MultiFriends{}
+	var rows *sql.Rows
+	var err error
+
+	if in.Status == "accepted" {
+		rows, err = s.db.QueryContext(ctx, "SELECT user_email, friend_email, status, created_at, updated_at FROM friends WHERE (user_email = ? or friend_email = ?) AND (status = ? or status = ?)", in.UserEmail, in.UserEmail, "online", "offline")
+	} else if in.Status == "pending" {
+		rows, err = s.db.QueryContext(ctx, "SELECT user_email, friend_email, status, created_at, updated_at FROM friends WHERE (user_email = ? or friend_email = ?) AND status = ?", in.UserEmail, in.UserEmail, in.Status)
+	} else {
+		err = fmt.Errorf("invalid argument for status");
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("could not get friends: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var friend pb.Friend
+		err := rows.Scan(&friend.UserEmail, &friend.FriendEmail, &friend.Status, &friend.CreatedAt, &friend.UpdatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan friend: %v", err)
+		}
+		log.Printf("Retrieved friend %s", friend.FriendEmail)
+		friends.Friends = append(friends.Friends, &friend)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("could not iterate over friends: %v", err)
+	}
+
+	return friends, nil
+}
+
+func (s *server) RejectFriendRequest(ctx context.Context, in *pb.FriendRequest) (*pb.Friend, error) {
+    // Start a transaction since we'll be doing multiple operations
+    tx, err := s.db.BeginTx(ctx, nil)
+    if err != nil {
+        return nil, fmt.Errorf("failed to begin transaction: %v", err)
+    }
+    defer tx.Rollback() // Rollback if we don't commit
+
+    // Check if the friend request exists and is in pending status
+    var existing pb.Friend
+    err = tx.QueryRowContext(ctx, 
+        `SELECT user_email, friend_email, status, created_at, updated_at 
+         FROM friends 
+         WHERE user_email = ? AND friend_email = ? AND status = 'pending'`,
+        in.UserEmail, in.FriendEmail, // Note: reversed because the receiver is rejecting
+    ).Scan(
+        &existing.UserEmail,
+        &existing.FriendEmail,
+        &existing.Status,
+        &existing.CreatedAt,
+        &existing.UpdatedAt,
+    )
+
+    if err == sql.ErrNoRows {
+        return nil, fmt.Errorf("no pending friend request found between these users")
+    }
+    if err != nil {
+        return nil, fmt.Errorf("failed to check existing friend request: %v", err)
+    }
+
+    // Update the status to "rejected" and update the timestamp
+    currentTime := time.Now().UTC().Format("2006-01-02 15:04:05")
+    _, err = tx.ExecContext(ctx,
+        `UPDATE friends 
+         SET status = 'rejected', updated_at = ? 
+         WHERE user_email = ? AND friend_email = ?`,
+        currentTime,
+        existing.UserEmail,
+        existing.FriendEmail,
+    )
+    if err != nil {
+        return nil, fmt.Errorf("failed to update friend request status: %v", err)
+    }
+
+    // Create the response with updated information
+    response := &pb.Friend{
+        UserEmail:   existing.UserEmail,
+        FriendEmail: existing.FriendEmail,
+        Status:      "rejected",
+        CreatedAt:   existing.CreatedAt,
+        UpdatedAt:   currentTime,
+    }
+
+    // Commit the transaction
+    if err = tx.Commit(); err != nil {
+        return nil, fmt.Errorf("failed to commit transaction: %v", err)
+    }
+
+    return response, nil
+}
+
+func (s *server) RemoveFriend (ctx context.Context, in *pb.FriendRequest) (*pb.GenericStringResponse, error) {
+	// TODO: implement
+	var thing *pb.GenericStringResponse;
+	thing.Message = "thing"
+	
+	return thing, nil
+}
+
+// END FRIEND ACTIONS //
+
 // BEGIN SERVER ACTIONS //
 
 func (s *server) FigureDecay(ctx context.Context, in *pb.FigureInstance) (*pb.GenericStringResponse, error) {
@@ -1023,6 +1212,8 @@ func ServerIntiaitedUserDecay(db *sql.DB) error {
 	rows.Close()
 	return nil
 }
+
+// END SERVER ACTIONS //
 
 // const resetTimer = 24 * time.Hour
 func main() {
