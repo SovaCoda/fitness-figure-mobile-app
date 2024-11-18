@@ -30,7 +30,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
-import 'package:flutter_stripe/flutter_stripe.dart';
+// import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ffapp/pages/home/personality.dart';
@@ -252,9 +252,9 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
+  // Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
   OpenAI.apiKey = dotenv.env['OPENAI_KEY']!;
-  await Stripe.instance.applySettings();
+  // await Stripe.instance.applySettings();
 
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;

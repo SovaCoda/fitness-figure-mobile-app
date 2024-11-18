@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/resuables/animated_border_painter.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -179,8 +181,10 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildTopSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+    return Stack(
+      alignment: Alignment.center,
+      children: [Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Consumer<UserModel>(
           builder: (context, figureModel, _) {
@@ -195,12 +199,22 @@ class _CoreState extends State<Core> {
         ),
         Expanded(
           child: Stack(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.centerLeft,
             children: [
-              CustomPaint(
-                size: Size(MediaQuery.of(context).size.width * 0.5,
-                    MediaQuery.of(context).size.height * 0.3),
-                painter: RobotLinePainter(),
+              // CustomPaint(
+              //   size: Size(MediaQuery.of(context).size.width * 0.5,
+              //       MediaQuery.of(context).size.height * 0.3),
+              //   painter: RobotLinePainter(),
+              // ),
+              
+              
+              Positioned(
+                right: MediaQuery.of(context).size.width * 0.3,
+              child: FitnessIcon(type: FitnessIconType.evolution_circuits, size: 120),
+              ),
+              Positioned(
+                right: 0,
+              child: _buildCurrencyDisplay(),
               ),
               RobotImageHolder(
                 url: (_figure.figure != null)
@@ -208,42 +222,62 @@ class _CoreState extends State<Core> {
                     : "robot1/robot1_skin0_evo0_cropped_happy",
                 height: MediaQuery.of(context).size.height * 0.3,
                 width: MediaQuery.of(context).size.width * 0.5,
-              ),
+              )
+              
             ],
           ),
         ),
-        _buildCurrencyDisplay(),
+        
+        
+        
       ],
-    );
+    )]);
   }
 
   Widget _buildCurrencyDisplay() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10, top: 10, right: 30),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.primary),
-        shape: BoxShape.circle,
-      ),
-      child: CircleAvatar(
-        minRadius: 75,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        child: Column(
+  return Container(
+    margin: const EdgeInsets.only(bottom: 10, top: 10, right: 30),
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        AnimatedBorderContainer(
+          borderColor: Theme.of(context).colorScheme.primary,
+          child: Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset("lib/assets/images/evolution_panel_circle.png",
+                height: 150, width:150),
+          ),
+        ),
+
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text('EVO ${_figure.EVLevel + 1}',
                 style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary)),
+                    TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 24)),
+            Column(
+              children: [
             Text('\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
                 style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            Text(
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontFamily: 'Roberto')),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 125),
+            child: Text(
                 '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
+                overflow: TextOverflow.ellipsis,
                 style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-          ],
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontFamily: 'Roberto')),
+              )
+      ])],
         ),
-      ),
-    );
-  }
+         
+      ],
+    ),
+  );
+}
+
 
   Widget _buildResearchSection() {
     return Consumer<FigureModel>(

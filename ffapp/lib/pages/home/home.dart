@@ -23,9 +23,9 @@ import 'package:go_router/go_router.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 
 class DashboardPage extends StatefulWidget {
-
   final int index;
   const DashboardPage({super.key, this.index = 0});
   @override
@@ -41,12 +41,10 @@ class _DashboardPageState extends State<DashboardPage> {
     const Dashboard(),
     const Inventory(),
     const WorkoutAdder(),
-    const History(),
+    // const History(), implement this via the calendar in the dashboard
     const Profile(),
     const Core(),
-    const ChatPage(),
   ];
-  
 
   int? _selectedIndex;
 
@@ -65,10 +63,8 @@ class _DashboardPageState extends State<DashboardPage> {
     LocalNotificationService().initNotifications();
     initConnectivity();
 
-    
     initialize();
     super.initState();
-
   }
 
   Future<void> initConnectivity() async {
@@ -89,34 +85,48 @@ class _DashboardPageState extends State<DashboardPage> {
       return Future.value(null);
     }
 
-        _connectivitySubscription =
+    _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
 
     return _updateConnectionStatus(result);
   }
 
   Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
-    if(mounted){
-    setState(() {
-      _connectionStatus = result;
-    });
-    if(_connectionStatus[0] == ConnectivityResult.none)
-    { 
-      logger.i("Status was no connection, waiting 3 seconds and trying again...");
-      await Future.delayed(Duration(seconds: 3));
-      List<ConnectivityResult> secondTry = await _connectivity.checkConnectivity();
-      
-      if(secondTry[0] == ConnectivityResult.none) {
-        if(mounted) {
-        logger.i("Status was twice no connection, sending reset request.");
-        showFFDialogWithChildren("Offline", [Text('It looks like youre offline, connect to the internet and reload!')], false, FfButton(text: "Okay!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {context.goNamed("SignIn")}), context);
+    if (mounted) {
+      setState(() {
+        _connectionStatus = result;
+      });
+      if (_connectionStatus[0] == ConnectivityResult.none) {
+        logger.i(
+            "Status was no connection, waiting 3 seconds and trying again...");
+        await Future.delayed(Duration(seconds: 3));
+        List<ConnectivityResult> secondTry =
+            await _connectivity.checkConnectivity();
+
+        if (secondTry[0] == ConnectivityResult.none) {
+          if (mounted) {
+            logger.i("Status was twice no connection, sending reset request.");
+            showFFDialogWithChildren(
+                "Offline",
+                [
+                  Text(
+                      'It looks like youre offline, connect to the internet and reload!')
+                ],
+                false,
+                FfButton(
+                    text: "Okay!",
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    onPressed: () => {context.goNamed("SignIn")}),
+                context);
+          }
         }
       }
-    }
-    // ignore: avoid_print
-    print('Connectivity changed: $_connectionStatus');
+      // ignore: avoid_print
+      print('Connectivity changed: $_connectionStatus');
     }
   }
+
   @override
   void dispose() {
     _connectivitySubscription.cancel();
@@ -153,11 +163,14 @@ class _DashboardPageState extends State<DashboardPage> {
         appBar: AppBar(
           toolbarHeight: 60,
           key: _appBarKey,
-          title: Text(
-            'FF',
-            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+          title: Container(
+            width: 30,
+            height: 30,
+            alignment: Alignment.center,
+            child: const FitnessIcon(
+              type: FitnessIconType.logo_white,
+              size: 30,
+            ),
           ),
           backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(127),
           actions: [
@@ -168,17 +181,24 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Consumer<CurrencyModel>(
-                      builder: (context, currencyModel, child) {
-                        return Text(currencyModel.currency,
+                    ConstrainedBox(
+                      // adds ellipses to currency if it gets too big to prevent currency taking up too much content
+                      constraints: const BoxConstraints(maxWidth: 180), 
+                      child: Consumer<CurrencyModel>(
+                        builder: (context, currencyModel, child) {
+                          return Text(
+                            currencyModel.currency,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineLarge!
                                 .copyWith(
                                   color:
                                       Theme.of(context).colorScheme.onSurface,
-                                ));
-                      },
+                                ),
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(width: 10.0),
                     Icon(
@@ -194,29 +214,48 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: InkWell(
                 onTap: () async {
-                try {
-                  CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-                  // access latest customerInfo
-                  if (customerInfo.entitlements.active['ff_plus'] != null)
-                  {
-                    DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
-                    DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
-                    showFFDialogWithChildren("Youre Subscribed!", [
-                      Column(children: [
-                        Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
-                      ],)
-                    ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
-                  }
-                  else {
-                    final offers = await Purchases.getOfferings();
-                    final offer = offers.getOffering('ffigure_offering');
-                    final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
-                    logger.i('Paywall Result $paywallresult');
-                    if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
-                      Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
+                  try {
+                    CustomerInfo customerInfo =
+                        await Purchases.getCustomerInfo();
+                    // access latest customerInfo
+                    if (customerInfo.entitlements.active['ff_plus'] != null) {
+                      DateTime expiraryDate = DateTime.parse(customerInfo
+                              .entitlements.active['ff_plus']!.expirationDate!)
+                          .toLocal();
+                      DateFormat displayFormat =
+                          DateFormat("MM/dd/yyyy hh:mm a");
+                      showFFDialogWithChildren(
+                          "Youre Subscribed!",
+                          [
+                            Column(
+                              children: [
+                                Text(
+                                    'Your benefits last until ${displayFormat.format(expiraryDate)}')
+                              ],
+                            )
+                          ],
+                          true,
+                          FfButton(
+                              text: "Awesome!",
+                              textColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              onPressed: () => Navigator.of(context).pop()),
+                          context);
+                    } else {
+                      final offers = await Purchases.getOfferings();
+                      final offer = offers.getOffering('ffigure_offering');
+                      final paywallresult = await RevenueCatUI.presentPaywall(
+                          offering: offer, displayCloseButton: true);
+                      logger.i('Paywall Result $paywallresult');
+                      if (paywallresult == PaywallResult.purchased ||
+                          paywallresult == PaywallResult.restored) {
+                        Provider.of<UserModel>(context, listen: false)
+                            .setPremium(Int64.ONE);
+                      }
                     }
-                  }
-                } on PlatformException catch (e) {
+                  } on PlatformException catch (e) {
                     // Error fetching customer info
                   }
                 },
@@ -239,16 +278,14 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
             ),
-
             //question mark area that displays an alert on tap
             InkWell(
                 onTap: () => {
                       showFFDialog(
-                        "Questions/Concerns",
-                        "Feel free to email us at fitnessfigure01@gmail.com with any feedback or questions, we'd love to hear from you!",
-                        true,
-                        context
-                      )
+                          "Questions/Concerns",
+                          "Feel free to email us at fitnessfigure01@gmail.com with any feedback or questions, we'd love to hear from you!",
+                          true,
+                          context)
                     },
                 child: Row(
                   children: [
@@ -280,39 +317,38 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             child: BottomNavigationBar(
                 key: _bottomNavBarKey,
-                iconSize: 30,
                 showSelectedLabels: false,
-                selectedIconTheme: IconThemeData(size: 40, shadows: [
-                  BoxShadow(
-                      color: Theme.of(context).colorScheme.primary,
-                      offset: Offset(0, 0),
-                      blurRadius: 20)
-                ]),
-                unselectedItemColor: Theme.of(context).colorScheme.onSurface,
-                selectedItemColor: Theme.of(context).colorScheme.primary,
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.home),
-                    label: 'Dashboard',
-                  ),
+                      icon: FitnessIcon(type: FitnessIconType.home, size: 40),
+                      label: 'Dashboard',
+                      activeIcon: FitnessIcon(
+                          type: FitnessIconType.home_active, size: 40)),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.shop),
-                    label: 'Inventory',
-                  ),
+                      icon: FitnessIcon(
+                          type: FitnessIconType.inventory, size: 40),
+                      label: 'Inventory',
+                      activeIcon: FitnessIcon(
+                          type: FitnessIconType.inventory_active, size: 40)),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.add),
-                    label: 'Add Workout',
-                  ),
+                      icon: FitnessIcon(
+                          type: FitnessIconType.workout_adder, size: 40),
+                      label: 'Add Workout',
+                      activeIcon: FitnessIcon(
+                          type: FitnessIconType.workout_adder_active,
+                          size: 40)),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.history_outlined),
-                    label: 'History',
-                  ),
+                      icon:
+                          FitnessIcon(type: FitnessIconType.history, size: 40),
+                      label: 'History',
+                      activeIcon: FitnessIcon(
+                          type: FitnessIconType.history_active, size: 40)),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Profile',
-                  ),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.science), label: 'Coreß'),
+                      icon:
+                          FitnessIcon(type: FitnessIconType.profile, size: 40),
+                      label: 'Profile',
+                      activeIcon: FitnessIcon(
+                          type: FitnessIconType.profile_active, size: 40)),
                 ],
                 currentIndex: _selectedIndex ?? 0,
                 onTap: _onItemTapped)));

@@ -65,7 +65,7 @@ dependencies:
   chat_gpt_sdk: ^3.1.0
   live_activities: ^1.9.5
   build_runner: ^2.0.0 # used for creating mockups for tests 
-  connectivity_plus: ^6.0.5
+  connectivity_plus: ^6.1.0
   in_app_purchase: ^3.2.0
   purchases_flutter: ^8.1.6
   purchases_ui_flutter: ^8.1.6
@@ -103,6 +103,8 @@ flutter:
     - lib/assets/icons/
     - lib/assets/fitventures/
     - .env
+    - lib/assets/icons/dashboard_icons/
+    - lib/assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

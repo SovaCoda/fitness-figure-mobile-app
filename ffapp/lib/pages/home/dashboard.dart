@@ -11,6 +11,7 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/week_complete_showcase.dart';
+import 'package:ffapp/components/week_view.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
@@ -304,6 +305,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  WeekView(),
                   Consumer<FigureModel>(
                     builder: (context, figure, child) {
                       return ChargeBar(
