@@ -39,7 +39,7 @@ dependencies:
   firebase_auth: ^4.15.3
   firebase_core: ^2.32.0
   fl_chart: ^0.68.0
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.0.15
   google_fonts: ^6.1.0
   go_router: ^13.0.0
   logger: ^2.0.2+1
@@ -102,6 +102,7 @@ flutter:
     - lib/assets/robot1/
     - lib/assets/icons/
     - lib/assets/fitventures/
+    - lib/assets/art/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
