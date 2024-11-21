@@ -350,6 +350,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
         prefs.getBool("hasSurveyed") == true) {}
+        
   }
 
   add30Seconds() {
