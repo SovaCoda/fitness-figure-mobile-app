@@ -24,9 +24,9 @@ import 'package:go_router/go_router.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 
 class DashboardPage extends StatefulWidget {
-
   final int index;
   const DashboardPage({super.key, this.index = 0});
   @override
@@ -42,12 +42,10 @@ class _DashboardPageState extends State<DashboardPage> {
     const Dashboard(),
     const Inventory(),
     const WorkoutAdder(),
-    const History(),
+    // const History(), implement this via the calendar in the dashboard
     const Profile(),
     const Core(),
-    const ChatPage(),
   ];
-  
 
   int? _selectedIndex;
 
@@ -66,10 +64,8 @@ class _DashboardPageState extends State<DashboardPage> {
     LocalNotificationService().initNotifications();
     initConnectivity();
 
-    
     initialize();
     super.initState();
-
   }
 
   Future<void> initConnectivity() async {
@@ -90,34 +86,48 @@ class _DashboardPageState extends State<DashboardPage> {
       return Future.value(null);
     }
 
-        _connectivitySubscription =
+    _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
 
     return _updateConnectionStatus(result);
   }
 
   Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
-    if(mounted){
-    setState(() {
-      _connectionStatus = result;
-    });
-    if(_connectionStatus[0] == ConnectivityResult.none)
-    { 
-      logger.i("Status was no connection, waiting 3 seconds and trying again...");
-      await Future.delayed(Duration(seconds: 3));
-      List<ConnectivityResult> secondTry = await _connectivity.checkConnectivity();
-      
-      if(secondTry[0] == ConnectivityResult.none) {
-        if(mounted) {
-        logger.i("Status was twice no connection, sending reset request.");
-        showFFDialogWithChildren("Offline", [Text('It looks like youre offline, connect to the internet and reload!')], false, FfButton(text: "Okay!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => {context.goNamed("SignIn")}), context);
+    if (mounted) {
+      setState(() {
+        _connectionStatus = result;
+      });
+      if (_connectionStatus[0] == ConnectivityResult.none) {
+        logger.i(
+            "Status was no connection, waiting 3 seconds and trying again...");
+        await Future.delayed(Duration(seconds: 3));
+        List<ConnectivityResult> secondTry =
+            await _connectivity.checkConnectivity();
+
+        if (secondTry[0] == ConnectivityResult.none) {
+          if (mounted) {
+            logger.i("Status was twice no connection, sending reset request.");
+            showFFDialogWithChildren(
+                "Offline",
+                [
+                  Text(
+                      'It looks like youre offline, connect to the internet and reload!')
+                ],
+                false,
+                FfButton(
+                    text: "Okay!",
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    onPressed: () => {context.goNamed("SignIn")}),
+                context);
+          }
         }
       }
-    }
-    // ignore: avoid_print
-    print('Connectivity changed: $_connectionStatus');
+      // ignore: avoid_print
+      print('Connectivity changed: $_connectionStatus');
     }
   }
+
   @override
   void dispose() {
     _connectivitySubscription.cancel();

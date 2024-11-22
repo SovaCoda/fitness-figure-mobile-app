@@ -11,6 +11,7 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/week_complete_showcase.dart';
+import 'package:ffapp/components/week_view.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
@@ -281,206 +282,227 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Consumer<FigureModel>(
-                  builder: (context, figure, child) {
-                    return ChargeBar(
-                      currentCharge: figure.figure?.charge ?? 0,
-                      fillColor: Theme.of(context).colorScheme.primary,
-                      barHeight: chargeBarHeight,
-                      barWidth: chargeBarWidth,
-                      isVertical: false,
-                      showDashedLines: true,
-                      showInfoCircle: true,
-                    );
-                  },
+            Container(
+              padding: EdgeInsets.all(screenWidth * 0.02),
+              margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
+              height: constraints.maxHeight,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13),
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  focalRadius: 0.1,
+                  colors: [
+                    Theme.of(context).colorScheme.onPrimary.withOpacity(0),
+                    Theme.of(context).colorScheme.surface.withOpacity(0.45),
+                  ],
                 ),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      Consumer<FigureModel>(
-                        builder: (context, figure, child) {
-                          return Center(
-                              child: FittedBox(
-                            fit: BoxFit.contain,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                RobotImageHolder(
-                                  url: (figure.figure != null)
-                                      ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
-                                      : "robot1/robot1_skin0_evo0_cropped_happy",
-                                  height: robotImageHeight,
-                                  width: robotImageHeight,
-                                ),
-                              ],
-                            ),
-                          ));
-                        },
-                      ),
-                      Positioned(
-                        top: 5,
-                        left: 5,
-                        child: Consumer<ChatModel>(
-                          builder: (_, chat, __) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width * 0.75,
-                              child: GradientedContainer(
-                                padding: const EdgeInsets.all(4),
-                                child: Text(
-                                  chat.messages.isNotEmpty
-                                      ? chat.messages.last.text
-                                      : "",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displaySmall!
-                                      .copyWith(
-                                          fontSize: 12,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface),
-                                ),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 3,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  WeekView(),
+                  Consumer<FigureModel>(
+                    builder: (context, figure, child) {
+                      return ChargeBar(
+                        currentCharge: figure.figure?.charge ?? 0,
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        barHeight: chargeBarHeight,
+                        barWidth: chargeBarWidth,
+                        isVertical: false,
+                        showDashedLines: true,
+                        showInfoCircle: true,
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Consumer<FigureModel>(
+                          builder: (context, figure, child) {
+                            return Center(
+                                child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  RobotImageHolder(
+                                    url: (figure.figure != null)
+                                        ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
+                                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                                    height: robotImageHeight,
+                                    width: robotImageHeight,
+                                  ),
+                                ],
                               ),
-                            );
+                            ));
                           },
                         ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Consumer<UserModel>(
-                          builder: (_, user, __) {
-                            return GestureDetector(
-                              onTap: () {
-                                user.isPremium()
-                                    ? context.goNamed("Chat")
-                                    : showFFDialogBinary(
-                                        "FF+ Premium Feature",
-                                        "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
-                                        true,
-                                        context,
-                                        FfButton(
-                                          height: 50,
-                                          text: "Subscribe Now \$1.99",
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .displayMedium!,
-                                          textColor: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          onPressed: () async {
-                                            try {
-                                              CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-                                              // access latest customerInfo
-                                              if (customerInfo.entitlements.active['ff_plus'] != null)
-                                              {
-                                                
-                                                DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
-                                                DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
-                                                showFFDialogWithChildren("Youre Subscribed!", [
-                                                  Column(children: [
-                                                    Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
-                                                  ],)
-                                                ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
-                                              }
-                                              else {
-                                                final offers = await Purchases.getOfferings();
-                                                final offer = offers.getOffering('ffigure_offering');
-                                                final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
-                                                logger.i('Paywall Result $paywallresult');
-                                                if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
-                                                  Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
-                                                  Navigator.of(context).pop();
-                                                }
-                                              }
-                                            } on PlatformException catch (e) {
-                                                // Error fetching customer info
-                                              }
-                                          },
-                                        ),
-                                        FfButton(
+                        Positioned(
+                          top: 5,
+                          left: 5,
+                          child: Consumer<ChatModel>(
+                            builder: (_, chat, __) {
+                              return Container(
+                                width: MediaQuery.of(context).size.width * 0.75,
+                                child: GradientedContainer(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Text(
+                                    chat.messages.isNotEmpty
+                                        ? chat.messages.last.text
+                                        : "",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall!
+                                        .copyWith(
+                                            fontSize: 12,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Consumer<UserModel>(
+                            builder: (_, user, __) {
+                              return GestureDetector(
+                                onTap: () {
+                                  user.isPremium()
+                                      ? context.goNamed("Chat")
+                                      : showFFDialogBinary(
+                                          "FF+ Premium Feature",
+                                          "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
+                                          true,
+                                          context,
+                                          FfButton(
                                             height: 50,
-                                            text: "No Thanks",
+                                            text: "Subscribe Now \$1.99",
                                             textStyle: Theme.of(context)
                                                 .textTheme
                                                 .displayMedium!,
                                             textColor: Theme.of(context)
                                                 .colorScheme
-                                                .onSurface,
+                                                .onPrimary,
                                             backgroundColor: Theme.of(context)
                                                 .colorScheme
-                                                .surface
-                                                .withAlpha(126),
-                                            onPressed: () => {
-                                                  Navigator.of(context).pop()
-                                                }));
-                              },
-                              child: Icon(
-                                Icons.chat,
-                                size: 60,
-                              ),
-                            );
-                          },
+                                                .primary,
+                                            onPressed: () async {
+                                              try {
+                                                CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+                                                // access latest customerInfo
+                                                if (customerInfo.entitlements.active['ff_plus'] != null)
+                                                {
+                                                  
+                                                  DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
+                                                  DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
+                                                  showFFDialogWithChildren("Youre Subscribed!", [
+                                                    Column(children: [
+                                                      Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
+                                                    ],)
+                                                  ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
+                                                }
+                                                else {
+                                                  final offers = await Purchases.getOfferings();
+                                                  final offer = offers.getOffering('ffigure_offering');
+                                                  final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
+                                                  logger.i('Paywall Result $paywallresult');
+                                                  if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
+                                                    Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                }
+                                              } on PlatformException catch (e) {
+                                                  // Error fetching customer info
+                                                }
+                                            },
+                                          ),
+                                          FfButton(
+                                              height: 50,
+                                              text: "No Thanks",
+                                              textStyle: Theme.of(context)
+                                                  .textTheme
+                                                  .displayMedium!,
+                                              textColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .surface
+                                                  .withAlpha(126),
+                                              onPressed: () => {
+                                                    Navigator.of(context).pop()
+                                                  }));
+                                },
+                                child: Icon(
+                                  Icons.chat,
+                                  size: 60,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      Consumer<UserModel>(
-                        builder: (context, user, child) => (user.user !=
-                                        null &&
-                                    user.user?.email == "chb263@msstate.ed" ||
-                                user.user?.email == "blizard265@gmail.com")
-                            ? DraggableAdminPanel(
-                                onButton1Pressed: triggerFigureDecay,
-                                onButton2Pressed: triggerUserReset,
-                                button1Text: "Daily Decay Figure",
-                                button2Text: "Weekly Reset User",
-                              )
-                            : Container(),
-                      ),
-                    ],
+                        Consumer<UserModel>(
+                          builder: (context, user, child) => (user.user !=
+                                          null &&
+                                      user.user?.email == "chb263@msstate.ed" ||
+                                  user.user?.email == "blizard265@gmail.com")
+                              ? DraggableAdminPanel(
+                                  onButton1Pressed: triggerFigureDecay,
+                                  onButton2Pressed: triggerUserReset,
+                                  button1Text: "Daily Decay Figure",
+                                  button2Text: "Weekly Reset User",
+                                )
+                              : Container(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Consumer<FigureModel>(
-                  builder: (context, figure, child) {
-                    if (figure.figure == null) {
-                      return const CircularProgressIndicator();
-                    }
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: screenHeight * 0.01),
-                      child: EvBar(
-                        currentXp: figure.figure?.evPoints ?? 0,
-                        maxXp: figure1.EvCutoffs[figure.EVLevel],
-                        fillColor: Theme.of(context).colorScheme.secondary,
-                        barHeight: evBarHeight,
-                        barWidth: evBarWidth,
-                        isVertical: false,
-                        showInfoBox: true,
-                        isMaxLevel: figure.EVLevel == 7,
-                      ),
-                    );
-                  },
-                ),
-                Consumer<UserModel>(
-                  builder: (context, user, child) {
-                    if (user.user == null) {
-                      return const CircularProgressIndicator();
-                    }
-                    return WorkoutNumbersRow(
-                      streak: user.user!.streak.toInt(),
-                      weeklyCompleted: user.user!.weekComplete.toInt(),
-                      weeklyGoal: user.user!.weekGoal.toInt(),
-                      lifeTimeCompleted: 10,
-                      availableWidth: screenWidth * 0.91,
-                    );
-                  },
-                ),
-              ],
+                  Consumer<FigureModel>(
+                    builder: (context, figure, child) {
+                      if (figure.figure == null) {
+                        return const CircularProgressIndicator();
+                      }
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: screenHeight * 0.01),
+                        child: EvBar(
+                          currentXp: figure.figure?.evPoints ?? 0,
+                          maxXp: figure1.EvCutoffs[figure.EVLevel],
+                          fillColor: Theme.of(context).colorScheme.secondary,
+                          barHeight: evBarHeight,
+                          barWidth: evBarWidth,
+                          isVertical: false,
+                          showInfoBox: true,
+                          isMaxLevel: figure.EVLevel == 7,
+                        ),
+                      );
+                    },
+                  ),
+                  Consumer<UserModel>(
+                    builder: (context, user, child) {
+                      if (user.user == null) {
+                        return const CircularProgressIndicator();
+                      }
+                      return WorkoutNumbersRow(
+                        streak: user.user!.streak.toInt(),
+                        weeklyCompleted: user.user!.weekComplete.toInt(),
+                        weeklyGoal: user.user!.weekGoal.toInt(),
+                        lifeTimeCompleted: 10,
+                        availableWidth: screenWidth * 0.91,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         );

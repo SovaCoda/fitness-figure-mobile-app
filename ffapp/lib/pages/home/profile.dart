@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
@@ -129,10 +130,10 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showMinGoalPicker() {
-    int safeWeeklyGoal = weeklyGoal.clamp(1, 4);
+    int safeWeeklyGoal = weeklyGoal.clamp(1, 12); // prevents errors from user input
     BottomPicker(
       items: List.generate(
-          4,
+          12,
           (index) => Text("${(index + 1) * 15} minutes",
               style: TextStyle(fontSize: 35))),
       pickerTitle: const Text(
@@ -385,8 +386,8 @@ class _ProfileState extends State<Profile> {
       color: Colors.grey[850],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Icon(Icons.card_membership, color: Colors.blue),
-        title: Text("Subscription", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        leading: manageSub == "Regular User" ? const FitnessIcon(type: FitnessIconType.regular_badge, size: 40) : const FitnessIcon(type: FitnessIconType.premium, size: 40),
+        title: const Text("Subscription", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         subtitle: Text(manageSub, style: TextStyle(color: Colors.grey[400])),
       ),
     );

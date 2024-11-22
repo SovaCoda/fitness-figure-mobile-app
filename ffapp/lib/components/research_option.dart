@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:ffapp/components/utils/time_utils.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'dart:async';
@@ -565,11 +566,9 @@ class _ResearchOptionState extends State<ResearchOption> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'SUCCESS',
-          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-              ),
+        Image.asset(
+          'lib/assets/images/success.png',
+          height: MediaQuery.of(context).size.height * 0.045,
         ),
         Row(
           children: [
@@ -599,13 +598,10 @@ class _ResearchOptionState extends State<ResearchOption> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SizedBox(height: 8),
-        Text(
-          'FAILURE',
-          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
-        ),
+        Stack(
+          
+        children: [
+          
         Row(
           children: [
             RobotImageHolder(
@@ -621,6 +617,14 @@ class _ResearchOptionState extends State<ResearchOption> {
             ),
           ],
         ),
+        Positioned(
+            top: -60,
+          child: FitnessIcon(
+          type: FitnessIconType.fail,
+          size: 200,
+        ),
+          ),
+      ]),
         ElevatedButton(
           onPressed: _handleFailureCompletion,
           style: _getExpandedButtonStyle(),
