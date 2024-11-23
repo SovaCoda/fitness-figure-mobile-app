@@ -166,11 +166,11 @@ class _DashboardPageState extends State<DashboardPage> {
             height: 400,
             child: OverflowBox(
               maxHeight: 400,
-              maxWidth: MediaQuery.sizeOf(context).width + 10,
+              maxWidth: MediaQuery.sizeOf(context).width,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Transform.translate(offset: const Offset(0,10), child: SvgPicture.asset('lib/assets/art/panel_top_bg.svg', width: MediaQuery.sizeOf(context).width + 100, height: 150,)),
+                  Transform.translate(offset: const Offset(0,10), child: SvgPicture.asset('lib/assets/art/panel_top_bg.svg', width: MediaQuery.sizeOf(context).width,)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 30, 8, 0),
                     child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -312,59 +312,62 @@ class _DashboardPageState extends State<DashboardPage> {
           height: 110,
           child: OverflowBox(
             
-            alignment: Alignment.bottomCenter,
+            alignment: Alignment.center,
             minHeight: 200,
             minWidth: 200,
             maxHeight: 200,
             maxWidth: MediaQuery.sizeOf(context).width,
             child: Stack(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.center,
               
               children: [
-                Transform.translate(offset: Offset(0, 0), child: SvgPicture.asset('lib/assets/art/panel_bottom_bg.svg', width: MediaQuery.sizeOf(context).width, height: 175,)) ,
+                Transform.translate(offset: Offset(0, 0), child: SvgPicture.asset('lib/assets/art/panel_bottom_bg.svg', width: MediaQuery.sizeOf(context).width, height: MediaQuery.sizeOf(context).height,)) ,
                 Theme(
                     data: Theme.of(context).copyWith(
                       canvasColor: Theme.of(context).colorScheme.surface.withAlpha(0),
                     ),
-                    child: BottomNavigationBar(
+                    child: Transform.translate( offset: Offset(0,MediaQuery.of(context).size.height * 0.02), child: BottomNavigationBar(
                         key: _bottomNavBarKey,
-                        iconSize: 30,
+                        // iconSize: 30,
                         showSelectedLabels: false,
-                        selectedIconTheme: IconThemeData(size: 40, shadows: [
-                          BoxShadow(
-                              color: Theme.of(context).colorScheme.primary,
-                              offset: Offset(0, 0),
-                              blurRadius: 20)
-                        ]),
-                        unselectedItemColor: Theme.of(context).colorScheme.onSurface,
-                        selectedItemColor: Theme.of(context).colorScheme.primary,
-                        items: const <BottomNavigationBarItem>[
+                        // selectedIconTheme: IconThemeData(size: 40, shadows: [
+                        //   BoxShadow(
+                        //       color: Theme.of(context).colorScheme.primary,
+                        //       offset: Offset(0, 0),
+                        //       blurRadius: 20)
+                        // ]),
+                        items:  <BottomNavigationBarItem>[
+                          // for some reason icons don't keep their glow when extracting a svg from the figma
+                          // so we have to use images for the active icons
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.home),
+                            icon: FitnessIcon(type: FitnessIconType.home, size: 39, height: 34,),
                             label: 'Dashboard',
+                            activeIcon: Image.asset('lib/assets/images/home_active.png', width: 50), 
                           ),
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.shop),
+                            icon: FitnessIcon(type: FitnessIconType.inventory, size: 39, height: 35),
                             label: 'Inventory',
+                            activeIcon: Image.asset('lib/assets/images/inventory_active.png', width: 50),
                           ),
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.add),
+                            icon: Image.asset('lib/assets/images/plus.png', width: 50), 
                             label: 'Add Workout',
+                            activeIcon: Image.asset('lib/assets/images/plus_active.png', width: 50),
                           ),
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.history_outlined),
+                            icon: FitnessIcon(type: FitnessIconType.history, size: 36, height: 34),
                             label: 'History',
+                            activeIcon: Image.asset('lib/assets/images/history_active.png', width: 50),
                           ),
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.person),
+                            icon: FitnessIcon(type: FitnessIconType.profile, size: 34),
                             label: 'Profile',
+                            activeIcon: Image.asset('lib/assets/images/profile_active.png', width: 50),
                           ),
-                          BottomNavigationBarItem(
-                              icon: Icon(Icons.science), label: 'Coreß'),
                         ],
                         currentIndex: _selectedIndex ?? 0,
                         onTap: _onItemTapped)),
-              ],
+            )],
             ),
           ),
         ));
