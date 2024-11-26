@@ -155,7 +155,7 @@ class HistoryModel extends ChangeNotifier {
     //loop through the week days and get the total charge and ev for that day from the snapshots (snapshots are a day ahead in utc subtract 1 day)
     //add the total charge and ev to the list
     //return the list
-
+    auth = await AuthService.instance;
     List<DailySnapshot> snapshots = await auth!
         .getDailySnapshots(
             DailySnapshot(userEmail: userEmail, figureName: figureName))

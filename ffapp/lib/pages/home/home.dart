@@ -299,7 +299,7 @@ class _DashboardPageState extends State<DashboardPage> {
         body: 
         Stack(children: [
           
-          OverflowBox(maxWidth:MediaQuery.sizeOf(context).width, maxHeight: MediaQuery.sizeOf(context).height, child: Image.asset('lib/assets/art/ff_background.png', width: MediaQuery.sizeOf(context).width+ 200, height: MediaQuery.sizeOf(context).height,)),
+          Transform.translate(offset: Offset(0, -80),child: OverflowBox(maxWidth:MediaQuery.sizeOf(context).width, maxHeight: MediaQuery.sizeOf(context).height, child: Image.asset('lib/assets/art/ff_background.png', width: MediaQuery.sizeOf(context).width+ 200, height: MediaQuery.sizeOf(context).height,))),
           IndexedStack(
             index: _selectedIndex,
             children: _pages,
@@ -311,7 +311,6 @@ class _DashboardPageState extends State<DashboardPage> {
           width: 200,
           height: 110,
           child: OverflowBox(
-            
             alignment: Alignment.center,
             minHeight: 200,
             minWidth: 200,
@@ -321,7 +320,7 @@ class _DashboardPageState extends State<DashboardPage> {
               alignment: Alignment.center,
               
               children: [
-                Transform.translate(offset: Offset(0, 0), child: SvgPicture.asset('lib/assets/art/panel_bottom_bg.svg', width: MediaQuery.sizeOf(context).width, height: MediaQuery.sizeOf(context).height,)) ,
+                Transform.translate(offset: Offset(0, -MediaQuery.of(context).size.height * 0.04), child: SvgPicture.asset('lib/assets/art/panel_bottom_bg.svg', width: MediaQuery.sizeOf(context).width, height: MediaQuery.sizeOf(context).height,)) ,
                 Theme(
                     data: Theme.of(context).copyWith(
                       canvasColor: Theme.of(context).colorScheme.surface.withAlpha(0),

@@ -1,5 +1,5 @@
-import 'package:ffapp/components/charge_bar.dart';
-import 'package:ffapp/components/ev_bar.dart';
+import 'package:ffapp/components/legacy_charge_bar.dart';
+import 'package:ffapp/components/legacy_ev_bar.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';

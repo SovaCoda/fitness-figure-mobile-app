@@ -1,4 +1,5 @@
 import 'package:ffapp/components/ff_alert_dialog.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,10 @@ class ChargeBar extends StatelessWidget {
   final double barHeight;
   final double barWidth;
   final int overrideGains;
+  final double curvature = 20.0;
+  final double insetPixels = 4.0;
+  final double iconSize = 50.0;
+  final double textMargin = 4.0;
 
   final bool isVertical;
   final bool showDashedLines;
@@ -17,6 +22,7 @@ class ChargeBar extends StatelessWidget {
   final bool areWeShadowing;
   final bool simulateCurrentGains;
   final bool didWeWorkoutToday;
+  final bool showIcon;
 
   const ChargeBar(
       {super.key,
@@ -24,6 +30,7 @@ class ChargeBar extends StatelessWidget {
       required this.fillColor,
       required this.barHeight,
       required this.barWidth,
+      this.showIcon = false,
       this.didWeWorkoutToday = false,
       this.areWeShadowing = false,
       this.isVertical = false,
@@ -55,7 +62,7 @@ class ChargeBar extends StatelessWidget {
                 onTap: didWeWorkoutToday
                     ? () => showFFDialog(
                         "Why am I not gaining Charge?",
-                        "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
+                        "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
                         false,
                         context)
                     : () => {},
@@ -74,207 +81,149 @@ class ChargeBar extends StatelessWidget {
           ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Visibility(
+            showIcon ? FitnessIcon(type: FitnessIconType.charge, size: iconSize) : Container(),
+            Column(
+              children: [
+                Visibility(
               visible: showInfoCircle,
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.14,
-                height: MediaQuery.of(context).size.width * 0.14,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(13),
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "$currentCharge%",
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium!
-                              .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.14,
-                          height: MediaQuery.of(context).size.width * 0.07,
-                          child: OverflowBox(
-                            // maxHeight: 150,
-                            // maxWidth: 150,
-                            child: Transform.rotate(
-                              angle: 3.14 / 2,
-                              child: Icon(Icons.battery_charging_full_outlined,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  size: 40),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                  margin: EdgeInsets.all(textMargin),
+                  height: barHeight,
+                  width: barWidth * 0.5,
+                  child: Center(
+                      
+                              child: Text('$currentCharge%',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displayMedium!
+                                      .copyWith(
+                                          color: Color.fromRGBO(255, 158, 69, 1))))),
             ),
-            Container(
-              width: barWidth,
-              height: barHeight,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Theme.of(context).colorScheme.primaryFixedDim,
-                boxShadow: areWeShadowing
-                    ? const [
-                        BoxShadow(
-                            blurRadius: 4,
-                            color: Colors.black,
-                            offset: Offset(0, 4))
-                      ]
-                    : null,
-              ),
-              child: Column(
-                mainAxisAlignment: isVertical
-                    ? MainAxisAlignment.start
-                    : MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Align(
-                        alignment: isVertical
-                            ? Alignment.topCenter
-                            : Alignment.centerLeft,
-                        child: Container(
-                          width: isVertical
-                              ? barWidth
-                              : (currentCharge / 100).clamp(
-                                          0, (showDashedLines ? 0.8 : 1)) *
-                                      barWidth -
-                                  0,
-                          height: isVertical
-                              ? (currentCharge / 100)
-                                      .clamp(0, (showDashedLines ? 0.8 : 1)) *
-                                  barHeight
-                              : barHeight,
-                          decoration: BoxDecoration(
-                              color: fillColor,
-                              borderRadius: showInfoCircle
-                                  ? BorderRadius.circular(0)
-                                  : BorderRadius.circular(4),
-                              boxShadow: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: showIcon ? EdgeInsets.only(bottom: iconSize/4, left: 4) : null,
+                      padding: EdgeInsets.only(top: insetPixels/2, bottom: insetPixels/2),
+                      width: barWidth,
+                      height: barHeight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(curvature),
+                        color: const Color.fromRGBO(87, 47, 34, 1),
+                        border: Border.all(color: const Color.fromRGBO(126, 66, 24, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside),
+                        boxShadow: areWeShadowing
+                            ? const [
                                 BoxShadow(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  offset: Offset(0.0, 0.0),
-                                  blurRadius: 10.0,
-                                )
-                              ]),
-                        ),
+                                    blurRadius: 4,
+                                    color: Colors.black,
+                                    offset: Offset(0, 4))
+                              ]
+                            : null,
                       ),
-                      if (simulateCurrentGains && !didWeWorkoutToday)
-                        Transform.translate(
-                          offset: Offset(-2, 0),
-                          child: Align(
-                            alignment: isVertical
-                                ? Alignment.topCenter
-                                : Alignment.centerLeft,
-                            child: Container(
-                              width: isVertical
-                                  ? barWidth
-                                  : (totalGains / 100).clamp(
-                                          0, (showDashedLines ? 0.8 : 1)) *
-                                      barWidth,
-                              height: isVertical
-                                  ? (totalGains / 100).clamp(
-                                          0, (showDashedLines ? 0.8 : 1)) *
-                                      barHeight
-                                  : barHeight,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primaryContainer,
-                                      offset: Offset(0.0, 0.0),
-                                      blurRadius: 10.0,
-                                    )
-                                  ]),
-                            ),
+                      child: Column(
+                        mainAxisAlignment: isVertical
+                            ? MainAxisAlignment.start
+                            : MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Align(
+                                alignment: isVertical
+                                    ? Alignment.topCenter
+                                    : Alignment.centerLeft,
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      
+                                      width: isVertical
+                                          ? barWidth
+                                          : (currentCharge / 100).
+                                          clamp(0, 1) *
+                                                  barWidth -
+                                              0,
+                                      height: isVertical
+                                          ? (currentCharge / 100)
+                                                  .clamp(0, 1) *
+                                              barHeight
+                                          : barHeight - insetPixels ,
+                                      decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Color.fromRGBO(175, 72, 0, 1), Color.fromRGBO(217, 106, 24, 1), Color.fromRGBO(241, 149, 44, 1), Color.fromRGBO(217, 106, 24, 1), Color.fromRGBO(175, 72, 0, 1)],
+                                            stops: [0, 0.2, 0.4, 0.6, 1]),
+                                          borderRadius: BorderRadius.circular(curvature),
+                                         ),
+                                    ),
+                                    Container(
+                                      width: isVertical
+                                          ? barWidth
+                                          : (currentCharge / 100).
+                                          clamp(0, 1) *
+                                                  barWidth -
+                                              0,
+                                      height: isVertical
+                                          ? (currentCharge / 100)
+                                                  .clamp(0, 1) *
+                                              barHeight
+                                          : barHeight - insetPixels,
+                                      decoration: BoxDecoration(
+                                    border: const Border(right: BorderSide(color: Color.fromRGBO(241, 149, 44, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside),
+                                    top: BorderSide(color: Color.fromRGBO(241, 149, 44, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside),
+                                    bottom: BorderSide(color: Color.fromRGBO(241, 149, 44, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside)),
+                                    boxShadow: const [BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.11), blurRadius: 3, spreadRadius: 1, blurStyle: BlurStyle.inner),
+                                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.11), blurRadius: 0, spreadRadius: 2, blurStyle: BlurStyle.inner)],
+                                    backgroundBlendMode: BlendMode.plus,
+                                      gradient: const RadialGradient(colors: [Color.fromRGBO(217, 238, 79, 0.22), Color.fromRGBO(47, 35, 27, 0.0858)],
+                                      stops: [0, 0]),
+                                      borderRadius: BorderRadius.circular(curvature)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (simulateCurrentGains && !didWeWorkoutToday)
+                                Transform.translate(
+                                  offset: Offset(-2, 0),
+                                  child: Align(
+                                    alignment: isVertical
+                                        ? Alignment.topCenter
+                                        : Alignment.centerLeft,
+                                    child: Container(
+                                      width: isVertical
+                                          ? barWidth
+                                          : (totalGains / 100).clamp(
+                                                  0, 1) *
+                                              barWidth,
+                                      height: isVertical
+                                          ? (totalGains / 100).clamp(
+                                                  0, 1) *
+                                              barHeight
+                                          : barHeight,
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primaryContainer,
+                                              offset: Offset(0.0, 0.0),
+                                              blurRadius: 10.0,
+                                            )
+                                          ]),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                        ),
-                      if (showDashedLines)
-                        Align(
-                          alignment: isVertical
-                              ? Alignment.topCenter
-                              : Alignment.centerLeft,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 5),
-                            width: isVertical
-                                ? barWidth
-                                : (currentCharge / 100).clamp(0, 1) *
-                                    barWidth *
-                                    0.11,
-                            height: isVertical
-                                ? (currentCharge / 100).clamp(0, 1) *
-                                    barHeight *
-                                    0.12
-                                : barHeight,
-                            decoration: BoxDecoration(
-                                color: fillColor,
-                                borderRadius: showInfoCircle
-                                    ? BorderRadius.circular(0)
-                                    : BorderRadius.circular(4),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    offset: Offset(0.0, 0.0),
-                                    blurRadius: 10.0,
-                                  )
-                                ]),
-                          ),
-                        ),
-                      if (showDashedLines)
-                        Align(
-                          alignment: isVertical
-                              ? Alignment.topCenter
-                              : Alignment.centerLeft,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 5),
-                            width: isVertical
-                                ? barWidth
-                                : (currentCharge / 100).clamp(0, 1) *
-                                    barWidth *
-                                    0.05,
-                            height: isVertical
-                                ? (currentCharge / 100).clamp(0, 1) *
-                                    barHeight *
-                                    0.05
-                                : barHeight,
-                            decoration: BoxDecoration(
-                                color: fillColor,
-                                borderRadius: showInfoCircle
-                                    ? BorderRadius.circular(0)
-                                    : BorderRadius.circular(4),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    offset: Offset(0.0, 0.0),
-                                    blurRadius: 10.0,
-                                  )
-                                ]),
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),

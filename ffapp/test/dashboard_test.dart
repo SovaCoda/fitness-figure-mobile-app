@@ -13,7 +13,7 @@ import 'package:ffapp/services/routes.pb.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:mockito/annotations.dart';
-import 'package:ffapp/components/charge_bar.dart';
+import 'package:ffapp/components/legacy_charge_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:logger/logger.dart';

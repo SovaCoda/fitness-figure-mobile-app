@@ -139,7 +139,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
         if (databaseUser.hasPremium() &&
             await LocalNotificationService().isReadyForNotification()) {
-          await Future.delayed(Duration(milliseconds: 500));
+          await Future.delayed(const Duration(milliseconds: 500));
           String? premiumOfflineNotification =
               await Provider.of<ChatModel>(context, listen: false)
                   .generatePremiumOfflineStatusMessage(gameState);
@@ -271,223 +271,107 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     final double screenHeight = screenSize.height;
 
     // Calculate responsive sizes
-    final double chargeBarHeight = screenHeight * 0.031;
-    final double chargeBarWidth = screenWidth * 0.74;
+    final double chargeBarHeight = 20;
+    final double chargeBarWidth = screenWidth * 0.6;
     final double robotImageHeight = screenHeight * 0.333;
-    final double evBarHeight = 30;
-    final double evBarWidth = screenWidth * 0.9;
+    final double evBarHeight = 20;
+    final double evBarWidth = screenWidth * 0.6;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            Container(
-              padding: EdgeInsets.all(screenWidth * 0.02),
-              margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-              height: constraints.maxHeight,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(13),
-                gradient: RadialGradient(
-                  center: Alignment.center,
-                  focalRadius: 0.1,
-                  colors: [
-                    Theme.of(context).colorScheme.onPrimary.withOpacity(0),
-                    Theme.of(context).colorScheme.surface.withOpacity(0.45),
-                  ],
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //WeekView(),
+                Consumer<FigureModel>(
+                  builder: (context, figure, child) {
+                    return ChargeBar(
+                      showIcon: true,
+                      currentCharge: figure.figure?.charge ?? 0,
+                      fillColor: Theme.of(context).colorScheme.primary,
+                      barHeight: chargeBarHeight,
+                      barWidth: chargeBarWidth,
+                      isVertical: false,
+                      showDashedLines: true,
+                      showInfoCircle: true,
+                    );
+                  },
                 ),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.surface,
-                  width: 3,
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Consumer<FigureModel>(
+                        builder: (context, figure, child) {
+                          return Center(
+                              child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                RobotImageHolder(
+                                  url: (figure.figure != null)
+                                      ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
+                                      : "robot1/robot1_skin0_evo0_cropped_happy",
+                                  height: robotImageHeight,
+                                  width: robotImageHeight,
+                                ),
+                              ],
+                            ),
+                          ));
+                        },
+                      ),
+                      
+                      Consumer<UserModel>(
+                        builder: (context, user, child) => (user.user !=
+                                        null &&
+                                    user.user?.email == "chb263@msstate.ed" ||
+                                user.user?.email == "blizard265@gmail.com")
+                            ? DraggableAdminPanel(
+                                onButton1Pressed: triggerFigureDecay,
+                                onButton2Pressed: triggerUserReset,
+                                button1Text: "Daily Decay Figure",
+                                button2Text: "Weekly Reset User",
+                              )
+                            : Container(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  WeekView(),
-                  Consumer<FigureModel>(
-                    builder: (context, figure, child) {
-                      return ChargeBar(
-                        currentCharge: figure.figure?.charge ?? 0,
-                        fillColor: Theme.of(context).colorScheme.primary,
-                        barHeight: chargeBarHeight,
-                        barWidth: chargeBarWidth,
+                Consumer<FigureModel>(
+                  builder: (context, figure, child) {
+                    if (figure.figure == null) {
+                      return const CircularProgressIndicator();
+                    }
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: screenHeight * 0.01),
+                      child: EvBar(
+                        showIcon: true,
+                        currentXp: figure.figure?.evPoints ?? 0,
+                        maxXp: figure1.EvCutoffs[figure.EVLevel],
+                        fillColor: Theme.of(context).colorScheme.secondary,
+                        barHeight: evBarHeight,
+                        barWidth: evBarWidth,
                         isVertical: false,
-                        showDashedLines: true,
-                        showInfoCircle: true,
-                      );
-                    },
+                        showInfoBox: true,
+                        isMaxLevel: figure.EVLevel == 7,
+                      ),
+                    );
+                  },
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 40, top: 12, bottom: 12, right: 40),
+                  width: screenWidth,
+                  height: screenHeight * 0.2,
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: Color.fromRGBO(51, 133, 162, 1))),
+                    gradient: LinearGradient(colors: [Color.fromRGBO(28, 109, 189, 0.29), Color.fromRGBO(0, 164, 123, 0.29)])
                   ),
-                  Expanded(
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Consumer<FigureModel>(
-                          builder: (context, figure, child) {
-                            return Center(
-                                child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  RobotImageHolder(
-                                    url: (figure.figure != null)
-                                        ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
-                                        : "robot1/robot1_skin0_evo0_cropped_happy",
-                                    height: robotImageHeight,
-                                    width: robotImageHeight,
-                                  ),
-                                ],
-                              ),
-                            ));
-                          },
-                        ),
-                        Positioned(
-                          top: 5,
-                          left: 5,
-                          child: Consumer<ChatModel>(
-                            builder: (_, chat, __) {
-                              return Container(
-                                width: MediaQuery.of(context).size.width * 0.75,
-                                child: GradientedContainer(
-                                  padding: const EdgeInsets.all(4),
-                                  child: Text(
-                                    chat.messages.isNotEmpty
-                                        ? chat.messages.last.text
-                                        : "",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displaySmall!
-                                        .copyWith(
-                                            fontSize: 12,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Consumer<UserModel>(
-                            builder: (_, user, __) {
-                              return GestureDetector(
-                                onTap: () {
-                                  user.isPremium()
-                                      ? context.goNamed("Chat")
-                                      : showFFDialogBinary(
-                                          "FF+ Premium Feature",
-                                          "Subscribe now to FF+ to gain access to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
-                                          true,
-                                          context,
-                                          FfButton(
-                                            height: 50,
-                                            text: "Subscribe Now \$1.99",
-                                            textStyle: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium!,
-                                            textColor: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            onPressed: () async {
-                                              try {
-                                                CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-                                                // access latest customerInfo
-                                                if (customerInfo.entitlements.active['ff_plus'] != null)
-                                                {
-                                                  
-                                                  DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
-                                                  DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
-                                                  showFFDialogWithChildren("Youre Subscribed!", [
-                                                    Column(children: [
-                                                      Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
-                                                    ],)
-                                                  ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
-                                                }
-                                                else {
-                                                  final offers = await Purchases.getOfferings();
-                                                  final offer = offers.getOffering('ffigure_offering');
-                                                  final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
-                                                  logger.i('Paywall Result $paywallresult');
-                                                  if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
-                                                    Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
-                                                    Navigator.of(context).pop();
-                                                  }
-                                                }
-                                              } on PlatformException catch (e) {
-                                                  // Error fetching customer info
-                                                }
-                                            },
-                                          ),
-                                          FfButton(
-                                              height: 50,
-                                              text: "No Thanks",
-                                              textStyle: Theme.of(context)
-                                                  .textTheme
-                                                  .displayMedium!,
-                                              textColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface,
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .surface
-                                                  .withAlpha(126),
-                                              onPressed: () => {
-                                                    Navigator.of(context).pop()
-                                                  }));
-                                },
-                                child: Icon(
-                                  Icons.chat,
-                                  size: 60,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Consumer<UserModel>(
-                          builder: (context, user, child) => (user.user !=
-                                          null &&
-                                      user.user?.email == "chb263@msstate.ed" ||
-                                  user.user?.email == "blizard265@gmail.com")
-                              ? DraggableAdminPanel(
-                                  onButton1Pressed: triggerFigureDecay,
-                                  onButton2Pressed: triggerUserReset,
-                                  button1Text: "Daily Decay Figure",
-                                  button2Text: "Weekly Reset User",
-                                )
-                              : Container(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Consumer<FigureModel>(
-                    builder: (context, figure, child) {
-                      if (figure.figure == null) {
-                        return const CircularProgressIndicator();
-                      }
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: screenHeight * 0.01),
-                        child: EvBar(
-                          currentXp: figure.figure?.evPoints ?? 0,
-                          maxXp: figure1.EvCutoffs[figure.EVLevel],
-                          fillColor: Theme.of(context).colorScheme.secondary,
-                          barHeight: evBarHeight,
-                          barWidth: evBarWidth,
-                          isVertical: false,
-                          showInfoBox: true,
-                          isMaxLevel: figure.EVLevel == 7,
-                        ),
-                      );
-                    },
-                  ),
-                  Consumer<UserModel>(
+                  child: Consumer<UserModel>(
                     builder: (context, user, child) {
                       if (user.user == null) {
                         return const CircularProgressIndicator();
@@ -501,8 +385,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       );
                     },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         );

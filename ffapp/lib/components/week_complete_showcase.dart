@@ -1,6 +1,6 @@
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/charge_bar.dart';
-import 'package:ffapp/components/ev_bar.dart';
+import 'package:ffapp/components/legacy_charge_bar.dart';
+import 'package:ffapp/components/legacy_ev_bar.dart';
 import 'package:ffapp/components/resuables/streak_shower.dart';
 import 'package:ffapp/components/resuables/week_to_go_shower.dart';
 import 'package:ffapp/components/utils/history_model.dart';

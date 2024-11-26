@@ -1,6 +1,6 @@
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/charge_bar.dart';
-import 'package:ffapp/components/ev_bar.dart';
+import 'package:ffapp/components/legacy_charge_bar.dart';
+import 'package:ffapp/components/legacy_ev_bar.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/components/robot_image_holder.dart';

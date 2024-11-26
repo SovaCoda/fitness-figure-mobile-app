@@ -43,8 +43,8 @@ enum FitnessIconType {
   calendar_slot('calendar_slot_default'),
   calendar_slot_unlogged('calendar_slot_not_logged'),
   calendar_slot_logged('calendar_slot_logged'),
-  calendar_slot_frozen('calendar_slot_frozen');
-
+  calendar_slot_frozen('calendar_slot_frozen'),
+  dashboard_fire('dashboard_fire');
 
   final String fileName;
   const FitnessIconType(this.fileName);

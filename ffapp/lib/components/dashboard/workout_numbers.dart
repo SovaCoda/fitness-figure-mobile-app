@@ -1,4 +1,5 @@
 import 'package:ffapp/components/resuables/border_fillable_%20container.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 
 class WorkoutNumbersRow extends StatelessWidget {
@@ -22,113 +23,98 @@ class WorkoutNumbersRow extends StatelessWidget {
 
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.9,
-      height: MediaQuery.of(context).size.height * 0.138,
+      height: MediaQuery.of(context).size.height * 0.20,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Expanded(
-            flex: 2,
-            child: BorderFillableContainer(
-              borderColor: Theme.of(context).colorScheme.primary,
-              fillColor: Theme.of(context).colorScheme.surface,
-              borderWidth: 2,
-              max: weeklyGoal.toDouble(),
-              current: weeklyCompleted.toDouble(),
-              child: Column(
-                children: [
-                  Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Week Complete",
-                      style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: MediaQuery.of(context).size.height * 0.05,
-                          ),
-                    ),
-                  ),
-                  ),
-                  Flexible(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                 "WEEK COMPLETE",
+                          style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 22,
+                              ),
+                        ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: 80,
+                child: BorderFillableContainer(
+                  borderColor: Theme.of(context).colorScheme.primary,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  borderWidth: 2,
+                  max: weeklyGoal.toDouble(),
+                  current: weeklyCompleted.toDouble(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            weeklyCompleted.toString(),
-                            style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: MediaQuery.of(context).size.height * 0.05
-                                ),
-                          ),
-                        ),
+                        
+                      Text(
+                        weeklyCompleted.toString(),
+                        style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                              color: const Color.fromRGBO(1, 204, 147, 1),
+                              fontSize: MediaQuery.of(context).size.height * 0.06,
+                              fontWeight: FontWeight.bold
+                            ),
                       ),
                       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
                       Text(
                         "/",
                         style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: MediaQuery.of(context).size.height * 0.05
+                              color: const Color.fromRGBO(1, 204, 147, 1),
+                              fontSize: MediaQuery.of(context).size.height * 0.06,
+                              fontWeight: FontWeight.bold
                             ),
                       ),
                       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            weeklyGoal.toString(),
-                            style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: MediaQuery.of(context).size.height * 0.05
-                                ),
-                          ),
-                        ),
-                      ),
-                    ],
+                      Text(
+                        weeklyGoal.toString(),
+                        style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                              color: const Color.fromRGBO(1, 204, 147, 1),
+                              fontSize: MediaQuery.of(context).size.height * 0.06,
+                              fontWeight: FontWeight.bold
+                            ),
+                      )],
                   ),
-              )],
+                ),
               ),
-            ),
+            ],
           ),
-          SizedBox(width: MediaQuery.of(context).size.width * 0.025),
-          Expanded(
-            flex: 1,
-            child: Container(
-              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                color: Theme.of(context).colorScheme.surface,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "STREAK",
+                style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 22,
+                    ),
               ),
-              child: Column(
+              Stack(
+                alignment: Alignment.bottomCenter,
                 children: [
-                  Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Streak",
-                      style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: MediaQuery.of(context).size.height * 0.05
-                          ),
+                  const FitnessIcon(type: FitnessIconType.dashboard_fire,),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: SizedBox(
+                    
+                      child: Text(
+                      
+                        streak.toString(),
+                        style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                              color: const Color.fromRGBO(1, 204, 147, 1),
+                              fontSize: MediaQuery.of(context).size.height * 0.06,
+                              fontWeight: FontWeight.bold
+                            ),
+                      ),
                     ),
                   ),
-                  ),
-                  Flexible(
                   
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      streak.toString(),
-                      style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            fontSize: MediaQuery.of(context).size.height * 0.05
-                          ),
-                    ),
-                  ),
-              )],
+                ],
               ),
-            ),
+            ],
           ),
         ],
       ),

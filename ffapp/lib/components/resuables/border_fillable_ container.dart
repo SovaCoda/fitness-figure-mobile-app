@@ -21,57 +21,23 @@ class BorderFillableContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double fullStop = current/max;
     bool full = current >= max;
     return Container(
+      width: 100,
+      height: 100,
       decoration: BoxDecoration(
-        color: fillColor,
-        borderRadius: BorderRadius.circular(13),
+        gradient: SweepGradient(colors: [Color.fromRGBO(34, 90, 76, 1),Color.fromRGBO(34, 90, 76, 1),Color.fromRGBO(0, 164, 123, 0)],
+        stops: [0, fullStop -0.01, fullStop],
+        ),
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.all(Radius.circular(200)),
       ),
       child: Stack(
+        alignment: Alignment.center,
         children: [
           Container(padding: padding, child: child),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: (current / max).clamp(0, 1),
-              heightFactor: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: borderColor,
-                      width: borderWidth,
-                    ),
-                    top: BorderSide(
-                      color: borderColor,
-                      width: borderWidth,
-                    ),
-                    left: BorderSide(
-                      color: borderColor,
-                      width: borderWidth,
-                    ),
-                    right: full
-                        ? BorderSide(
-                            color: borderColor,
-                            width: borderWidth,
-                          )
-                        : BorderSide.none,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(13),
-                    bottomLeft: const Radius.circular(13),
-                    topRight: full ? const Radius.circular(13) : Radius.zero,
-                    bottomRight: full ? const Radius.circular(13) : Radius.zero,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          
         ],
       ),
     );
