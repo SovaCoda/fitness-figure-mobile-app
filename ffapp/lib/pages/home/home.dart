@@ -160,7 +160,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       
         backgroundColor: Theme.of(context).colorScheme.onError,
-        appBar: PreferredSize(preferredSize: Size(MediaQuery.sizeOf(context).width, 60), 
+        appBar: PreferredSize(preferredSize: Size(MediaQuery.sizeOf(context).width, MediaQuery.sizeOf(context).height * 0.06), 
           child: SizedBox(
             width: 20,
             height: 400,
@@ -299,10 +299,10 @@ class _DashboardPageState extends State<DashboardPage> {
         body: 
         Stack(children: [
           
-          Transform.translate(offset: Offset(0, -80),child: OverflowBox(maxWidth:MediaQuery.sizeOf(context).width, maxHeight: MediaQuery.sizeOf(context).height, child: Image.asset('lib/assets/art/ff_background.png', width: MediaQuery.sizeOf(context).width+ 200, height: MediaQuery.sizeOf(context).height,))),
+          Transform.translate(offset: const Offset(0, -80),child: OverflowBox(maxWidth:MediaQuery.sizeOf(context).width, maxHeight: MediaQuery.sizeOf(context).height, child: Image.asset('lib/assets/art/ff_background.png', width: MediaQuery.sizeOf(context).width+ 200, height: MediaQuery.sizeOf(context).height,))),
           IndexedStack(
             index: _selectedIndex,
-            children: _pages,
+            children: _pages, 
           )
         ]),
 
