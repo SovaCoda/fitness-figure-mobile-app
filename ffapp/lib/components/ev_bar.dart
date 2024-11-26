@@ -191,7 +191,7 @@ class EvBar extends StatelessWidget {
                                 BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.11), blurRadius: 0, spreadRadius: 2, blurStyle: BlurStyle.inner)],
                                 backgroundBlendMode: BlendMode.plus,
                                   gradient: const RadialGradient(colors: [Color.fromRGBO(119, 196, 255, 0.22), Color.fromRGBO(5, 45, 70, 0.22)],
-                                  stops: [1, 1]),
+                                  stops: [0, 0]),
                                   borderRadius: BorderRadius.circular(curvature)),
                             ),
                           ],

@@ -25,7 +25,7 @@ class WorkoutNumbersRow extends StatelessWidget {
       width: MediaQuery.of(context).size.width * 0.9,
       height: MediaQuery.of(context).size.height * 0.20,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

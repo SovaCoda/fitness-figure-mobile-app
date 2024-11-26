@@ -289,15 +289,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 //WeekView(),
                 Consumer<FigureModel>(
                   builder: (context, figure, child) {
-                    return ChargeBar(
-                      showIcon: true,
-                      currentCharge: figure.figure?.charge ?? 0,
-                      fillColor: Theme.of(context).colorScheme.primary,
-                      barHeight: chargeBarHeight,
-                      barWidth: chargeBarWidth,
-                      isVertical: false,
-                      showDashedLines: true,
-                      showInfoCircle: true,
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ChargeBar(
+                        showIcon: true,
+                        currentCharge: figure.figure?.charge ?? 0,
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        barHeight: chargeBarHeight,
+                        barWidth: chargeBarWidth,
+                        isVertical: false,
+                        showDashedLines: true,
+                        showInfoCircle: true,
+                      ),
                     );
                   },
                 ),
@@ -348,7 +351,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       return const CircularProgressIndicator();
                     }
                     return Padding(
-                      padding: EdgeInsets.only(bottom: screenHeight * 0.01),
+                      padding: EdgeInsets.all(16.0),
                       child: EvBar(
                         showIcon: true,
                         currentXp: figure.figure?.evPoints ?? 0,
