@@ -9,7 +9,6 @@ class ChatBubble extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return GradientedContainer(
-      radius: 4,
       padding: EdgeInsets.all(4),
       child: Text(message, style: Theme.of(context).textTheme.displaySmall,));
   }
