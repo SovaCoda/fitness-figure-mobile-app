@@ -336,6 +336,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         //       blurRadius: 20)
                         // ]),
                         items:  <BottomNavigationBarItem>[
+                          // TODO: REPLACE WITH RELATIVE SIZED ICONS
                           // for some reason icons don't keep their glow when extracting a svg from the figma
                           // so we have to use images for the active icons
                           BottomNavigationBarItem(
