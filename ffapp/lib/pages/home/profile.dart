@@ -191,28 +191,36 @@ class _ProfileState extends State<Profile> {
       prefs.setString("newEmail", newEmail);
       prefs.setString("isVerified", "false");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result)),
-      );
+      if (mounted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result)),
+          );
+        }
+      }
 
       // Don't sign out or navigate away, wait for verification
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
   }
 
   void checkEmailVerification(String newEmail) {
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       try {
         User? user = FirebaseAuth.instance.currentUser;
         await user?.reload();
         if (user?.email == newEmail && user?.emailVerified == true) {
           timer.cancel();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Email updated successfully!")),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Email updated successfully!")),
+            );
+          }
         }
       } on FirebaseAuthException {
         // setState(() {
@@ -220,11 +228,13 @@ class _ProfileState extends State<Profile> {
         // });
         prefs.setString("isVerified", "true");
         prefs.setString("newEmail", "");
-        signOut(context);
-        GoRouter.of(context).go("/");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Success! Please sign back in.")),
-        );
+        if (mounted) {
+          signOut(context);
+          GoRouter.of(context).go("/");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Success! Please sign back in.")),
+          );
+        }
       }
     });
   }
@@ -235,28 +245,37 @@ class _ProfileState extends State<Profile> {
       AuthCredential credential = EmailAuthProvider.credential(
           email: userEmail, password: userPassword);
       await auth.updatePassword(newPassword, credential);
-      signOut(context);
-      GoRouter.of(context).go("/");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Success! Please sign back in.")),
-      );
+      if (mounted) {
+        signOut(context);
+        GoRouter.of(context).go("/");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Success! Please sign back in.")),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
   }
 
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
-    Provider.of<UserModel>(context, listen: false).setUserWeekGoal(Int64(goal));
+    if (mounted) {
+      Provider.of<UserModel>(context, listen: false)
+          .setUserWeekGoal(Int64(goal));
+    }
   }
 
   void updateMinWorkoutTime(int time) async {
     await auth.updateUserDBInfo(
         Routes.User(email: email, workoutMinTime: Int64(time)));
-    Provider.of<UserModel>(context, listen: false)
-        .setWorkoutMinTime(Int64(time));
+    if (mounted) {
+      Provider.of<UserModel>(context, listen: false)
+          .setWorkoutMinTime(Int64(time));
+    }
   }
 
   @override
@@ -522,7 +541,9 @@ class _ProfileState extends State<Profile> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               child: const Text('Cancel'),
             ),
@@ -582,7 +603,9 @@ class _ProfileState extends State<Profile> {
                 } else {
                   onSave(newValue);
                 }
-                Navigator.of(context).pop();
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -624,9 +647,8 @@ class _ProfileState extends State<Profile> {
   void _showPasswordChangeDialog() async {
     String? currentPassword = await _showPasswordConfirmDialog();
     if (currentPassword == null) return;
-
     showDialog(
-      context: context,
+      context: context, 
       builder: (BuildContext context) {
         String newPassword = '';
         return AlertDialog(
