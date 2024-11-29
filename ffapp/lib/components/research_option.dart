@@ -3,7 +3,6 @@ import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/components/button_themes.dart';
-import 'dart:async';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:provider/provider.dart';
@@ -82,16 +81,12 @@ class _ResearchOptionState extends State<ResearchOption> {
       _currentEv = widget.task.ev;
     }
 
-
     _timer.changeTickSpeedMS(_tickSpeed);
   }
-
 
   void _initializeState() async {
     task = widget.task;
     prefs = await SharedPreferences.getInstance();
-
-    
 
     Map<String, bool> capabilities =
         Provider.of<FigureModel>(context, listen: false).capabilities;
@@ -262,9 +257,13 @@ class _ResearchOptionState extends State<ResearchOption> {
           height: _getContainerHeight(),
           padding: const EdgeInsets.all(8),
           margin: const EdgeInsets.symmetric(vertical: 4),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(8),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Color.fromARGB(255, 91, 103, 100),
+                width: 2,
+              ),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -598,33 +597,30 @@ class _ResearchOptionState extends State<ResearchOption> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Stack(
-          
-        children: [
-          
-        Row(
-          children: [
-            RobotImageHolder(
-              url: _getRobotImageUrl(happy: false),
-              height: MediaQuery.of(context).size.height * 0.25,
-              width: MediaQuery.of(context).size.width * 0.5,
-            ),
-            Text(
-              '+0 EV',
-              style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-            ),
-          ],
-        ),
-        Positioned(
-            top: -60,
-          child: FitnessIcon(
-          type: FitnessIconType.fail,
-          size: 200,
-        ),
+        Stack(children: [
+          Row(
+            children: [
+              RobotImageHolder(
+                url: _getRobotImageUrl(happy: false),
+                height: MediaQuery.of(context).size.height * 0.25,
+                width: MediaQuery.of(context).size.width * 0.5,
+              ),
+              Text(
+                '+0 EV',
+                style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+              ),
+            ],
           ),
-      ]),
+          Positioned(
+            top: -60,
+            child: FitnessIcon(
+              type: FitnessIconType.fail,
+              size: 200,
+            ),
+          ),
+        ]),
         ElevatedButton(
           onPressed: _handleFailureCompletion,
           style: _getExpandedButtonStyle(),

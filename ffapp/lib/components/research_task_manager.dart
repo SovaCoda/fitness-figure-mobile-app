@@ -46,33 +46,34 @@ class ResearchTaskManager {
   final FigureModel figureModel;
   ResearchTaskManager({required this.figureModel});
   static const int _dailyTaskLimit = 5;
-  static const List<String> _taskTitles = [
-    'Optimize Processors',
-    'Shine Tracks',
-    'Upgrade Coolants',
-    'Enhance AI Algorithms',
-    'Reinforce Chassis',
-    'Refine Engines',
-    'Boost Signal Range',
-    'Fortify Shields',
-    'Calibrate Sensors',
-    'Streamline Circuits',
-    'Amplify Power Output',
-    'Synchronize Networks',
-    'Elevate System Security',
-    'Tune Propulsion',
-    'Optimize Data Streams',
-    'Maximize Efficiency',
-    'Stabilize Power Grids',
-    'Upgrade Firmware',
-    'Enhance Vision Systems',
-    'Optimize Heat Dissipation',
-    'Improve Hydraulic Systems',
-    'Reinforce Armor Plating',
-    'Upgrade Software Protocols',
-    'Enhance Communication Channels',
-    'Increase Payload Capacity',
-  ];
+  static const List<String> _taskTitles = [ // made uppercase to match design
+    'OPTIMIZE PROCESSORS',
+    'SHINE TRACKS',
+    'UPGRADE COOLANTS',
+    'ENHANCE AI ALGORITHMS',
+    'REINFORCE CHASSIS',
+    'REFINE ENGINES',
+    'BOOST SIGNAL RANGE',
+    'FORTIFY SHIELDS',
+    'CALIBRATE SENSORS',
+    'STREAMLINE CIRCUITS',
+    'AMPLIFY POWER OUTPUT',
+    'SYNCHRONIZE NETWORKS',
+    'ELEVATE SYSTEM SECURITY',
+    'TUNE PROPULSION',
+    'OPTIMIZE DATA STREAMS',
+    'MAXIMIZE EFFICIENCY',
+    'STABILIZE POWER GRIDS',
+    'UPGRADE FIRMWARE',
+    'ENHANCE VISION SYSTEMS',
+    'OPTIMIZE HEAT DISSIPATION',
+    'IMPROVE HYDRAULIC SYSTEMS',
+    'REINFORCE ARMOR PLATING',
+    'UPGRADE SOFTWARE PROTOCOLS',
+    'ENHANCE COMMUNICATION CHANNELS',
+    'INCREASE PAYLOAD CAPACITY',
+];
+
 
   List<ResearchTask> _availableTasks = [];
   Set<String> _completedTaskIds = {};

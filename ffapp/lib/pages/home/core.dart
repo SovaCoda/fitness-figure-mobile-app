@@ -2,18 +2,16 @@ import 'dart:async';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
-import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fixnum/fixnum.dart';
-
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/research_option.dart';
-import 'package:ffapp/components/robot_line_painter.dart';
 import 'package:ffapp/components/research_task_manager.dart';
+import 'package:ffapp/components/research_glass_panel.dart';
 
 class Core extends StatefulWidget {
   const Core({super.key});
@@ -181,192 +179,184 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildTopSection() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Consumer<UserModel>(
-          builder: (context, figureModel, _) {
-            return Consumer<FigureModel>(
-              builder: (context, figureModel, _) {
-                _getCurrencyIncrement(figureModel, _user.isPremium());
+    return Stack(alignment: Alignment.center, children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Consumer<UserModel>(
+            builder: (context, figureModel, _) {
+              return Consumer<FigureModel>(
+                builder: (context, figureModel, _) {
+                  _getCurrencyIncrement(figureModel, _user.isPremium());
 
-                return Container();
-              },
-            );
-          },
-        ),
-        Expanded(
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              // CustomPaint(
-              //   size: Size(MediaQuery.of(context).size.width * 0.5,
-              //       MediaQuery.of(context).size.height * 0.3),
-              //   painter: RobotLinePainter(),
-              // ),
-              
-              
-              Positioned(
-                right: MediaQuery.of(context).size.width * 0.3,
-              child: FitnessIcon(type: FitnessIconType.evolution_circuits, size: 120),
-              ),
-              Positioned(
-                right: 0,
-              child: _buildCurrencyDisplay(),
-              ),
-              RobotImageHolder(
-                url: (_figure.figure != null)
-                    ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_happy"
-                    : "robot1/robot1_skin0_evo0_cropped_happy",
-                height: MediaQuery.of(context).size.height * 0.3,
-                width: MediaQuery.of(context).size.width * 0.5,
-              )
-              
-            ],
+                  return Container();
+                },
+              );
+            },
           ),
-        ),
-        
-        
-        
-      ],
-    )]);
+          Expanded(
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                // CustomPaint(
+                //   size: Size(MediaQuery.of(context).size.width * 0.5,
+                //       MediaQuery.of(context).size.height * 0.3),
+                //   painter: RobotLinePainter(),
+                // ),
+
+                Positioned(
+                  right: MediaQuery.of(context).size.width * 0.3,
+                  child: FitnessIcon(
+                      type: FitnessIconType.evolution_circuits, size: 120),
+                ),
+                Positioned(
+                  right: 0,
+                  child: _buildCurrencyDisplay(),
+                ),
+                RobotImageHolder(
+                  url: (_figure.figure != null)
+                      ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_happy"
+                      : "robot1/robot1_skin0_evo0_cropped_happy",
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  width: MediaQuery.of(context).size.width * 0.5,
+                )
+              ],
+            ),
+          ),
+        ],
+      )
+    ]);
   }
 
   Widget _buildCurrencyDisplay() {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 10, top: 10, right: 30),
-    child: Stack(
-      alignment: Alignment.center,
-      children: [
-        AnimatedBorderContainer(
-          borderColor: Theme.of(context).colorScheme.primary,
-          child: Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10, top: 10, right: 30),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedBorderContainer(
+            borderColor: Theme.of(context).colorScheme.primary,
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: Image.asset("lib/assets/images/evolution_panel_circle.png",
+                  height: 150, width: 150),
             ),
-            child: Image.asset("lib/assets/images/evolution_panel_circle.png",
-                height: 150, width:150),
           ),
-        ),
-
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text('EVO ${_figure.EVLevel + 1}',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 24)),
-            Column(
-              children: [
-            Text('\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontFamily: 'Roberto')),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 125),
-            child: Text(
-                '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
-                overflow: TextOverflow.ellipsis,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontFamily: 'Roberto')),
-              )
-      ])],
-        ),
-         
-      ],
-    ),
-  );
-}
-
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text('EVO ${_figure.EVLevel + 1}',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 24)),
+              Column(children: [
+                Text(
+                    '\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 16,
+                        fontFamily: 'Roberto')),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 125),
+                  child: Text(
+                      '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontFamily: 'Roberto')),
+                )
+              ])
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildResearchSection() {
     return Consumer<FigureModel>(
       builder: (_, figure, __) {
         return Container(
-          width: MediaQuery.of(context).size.width * 0.95,
-          height: MediaQuery.of(context).size.height * 0.42,
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: ResearchGlassPanel(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  _buildResearchHeader(),
-                  _taskManager.isDailyLimitReached()
-                      ? _buildDailyLimitReachedMessage()
-                      : _buildAvailableTasks(),
-                  //_buildResetTasksButton(),
-                ],
-              ),
-              if (!figure.capabilities['Research Unlocked']!)
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.95,
-                  height: MediaQuery.of(context).size.height * 0.51,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 2,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Column(
                     children: [
-                      const Icon(Icons.lock, size: 75),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Research unlocks at ',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayMedium!
-                                .copyWith(fontSize: 24),
-                          ),
-                          Text(
-                            'EVO 2',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayMedium!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                    fontSize: 24),
-                          ),
-                        ],
-                      ),
+                      _buildResearchHeader(),
+                      _taskManager.isDailyLimitReached()
+                          ? _buildDailyLimitReachedMessage()
+                          : _buildAvailableTasks(),
+                      //_buildResetTasksButton(),
                     ],
                   ),
-                ),
-            ],
-          ),
-        );
+                  // if (!figure.capabilities['Research Unlocked']!)
+                  //   Container(
+                  //     width: MediaQuery.of(context).size.width,
+                  //     height: MediaQuery.of(context).size.height * 0.51,
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.black.withOpacity(0.8),
+                  //       borderRadius: BorderRadius.circular(10),
+                  //     ),
+                  //     child: Column(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         const Icon(Icons.lock, size: 75),
+                  //         Row(
+                  //           mainAxisAlignment: MainAxisAlignment.center,
+                  //           children: [
+                  //             Text(
+                  //               'Research unlocks at ',
+                  //               style: Theme.of(context)
+                  //                   .textTheme
+                  //                   .displayMedium!
+                  //                   .copyWith(fontSize: 24),
+                  //             ),
+                  //             Text(
+                  //               'EVO 2',
+                  //               style: Theme.of(context)
+                  //                   .textTheme
+                  //                   .displayMedium!
+                  //                   .copyWith(
+                  //                       color:
+                  //                           Theme.of(context).colorScheme.secondary,
+                  //                       fontSize: 24),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                ],
+              ),
+            ));
       },
     );
   }
 
   Widget _buildResearchHeader() {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.85,
+      width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * 0.02,
-        vertical: MediaQuery.of(context).size.height * 0.02,
+        horizontal: MediaQuery.of(context).size.width * 0.05,
+        vertical: MediaQuery.of(context).size.height * 0.01,
       ),
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface,
-            width: 1,
+            color: Color.fromARGB(255, 91, 103, 100),
+            width: 2,
           ),
         ),
       ),
       child: Text(
-        'Research',
+        'RESEARCH',
         style:
             Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: 24),
       ),
