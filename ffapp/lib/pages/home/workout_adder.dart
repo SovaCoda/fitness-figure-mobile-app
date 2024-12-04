@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
@@ -1120,22 +1121,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     onPressed: () => 
                                     { endWorkout()
                                     })
-                                : FfButton(
+                                : FFAppButton(
                                     icon: Icons.add,
-                                    iconSize: 50,
-                                    text: "Start Workout",
-                                    textStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge!,
-                                    height: 90,
-                                    textColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor:
-                                        Theme.of(context).colorScheme.primary,
+                                    text: "START WORKOUT",
+                                    fontSize: 30,
+                                    size: MediaQuery.of(context).size.width * 1,
+                                    height: MediaQuery.of(context).size.height * 0.15,
                                     onPressed: () {
                                       startLogging(false);
                                       startTimer(false, false);
                                     },
+                                    isShiny: true
                                   ),
                           ),
                           const SizedBox(

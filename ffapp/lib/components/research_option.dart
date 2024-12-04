@@ -10,6 +10,7 @@ import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:ffapp/components/research_task_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ffapp/components/animated_button.dart';
 
 class ResearchOption extends StatefulWidget {
   final ResearchTask task;
@@ -266,10 +267,9 @@ class _ResearchOptionState extends State<ResearchOption> {
             ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: _isExpanded
-                ? MainAxisAlignment.start
-                : MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment:
+                _isExpanded ? MainAxisAlignment.start : MainAxisAlignment.end,
             children: [
               _buildTitle(),
               _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
@@ -329,34 +329,32 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   Widget _buildTitle() {
     return Container(
-      padding: const EdgeInsets.only(bottom: 3),
-      decoration: _isExpanded
-          ? BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  width: 1,
-                ),
-              ),
-            )
-          : null,
+      padding: const EdgeInsets.only(bottom: 2),
       width: MediaQuery.of(context).size.width * 0.9,
-      child: Text(
-        widget.task.title,
-        style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                widget.task.title,
+                style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
+                    ),
+              ),
+              if (!_isCompleted) _buildTimer()
+            ]),
+        _buildChanceAndEVInfo()
+      ]),
     );
   }
 
   Widget _buildCollapsedContent() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
       children: [
-        _buildChanceAndEVInfo(),
-        _buildTimerAndButton(),
+        // _buildTimerAndButton(),
+        _buildActionButton()
       ],
     );
   }
@@ -367,36 +365,36 @@ class _ResearchOptionState extends State<ResearchOption> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '\t\t\t$_currentChance% Chance',
+          '$_currentChance% Chance',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                color: Color.fromARGB(
-                  255,
-                  255 - (2.55 * _currentChance).round(),
-                  0 + (2.55 * _currentChance).round(),
-                  0,
-                ),
+              color: Color.fromARGB(
+                255,
+                255 - (2.55 * _currentChance).round(),
+                0 + (2.55 * _currentChance).round(),
+                0,
               ),
+              fontSize: 14,
+              fontFamily: 'Roboto'),
         ),
         const SizedBox(height: 4),
         Text(
-          '\t\t+${_currentEv} EV',
+          '+${_currentEv} EVO',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 14,
+              fontFamily: 'Roboto'),
         ),
       ],
     );
   }
 
   Widget _buildTimerAndButton() {
+    // currently unused
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        if (!_isCompleted) _buildTimer(),
-        _buildActionButton(),
-      ],
+      children: [if (!_isCompleted) _buildTimer(), _buildActionButton()],
     );
   }
 
@@ -407,17 +405,19 @@ class _ResearchOptionState extends State<ResearchOption> {
       children: [
         if (_tickSpeed != 1000)
           Text("+${(1000 - _tickSpeed) / 10}%  ",
-              style: Theme.of(context)
-                  .textTheme
-                  .displaySmall!
-                  .copyWith(color: Theme.of(context).colorScheme.onSurface)),
+              style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 14,
+                  fontFamily: 'Roboto')),
         Text(
           _isCountdown
               ? _formatDuration(Duration(seconds: _currentCountdown))
               : _formatDuration(widget.task.duration),
-          style: Theme.of(context).textTheme.displayMedium,
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+              fontSize: 14, fontFamily: 'Roboto', fontWeight: FontWeight.w700),
         ),
-        const Icon(Icons.access_time, size: 20),
+        const SizedBox(width: 2),
+        const Icon(Icons.access_time, size: 20, weight: 700),
       ],
     );
   }
@@ -433,15 +433,16 @@ class _ResearchOptionState extends State<ResearchOption> {
   }
 
   Widget _buildBeginButton() {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          _isExpanded = !_isExpanded;
+    return FFAppButton(
+        text: "BEGIN",
+        size: MediaQuery.of(context).size.width * 0.33,
+        height: 40,
+        fontSize: 14,
+        onPressed: () {
+          setState(() {
+            _isExpanded = !_isExpanded;
+          });
         });
-      },
-      style: _getButtonStyle(),
-      child: Text('Begin', style: _getButtonTextStyle()),
-    );
   }
 
   Widget _buildProgressButton() {

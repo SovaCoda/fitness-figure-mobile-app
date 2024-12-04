@@ -292,46 +292,46 @@ class _CoreState extends State<Core> {
                       _taskManager.isDailyLimitReached()
                           ? _buildDailyLimitReachedMessage()
                           : _buildAvailableTasks(),
-                      //_buildResetTasksButton(),
+                      _buildResetTasksButton(),
                     ],
                   ),
-                  // if (!figure.capabilities['Research Unlocked']!)
-                  //   Container(
-                  //     width: MediaQuery.of(context).size.width,
-                  //     height: MediaQuery.of(context).size.height * 0.51,
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.black.withOpacity(0.8),
-                  //       borderRadius: BorderRadius.circular(10),
-                  //     ),
-                  //     child: Column(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: [
-                  //         const Icon(Icons.lock, size: 75),
-                  //         Row(
-                  //           mainAxisAlignment: MainAxisAlignment.center,
-                  //           children: [
-                  //             Text(
-                  //               'Research unlocks at ',
-                  //               style: Theme.of(context)
-                  //                   .textTheme
-                  //                   .displayMedium!
-                  //                   .copyWith(fontSize: 24),
-                  //             ),
-                  //             Text(
-                  //               'EVO 2',
-                  //               style: Theme.of(context)
-                  //                   .textTheme
-                  //                   .displayMedium!
-                  //                   .copyWith(
-                  //                       color:
-                  //                           Theme.of(context).colorScheme.secondary,
-                  //                       fontSize: 24),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
+                  if (!figure.capabilities['Research Unlocked']!)
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.51,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.lock, size: 75),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Research unlocks at ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(fontSize: 24),
+                              ),
+                              Text(
+                                'EVO 2',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(
+                                        color:
+                                            Theme.of(context).colorScheme.secondary,
+                                        fontSize: 24),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ));

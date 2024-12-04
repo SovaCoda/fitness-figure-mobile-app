@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -291,6 +292,8 @@ class _ProfileState extends State<Profile> {
         ),
         // Existing content
         SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics().applyTo(
+              const BouncingScrollPhysics()), // quick fix for this https://github.com/flutter/flutter/issues/138940
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
             child: Column(
@@ -499,17 +502,13 @@ class _ProfileState extends State<Profile> {
   Widget _buildActionButtons() {
     return Column(
       children: [
-        ElevatedButton.icon(
+        FFAppButton(
           onPressed: () => _showSignOutConfirmation(),
-          icon: const Icon(Icons.logout, color: Colors.white),
-          label: const Text('Sign Out'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
+          icon: Icons.logout,
+          text: "SIGN OUT",
+          fontSize: 24,
+          size: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 0.08
         ),
         const SizedBox(height: 16),
         TextButton.icon(
@@ -648,7 +647,7 @@ class _ProfileState extends State<Profile> {
     String? currentPassword = await _showPasswordConfirmDialog();
     if (currentPassword == null) return;
     showDialog(
-      context: context, 
+      context: context,
       builder: (BuildContext context) {
         String newPassword = '';
         return AlertDialog(

@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -70,7 +69,6 @@ class ResearchTaskManager {
     'IMPROVE HYDRAULIC SYSTEMS',
     'REINFORCE ARMOR PLATING',
     'UPGRADE SOFTWARE PROTOCOLS',
-    'ENHANCE COMMUNICATION CHANNELS',
     'INCREASE PAYLOAD CAPACITY',
 ];
 
