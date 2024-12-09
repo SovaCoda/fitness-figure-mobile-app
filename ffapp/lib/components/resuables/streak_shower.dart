@@ -21,12 +21,15 @@ class StreakShower extends StatelessWidget {
     return Row(children: [
       if (showStatus)
         goalMet
-            ? showChevron ? Text('^',
-                style: textStyle.copyWith(
-                  color: themeColor,
-                )) : Text('',
-                style: textStyle.copyWith(
-                  color: themeColor,))
+            ? showChevron
+                ? Text('^',
+                    style: textStyle.copyWith(
+                      color: themeColor,
+                    ))
+                : Text('',
+                    style: textStyle.copyWith(
+                      color: themeColor,
+                    ))
             : Text('X',
                 style: textStyle.copyWith(
                   color: Colors.red,

@@ -10,7 +10,7 @@ class SquareTile extends StatelessWidget {
     super.key,
     required this.imagePath,
     required this.height,
-    required this.onTap, 
+    required this.onTap,
   });
 
   @override
@@ -27,11 +27,8 @@ class SquareTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           color: Colors.grey[300],
         ),
-        child: SvgPicture.asset(
-          imagePath,
-          height: height,
-          fit: BoxFit.scaleDown
-        ),
+        child:
+            SvgPicture.asset(imagePath, height: height, fit: BoxFit.scaleDown),
       ),
     );
   }

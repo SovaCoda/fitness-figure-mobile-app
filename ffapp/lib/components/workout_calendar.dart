@@ -85,7 +85,9 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   DateTime? _weekOfDate;
 
   void getWeekDataForDate(DateTime date) async {
-    if (!mounted) {return;}
+    if (!mounted) {
+      return;
+    }
     date = date.toUtc();
     User user = Provider.of<UserModel>(context, listen: false).user!;
     FigureInstance figure =
@@ -104,32 +106,32 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     indicatorsShown = weekData['charge']!.map((e) {
       return weekData['charge']!.indexWhere((element) => element == e);
     }).toList();
-    if(mounted) {
-    setState(() {
-      if (weekData['charge']!.isEmpty) {
-        weekData['charge']!.add(FlSpot(1, 0));
-        _chargeChange = null;
-        _evChange = null;
-        _streakChange = null;
-        _goal = null;
-      } else {
-        _chargeChange = weekData['changes']![0].x.toInt();
-        _evChange = weekData['changes']![0].y.toInt();
-        _streakChange = weekData['streakAndGoal']![0].x.toInt();
-        _goal = weekData['streakAndGoal']![0].y.toInt();
-        _weekOfDate = (date);
-      }
+    if (mounted) {
+      setState(() {
+        if (weekData['charge']!.isEmpty) {
+          weekData['charge']!.add(FlSpot(1, 0));
+          _chargeChange = null;
+          _evChange = null;
+          _streakChange = null;
+          _goal = null;
+        } else {
+          _chargeChange = weekData['changes']![0].x.toInt();
+          _evChange = weekData['changes']![0].y.toInt();
+          _streakChange = weekData['streakAndGoal']![0].x.toInt();
+          _goal = weekData['streakAndGoal']![0].y.toInt();
+          _weekOfDate = (date);
+        }
 
-      maxEv = figure1.EvCutoffs[figure.evLevel];
-      lineBarsData = [
-        LineChartBarData(
-          showingIndicators: indicatorsShown,
-          spots: evTrueChargeFalse ? weekData['ev']! : weekData['charge']!,
-          color: _selectedColor,
-          isCurved: false,
-        ),
-      ];
-    });
+        maxEv = figure1.EvCutoffs[figure.evLevel];
+        lineBarsData = [
+          LineChartBarData(
+            showingIndicators: indicatorsShown,
+            spots: evTrueChargeFalse ? weekData['ev']! : weekData['charge']!,
+            color: _selectedColor,
+            isCurved: false,
+          ),
+        ];
+      });
     }
   }
 

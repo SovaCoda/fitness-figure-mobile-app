@@ -36,7 +36,8 @@ class MissionListWidget extends StatefulWidget {
   int seconds;
   final VoidCallback onStart;
 
-  MissionListWidget({super.key, 
+  MissionListWidget({
+    super.key,
     required this.missionName,
     required this.url,
     required this.moneyReward,
@@ -55,10 +56,14 @@ class _MissionState extends State<MissionListWidget> {
 
   void startTimer() {
     if (widget.seconds == 0) return;
-    if (Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).currentMission.missionName != "null") return;
+    if (Provider.of<FL.FitventuresMissionManagerProvider>(context,
+                listen: false)
+            .currentMission
+            .missionName !=
+        "null") return;
 
-
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).startMission(MissionListWidget(
+    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false)
+        .startMission(MissionListWidget(
       missionName: widget.missionName,
       url: widget.url,
       moneyReward: widget.moneyReward,
@@ -78,13 +83,15 @@ class _MissionState extends State<MissionListWidget> {
   }
 
   void onMissionCancel() {
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).completeMission();
+    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false)
+        .completeMission();
     _timer.cancel();
   }
 
   void onMissionComplete() {
     _timer.cancel();
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false).completeMission();
+    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false)
+        .completeMission();
   }
 
   String formatSeconds(int seconds) {
@@ -106,7 +113,11 @@ class _MissionState extends State<MissionListWidget> {
     return Consumer<FL.FitventuresMissionManagerProvider>(
       builder: (context, missionManager, child) {
         return Opacity(
-          opacity: (missionManager.currentMission.missionName == widget.missionName || missionManager.currentMission.missionName == "null") ? 1 : 0.5,
+          opacity: (missionManager.currentMission.missionName ==
+                      widget.missionName ||
+                  missionManager.currentMission.missionName == "null")
+              ? 1
+              : 0.5,
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -129,7 +140,9 @@ class _MissionState extends State<MissionListWidget> {
                 Consumer<FigureModel>(
                   builder: (context, figure, child) {
                     return RobotImageHolder(
-                      url: (figure.figure != null) ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${0}_cropped_happy") : "robot1/robot1_skin0_evo0_cropped_happy",
+                      url: (figure.figure != null)
+                          ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${0}_cropped_happy")
+                          : "robot1/robot1_skin0_evo0_cropped_happy",
                       height: 100,
                       width: 100,
                     );
@@ -165,18 +178,20 @@ class _MissionState extends State<MissionListWidget> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text(formatSeconds(widget.seconds), style: const TextStyle(fontSize: 30)),
-                    missionManager.currentMission.missionName == widget.missionName ?
-                      ElevatedButton(
-                        onPressed: onMissionCancel,
-                        child: const Text("Cancel", style: TextStyle(fontSize: 20)),
-                      )
-                      : 
-                      ElevatedButton(
-                        onPressed: startTimer,
-                        child: const Text("Start", style: TextStyle(fontSize: 20)),
-                      ),
-                    
+                    Text(formatSeconds(widget.seconds),
+                        style: const TextStyle(fontSize: 30)),
+                    missionManager.currentMission.missionName ==
+                            widget.missionName
+                        ? ElevatedButton(
+                            onPressed: onMissionCancel,
+                            child: const Text("Cancel",
+                                style: TextStyle(fontSize: 20)),
+                          )
+                        : ElevatedButton(
+                            onPressed: startTimer,
+                            child: const Text("Start",
+                                style: TextStyle(fontSize: 20)),
+                          ),
                   ],
                 )
               ],

@@ -70,7 +70,7 @@ class PersistantTimer {
       prefs!.setString('$timerName timerStarted', newStartDate.toString());
       int difference = now.difference(newStartDate).inMilliseconds;
       milliseconds = difference;
-      if(classTimer != null){
+      if (classTimer != null) {
         classTimer!.cancel();
       }
       return;
@@ -104,9 +104,9 @@ class PersistantTimer {
     int difference = ((now.difference(timerStartedDate).inMilliseconds *
             ((1 - (tickSpeedMS / 1000)) + 1)))
         .round();
-          if(classTimer != null){
-        classTimer!.cancel();
-      }
+    if (classTimer != null) {
+      classTimer!.cancel();
+    }
     milliseconds = difference;
     classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
       milliseconds += addableTime;
@@ -118,13 +118,13 @@ class PersistantTimer {
 
   void changeTickSpeedMS(int tickSpeedMS) {
     if (classTimer != null) {
-    classTimer!.cancel(); 
-    classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
-      milliseconds += addableTime;
-      if (onTick != null) {
-        onTick!();
-      }
-    });
+      classTimer!.cancel();
+      classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
+        milliseconds += addableTime;
+        if (onTick != null) {
+          onTick!();
+        }
+      });
     }
   }
 
@@ -172,7 +172,7 @@ class PersistantTimer {
       await loadTime();
       return;
     }
-    
+
     classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
       milliseconds += addableTime;
       if (onTick != null) {

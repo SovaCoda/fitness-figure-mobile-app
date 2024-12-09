@@ -147,7 +147,7 @@ class ChatModel extends ChangeNotifier {
   // }
 
   void updateChat() {
-      notifyListeners();
+    notifyListeners();
   }
 
   Future<void> loadPersonalityModules() async {
@@ -156,7 +156,7 @@ class ChatModel extends ChangeNotifier {
     if (modulesJson != null) {
       personalityModules = List<String>.from(json.decode(modulesJson));
     }
-    notifyListeners(); 
+    notifyListeners();
   }
 
   Future<void> savePersonalityModules() async {
@@ -308,7 +308,6 @@ class ChatModel extends ChangeNotifier {
     return "Workout timer started successfully.";
   }
 
-
   Future<void> sendMessage(
       String message, String role, BuildContext context) async {
     if (message.trim().isEmpty) {
@@ -415,7 +414,8 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  Future<void> handleRequiredAction(CreateRunResponse updatedRun, BuildContext context) async {
+  Future<void> handleRequiredAction(
+      CreateRunResponse updatedRun, BuildContext context) async {
     final toolCalls =
         updatedRun.requiredAction?['submit_tool_outputs']?['tool_calls'] ?? [];
     List<Map<String, dynamic>> toolOutputs = [];
@@ -545,10 +545,10 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-
-  Future<String>? generatePostWorkoutMessage(Map<String, dynamic> gameState) async {
-
-    String message = "The user just completed a workout with these stats create a message congratulating and encouraging them $gameState. Don't use emoji's, Be personable and human. Take into account your personality cores.";
+  Future<String>? generatePostWorkoutMessage(
+      Map<String, dynamic> gameState) async {
+    String message =
+        "The user just completed a workout with these stats create a message congratulating and encouraging them $gameState. Don't use emoji's, Be personable and human. Take into account your personality cores.";
 
     try {
       // Create a message in the thread
@@ -597,33 +597,32 @@ class ChatModel extends ChangeNotifier {
       if (runStatus != "completed") {
         logger.e("Run did not complete within the maximum number of retries");
       }
-      
+
       // Retrieve and process the assistant's response
       final messagesResponse =
-        await openAI.threads.v2.messages.listMessage(threadId: threadId!);
-      
-    if (messagesResponse.data.isNotEmpty) {
-      final assistantMessage = messagesResponse.data.first;
-      if (assistantMessage.content.isNotEmpty) {
-        logger.i('${assistantMessage.content.first.text}');
-        return assistantMessage.content.first.text.value;
+          await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+
+      if (messagesResponse.data.isNotEmpty) {
+        final assistantMessage = messagesResponse.data.first;
+        if (assistantMessage.content.isNotEmpty) {
+          logger.i('${assistantMessage.content.first.text}');
+          return assistantMessage.content.first.text.value;
+        } else {
+          logger.i("Received an empty message from the assistant");
+        }
       } else {
-        logger.i("Received an empty message from the assistant");
+        logger.i("No messages received from the assistant");
       }
-    } else {
-      logger.i("No messages received from the assistant");
-    }
     } catch (e) {
       logger.e("An error occurred: $e");
     }
     return "";
   }
-  
 
-
-  Future<String?> generatePremiumOfflineStatusMessage(Map<String, dynamic> gameState) async {
-
-    String message = "Send a message to a user that would appear in a push notification on their phone based on this info $gameState. Only pick two of the stats to mention. Don't use emoji's, Be personable and human. Take into account your personality cores.";
+  Future<String?> generatePremiumOfflineStatusMessage(
+      Map<String, dynamic> gameState) async {
+    String message =
+        "Send a message to a user that would appear in a push notification on their phone based on this info $gameState. Only pick two of the stats to mention. Don't use emoji's, Be personable and human. Take into account your personality cores.";
 
     try {
       // Create a message in the thread
@@ -674,22 +673,22 @@ class ChatModel extends ChangeNotifier {
         logger.e("Run did not complete within the maximum number of retries");
         return null;
       }
-      
+
       // Retrieve and process the assistant's response
       final messagesResponse =
-        await openAI.threads.v2.messages.listMessage(threadId: threadId!);
-      
-    if (messagesResponse.data.isNotEmpty) {
-      final assistantMessage = messagesResponse.data.first;
-      if (assistantMessage.content.isNotEmpty) {
-        logger.i('${assistantMessage.content.first.text}');
-        return assistantMessage.content.first.text.value;
+          await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+
+      if (messagesResponse.data.isNotEmpty) {
+        final assistantMessage = messagesResponse.data.first;
+        if (assistantMessage.content.isNotEmpty) {
+          logger.i('${assistantMessage.content.first.text}');
+          return assistantMessage.content.first.text.value;
+        } else {
+          logger.i("Received an empty message from the assistant");
+        }
       } else {
-        logger.i("Received an empty message from the assistant");
+        logger.i("No messages received from the assistant");
       }
-    } else {
-      logger.i("No messages received from the assistant");
-    }
     } catch (e) {
       logger.e("An error occurred: $e");
     }

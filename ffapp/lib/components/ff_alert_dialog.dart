@@ -30,6 +30,7 @@ class FfAlertDialog extends StatelessWidget {
           title: title,
           description: description,
           child: child,
+          isScrollable: true,
         ),
       ),
     );
@@ -51,17 +52,21 @@ void showFFDialog(
         title: title,
         description: message,
         child: Align(
-          alignment: Alignment.bottomCenter,
-          // child: FfButton(
-          //   height: 50,
-          //   text: "Get Fit",
-          //   textStyle: Theme.of(context).textTheme.displayMedium!,
-          //   textColor: Theme.of(context).colorScheme.onPrimary,
-          //   backgroundColor: Theme.of(context).colorScheme.primary,
-          //   onPressed: () => Navigator.of(context).pop(),
-          // ),
-          child: FFAppButton(onPressed: () => Navigator.of(context).pop(), text: "Get Fit")
-        ),
+            alignment: Alignment.bottomCenter,
+            // child: FfButton(
+            //   height: 50,
+            //   text: "Get Fit",
+            //   textStyle: Theme.of(context).textTheme.displayMedium!,
+            //   textColor: Theme.of(context).colorScheme.onPrimary,
+            //   backgroundColor: Theme.of(context).colorScheme.primary,
+            //   onPressed: () => Navigator.of(context).pop(),
+            // ),
+            child: FFAppButton(
+                onPressed: () => Navigator.of(context).pop(),
+                fontSize: 20,
+                text: "Get Fit",
+                size: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.height * 0.06)),
       );
     },
   );

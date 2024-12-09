@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -511,43 +513,22 @@ class _ProfileState extends State<Profile> {
           height: MediaQuery.of(context).size.height * 0.08
         ),
         const SizedBox(height: 16),
-        TextButton.icon(
+        FFAppButton(
           onPressed: () => _showDeleteAccountConfirmation(),
-          icon: Icon(Icons.delete_forever, color: Colors.red[300]),
-          label:
-              Text('Delete Account', style: TextStyle(color: Colors.red[300])),
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.red.withOpacity(0.1),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: Colors.red[300]!, width: 1),
-            ),
+          text: "DELETE ACCOUNT",
+          fontSize: 20,
+          isDelete: true,
+          size: MediaQuery.of(context).size.width * 0.79389312977099236641221374045802,
+          height: MediaQuery.of(context).size.height * 0.08098591549295774647887323943662
           ),
-        ),
+        
+        
       ],
     );
   }
 
   void _showDeleteAccountConfirmation() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Account'),
-          content: const Text(
-              'Are you sure you want to delete your account? This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
+    showFFDialogBinary("Delete Account", "Are you sure you want to delete your account? This action cannot be undone.", true, context, FfButton(text: "Delete Account", textColor: Colors.red, backgroundColor: Colors.transparent, onPressed: () async {
                 // current issue: auth.deleteUser() requires user reauthorization
                 final userPassword = await _showPasswordConfirmDialog();
                 if (userPassword != null) {
@@ -557,17 +538,51 @@ class _ProfileState extends State<Profile> {
                   signOut(context);
                   GoRouter.of(context).go("/");
                 }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-              ),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
+              },), FfButton(text: 'Cancel', textColor: Colors.white, backgroundColor: Colors.transparent, onPressed: () {
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              },));
+    //     return GradientedContainer(
+    //     child: AlertDialog(
+    //       content: const GradientedContainer(
+    //         height: 300,
+    //         width: 200,
+    //         showTopRectangle: true,
+    //         title: "Delete Account",
+    //         child: Text('Are you sure you want to delete your account? This action cannot be undone.')),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             if (mounted) {
+    //               Navigator.of(context).pop();
+    //             }
+    //           },
+    //           child: const Text('Cancel'),
+    //         ),
+    //         ElevatedButton(
+    //           onPressed: () async {
+    //             // current issue: auth.deleteUser() requires user reauthorization
+    //             final userPassword = await _showPasswordConfirmDialog();
+    //             if (userPassword != null) {
+    //               AuthCredential credential = EmailAuthProvider.credential(
+    //                   email: email, password: userPassword);
+    //               await auth.deleteUser(credential);
+    //               signOut(context);
+    //               GoRouter.of(context).go("/");
+    //             }
+    //           },
+    //           style: ElevatedButton.styleFrom(
+    //             backgroundColor: Theme.of(context).colorScheme.error,
+    //             foregroundColor: Theme.of(context).colorScheme.onError,
+    //           ),
+    //           child: const Text('Delete'),
+    //         ),
+    //       ],
+    //     )
+    //     );
+    //   },
+    // );
   }
 
   void _showEditDialog(

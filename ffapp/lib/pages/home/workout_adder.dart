@@ -945,7 +945,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: GradientedContainer(
-                              height: 100,
+                              height: MediaQuery.of(context).size.height * 0.125,
                               // doWeBinkTheBorder: false,
                               // radius: 0,
                               child: Padding(

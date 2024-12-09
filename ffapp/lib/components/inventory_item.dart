@@ -99,82 +99,92 @@ class _InventoryItemState extends State<InventoryItem> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return widget.locked
-      ? Image.asset("lib/assets/images/locked_figure.png", height: MediaQuery.of(context).size.height * 0.33)
-      : Consumer<FigureModel>(
-          builder: (context, figureModel, _) {
-            return Stack(
-              children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final size = constraints.maxWidth < constraints.maxHeight
-                        ? constraints.maxWidth
-                        : constraints.maxHeight;
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Center(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.455,
-                            height: MediaQuery.of(context).size.height * 0.333,
-                            decoration: BoxDecoration(border: widget.isSelected ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3) : null,
-                            borderRadius: BorderRadius.circular(15)),
+  Widget build(BuildContext context) {
+    return widget.locked
+        ? Image.asset("lib/assets/images/locked_figure.png",
+            height: MediaQuery.of(context).size.height * 0.33)
+        : Consumer<FigureModel>(
+            builder: (context, figureModel, _) {
+              return Stack(
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final size = constraints.maxWidth < constraints.maxHeight
+                          ? constraints.maxWidth
+                          : constraints.maxHeight;
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.455,
+                              height:
+                                  MediaQuery.of(context).size.height * 0.333,
+                              decoration: BoxDecoration(
+                                  border: widget.isSelected
+                                      ? Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 3)
+                                      : null,
+                                  borderRadius: BorderRadius.circular(15)),
                             ),
-                        ),
-                        // FitnessIcon as the main container
-                        Center(
-                          child: FitnessIcon(
-                            type: FitnessIconType.figure_full,
-                            size: MediaQuery.of(context).size.width * 0.4,
-                            height: MediaQuery.of(context).size.height * 0.35
                           ),
-                        ),
-                        // Original elements positioned over the FitnessIcon
-                        if (widget.figureInstance != null)
-                          Positioned(
-                            left: size * 0.05,
-                            top: size * 0.05,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (!widget.isSelected) {
-                                  figureModel.setFigure(widget.figureInstance!);
-                                  Provider.of<SelectedFigureProvider>(context,
-                                          listen: false)
-                                      .setSelectedFigureIndex(widget.index);
-                                  widget.onEquip(context);
-                                }
-                                _showSkinDialog(context);
-                              },
-                              child: Icon(
-                                Icons.swap_horiz,
-                                size: size * 0.15,
-                                color: Theme.of(context).colorScheme.primary,
+                          // FitnessIcon as the main container
+                          Center(
+                            child: FitnessIcon(
+                                type: FitnessIconType.figure_full,
+                                size: MediaQuery.of(context).size.width * 0.4,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.35),
+                          ),
+                          // Original elements positioned over the FitnessIcon
+                          if (widget.figureInstance != null)
+                            Positioned(
+                              left: size * 0.05,
+                              top: size * 0.05,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (!widget.isSelected) {
+                                    figureModel
+                                        .setFigure(widget.figureInstance!);
+                                    Provider.of<SelectedFigureProvider>(context,
+                                            listen: false)
+                                        .setSelectedFigureIndex(widget.index);
+                                    widget.onEquip(context);
+                                  }
+                                  _showSkinDialog(context);
+                                },
+                                child: Icon(
+                                  Icons.swap_horiz,
+                                  size: size * 0.15,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
                             ),
+                          Positioned(
+                            left: size * 0.05,
+                            bottom: size * 0.05,
+                            child: _buildChargeBar(context, size),
                           ),
-                        Positioned(
-                          left: size * 0.05,
-                          bottom: size * 0.05,
-                          child: _buildChargeBar(context, size),
-                        ),
-                        Positioned(
-                          right: size * 0.05,
-                          bottom: size * 0.05,
-                          child: _buildEvBar(context, size),
-                        ),
-                        Center(
-                          child: _buildFigureImage(context, size),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        );
-}
+                          Positioned(
+                            right: size * 0.05,
+                            bottom: size * 0.05,
+                            child: _buildEvBar(context, size),
+                          ),
+                          Center(
+                            child: _buildFigureImage(context, size),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+  }
 
   Widget _buildChargeBar(BuildContext context, double size) {
     if (widget.figureInstance != null) {

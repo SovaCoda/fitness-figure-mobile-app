@@ -45,7 +45,8 @@ class ResearchTaskManager {
   final FigureModel figureModel;
   ResearchTaskManager({required this.figureModel});
   static const int _dailyTaskLimit = 5;
-  static const List<String> _taskTitles = [ // made uppercase to match design
+  static const List<String> _taskTitles = [
+    // made uppercase to match design
     'OPTIMIZE PROCESSORS',
     'SHINE TRACKS',
     'UPGRADE COOLANTS',
@@ -70,8 +71,7 @@ class ResearchTaskManager {
     'REINFORCE ARMOR PLATING',
     'UPGRADE SOFTWARE PROTOCOLS',
     'INCREASE PAYLOAD CAPACITY',
-];
-
+  ];
 
   List<ResearchTask> _availableTasks = [];
   Set<String> _completedTaskIds = {};
@@ -193,7 +193,8 @@ class ResearchTaskManager {
   }
 
   void lockAllInactiveTasks() async {
-    List<ResearchTask> startedTasks = _availableTasks.where((task) => task.startTime != null).toList();
+    List<ResearchTask> startedTasks =
+        _availableTasks.where((task) => task.startTime != null).toList();
     if (startedTasks.isEmpty) {
       return;
     }
@@ -212,8 +213,7 @@ class ResearchTaskManager {
           .where((task) => (task.startTime == null) && (task.id != taskId))
           .forEach((task) => task.locked = true);
     } else {
-      _availableTasks
-          .forEach((task) => task.locked = false);
+      _availableTasks.forEach((task) => task.locked = false);
     }
     if (taskIndex != -1) {
       _availableTasks[taskIndex].startTime = DateTime.now();

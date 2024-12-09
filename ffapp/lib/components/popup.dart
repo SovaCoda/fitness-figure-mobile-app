@@ -33,7 +33,8 @@ class GenericPopupWidget extends StatelessWidget {
   final String message;
   final String title;
 
-  const GenericPopupWidget({super.key, required this.message, required this.title});
+  const GenericPopupWidget(
+      {super.key, required this.message, required this.title});
 
   @override
   Widget build(BuildContext context) {

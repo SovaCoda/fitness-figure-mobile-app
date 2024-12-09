@@ -83,36 +83,44 @@ class ChargeBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            showIcon ? FitnessIcon(type: FitnessIconType.charge, size: iconSize) : Container(),
+            showIcon
+                ? FitnessIcon(type: FitnessIconType.charge, size: iconSize)
+                : Container(),
             Column(
               children: [
                 Visibility(
-              visible: showInfoCircle,
-              child: Container(
-                  margin: EdgeInsets.all(textMargin),
-                  height: barHeight,
-                  width: barWidth * 0.5,
-                  child: Center(
-                      
-                              child: Text('$currentCharge%',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displayMedium!
-                                      .copyWith(
-                                          color: Color.fromRGBO(255, 158, 69, 1))))),
-            ),
+                  visible: showInfoCircle,
+                  child: Container(
+                      margin: EdgeInsets.all(textMargin),
+                      height: barHeight,
+                      width: barWidth * 0.5,
+                      child: Center(
+                          child: Text('$currentCharge%',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayMedium!
+                                  .copyWith(
+                                      color:
+                                          Color.fromRGBO(255, 158, 69, 1))))),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      margin: showIcon ? EdgeInsets.only(bottom: iconSize/4, left: 4) : null,
-                      padding: EdgeInsets.only(top: insetPixels/2, bottom: insetPixels/2),
+                      margin: showIcon
+                          ? EdgeInsets.only(bottom: iconSize / 4, left: 4)
+                          : null,
+                      padding: EdgeInsets.only(
+                          top: insetPixels / 2, bottom: insetPixels / 2),
                       width: barWidth,
                       height: barHeight,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(curvature),
                         color: const Color.fromRGBO(87, 47, 34, 1),
-                        border: Border.all(color: const Color.fromRGBO(126, 66, 24, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside),
+                        border: Border.all(
+                            color: const Color.fromRGBO(126, 66, 24, 1),
+                            width: 1.85,
+                            strokeAlign: BorderSide.strokeAlignOutside),
                         boxShadow: areWeShadowing
                             ? const [
                                 BoxShadow(
@@ -137,47 +145,87 @@ class ChargeBar extends StatelessWidget {
                                 child: Stack(
                                   children: [
                                     Container(
-                                      
                                       width: isVertical
                                           ? barWidth
-                                          : (currentCharge / 100).
-                                          clamp(0, 1) *
+                                          : (currentCharge / 100).clamp(0, 1) *
                                                   barWidth -
                                               0,
                                       height: isVertical
-                                          ? (currentCharge / 100)
-                                                  .clamp(0, 1) *
+                                          ? (currentCharge / 100).clamp(0, 1) *
                                               barHeight
-                                          : barHeight - insetPixels ,
+                                          : barHeight - insetPixels,
                                       decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Color.fromRGBO(175, 72, 0, 1), Color.fromRGBO(217, 106, 24, 1), Color.fromRGBO(241, 149, 44, 1), Color.fromRGBO(217, 106, 24, 1), Color.fromRGBO(175, 72, 0, 1)],
-                                            stops: [0, 0.2, 0.4, 0.6, 1]),
-                                          borderRadius: BorderRadius.circular(curvature),
-                                         ),
+                                        gradient: const LinearGradient(colors: [
+                                          Color.fromRGBO(175, 72, 0, 1),
+                                          Color.fromRGBO(217, 106, 24, 1),
+                                          Color.fromRGBO(241, 149, 44, 1),
+                                          Color.fromRGBO(217, 106, 24, 1),
+                                          Color.fromRGBO(175, 72, 0, 1)
+                                        ], stops: [
+                                          0,
+                                          0.2,
+                                          0.4,
+                                          0.6,
+                                          1
+                                        ]),
+                                        borderRadius:
+                                            BorderRadius.circular(curvature),
+                                      ),
                                     ),
                                     Container(
                                       width: isVertical
                                           ? barWidth
-                                          : (currentCharge / 100).
-                                          clamp(0, 1) *
+                                          : (currentCharge / 100).clamp(0, 1) *
                                                   barWidth -
                                               0,
                                       height: isVertical
-                                          ? (currentCharge / 100)
-                                                  .clamp(0, 1) *
+                                          ? (currentCharge / 100).clamp(0, 1) *
                                               barHeight
                                           : barHeight - insetPixels,
                                       decoration: BoxDecoration(
-                                    border: const Border(right: BorderSide(color: Color.fromRGBO(241, 149, 44, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside),
-                                    top: BorderSide(color: Color.fromRGBO(241, 149, 44, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside),
-                                    bottom: BorderSide(color: Color.fromRGBO(241, 149, 44, 1), width: 1.85, strokeAlign: BorderSide.strokeAlignOutside)),
-                                    boxShadow: const [BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.11), blurRadius: 3, spreadRadius: 1, blurStyle: BlurStyle.inner),
-                                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.11), blurRadius: 0, spreadRadius: 2, blurStyle: BlurStyle.inner)],
-                                    backgroundBlendMode: BlendMode.plus,
-                                      gradient: const RadialGradient(colors: [Color.fromRGBO(217, 238, 79, 0.22), Color.fromRGBO(47, 35, 27, 0.0858)],
-                                      stops: [0, 0]),
-                                      borderRadius: BorderRadius.circular(curvature)),
+                                          border: const Border(
+                                              right: BorderSide(
+                                                  color: Color.fromRGBO(
+                                                      241, 149, 44, 1),
+                                                  width: 1.85,
+                                                  strokeAlign: BorderSide
+                                                      .strokeAlignOutside),
+                                              top: BorderSide(
+                                                  color: Color.fromRGBO(
+                                                      241, 149, 44, 1),
+                                                  width: 1.85,
+                                                  strokeAlign: BorderSide
+                                                      .strokeAlignOutside),
+                                              bottom: BorderSide(
+                                                  color: Color.fromRGBO(
+                                                      241, 149, 44, 1),
+                                                  width: 1.85,
+                                                  strokeAlign: BorderSide
+                                                      .strokeAlignOutside)),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.11),
+                                                blurRadius: 3,
+                                                spreadRadius: 1,
+                                                blurStyle: BlurStyle.inner),
+                                            BoxShadow(
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.11),
+                                                blurRadius: 0,
+                                                spreadRadius: 2,
+                                                blurStyle: BlurStyle.inner)
+                                          ],
+                                          backgroundBlendMode: BlendMode.plus,
+                                          gradient: const RadialGradient(colors: [
+                                            Color.fromRGBO(217, 238, 79, 0.22),
+                                            Color.fromRGBO(47, 35, 27, 0.0858)
+                                          ], stops: [
+                                            0,
+                                            0
+                                          ]),
+                                          borderRadius:
+                                              BorderRadius.circular(curvature)),
                                     ),
                                   ],
                                 ),
@@ -192,12 +240,10 @@ class ChargeBar extends StatelessWidget {
                                     child: Container(
                                       width: isVertical
                                           ? barWidth
-                                          : (totalGains / 100).clamp(
-                                                  0, 1) *
+                                          : (totalGains / 100).clamp(0, 1) *
                                               barWidth,
                                       height: isVertical
-                                          ? (totalGains / 100).clamp(
-                                                  0, 1) *
+                                          ? (totalGains / 100).clamp(0, 1) *
                                               barHeight
                                           : barHeight,
                                       decoration: BoxDecoration(

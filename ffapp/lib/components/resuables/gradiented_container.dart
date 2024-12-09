@@ -10,18 +10,20 @@ class GradientedContainer extends StatelessWidget {
   final bool showTopRectangle;
   final String? title;
   final String? description;
+  final bool isScrollable;
 
-  const GradientedContainer({
-    Key? key,
-    this.child,
-    this.width,
-    this.height,
-    this.margin = const EdgeInsets.all(0),
-    this.padding = const EdgeInsets.all(0),
-    this.showTopRectangle = false,
-    this.title,
-    this.description,
-  }) : super(key: key);
+  const GradientedContainer(
+      {Key? key,
+      this.child,
+      this.width,
+      this.height,
+      this.margin = const EdgeInsets.all(0),
+      this.padding = const EdgeInsets.all(0),
+      this.showTopRectangle = false,
+      this.title,
+      this.description,
+      this.isScrollable = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,6 @@ class GradientedContainer extends StatelessWidget {
         height: height,
         child: Stack(
           children: [
-            // Blurred Background
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: BackdropFilter(
@@ -65,44 +66,46 @@ class GradientedContainer extends StatelessWidget {
                   ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final topPadding = showTopRectangle ? constraints.maxHeight * 0.22 : 0;
-                      return SingleChildScrollView(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: topPadding.toDouble() + 8,
-                            bottom: 8,
-                            left: 8,
-                            right: 8,
-                          ),
-                          child: Column(
-                            children: [
-                              if (description != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: 16.0,
-                                    left: 16.0,
-                                    right: 16.0,
-                                  ),
-                                  child: Text(
-                                    description!,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
+                      final topPadding =
+                          showTopRectangle ? constraints.maxHeight * 0.22 : 0;
+                      final content = Padding(
+                        padding: EdgeInsets.only(
+                          top: topPadding.toDouble() + 8,
+                          bottom: 8,
+                          left: 8,
+                          right: 8,
+                        ),
+                        child: Column(
+                          children: [
+                            if (description != null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: 16.0,
+                                  left: 16.0,
+                                  right: 16.0,
                                 ),
-                              if (child != null) child!,
-                            ],
-                          ),
+                                child: Text(
+                                  description!,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            if (child != null) child!,
+                          ],
                         ),
                       );
+
+                      return isScrollable
+                          ? SingleChildScrollView(child: content)
+                          : content;
                     },
                   ),
                 ),
               ),
             ),
-            // Top Rectangle with Title
             if (showTopRectangle)
               Align(
                 alignment: Alignment.topCenter,

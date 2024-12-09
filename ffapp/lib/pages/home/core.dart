@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
+import 'package:ffapp/components/resuables/custom_slider.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -163,13 +165,11 @@ class _CoreState extends State<Core> {
       future: _intializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return SingleChildScrollView(
-            child: Column(
+          return Column(
               children: [
                 _buildTopSection(),
                 _buildResearchSection(),
               ],
-            ),
           );
         } else {
           return const Center(child: CircularProgressIndicator());
@@ -209,7 +209,7 @@ class _CoreState extends State<Core> {
                   child: FitnessIcon(
                       type: FitnessIconType.evolution_circuits, size: 120),
                 ),
-                Positioned(
+              Positioned(
                   right: 0,
                   child: _buildCurrencyDisplay(),
                 ),
@@ -281,7 +281,7 @@ class _CoreState extends State<Core> {
       builder: (_, figure, __) {
         return Container(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.5,
+            height: MediaQuery.of(context).size.height * 0.455,
             child: ResearchGlassPanel(
               child: Stack(
                 alignment: Alignment.center,
@@ -293,6 +293,7 @@ class _CoreState extends State<Core> {
                           ? _buildDailyLimitReachedMessage()
                           : _buildAvailableTasks(),
                       _buildResetTasksButton(),
+                     
                     ],
                   ),
                   if (!figure.capabilities['Research Unlocked']!)
@@ -388,6 +389,8 @@ class _CoreState extends State<Core> {
   Widget _buildAvailableTasks() {
     return Expanded(
       child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics().applyTo(
+              const BouncingScrollPhysics()), // quick fix for this https://github.com/flutter/flutter/issues/138940
         child: Column(
           children: _taskManager.getAvailableTasks().map((task) {
             return ResearchOption(
@@ -411,21 +414,14 @@ class _CoreState extends State<Core> {
    */
   Widget _buildResetTasksButton({bool isDebugging = true}) {
     return isDebugging
-        ? ElevatedButton(
+        ? FFAppButton(
             onPressed: _resetTasks,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
-            ),
-            child: Text(
-              'Reset tasks (for debugging)',
-              style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-            ),
+            text: 'Reset tasks (for debugging)',
+            size: MediaQuery.of(context).size.width *
+                0.55,
+            height: MediaQuery.of(context).size.height *
+                0.06,
+            fontSize: 14
           )
         : Container();
   }

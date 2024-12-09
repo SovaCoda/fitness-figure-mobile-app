@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 OverlayEntry coreOverlay = OverlayEntry(builder: (context) {
   return AnimatedOverlayWidget(onRemoveOverlay: () {
     try {
-  coreOverlay.remove();
-} on AssertionError catch (e) {
-  logger.e(e);
-}
+      coreOverlay.remove();
+    } on AssertionError catch (e) {
+      logger.e(e);
+    }
   });
 });

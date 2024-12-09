@@ -46,13 +46,15 @@ class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
 
   void _generateBinaryNumbers() {
     // Calculate number of rows that can fit in the height
-    int numberOfRows = (widget.height / rowHeight).floor(); // Leave space for the message
-    
+    int numberOfRows =
+        (widget.height / rowHeight).floor(); // Leave space for the message
+
     // Generate one binary number for each row
     for (int i = 0; i < numberOfRows; i++) {
       _binaryNumbers.add(
         BinaryNumber(
-          x: -random.nextDouble() * widget.width, // Start at different positions off-screen
+          x: -random.nextDouble() *
+              widget.width, // Start at different positions off-screen
           y: i * rowHeight + 5, // Add small padding
           value: _generateBinaryString(),
           speed: 0.5 + random.nextDouble() * 1, // Reduced speed range
@@ -67,97 +69,97 @@ class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
     super.dispose();
   }
 
-@override
-Widget build(BuildContext context) {
-  return Container(
-    width: widget.width,
-    height: widget.height,
-    decoration: BoxDecoration(
-      color: const Color.fromARGB(255, 25,34,57),
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.blue.withOpacity(0.5),
-          spreadRadius: 5,
-          blurRadius: 15,
-          offset: const Offset(0, 0),
-        ),
-      ],
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Stack(
-        children: [
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              // Update binary numbers position
-              for (var binary in _binaryNumbers) {
-                binary.x += binary.speed;
-                if (binary.x > widget.width) {
-                  binary.x = -200; // Start further off-screen
-                  binary.value = _generateBinaryString(); // Generate new binary string
-                }
-              }
-
-              return CustomPaint(
-                painter: BinaryPainter(
-                  binaryNumbers: _binaryNumbers,
-                  glowColor: Color.fromARGB(255, 41, 61, 111)
-                ),
-              );
-            },
-          ),
-          if (widget.message.isNotEmpty)
-            Positioned(
-              top: 10,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-                  child: Column(
-                    children: [
-                      Text(
-                        widget.message,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'Roboto',
-                        ),
-                        textAlign: TextAlign.justify,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            if (widget.chatMore)
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: GestureDetector(
-              onTap: () {
-                GoRouter.of(context).go('/chat');
-              },
-              child: const Text(
-              'CHAT MORE >>',
-              style: const TextStyle(
-                color: Color.fromARGB(255, 4, 174, 124),
-                fontSize: 16,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: widget.width,
+      height: widget.height,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 25, 34, 57),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 15,
+            offset: const Offset(0, 0),
           ),
         ],
       ),
-    ),
-  );
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                // Update binary numbers position
+                for (var binary in _binaryNumbers) {
+                  binary.x += binary.speed;
+                  if (binary.x > widget.width) {
+                    binary.x = -200; // Start further off-screen
+                    binary.value =
+                        _generateBinaryString(); // Generate new binary string
+                  }
+                }
+
+                return CustomPaint(
+                  painter: BinaryPainter(
+                      binaryNumbers: _binaryNumbers,
+                      glowColor: Color.fromARGB(255, 41, 61, 111)),
+                );
+              },
+            ),
+            if (widget.message.isNotEmpty)
+              Positioned(
+                top: 10,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+                    child: Column(
+                      children: [
+                        Text(
+                          widget.message,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontFamily: 'Roboto',
+                          ),
+                          textAlign: TextAlign.justify,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (widget.chatMore)
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () {
+                    GoRouter.of(context).go('/chat');
+                  },
+                  child: const Text(
+                    'CHAT MORE >>',
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 4, 174, 124),
+                      fontSize: 16,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
-    }
 
 class BinaryNumber {
   double x;
@@ -206,7 +208,6 @@ class BinaryPainter extends CustomPainter {
   bool shouldRepaint(BinaryPainter oldDelegate) => true;
 }
 
-
 // Usage Example:
 class ExampleUsage extends StatelessWidget {
   const ExampleUsage({Key? key}) : super(key: key);
@@ -216,7 +217,11 @@ class ExampleUsage extends StatelessWidget {
     return const Scaffold(
       backgroundColor: Colors.black,
       body: Center(
-        child: BinaryGlowChatBubble(width: 300, height: 200, message: "Looks like we are short of our workout goal... if we want to make progress we need to train hard!"),
+        child: BinaryGlowChatBubble(
+            width: 300,
+            height: 200,
+            message:
+                "Looks like we are short of our workout goal... if we want to make progress we need to train hard!"),
       ),
     );
   }

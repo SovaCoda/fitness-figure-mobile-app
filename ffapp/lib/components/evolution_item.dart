@@ -18,10 +18,12 @@ class EvolutionItem extends StatelessWidget {
     return Container(
       width: 140,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: isUnlocked ? Border.all(color: Theme.of(context).colorScheme.secondary, width: 2) : null
-      ),
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: isUnlocked
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.secondary, width: 2)
+              : null),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
@@ -56,7 +58,6 @@ class EvolutionItem extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
-                    
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
