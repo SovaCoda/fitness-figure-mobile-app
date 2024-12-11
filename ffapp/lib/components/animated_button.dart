@@ -8,11 +8,11 @@ class FFAppButton extends StatefulWidget {
   final Color? color;
   final double fontSize;
   final VoidCallback? onPressed;
-  final bool isShiny;
+  final bool isShiny; // do this now, optimize later
   final bool isBack;
   final bool isDelete;
-  final IconData? icon; // New optional icon parameter
-
+  final bool isStore;
+  final IconData? icon;
   const FFAppButton({
     super.key,
     required this.text,
@@ -24,7 +24,8 @@ class FFAppButton extends StatefulWidget {
     this.isShiny = false,
     this.isBack = false,
     this.isDelete = false,
-    this.icon, // Add to constructor
+    this.isStore = false,
+    this.icon,
   });
 
   @override
@@ -76,7 +77,9 @@ class _FFAppButtonState extends State<FFAppButton> {
                 children: [
                   // Centered Text
                   Center(
-                    child: Stack(
+                    child: Padding(
+                      padding: widget.icon != null || widget.isBack || widget.isDelete || widget.isStore ? EdgeInsets.only(left: 20) : EdgeInsets.all(0),
+                      child: Stack(
                       children: [
                         Text(
                           widget.text,
@@ -103,14 +106,28 @@ class _FFAppButtonState extends State<FFAppButton> {
                               ),
                         ),
                       ],
-                    ),
+                    )),
                   ),
                   if (widget.isDelete)
                     Positioned(
                       left: MediaQuery.of(context).size.width * 0.08,
                       top: MediaQuery.of(context).size.height * 0.02,
                       child: SvgPicture.asset("lib/assets/art/trashcan.svg",
-                          width: 36.03, height: 36.03),
+                          width: MediaQuery.of(context).size.width *
+                              0.09167938931297709923664122137405,
+                          height: MediaQuery.of(context).size.width *
+                              0.09167938931297709923664122137405),
+                    ),
+
+                  if (widget.isStore)
+                    Positioned(
+                      left: MediaQuery.of(context).size.width * 0.1,
+                      top: MediaQuery.of(context).size.height * 0.02,
+                      child: SvgPicture.asset("lib/assets/art/store.svg",
+                          width: MediaQuery.of(context).size.width *
+                              0.11959287531806615776081424936387,
+                          height: MediaQuery.of(context).size.height *
+                              0.0434272300469483568075117370892),
                     ),
 
                   // Left-aligned Icon with padding

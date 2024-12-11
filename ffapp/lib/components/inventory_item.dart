@@ -156,11 +156,12 @@ class _InventoryItemState extends State<InventoryItem> {
                                   }
                                   _showSkinDialog(context);
                                 },
-                                child: Icon(
-                                  Icons.swap_horiz,
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: FitnessIcon(
+                                  type: FitnessIconType.swap,
                                   size: size * 0.15,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                                )),
                               ),
                             ),
                           Positioned(
@@ -188,13 +189,12 @@ class _InventoryItemState extends State<InventoryItem> {
 
   Widget _buildChargeBar(BuildContext context, double size) {
     if (widget.figureInstance != null) {
-      return ChargeBar(
-        showDashedLines: false,
-        currentCharge: widget.figureInstance!.charge,
-        fillColor: Theme.of(context).colorScheme.primary,
-        barHeight: size * 0.03,
-        barWidth: size * 0.2,
-      );
+      return Padding(
+        padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.01),
+        child: Row(children: [
+        FitnessIcon(type: FitnessIconType.charge, size: 17, height: 28),
+        Text('${widget.figureInstance!.charge}%', style: TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFFE18F4D)))
+      ]));
     } else {
       return Text(
         "--",
@@ -207,13 +207,12 @@ class _InventoryItemState extends State<InventoryItem> {
 
   Widget _buildEvBar(BuildContext context, double size) {
     if (widget.figureInstance != null) {
-      return EvBar(
-        currentXp: widget.figureInstance!.evPoints,
-        maxXp: figure1.EvCutoffs[widget.figureInstance!.evLevel],
-        fillColor: Theme.of(context).colorScheme.secondary,
-        barHeight: size * 0.03,
-        barWidth: size * 0.2,
-      );
+      return Padding(
+        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.02),
+        child: Row(children: [
+        FitnessIcon(type: FitnessIconType.evo, size: 17, height: 28),
+        Text('${widget.figureInstance!.evPoints}', style: TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFF00A7E1)))
+      ]));
     } else {
       return Text(
         "--",

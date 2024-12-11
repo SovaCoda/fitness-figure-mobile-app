@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ffapp/components/ShimmeringPremiumBadge.dart';
 import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
@@ -471,8 +472,7 @@ class _ProfileState extends State<Profile> {
               padding: const EdgeInsets.all(8.0),
               child: Row(children: [
                 manageSub == "Regular User"
-                    ? const FitnessIcon(
-                        type: FitnessIconType.regular_badge, size: 50)
+                    ? AnimatedPremiumBadge(size: 50)
                     : const FitnessIcon(
                         type: FitnessIconType.premium, size: 50),
                 const SizedBox(width: 8),

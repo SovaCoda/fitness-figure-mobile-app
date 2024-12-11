@@ -1,3 +1,4 @@
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/inventory_item.dart';
@@ -40,28 +41,30 @@ class _InventoryState extends State<Inventory> {
   void initialize() async {
     try {
       Routes.User? databaseUser = await auth.getUserDBInfo();
-    String stringCur = databaseUser?.currency.toString() ?? "0";
-    currency = int.parse(stringCur);
-    await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
-          figureInstancesList = value.figureInstances;
-        }));
-    await auth.getFigures().then((value) => setState(() {
-          figureList = value.figures;
-        }));
+      String stringCur = databaseUser?.currency.toString() ?? "0";
+      currency = int.parse(stringCur);
+      await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
+            figureInstancesList = value.figureInstances;
+          }));
+      await auth.getFigures().then((value) => setState(() {
+            figureList = value.figures;
+          }));
     } catch (e) {
       logger.e(e);
     }
   }
 
   void selectFigure(int index) async {
-    if(index == Provider.of<SelectedFigureProvider>(context, listen: false).selectedFigureIndex) {
+    if (index ==
+        Provider.of<SelectedFigureProvider>(context, listen: false)
+            .selectedFigureIndex) {
       return;
     }
     Provider.of<FigureModel>(context, listen: false)
         .setFigure(figureInstancesList[index]);
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .setSelectedFigureIndex(index);
-    
+
     equipNew(figureInstancesList[index].figureName.toString(), index);
   }
 
@@ -69,81 +72,105 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     return Consumer<SelectedFigureProvider>(
       builder: (context, selectedFigureProvider, _) {
-        return SingleChildScrollView(
-          child: Column(
-          children: [
-            SizedBox(height: 10),
-            Consumer<UserModel>(
-              builder: (context, userModel, _) {
-                int totalSlots = 4; // 4 slots for now
-                return Column(
-                  children: [
-                    for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: _buildInventorySlot(context, i * 2,
-                                userModel, selectedFigureProvider, totalSlots),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: _buildInventorySlot(context, i * 2 + 1,
-                                userModel, selectedFigureProvider, totalSlots),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
+        return Stack(alignment: Alignment.bottomCenter, children: [
+          SingleChildScrollView(
+              child: Column(
+            children: [
+              SizedBox(height: 10),
+              Consumer<UserModel>(
+                builder: (context, userModel, _) {
+                  int totalSlots = 6; // 4 slots for now
+                  return Column(
+                    children: [
+                      for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: _buildInventorySlot(
+                                  context,
+                                  i * 2,
+                                  userModel,
+                                  selectedFigureProvider,
+                                  totalSlots),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: _buildInventorySlot(
+                                  context,
+                                  i * 2 + 1,
+                                  userModel,
+                                  selectedFigureProvider,
+                                  totalSlots),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                      ],
                     ],
-                  ],
-                );
-              },
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => context.goNamed('SkinStore'),
-              child: Text('Go to Store'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  );
+                },
               ),
-            ),
-          ],
-        ));
+              // SizedBox(height: 20),
+              // ElevatedButton(
+              //   onPressed: () => context.goNamed('SkinStore'),
+              //   child: Text('Go to Store'),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Theme.of(context).colorScheme.primary,
+              //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              //   ),
+              // ),
+            ],
+          )),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.01,
+          child: FFAppButton(
+            text: "GO TO STORE",
+            size: MediaQuery.of(context).size.width *
+                0.79389312977099236641221374045802,
+            height: MediaQuery.of(context).size.height *
+                0.08098591549295774647887323943662,
+                fontSize: 20,
+            isStore: true,
+            onPressed: () => context.goNamed('SkinStore'),
+          )
+          ),
+        ]);
       },
     );
   }
 
-  Widget _buildInventorySlot(BuildContext context, int index,
-      UserModel userModel, SelectedFigureProvider selectedFigureProvider, int totalSlots) {
+  Widget _buildInventorySlot(
+      BuildContext context,
+      int index,
+      UserModel userModel,
+      SelectedFigureProvider selectedFigureProvider,
+      int totalSlots) {
     if (index < figureInstancesList.length) {
       return GestureDetector(
         onTap: () => selectFigure(index),
         child: InventoryItem(
-          figureInstance: figureInstancesList[index],
-          photoPath:
-              ("${figureInstancesList[index].figureName}/${figureInstancesList[index].figureName}_skin${figureInstancesList[index].curSkin}_evo${figureInstancesList[index].evLevel}_cropped_happy"),
-          equiped: figureInstancesList[index].figureName.toString() ==
-              userModel.user?.curFigure,
-          onEquip: (context) =>
-              equipNew(figureInstancesList[index].figureName.toString(), index),
-          isSelected: selectedFigureProvider.selectedFigureIndex == index,
-          index: index
-        ),
+            figureInstance: figureInstancesList[index],
+            photoPath:
+                ("${figureInstancesList[index].figureName}/${figureInstancesList[index].figureName}_skin${figureInstancesList[index].curSkin}_evo${figureInstancesList[index].evLevel}_cropped_happy"),
+            equiped: figureInstancesList[index].figureName.toString() ==
+                userModel.user?.curFigure,
+            onEquip: (context) => equipNew(
+                figureInstancesList[index].figureName.toString(), index),
+            isSelected: selectedFigureProvider.selectedFigureIndex == index,
+            index: index),
       );
     } else if (index < totalSlots) {
       // Additional slots for future figures
       return InventoryItem(
-        figureInstance: null,
-        locked: true,
-        photoPath: "null",
-        equiped: false,
-        onEquip: (context) => {},
-        index: index
-      );
-    } 
-    else {
+          figureInstance: null,
+          locked: true,
+          photoPath: "null",
+          equiped: false,
+          onEquip: (context) => {},
+          index: index);
+    } else {
       // Empty slot
       return SizedBox();
     }

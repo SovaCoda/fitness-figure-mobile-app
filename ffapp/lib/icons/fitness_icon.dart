@@ -22,6 +22,7 @@ enum FitnessIconType {
   success('success_text'),
   fail('fail_text'),
   speech_bubble('speech_icon'),
+  swap('swap'),
   logo_white('fflogowhite'),
   regular_badge('regular_badge'),
   figure_full('full_figure'),
