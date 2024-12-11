@@ -7,9 +7,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 // icon_constants.dart
 class IconConstants {
   static const String _basePath = "lib/assets/icons";
-  
+
   static String _getPath(String name) => "$_basePath/$name.svg";
 }
+
 enum FitnessIconType {
   // add new icons here
   logo('newfflogo'),
@@ -28,6 +29,8 @@ enum FitnessIconType {
   panel_evolution_info("panel_evolution_info"),
   panel_evolution_info_test('panel_evolution_info_test'),
   evolution_circuits('evolution_circuits'),
+  currency_exchange('currency_exchange'),
+  currency('currency'),
   // dashboard icons
   home('dashboard_icons/home'),
   home_active('dashboard_icons/home_active'),
@@ -44,7 +47,11 @@ enum FitnessIconType {
   calendar_slot_unlogged('calendar_slot_not_logged'),
   calendar_slot_logged('calendar_slot_logged'),
   calendar_slot_frozen('calendar_slot_frozen'),
-  dashboard_fire('dashboard_fire');
+  dashboard_fire('dashboard_fire'),
+  // button icons
+  button_help('button_help'),
+  button_help_blue('button_help_blue'),
+  button_help_orange('button_help_orange');
 
   final String fileName;
   const FitnessIconType(this.fileName);
@@ -57,9 +64,9 @@ class FitnessIcon extends StatelessWidget {
   final double? height;
   final FitnessIconType type;
   final Color? color;
-  
+
   const FitnessIcon({
-    super.key, 
+    super.key,
     required this.type,
     this.size,
     this.height, // height if needed for some icons
@@ -71,10 +78,10 @@ class FitnessIcon extends StatelessWidget {
     return SvgPicture.asset(
       type.path,
       width: size,
-      height: height ?? size, // if height is null, default to equaling the width
-      colorFilter: color != null 
-          ? ColorFilter.mode(color!, BlendMode.srcIn)
-          : null,
+      height:
+          height ?? size, // if height is null, default to equaling the width
+      colorFilter:
+          color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
     );
   }
 }
