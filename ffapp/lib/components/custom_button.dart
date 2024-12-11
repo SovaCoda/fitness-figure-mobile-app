@@ -17,28 +17,20 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ButtonStyle style = ElevatedButton.styleFrom( 
-      textStyle: const TextStyle(
-        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      backgroundColor: Colors.black,
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.all(30.0)
-    );
+    ButtonStyle style = ElevatedButton.styleFrom(
+        textStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.all(30.0));
 
     return ElevatedButton(
       onPressed: onTap,
       style: style,
-      child: 
-        Container(
-        alignment: Alignment.center,
-        child: Text(text)
-      ),
-      
-    
+      child: Container(alignment: Alignment.center, child: Text(text)),
     );
     // return Container(
     //   margin: const EdgeInsets.symmetric(horizontal: 25),
@@ -63,6 +55,6 @@ class CustomButton extends StatelessWidget {
     //       ),
     //     )
     //   ),
-    // );  
+    // );
   }
 }

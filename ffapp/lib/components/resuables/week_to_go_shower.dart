@@ -8,7 +8,7 @@ class WeekToGoShower extends StatelessWidget {
   final int weekGoal;
   final bool showChevron;
   final double invested;
-  final bool isInvesting; 
+  final bool isInvesting;
 
   const WeekToGoShower(
       {super.key,

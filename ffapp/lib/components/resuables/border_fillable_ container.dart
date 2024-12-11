@@ -21,14 +21,19 @@ class BorderFillableContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double fullStop = current/max;
+    double fullStop = current / max;
     bool full = current >= max;
     return Container(
       width: 100,
       height: 100,
       decoration: BoxDecoration(
-        gradient: SweepGradient(colors: [Color.fromRGBO(34, 90, 76, 1),Color.fromRGBO(34, 90, 76, 1),Color.fromRGBO(0, 164, 123, 0)],
-        stops: [0, fullStop -0.01, fullStop],
+        gradient: SweepGradient(
+          colors: [
+            Color.fromRGBO(34, 90, 76, 1),
+            Color.fromRGBO(34, 90, 76, 1),
+            Color.fromRGBO(0, 164, 123, 0)
+          ],
+          stops: [0, fullStop - 0.01, fullStop],
         ),
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.all(Radius.circular(200)),
@@ -37,7 +42,6 @@ class BorderFillableContainer extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Container(padding: padding, child: child),
-          
         ],
       ),
     );

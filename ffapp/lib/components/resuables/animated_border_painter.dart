@@ -28,7 +28,6 @@ class AnimatedBorderPainter extends CustomPainter {
         transform: GradientRotation(2 * pi * animation.value - pi / 2),
       ).createShader(rect);
 
-
     final path = Path()
       ..addArc(
         rect,
@@ -55,7 +54,8 @@ class AnimatedBorderContainer extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AnimatedBorderContainer> createState() => _AnimatedBorderContainerState();
+  State<AnimatedBorderContainer> createState() =>
+      _AnimatedBorderContainerState();
 }
 
 class _AnimatedBorderContainerState extends State<AnimatedBorderContainer>
@@ -88,4 +88,3 @@ class _AnimatedBorderContainerState extends State<AnimatedBorderContainer>
     );
   }
 }
-

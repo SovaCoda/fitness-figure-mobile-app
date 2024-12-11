@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,6 +15,7 @@ import 'package:ffapp/main.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bottom_picker/bottom_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -92,7 +96,7 @@ class _ProfileState extends State<Profile> {
       items: List.generate(
           7,
           (index) => Text("${index + 1} ${index == 0 ? "day" : "days"}",
-              style: TextStyle(fontSize: 35))),
+              style: const TextStyle(fontSize: 35))),
       pickerTitle: const Text(
         "Select Weekly Workout Goal",
         textAlign: TextAlign.center,
@@ -130,12 +134,13 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showMinGoalPicker() {
-    int safeWeeklyGoal = weeklyGoal.clamp(1, 12); // prevents errors from user input
+    int safeWeeklyGoal =
+        weeklyGoal.clamp(1, 12); // prevents errors from user input
     BottomPicker(
       items: List.generate(
           12,
           (index) => Text("${(index + 1) * 15} minutes",
-              style: TextStyle(fontSize: 35))),
+              style: const TextStyle(fontSize: 35))),
       pickerTitle: const Text(
         "Select Weekly Workout Goal",
         textAlign: TextAlign.center,
@@ -189,28 +194,36 @@ class _ProfileState extends State<Profile> {
       prefs.setString("newEmail", newEmail);
       prefs.setString("isVerified", "false");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result)),
-      );
+      if (mounted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result)),
+          );
+        }
+      }
 
       // Don't sign out or navigate away, wait for verification
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
   }
 
   void checkEmailVerification(String newEmail) {
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       try {
         User? user = FirebaseAuth.instance.currentUser;
         await user?.reload();
         if (user?.email == newEmail && user?.emailVerified == true) {
           timer.cancel();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Email updated successfully!")),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Email updated successfully!")),
+            );
+          }
         }
       } on FirebaseAuthException {
         // setState(() {
@@ -218,11 +231,13 @@ class _ProfileState extends State<Profile> {
         // });
         prefs.setString("isVerified", "true");
         prefs.setString("newEmail", "");
-        signOut(context);
-        GoRouter.of(context).go("/");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Success! Please sign back in.")),
-        );
+        if (mounted) {
+          signOut(context);
+          GoRouter.of(context).go("/");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Success! Please sign back in.")),
+          );
+        }
       }
     });
   }
@@ -233,103 +248,145 @@ class _ProfileState extends State<Profile> {
       AuthCredential credential = EmailAuthProvider.credential(
           email: userEmail, password: userPassword);
       await auth.updatePassword(newPassword, credential);
-      signOut(context);
-      GoRouter.of(context).go("/");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Success! Please sign back in.")),
-      );
+      if (mounted) {
+        signOut(context);
+        GoRouter.of(context).go("/");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Success! Please sign back in.")),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
   }
 
   void updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
-    Provider.of<UserModel>(context, listen: false).setUserWeekGoal(Int64(goal));
+    if (mounted) {
+      Provider.of<UserModel>(context, listen: false)
+          .setUserWeekGoal(Int64(goal));
+    }
   }
 
   void updateMinWorkoutTime(int time) async {
     await auth.updateUserDBInfo(
         Routes.User(email: email, workoutMinTime: Int64(time)));
-    Provider.of<UserModel>(context, listen: false)
-        .setWorkoutMinTime(Int64(time));
+    if (mounted) {
+      Provider.of<UserModel>(context, listen: false)
+          .setWorkoutMinTime(Int64(time));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        title: Text("Profile", style: Theme.of(context).textTheme.displayLarge!.copyWith(color: Colors.white)),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildProfileSection(),
-              SizedBox(height: 24),
-              _buildGoalsSection(),
-              SizedBox(height: 24),
-              _buildSubscriptionSection(),
-              SizedBox(height: 32),
-              _buildActionButtons(),
-            ],
+    return Stack(
+      children: [
+        // Background image
+        Positioned.fill(
+          child: Image.asset(
+            'lib/assets/art/profile_background.png', // Make sure this image exists in your assets
+            fit: BoxFit.cover,
           ),
         ),
-      ),
+        // Existing content
+        SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics().applyTo(
+              const BouncingScrollPhysics()), // quick fix for this https://github.com/flutter/flutter/issues/138940
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('PROFILE',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                _buildProfileSection(),
+                const SizedBox(height: 24),
+                _buildGoalsSection(),
+                const SizedBox(height: 24),
+                _buildSubscriptionSection(),
+                const SizedBox(height: 32),
+                _buildActionButtons(),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildProfileSection() {
-    return Card(
-      color: Colors.grey[850],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return GradientedContainer(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Personal Information', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-            _buildProfileItem(Icons.person, 'Name', name, () => _showEditDialog("Name", name, updateName)),
-            _buildProfileItem(Icons.email, 'Email', email, () => _showEditDialog("Email", email, (newEmail) async {
-              final userPassword = await _showPasswordConfirmDialog();
-              if (userPassword != null) {
-                updateEmail(email, userPassword, newEmail);
-              }
-            })),
-            _buildProfileItem(Icons.lock, 'Password', '********', _showPasswordChangeDialog),
+            const Text('PERSONAL INFORMATION',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400)),
+            const SizedBox(height: 16),
+            _buildProfileItem(Icons.person, 'Name', name,
+                () => _showEditDialog("Name", name, updateName)),
+            _buildProfileItem(
+                Icons.email,
+                'Email',
+                email,
+                () => _showEditDialog("Email", email, (newEmail) async {
+                      final userPassword = await _showPasswordConfirmDialog();
+                      if (userPassword != null) {
+                        updateEmail(email, userPassword, newEmail);
+                      }
+                    })),
+            _buildProfileItem(
+                Icons.lock, 'Password', '********', _showPasswordChangeDialog),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileItem(IconData icon, String title, String value, VoidCallback onTap) {
+  Widget _buildProfileItem(
+      IconData icon, String title, String value, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
         onTap: onTap,
         child: Row(
           children: [
-            Icon(icon, color: Colors.blue),
-            SizedBox(width: 16),
+            icon == Icons.person
+                ? const FitnessIcon(type: FitnessIconType.logo_white, size: 24)
+                : Icon(icon, color: Colors.white),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(color: Colors.grey[400])),
-                  Text(value, style: TextStyle(color: Colors.white)),
+                  Text(value,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Roboto')),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Roboto',
+                        fontSize: 14,
+                        color: Color.fromARGB(255, 145, 145, 145)),
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.edit, color: Colors.grey),
+            // Icon(Icons.edit, color: Colors.grey), removed according to the design
           ],
         ),
       ),
@@ -337,18 +394,26 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildGoalsSection() {
-    return Card(
-      color: Colors.grey[850],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return GradientedContainer(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Workout Goals', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-            _buildGoalItem('Weekly Workout Goal', '$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}', _showWeeklyGoalPicker),
-            _buildGoalItem('Minimum Workout Time', '$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}', _showMinGoalPicker),
+            const Text('WORKOUT GOALS',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400)),
+            const SizedBox(height: 16),
+            _buildGoalItem(
+                'Weekly Workout Goal',
+                '$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}',
+                _showWeeklyGoalPicker),
+            _buildGoalItem(
+                'Minimum Workout Time',
+                '$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}',
+                _showMinGoalPicker),
           ],
         ),
       ),
@@ -364,17 +429,25 @@ class _ProfileState extends State<Profile> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(color: Colors.grey[400], fontSize: 20)),
-              Text(value, style: TextStyle(color: Colors.white, fontSize: 28)),
+              Text(value,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Roboto')),
+              Text(
+                title,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Roboto',
+                    fontSize: 14,
+                    color: Color.fromARGB(255, 145, 145, 145)),
+              ),
             ],
           ),
-          ElevatedButton(
-            onPressed: onTap,
-            child: Text("Change"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            ),
+          GestureDetector(
+            onTap: onTap,
+            child: const Icon(Icons.edit, color: Colors.white),
           ),
         ],
       ),
@@ -382,134 +455,135 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildSubscriptionSection() {
-    return Card(
-      color: Colors.grey[850],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: manageSub == "Regular User" ? const FitnessIcon(type: FitnessIconType.regular_badge, size: 40) : const FitnessIcon(type: FitnessIconType.premium, size: 40),
-        title: const Text("Subscription", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        subtitle: Text(manageSub, style: TextStyle(color: Colors.grey[400])),
-      ),
-    );
+    return GradientedContainer(
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+          const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("SUBSCRIPTION",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 18))),
+          Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(children: [
+                manageSub == "Regular User"
+                    ? const FitnessIcon(
+                        type: FitnessIconType.regular_badge, size: 50)
+                    : const FitnessIcon(
+                        type: FitnessIconType.premium, size: 50),
+                const SizedBox(width: 8),
+                Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(manageSub == "Regular User" ? "REGULAR" : "PREMIUM",
+                          style: const TextStyle(
+                              fontFamily: 'Roboto',
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500)),
+                      GestureDetector(
+                          onTap: () {}, // TODO: Implement purchase premium page
+                          child: const Text(
+                            "Tap To Purchase Premium",
+                            style: TextStyle(
+                                fontFamily: 'Roboto',
+                                color: Color.fromARGB(255, 145, 145, 145),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400),
+                          ))
+                    ])
+              ])),
+        ]));
   }
 
   Widget _buildActionButtons() {
     return Column(
       children: [
-        ElevatedButton.icon(
+        FFAppButton(
           onPressed: () => _showSignOutConfirmation(),
-          icon: Icon(Icons.logout, color: Colors.white),
-          label: Text('Sign Out'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
+          icon: Icons.logout,
+          text: "SIGN OUT",
+          fontSize: 24,
+          size: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 0.08
         ),
-        SizedBox(height: 16),
-        TextButton.icon(
+        const SizedBox(height: 16),
+        FFAppButton(
           onPressed: () => _showDeleteAccountConfirmation(),
-          icon: Icon(Icons.delete_forever, color: Colors.red[300]),
-          label: Text('Delete Account', style: TextStyle(color: Colors.red[300])),
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.red.withOpacity(0.1),
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: Colors.red[300]!, width: 1),
-            ),
+          text: "DELETE ACCOUNT",
+          fontSize: 20,
+          isDelete: true,
+          size: MediaQuery.of(context).size.width * 0.79389312977099236641221374045802,
+          height: MediaQuery.of(context).size.height * 0.08098591549295774647887323943662
           ),
-        ),
+        
+        
       ],
     );
   }
 
   void _showDeleteAccountConfirmation() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Delete Account'),
-        content: Text('Are you sure you want to delete your account? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              // TODO: FIGURE OUT HOW TO DELETE ACCOUNT
-              // current issue: auth.deleteUser() requires user reauthorization
-              final userPassword = await _showPasswordConfirmDialog();
-              if (userPassword != null) {
-              AuthCredential credential = EmailAuthProvider.credential(
-          email: email, password: userPassword);
-              await auth.deleteUser(credential);
-              signOut(context);
-              GoRouter.of(context).go("/");
-              }
-              
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-            ),
-            child: Text('Delete'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-  Widget _buildProfileCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(value),
-        trailing: Icon(Icons.edit),
-        onTap: onTap,
-      ),
-    );
+    showFFDialogBinary("Delete Account", "Are you sure you want to delete your account? This action cannot be undone.", true, context, FfButton(text: "Delete Account", textColor: Colors.red, backgroundColor: Colors.transparent, onPressed: () async {
+                // current issue: auth.deleteUser() requires user reauthorization
+                final userPassword = await _showPasswordConfirmDialog();
+                if (userPassword != null) {
+                  AuthCredential credential = EmailAuthProvider.credential(
+                      email: email, password: userPassword);
+                  await auth.deleteUser(credential);
+                  signOut(context);
+                  GoRouter.of(context).go("/");
+                }
+              },), FfButton(text: 'Cancel', textColor: Colors.white, backgroundColor: Colors.transparent, onPressed: () {
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              },));
+    //     return GradientedContainer(
+    //     child: AlertDialog(
+    //       content: const GradientedContainer(
+    //         height: 300,
+    //         width: 200,
+    //         showTopRectangle: true,
+    //         title: "Delete Account",
+    //         child: Text('Are you sure you want to delete your account? This action cannot be undone.')),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             if (mounted) {
+    //               Navigator.of(context).pop();
+    //             }
+    //           },
+    //           child: const Text('Cancel'),
+    //         ),
+    //         ElevatedButton(
+    //           onPressed: () async {
+    //             // current issue: auth.deleteUser() requires user reauthorization
+    //             final userPassword = await _showPasswordConfirmDialog();
+    //             if (userPassword != null) {
+    //               AuthCredential credential = EmailAuthProvider.credential(
+    //                   email: email, password: userPassword);
+    //               await auth.deleteUser(credential);
+    //               signOut(context);
+    //               GoRouter.of(context).go("/");
+    //             }
+    //           },
+    //           style: ElevatedButton.styleFrom(
+    //             backgroundColor: Theme.of(context).colorScheme.error,
+    //             foregroundColor: Theme.of(context).colorScheme.onError,
+    //           ),
+    //           child: const Text('Delete'),
+    //         ),
+    //       ],
+    //     )
+    //     );
+    //   },
+    // );
   }
-
-  Widget _buildWeeklyGoalCard() {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Weekly Workout Goal',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: MediaQuery.of(context).size.width*0.05),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}"),
-                ElevatedButton(
-                  onPressed: _showWeeklyGoalPicker,
-                  child: Text("Change"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
 
   void _showEditDialog(
       String title, String currentValue, Function(String) onSave) {
@@ -527,11 +601,11 @@ class _ProfileState extends State<Profile> {
           ),
           actions: [
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text("Save"),
+              child: const Text("Save"),
               onPressed: () async {
                 // In the _showEditDialog method, replace the existing email update logic with:
                 if (title == "Email") {
@@ -543,7 +617,9 @@ class _ProfileState extends State<Profile> {
                 } else {
                   onSave(newValue);
                 }
-                Navigator.of(context).pop();
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -558,22 +634,22 @@ class _ProfileState extends State<Profile> {
       builder: (BuildContext context) {
         String password = '';
         return AlertDialog(
-          title: Text("Confirm Password"),
+          title: const Text("Confirm Password"),
           content: TextField(
             obscureText: true,
             onChanged: (value) {
               password = value;
             },
             decoration:
-                InputDecoration(hintText: "Enter your current password"),
+                const InputDecoration(hintText: "Enter your current password"),
           ),
           actions: [
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text("Confirm"),
+              child: const Text("Confirm"),
               onPressed: () => Navigator.of(context).pop(password),
             ),
           ],
@@ -585,27 +661,26 @@ class _ProfileState extends State<Profile> {
   void _showPasswordChangeDialog() async {
     String? currentPassword = await _showPasswordConfirmDialog();
     if (currentPassword == null) return;
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String newPassword = '';
         return AlertDialog(
-          title: Text("Change Password"),
+          title: const Text("Change Password"),
           content: TextField(
             obscureText: true,
             onChanged: (value) {
               newPassword = value;
             },
-            decoration: InputDecoration(hintText: "Enter new password"),
+            decoration: const InputDecoration(hintText: "Enter new password"),
           ),
           actions: [
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text("Change"),
+              child: const Text("Change"),
               onPressed: () {
                 updatePassword(email, currentPassword, newPassword);
                 Navigator.of(context).pop();
@@ -622,15 +697,15 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Sign Out"),
-          content: Text("Are you sure you want to sign out?"),
+          title: const Text("Sign Out"),
+          content: const Text("Are you sure you want to sign out?"),
           actions: [
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text("Sign Out"),
+              child: const Text("Sign Out"),
               onPressed: () {
                 signOut(context);
                 GoRouter.of(context).go("/");

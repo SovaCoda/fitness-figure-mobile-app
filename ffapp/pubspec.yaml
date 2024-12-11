@@ -69,6 +69,7 @@ dependencies:
   in_app_purchase: ^3.2.0
   purchases_flutter: ^8.1.6
   purchases_ui_flutter: ^8.1.6
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:

@@ -116,7 +116,9 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                       : MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
-                      widget.isLocked ? 'Locked' : (owned ? 'Owned' : 'Available'),
+                      widget.isLocked
+                          ? 'Locked'
+                          : (owned ? 'Owned' : 'Available'),
                       style: TextStyle(
                         color: Colors.white70,
                         fontStyle: FontStyle.italic,
@@ -251,17 +253,21 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                       )
                   ],
                 ),
-                if(!owned && !widget.isLocked)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[900], foregroundColor: Colors.white),
+                if (!owned && !widget.isLocked)
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal[900],
+                        foregroundColor: Colors.white),
                     onPressed: _buyFigure,
                     child: const Text("Buy Figure"),
-                ),
+                  ),
                 if (owned)
                   ElevatedButton(
-                    onPressed:
-                        widget.isLocked ? null : () => widget.onViewSkin != null ? widget.onViewSkin!(context, widget.skinName) : null,
-                    
+                    onPressed: widget.isLocked
+                        ? null
+                        : () => widget.onViewSkin != null
+                            ? widget.onViewSkin!(context, widget.skinName)
+                            : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal.shade900,
                       foregroundColor: Colors.white,

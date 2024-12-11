@@ -81,29 +81,34 @@ class _SkinViewerState extends State<SkinViewer> {
   }
 
   void equipSkin(BuildContext context, String figureName, String skinName) {
-  logger.i("Equipping skin: $skinName for figure: $figureName");
-  int selectedIndex = Provider.of<SelectedFigureProvider>(context, listen: false).selectedFigureIndex;
-  
-  // Update the FigureInstancesProvider
-  Provider.of<FigureInstancesProvider>(context, listen: false)
-    .setFigureInstanceCurSkin(figureName, skinName, selectedIndex);
-  
-  // Update the SelectedFigureProvider
-  Provider.of<FigureModel>(context, listen: false)
-    .setFigureSkin(skinName.substring(4));
+    logger.i("Equipping skin: $skinName for figure: $figureName");
+    int selectedIndex =
+        Provider.of<SelectedFigureProvider>(context, listen: false)
+            .selectedFigureIndex;
 
-  // Update the backend
-  auth.updateFigureInstance(Routes.FigureInstance(
-    figureName: figureName,
-    curSkin: skinName.substring(4),
-    userEmail: userModel.user?.email,
-  )).then((_) {
-    logger.i("Figure instance updated in backend for $figureName");
-    
-    // Force a rebuild of the entire inventory
-    Provider.of<SelectedFigureProvider>(context, listen: false).notifyListeners();
-  });
-}
+    // Update the FigureInstancesProvider
+    Provider.of<FigureInstancesProvider>(context, listen: false)
+        .setFigureInstanceCurSkin(figureName, skinName, selectedIndex);
+
+    // Update the SelectedFigureProvider
+    Provider.of<FigureModel>(context, listen: false)
+        .setFigureSkin(skinName.substring(4));
+
+    // Update the backend
+    auth
+        .updateFigureInstance(Routes.FigureInstance(
+      figureName: figureName,
+      curSkin: skinName.substring(4),
+      userEmail: userModel.user?.email,
+    ))
+        .then((_) {
+      logger.i("Figure instance updated in backend for $figureName");
+
+      // Force a rebuild of the entire inventory
+      Provider.of<SelectedFigureProvider>(context, listen: false)
+          .notifyListeners();
+    });
+  }
 
   void purchaseSkin(BuildContext context, int price, String skinSkinName,
       String figureSkinName, bool owned) async {

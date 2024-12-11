@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
@@ -39,6 +40,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:ffapp/components/chat_bubble.dart';
 
 class WorkoutAdder extends StatefulWidget {
   const WorkoutAdder({super.key});
@@ -413,7 +415,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       return Provider.of<ChatModel>(context, listen: false).generatePostWorkoutMessage({"workoutTimeMinutes" : _timePassed.toDouble()/60, "workoutTimeNeededMinutes" : _timegoal.toDouble()/60})!;
     } else {
       if(_goalMet) {return ("Awesome job! Keep up workouts like this and we'll evolve in no time at all!");}
-      else {return ("Looks like we were short of our workout goal... if we want to make progress we need to train hard!");}
+      else {return "Looks like we are short of our workout goal... if we want to make progress we need to train hard!";}
     }
   }
 
@@ -501,7 +503,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                   children: [
                     Expanded(
                       child: GradientedContainer(
-                          radius: 2,
+                          // radius: 2,
+                          
                           margin: const EdgeInsets.all(2),
                           padding: const EdgeInsets.all(20),
                           child: Consumer<UserModel>(builder: (_, user, __) {
@@ -855,9 +858,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             future: _postWorkoutMessage,
                             builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              return ChatBubble(message: snapshot.data!);
+                              return BinaryGlowChatBubble(width: MediaQuery.of(context).size.width * 0.8, height: MediaQuery.of(context).size.height * 0.12, message: snapshot.data!, chatMore: true);
                             } else if (snapshot.hasError) {
-                              return const ChatBubble(message: "[CRITICAL CHAT MODULE ERR ::Code 402::]");
+                              return BinaryGlowChatBubble(width: MediaQuery.of(context).size.width * 0.8, height: MediaQuery.of(context).size.height * 0.12, message: "[CRITICAL CHAT MODULE ERR ::Code 402::]");
                             } else {
                               return const SizedBox(width: 100, height: 60, child: CircularProgressIndicator(),);
                             }
@@ -942,9 +945,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: GradientedContainer(
-                              height: 100,
-                              doWeBinkTheBorder: false,
-                              radius: 0,
+                              height: MediaQuery.of(context).size.height * 0.125,
+                              // doWeBinkTheBorder: false,
+                              // radius: 0,
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: Row(
@@ -1118,22 +1121,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     onPressed: () => 
                                     { endWorkout()
                                     })
-                                : FfButton(
+                                : FFAppButton(
                                     icon: Icons.add,
-                                    iconSize: 50,
-                                    text: "Start Workout",
-                                    textStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge!,
-                                    height: 90,
-                                    textColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor:
-                                        Theme.of(context).colorScheme.primary,
+                                    text: "START WORKOUT",
+                                    fontSize: 30,
+                                    size: MediaQuery.of(context).size.width * 1,
+                                    height: MediaQuery.of(context).size.height * 0.15,
                                     onPressed: () {
                                       startLogging(false);
                                       startTimer(false, false);
                                     },
+                                    isShiny: true
                                   ),
                           ),
                           const SizedBox(

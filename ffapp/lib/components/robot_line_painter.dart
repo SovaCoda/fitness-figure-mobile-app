@@ -11,7 +11,6 @@ class RobotLinePainter extends CustomPainter {
     Offset startPoint = Offset(size.width * 0.6, size.height * 0.45);
     Offset endPoint = Offset(size.width * 0.90, size.height * 0.45);
 
-
     // Draw three lines
     for (int i = 0; i < 3; i++) {
       double yOffset = (i - 1) * 40;
@@ -21,32 +20,30 @@ class RobotLinePainter extends CustomPainter {
         paint,
       );
     }
-    startPoint = Offset(size.width * 0.896, size.height *0.45);
+    startPoint = Offset(size.width * 0.896, size.height * 0.45);
     endPoint = Offset(size.width * 1.02, size.height * 0.40);
 
     canvas.drawLine(
       startPoint.translate(0, 40),
       endPoint.translate(0, 40),
       paint,
-  );
-  startPoint = Offset(size.width * 0.896, size.height *0.45);
+    );
+    startPoint = Offset(size.width * 0.896, size.height * 0.45);
     endPoint = Offset(size.width * 1.02, size.height * 0.45);
     canvas.drawLine(
       startPoint.translate(0, 0),
       endPoint.translate(0, 0),
       paint,
-  );
+    );
 
-  startPoint = Offset(size.width * 0.899, size.height * 0.45);
+    startPoint = Offset(size.width * 0.899, size.height * 0.45);
     endPoint = Offset(size.width * 1.055, size.height * 0.50);
     canvas.drawLine(
       startPoint.translate(0, -40),
       endPoint.translate(0, -40),
       paint,
-  );
+    );
   }
-
-  
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;

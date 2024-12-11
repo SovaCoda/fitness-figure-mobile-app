@@ -18,7 +18,9 @@ class _MessageSenderState extends State<MessageSender> {
     final viewInsets = MediaQuery.of(context).viewInsets;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: viewInsets.bottom), // Adjust padding when the keyboard is shown
+      padding: EdgeInsets.only(
+          bottom:
+              viewInsets.bottom), // Adjust padding when the keyboard is shown
       child: Container(
         padding: const EdgeInsets.all(10),
         child: Row(

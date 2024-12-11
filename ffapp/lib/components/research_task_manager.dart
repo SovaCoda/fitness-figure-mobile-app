@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,31 +46,31 @@ class ResearchTaskManager {
   ResearchTaskManager({required this.figureModel});
   static const int _dailyTaskLimit = 5;
   static const List<String> _taskTitles = [
-    'Optimize Processors',
-    'Shine Tracks',
-    'Upgrade Coolants',
-    'Enhance AI Algorithms',
-    'Reinforce Chassis',
-    'Refine Engines',
-    'Boost Signal Range',
-    'Fortify Shields',
-    'Calibrate Sensors',
-    'Streamline Circuits',
-    'Amplify Power Output',
-    'Synchronize Networks',
-    'Elevate System Security',
-    'Tune Propulsion',
-    'Optimize Data Streams',
-    'Maximize Efficiency',
-    'Stabilize Power Grids',
-    'Upgrade Firmware',
-    'Enhance Vision Systems',
-    'Optimize Heat Dissipation',
-    'Improve Hydraulic Systems',
-    'Reinforce Armor Plating',
-    'Upgrade Software Protocols',
-    'Enhance Communication Channels',
-    'Increase Payload Capacity',
+    // made uppercase to match design
+    'OPTIMIZE PROCESSORS',
+    'SHINE TRACKS',
+    'UPGRADE COOLANTS',
+    'ENHANCE AI ALGORITHMS',
+    'REINFORCE CHASSIS',
+    'REFINE ENGINES',
+    'BOOST SIGNAL RANGE',
+    'FORTIFY SHIELDS',
+    'CALIBRATE SENSORS',
+    'STREAMLINE CIRCUITS',
+    'AMPLIFY POWER OUTPUT',
+    'SYNCHRONIZE NETWORKS',
+    'ELEVATE SYSTEM SECURITY',
+    'TUNE PROPULSION',
+    'OPTIMIZE DATA STREAMS',
+    'MAXIMIZE EFFICIENCY',
+    'STABILIZE POWER GRIDS',
+    'UPGRADE FIRMWARE',
+    'ENHANCE VISION SYSTEMS',
+    'OPTIMIZE HEAT DISSIPATION',
+    'IMPROVE HYDRAULIC SYSTEMS',
+    'REINFORCE ARMOR PLATING',
+    'UPGRADE SOFTWARE PROTOCOLS',
+    'INCREASE PAYLOAD CAPACITY',
   ];
 
   List<ResearchTask> _availableTasks = [];
@@ -194,7 +193,8 @@ class ResearchTaskManager {
   }
 
   void lockAllInactiveTasks() async {
-    List<ResearchTask> startedTasks = _availableTasks.where((task) => task.startTime != null).toList();
+    List<ResearchTask> startedTasks =
+        _availableTasks.where((task) => task.startTime != null).toList();
     if (startedTasks.isEmpty) {
       return;
     }
@@ -213,8 +213,7 @@ class ResearchTaskManager {
           .where((task) => (task.startTime == null) && (task.id != taskId))
           .forEach((task) => task.locked = true);
     } else {
-      _availableTasks
-          .forEach((task) => task.locked = false);
+      _availableTasks.forEach((task) => task.locked = false);
     }
     if (taskIndex != -1) {
       _availableTasks[taskIndex].startTime = DateTime.now();

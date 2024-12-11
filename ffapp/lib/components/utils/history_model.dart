@@ -53,7 +53,7 @@ class HistoryModel extends ChangeNotifier {
     for (int i = 0; i < newWorkouts.length; i++) {
       DateTime curDate = DateTime.parse(newWorkouts[i].endDate).toLocal();
       int currentCountable = newWorkouts[i].countable;
-      
+
       bool goalMet = currentCountable == 1;
 
       if (curDate.isAfter(weekstart) && goalMet) {
@@ -79,8 +79,6 @@ class HistoryModel extends ChangeNotifier {
       }
     }
 
-    
-
     // take the day subtract 7 days to get the last week
     // determine the start of that day's week
     // go through 7 dates and check the status of those workouts
@@ -102,8 +100,6 @@ class HistoryModel extends ChangeNotifier {
         }
       }
     }
-
-    
 
     for (int i = 0; i < lastWeek.length; i++) {
       int status = 0;

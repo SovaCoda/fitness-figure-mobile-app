@@ -35,7 +35,6 @@ import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ffapp/pages/home/personality.dart';
 
-
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
 
@@ -285,7 +284,8 @@ Future<void> main() async {
       ),
       ChangeNotifierProvider(create: (_) => FigureInstancesProvider()),
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
-      ChangeNotifierProvider(create: (context) => ChatModel()..init(context: context)),
+      ChangeNotifierProvider(
+          create: (context) => ChatModel()..init(context: context)),
     ], child: const MyApp()),
   );
 }
@@ -351,10 +351,10 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
     builder: (context, state) => const ChatPage(),
   ),
   GoRoute(
-      name: 'Personality',
-      path: '/edit_personality',
-      builder: (context, state) => EditPersonalityPage(),
-    ),
+    name: 'Personality',
+    path: '/edit_personality',
+    builder: (context, state) => EditPersonalityPage(),
+  ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',
@@ -364,12 +364,10 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
 // ),   !!THIS WAS REMOVED IN FAVOR OF POPUP INSTEAD OF ACUTAL ROUTE BUT IM KEEPING IT CAUSE I DONT KNOW IF REESE WANTS IT!!
 ]);
 
-
 final bool _kAutoConsume = Platform.isIOS || true;
 const String _fitnessFigurePlusSubscriptionId = 'ffigure';
 
-const List<String> _kProductIds = <String>[ _fitnessFigurePlusSubscriptionId];
-
+const List<String> _kProductIds = <String>[_fitnessFigurePlusSubscriptionId];
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -379,8 +377,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
-    @override
+  @override
   void initState() {
     initRevenueCatPlatform();
     super.initState();
@@ -389,17 +386,24 @@ class _MyAppState extends State<MyApp> {
   Future<void> initRevenueCatPlatform() async {
     await dotenv.load(fileName: ".env");
 
-    if(kDebugMode) {
+    if (kDebugMode) {
       await Purchases.Purchases.setLogLevel(Purchases.LogLevel.debug);
     }
-    
+
     Purchases.PurchasesConfiguration? configuration;
     if (Platform.isAndroid) {
-      // Do later (Sorry Aswin)
+      if (kDebugMode) {
+        print("RevenueCat configuration for Android is not implemented yet.");
+      }
+      return; // Prevent further execution for Android
     } else if (Platform.isIOS) {
-      configuration = Purchases.PurchasesConfiguration(dotenv.env['REVENUECAT_PROJECT_APPLE_API_KEY']!);
+      configuration = Purchases.PurchasesConfiguration(
+        dotenv.env['REVENUECAT_PROJECT_APPLE_API_KEY']!,
+      );
     }
-    await Purchases.Purchases.configure(configuration!);
+    if (configuration != null) {
+      await Purchases.Purchases.configure(configuration);
+    }
   }
 
   @override
@@ -431,7 +435,8 @@ class _MyAppState extends State<MyApp> {
           displayLarge: GoogleFonts.novaSquare(fontSize: 64),
           displayMedium: GoogleFonts.novaSquare(fontSize: 20),
           displaySmall: GoogleFonts.novaSquare(fontSize: 16),
-          headlineLarge: GoogleFonts.novaSquare(fontSize: 26, letterSpacing: 2.0),
+          headlineLarge:
+              GoogleFonts.novaSquare(fontSize: 26, letterSpacing: 2.0),
           headlineMedium: GoogleFonts.novaSquare(fontSize: 36),
           headlineSmall: GoogleFonts.novaSquare(fontSize: 48),
           bodyMedium: GoogleFonts.novaSquare(fontSize: 24),
@@ -446,7 +451,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
 
 class TestApp extends StatelessWidget {
   const TestApp({super.key});
