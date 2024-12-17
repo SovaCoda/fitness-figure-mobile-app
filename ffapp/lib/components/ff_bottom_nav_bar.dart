@@ -1,20 +1,18 @@
 import 'package:ffapp/icons/fitness_icon.dart';
+import 'package:ffapp/services/connectivity_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 // Weird callback fix I had to do
-// ignore: must_be_immutable 
+// ignore: must_be_immutable
 class FfBottomNavBar extends StatelessWidget {
   int selectedIndex = 0;
   final ValueSetter<int> onItemTapped;
   FfBottomNavBar({
     super.key,
-    required GlobalKey<State<StatefulWidget>> bottomNavBarKey,
     required this.selectedIndex,
     required this.onItemTapped,
-  }) : _bottomNavBarKey = bottomNavBarKey;
-
-  final GlobalKey<State<StatefulWidget>> _bottomNavBarKey;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +43,6 @@ class FfBottomNavBar extends StatelessWidget {
                   offset: Offset(0, MediaQuery.of(context).size.height * 0.02),
                   child: BottomNavigationBar(
                       type: BottomNavigationBarType.fixed,
-                      key: _bottomNavBarKey,
                       selectedItemColor: Colors.white,
                       unselectedItemColor: Colors.white70,
                       showSelectedLabels: true,

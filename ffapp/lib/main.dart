@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ffapp/services/connectivity_manager.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
@@ -291,7 +292,8 @@ Future<void> main() async {
 }
 
 /// The route configuration.
-final GoRouter _router = GoRouter(initialLocation: '/', routes: [
+final GoRouter _router = 
+GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, routes: [
   GoRoute(
       name: 'LandingPage',
       path: '/',
@@ -408,6 +410,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    ConnectivityService();
     return MaterialApp.router(
       title: 'Fitness Figure',
       theme: ThemeData(
@@ -454,10 +457,12 @@ class _MyAppState extends State<MyApp> {
 
 class TestApp extends StatelessWidget {
   const TestApp({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
+    ConnectivityService();
     return MaterialApp(
+      navigatorKey: ConnectivityService.navigatorKey,
       title: 'Test App',
       theme: ThemeData(
         useMaterial3: true,
