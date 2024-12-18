@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/pages/home/survey.dart';
-import 'package:ffapp/pages/home/home.dart';
 import 'package:ffapp/components/evolution_item.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 
@@ -24,14 +23,11 @@ class _EvolutionPageState extends State<EvolutionPage>
   late AnimationController _controller;
 
   late Animation<Color?> _colorAnimation;
-  late Animation<double> _sizeAnimation;
   late Animation<double> _opacityAnimation;
 
   late AnimationController _flashController;
   late Animation<double> _flashAnimation;
 
-  late AnimationController _figureFadeController;
-  late Animation<double> _figureFadeAnimation;
 
   late FigureModel figure = FigureModel();
   int _evolutionCost = 0;
@@ -72,7 +68,6 @@ class _EvolutionPageState extends State<EvolutionPage>
       end: Colors.green,
     ).animate(_controller);
 
-    _sizeAnimation = Tween<double>(begin: 400, end: 600).animate(_controller);
 
     _opacityAnimation = Tween<double>(begin: 1, end: 0).animate(_controller);
     appBarAndBottomNavigationBar =

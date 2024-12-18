@@ -58,7 +58,7 @@ class ConnectivityService {
 
   // Handle connectivity changes
   void _handleConnectivityChange(ConnectivityResult result) async {
-    await Future.delayed(Duration(seconds: 0));
+    await Future.delayed(Duration(seconds: 0)); // Some platforms need a delay for context to load before connection changes
     final context = navigatorKey.currentState?.overlay?.context;
     
     if (context != null) {

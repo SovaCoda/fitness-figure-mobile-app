@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ffapp/services/connectivity_manager.dart';
+import 'package:ffapp/services/providers.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
@@ -287,6 +288,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (_) => SelectedFigureProvider()),
       ChangeNotifierProvider(
           create: (context) => ChatModel()..init(context: context)),
+      ChangeNotifierProvider(create: (_) => HomeIndexProvider()),
     ], child: const MyApp()),
   );
 }
@@ -306,7 +308,7 @@ GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, r
   GoRoute(
     name: 'Workout',
     path: '/workout',
-    builder: (context, state) => const DashboardPage(index: 2),
+    builder: (context, state) => const DashboardPage(),
   ),
   GoRoute(
       name: 'Register',

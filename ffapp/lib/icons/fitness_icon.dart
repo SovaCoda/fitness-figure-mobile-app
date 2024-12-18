@@ -43,6 +43,8 @@ enum FitnessIconType {
   profile_active('dashboard_icons/profile_active'),
   history('dashboard_icons/history'),
   history_active('dashboard_icons/history_active'),
+  map('dashboard_icons/map'),
+  map_active('dashboard_icons/map_active'),
   // calendar icons
   calendar_slot('calendar_slot_default'),
   calendar_slot_unlogged('calendar_slot_not_logged'),
