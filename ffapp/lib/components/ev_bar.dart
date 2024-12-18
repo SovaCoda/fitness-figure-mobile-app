@@ -2,6 +2,7 @@ import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/services/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -108,7 +109,8 @@ class EvBar extends StatelessWidget {
               visible: showInfoBox,
               child: GestureDetector(
                 onTap: () {
-                  if (!isMaxLevel && evoReady) context.goNamed('Evolution');
+                  if (!isMaxLevel && evoReady)
+                    Provider.of<HomeIndexProvider>(context, listen: false).setIndex(5);
                 },
                 child: Container(
                     margin: EdgeInsets.all(textMargin),

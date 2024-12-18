@@ -105,15 +105,15 @@ class FfBottomNavBar extends StatelessWidget {
                                 'lib/assets/images/profile_active.png',
                                 width: 50),
                           ),
-                          BottomNavigationBarItem(
-                            icon: const FitnessIcon(
+                          const BottomNavigationBarItem(
+                            icon: FitnessIcon(
                                 type: FitnessIconType.map, size: 34),
                             label: 'Research',
-                            activeIcon: const FitnessIcon(
+                            activeIcon: FitnessIcon(
                                 type: FitnessIconType.map_active, size: 50),
                           ),
                         ],
-                        currentIndex: selectedIndex ?? 0,
+                        currentIndex: selectedIndex > 4 ? 0 : selectedIndex,
                         onTap: Provider.of<HomeIndexProvider>(context,
                                 listen: false)
                             .setIndex)) // Provider.of<HomeIndexProvider>(context, listen: false).setIndex)
