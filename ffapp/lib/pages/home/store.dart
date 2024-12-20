@@ -72,26 +72,26 @@ class _StoreState extends State<Store> {
   }
 
   void showSkinView(String figureName) {
-    print("Showing skin view for figure: $figureName");
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            backgroundColor: Colors.grey[900],
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height *
-                  0.8, // Set the height to 80% of the screen height
-              child: ChangeNotifierProvider(
-                  create: (context) => FigureInstancesProvider(),
-                  child: SkinViewer(
-                      listOfSkins: listOfSkin,
-                      listOfSkinInstances: listOfSkinInstances,
-                      figureName: figureName,
-                      listOfFigureInstances: listOfFigureInstances)),
-            ));
-      },
-    );
+    // print("Showing skin view for figure: $figureName");
+    // showDialog(
+    //   context: context,
+    //   builder: (context) {
+    //     return AlertDialog(
+    //         backgroundColor: Colors.grey[900],
+    //         content: SizedBox(
+    //           width: MediaQuery.of(context).size.width,
+    //           height: MediaQuery.of(context).size.height *
+    //               0.8, // Set the height to 80% of the screen height
+    //           child: ChangeNotifierProvider(
+    //               create: (context) => FigureInstancesProvider(),
+    //               child: SkinViewer(
+    //                   listOfSkins: listOfSkin,
+    //                   listOfSkinInstances: listOfSkinInstances,
+    //                   figureName: figureName,
+    //                   listOfFigureInstances: listOfFigureInstances)),
+    //         ));
+    //   },
+    // );
   }
 
   void addSkinInstance(

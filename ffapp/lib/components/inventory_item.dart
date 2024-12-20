@@ -4,6 +4,7 @@ import 'package:ffapp/components/legacy_ev_bar.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -37,65 +38,66 @@ class InventoryItem extends StatefulWidget {
 }
 
 class _InventoryItemState extends State<InventoryItem> {
-  late List<Skin> listOfSkins;
-  late List<SkinInstance> listOfSkinInstances;
-  late List<FigureInstance> listOfFigureInstances;
-  late List<Figure> listOfFigures;
+  // late List<Skin> listOfSkins;
+  // late List<SkinInstance> listOfSkinInstances;
+  // late List<FigureInstance> listOfFigureInstances;
+  // late List<Figure> listOfFigures;
 
   @override
   void initState() {
     super.initState();
-    _initializeSkinData();
+    // _initializeSkinData();
   }
 
-  void _initializeSkinData() async {
-    final auth = Provider.of<AuthService>(context, listen: false);
-    try {
-      User? databaseUser = await auth.getUserDBInfo();
-      final skins = await auth.getSkins();
-      final skinInstances;
-      if (mounted) {
-        skinInstances = await auth.getSkinInstances(
-            Provider.of<UserModel>(context, listen: false).user!);
-      } else {
-        skinInstances = null;
-      }
-      final figures = await auth.getFigures().then((value) => value.figures);
-      final figureInstances = await auth
-          .getFigureInstances(databaseUser!)
-          .then((value) => value.figureInstances);
-      if (mounted) {
-        setState(() {
-          listOfSkins = skins.skins;
-          listOfSkinInstances = skinInstances.skinInstances ?? [];
-          listOfFigureInstances = figureInstances;
-          listOfFigures = figures;
-        });
-      }
-    } catch (e) {
-      logger.e(e);
-    }
-  }
+  // void _initializeSkinData() async {
+  //   final auth = Provider.of<AuthService>(context, listen: false);
+  //   try {
+       // User? databaseUser = await auth.getUserDBInfo();
+       // final skins = await auth.getSkins();
+       // final skinInstances;
+       // if (mounted) {
+       //   skinInstances = await auth.getSkinInstances(
+       //       Provider.of<UserModel>(context, listen: false).user!);
+       // } else {
+       //   skinInstances = null;
+       // }
+       // final figures = await auth.getFigures().then((value) => value.figures);
+       // final figureInstances = await auth
+       //     .getFigureInstances(databaseUser!)
+       //     .then((value) => value.figureInstances);
+  //     if (mounted) {
+  //       setState(() {
+           // listOfSkins = skins.skins;
+           // listOfSkinInstances = skinInstances.skinInstances ?? [];
+           // listOfFigureInstances = figureInstances;
+           // listOfFigures = figures;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     logger.e(e);
+  //   }
+  // }
 
   void _showSkinDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[900],
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: SkinViewer(
-              listOfSkins: listOfSkins,
-              listOfSkinInstances: listOfSkinInstances,
-              figureName: widget.figureInstance!.figureName,
-              listOfFigureInstances: listOfFigureInstances,
-            ),
-          ),
-        );
-      },
-    );
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return AlertDialog(
+    //       backgroundColor: Colors.grey[900],
+    //       content: SizedBox(
+    //         width: MediaQuery.of(context).size.width,
+    //         height: MediaQuery.of(context).size.height * 0.8,
+    //         child: SkinViewer(
+    //           listOfSkins: listOfSkins,
+    //           listOfSkinInstances: listOfSkinInstances,
+    //           figureName: widget.figureInstance!.figureName,
+    //           listOfFigureInstances: listOfFigureInstances,
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
+    Provider.of<HomeIndexProvider>(context, listen: false).setIndex(6);
   }
 
   @override

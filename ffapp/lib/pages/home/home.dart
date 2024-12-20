@@ -1,6 +1,7 @@
 import 'package:ffapp/components/ff_app_bar.dart';
 import 'package:ffapp/components/ff_body_scaffold.dart';
 import 'package:ffapp/components/ff_bottom_nav_bar.dart';
+import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/pages/home/core.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/evo.dart';
@@ -29,7 +30,8 @@ class _DashboardPageState extends State<DashboardPage> {
     // const History(), implement this via the calendar in the dashboard
     const Profile(),
     const Core(),
-    const EvolutionPage()
+    const EvolutionPage(),
+    const SkinViewer()
   ];
 
   @override
