@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/services/connectivity_manager.dart';
 import 'package:ffapp/services/providers.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
@@ -327,7 +328,7 @@ GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, r
       path: '/avatar_selection',
       builder: (context, state) => const AvatarSelection()),
   GoRoute(
-      name: 'SkinStore',
+      name: 'FigureStore',
       path: '/store',
       builder: (context, state) => const Store()),
   GoRoute(
@@ -358,6 +359,11 @@ GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, r
     name: 'Personality',
     path: '/edit_personality',
     builder: (context, state) => EditPersonalityPage(),
+  ),
+  GoRoute(
+    name: 'SkinViewer',
+    path: '/skin_viewer',
+    builder: (context, state) => SkinViewer(),
   ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important

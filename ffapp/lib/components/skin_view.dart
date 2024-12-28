@@ -1,3 +1,4 @@
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/figure_store_skin_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
@@ -10,17 +11,17 @@ import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:logger/logger.dart';
 
 class SkinViewer extends StatefulWidget {
-  final List<Routes.Skin> listOfSkins;
-  final List<Routes.FigureInstance> listOfFigureInstances;
-  final List<Routes.SkinInstance> listOfSkinInstances;
-  final String figureName;
+  // final List<Routes.Skin> listOfSkins;
+  // final List<Routes.FigureInstance> listOfFigureInstances;
+  // final List<Routes.SkinInstance> listOfSkinInstances;
+  // final String figureName;
 
   const SkinViewer({
     Key? key,
-    required this.listOfSkins,
-    required this.listOfSkinInstances,
-    required this.figureName,
-    required this.listOfFigureInstances,
+    // required this.listOfSkins,
+    // required this.listOfSkinInstances,
+    // required this.figureName,
+    // required this.listOfFigureInstances,
   }) : super(key: key);
 
   @override
@@ -30,6 +31,9 @@ class SkinViewer extends StatefulWidget {
 class _SkinViewerState extends State<SkinViewer> {
   late AuthService auth;
   late UserModel userModel;
+  late List<Routes.Skin> listOfSkins;
+  late List<Routes.FigureInstance> listOfFigureInstances;
+  late List<Routes.SkinInstance> listOfSkinInstances;
   int currentSkinIndex = 0;
   late String figureName;
   late int selectedFigureIndex;
@@ -37,16 +41,40 @@ class _SkinViewerState extends State<SkinViewer> {
 
   @override
   void initState() {
+    
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+    listOfFigureInstances = [];
+    listOfSkinInstances = [];
+    listOfSkins = [];
+    figureName = "robot1";
+    initialize();
+  }
+
+  void initialize() async {
+    Routes.User? databaseUser = await auth.getUserDBInfo();
+    listOfFigureInstances = await auth
+          .getFigureInstances(databaseUser!)
+          .then((value) => value.figureInstances);
+    listOfSkins = await auth.getSkins().then((value) => value.skins);
     userModel = Provider.of<UserModel>(context, listen: false);
     selectedFigureIndex =
         Provider.of<SelectedFigureProvider>(context, listen: false)
             .selectedFigureIndex;
-    figureName = widget.listOfFigureInstances[selectedFigureIndex].figureName;
-    logger.i("SkinViewer initialized with figureName: ${widget.figureName}");
-    logger.i("listOfSkins: ${widget.listOfSkins}");
-    logger.i("listOfFigureInstances: ${widget.listOfFigureInstances}");
+    Provider.of<SelectedFigureProvider>(context, listen: false);
+    final List<Routes.SkinInstance>? skinInstances;
+      if (mounted) {
+        skinInstances = await auth.getSkinInstances(
+            userModel.user!).then((value) => value.skinInstances);
+      } else {
+        skinInstances = null;
+      }
+    
+    figureName = listOfFigureInstances[selectedFigureIndex].figureName;
+    listOfSkinInstances = skinInstances ?? [];
+    logger.i("SkinViewer initialized with figureName: $figureName");
+    logger.i("listOfSkins: ${listOfSkins}");
+    logger.i("listOfFigureInstances: $listOfFigureInstances");
   }
 
   void showOverlayAlert(
@@ -128,7 +156,7 @@ class _SkinViewerState extends State<SkinViewer> {
 
       // Update the local list of skin instances
       setState(() {
-        widget.listOfSkinInstances.add(Routes.SkinInstance(
+        listOfSkinInstances.add(Routes.SkinInstance(
             userEmail: userModel.user?.email,
             skinName: skinSkinName,
             figureName: figureSkinName));
@@ -153,7 +181,7 @@ class _SkinViewerState extends State<SkinViewer> {
 
   void previousSkin() {
     setState(() {
-      currentSkinIndex = (currentSkinIndex - 1 + widget.listOfSkins.length) % 2;
+      currentSkinIndex = (currentSkinIndex - 1 + listOfSkins.length) % 2;
     });
   }
 
@@ -162,15 +190,15 @@ class _SkinViewerState extends State<SkinViewer> {
     return Consumer<FigureInstancesProvider>(
       builder: (context, equippedSkin, _) {
         Provider.of<FigureInstancesProvider>(context, listen: true)
-            .initializeListOfFigureInstances(widget.listOfFigureInstances);
+            .initializeListOfFigureInstances(listOfFigureInstances);
 
-        Routes.Skin skin = widget.listOfSkins[currentSkinIndex];
-        bool owned = widget.listOfSkinInstances
+        Routes.Skin skin = listOfSkins.isNotEmpty ? listOfSkins[currentSkinIndex] : Routes.Skin();
+        bool owned = listOfSkinInstances
             .any((element) => element.skinName == skin.skinName);
 
         return Container(
           width: MediaQuery.of(context).size.width * 1,
-          height: MediaQuery.of(context).size.height * 0.5,
+          height: MediaQuery.of(context).size.height * 0.8,
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(10),
@@ -180,44 +208,44 @@ class _SkinViewerState extends State<SkinViewer> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.4,
+                  height: MediaQuery.of(context).size.height * 0.473,
                   width: MediaQuery.of(context).size.width * 1,
                   child: currentSkinIndex == 1
                       ? Stack(
                           alignment: Alignment.center,
                           children: [
                             // Left robot (green)
-                            Positioned(
-                              left: 0,
-                              top: 0,
-                              child: Opacity(
-                                opacity: 0.3,
-                                child: RobotImageHolder(
-                                  url:
-                                      '$figureName/${figureName}_skin0_evo0_cropped_happy',
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.50,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.35,
-                                ),
-                              ),
-                            ),
-
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Opacity(
-                                opacity: 0.3,
-                                child: RobotImageHolder(
-                                  url:
-                                      '$figureName/${figureName}_skin0_evo0_cropped_happy',
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.50,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.35,
-                                ),
-                              ),
-                            ),
+                            // Positioned(
+                            //   left: 0,
+                            //   top: 0,
+                            //   child: Opacity(
+                            //     opacity: 0.3,
+                            //     child: RobotImageHolder(
+                            //       url:
+                            //           '$figureName/${figureName}_skin0_evo0_cropped_happy',
+                            //       height:
+                            //           MediaQuery.of(context).size.height * 0.50,
+                            //       width:
+                            //           MediaQuery.of(context).size.width * 0.35,
+                            //     ),
+                            //   ),
+                            // ),
+                            // right robot
+                            // Positioned(
+                            //   top: 0,
+                            //   right: 0,
+                            //   child: Opacity(
+                            //     opacity: 0.3,
+                            //     child: RobotImageHolder(
+                            //       url:
+                            //           '$figureName/${figureName}_skin0_evo0_cropped_happy',
+                            //       height:
+                            //           MediaQuery.of(context).size.height * 0.50,
+                            //       width:
+                            //           MediaQuery.of(context).size.width * 0.35,
+                            //     ),
+                            //   ),
+                            // ),
                             Positioned(
                               // Center robot
                               top: 0,
@@ -225,7 +253,7 @@ class _SkinViewerState extends State<SkinViewer> {
                                 url:
                                     '$figureName/${figureName}_skin1_evo0_cropped_happy',
                                 height:
-                                    MediaQuery.of(context).size.height * 0.4,
+                                    MediaQuery.of(context).size.height * 0.5,
                                 width: MediaQuery.of(context).size.width * 0.5,
                               ),
                               // Right robot (green)
@@ -254,37 +282,37 @@ class _SkinViewerState extends State<SkinViewer> {
                           alignment: Alignment.center,
                           children: [
                             // Left robot (green)
-                            Positioned(
-                              left: 0,
-                              top: 0,
-                              child: Opacity(
-                                opacity: 0.3,
-                                child: RobotImageHolder(
-                                  url:
-                                      '$figureName/${figureName}_skin1_evo0_cropped_happy',
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.50,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.35,
-                                ),
-                              ),
-                            ),
-
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Opacity(
-                                opacity: 0.3,
-                                child: RobotImageHolder(
-                                  url:
-                                      '$figureName/${figureName}_skin1_evo0_cropped_happy',
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.50,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.35,
-                                ),
-                              ),
-                            ),
+                            // Positioned(
+                            //   left: 0,
+                            //   top: 0,
+                            //   child: Opacity(
+                            //     opacity: 0.3,
+                            //     child: RobotImageHolder(
+                            //       url:
+                            //           '$figureName/${figureName}_skin1_evo0_cropped_happy',
+                            //       height:
+                            //           MediaQuery.of(context).size.height * 0.50,
+                            //       width:
+                            //           MediaQuery.of(context).size.width * 0.35,
+                            //     ),
+                            //   ),
+                            // ),
+                            // right robot
+                            // Positioned(
+                            //   top: 0,
+                            //   right: 0,
+                            //   child: Opacity(
+                            //     opacity: 0.3,
+                            //     child: RobotImageHolder(
+                            //       url:
+                            //           '$figureName/${figureName}_skin1_evo0_cropped_happy',
+                            //       height:
+                            //           MediaQuery.of(context).size.height * 0.50,
+                            //       width:
+                            //           MediaQuery.of(context).size.width * 0.35,
+                            //     ),
+                            //   ),
+                            // ),
                             Positioned(
                               // Center robot
                               top: 0,
@@ -292,7 +320,7 @@ class _SkinViewerState extends State<SkinViewer> {
                                 url:
                                     '$figureName/${figureName}_skin0_evo0_cropped_happy',
                                 height:
-                                    MediaQuery.of(context).size.height * 0.4,
+                                    MediaQuery.of(context).size.height * 0.5,
                                 width: MediaQuery.of(context).size.width * 0.5,
                               ),
                               // Right robot (green)
@@ -317,16 +345,25 @@ class _SkinViewerState extends State<SkinViewer> {
                             ),
                           ],
                         )),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.65,
-                height: MediaQuery.of(context).size.height * 0.22,
-                decoration: const BoxDecoration(
-                    border: Border(
-                        top: BorderSide(color: Colors.white, width: 0.5))),
-                child: Padding(
+                        // gradient container part
+              Positioned(
+                bottom: 0,
+              child: Container(
+                  padding: EdgeInsets.only(left: 40, top: 12, bottom: 12, right: 40),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: Color.fromRGBO(51, 133, 162, 1))),
+                    gradient: LinearGradient(colors: [Color.fromRGBO(28, 109, 189, 0.29), Color.fromRGBO(0, 164, 123, 0.29)])
+                  ),
+                  child: Column(
+                  children: [
+                    Padding(
                   padding: const EdgeInsets.all(16.0),
                   // There is no skin.description text to use, so I did this approach, but I suggest adding a place to define these elsewhere
-                  child: Text(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    child: Text(
                     figureName == "robot1" && currentSkinIndex == 0
                         ? 'The original skin with the original figure. You really can\'t go wrong with the classics and this one comes with the default green theme.'
                         : figureName == "robot1" && currentSkinIndex == 1
@@ -336,10 +373,9 @@ class _SkinViewerState extends State<SkinViewer> {
                                 : 'Text for robot 2 skin 1 description',
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     textAlign: TextAlign.left,
-                  ),
+                  )),
                 ),
-              ),
-              Text(
+                Text(
                 owned ? "Purchased" : '\$${skin.price}',
                 style: const TextStyle(
                   color: Colors.white,
@@ -347,44 +383,9 @@ class _SkinViewerState extends State<SkinViewer> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color:
-                          Theme.of(context).colorScheme.primary.withAlpha(100),
-                      blurRadius: 10.0,
-                      spreadRadius: 1.0,
-                      offset: const Offset(
-                        0.0,
-                        0.0,
-                      ),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () => !owned
-                      ? purchaseSkin(
-                          context,
-                          skin.price,
-                          skin.skinName,
-                          figureName,
-                          owned,
-                        )
-                      : equipSkin(context, figureName, skin.skinName),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    minimumSize: Size(
-                      MediaQuery.of(context).size.width * 0.6,
-                      MediaQuery.of(context).size.height * 0.07,
-                    ),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                  ),
-                  child: Text(
-                    owned
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+              FFAppButton(
+                  text: owned
                         ? (equippedSkin
                                         .listOfFigureInstances[
                                             Provider.of<SelectedFigureProvider>(
@@ -404,15 +405,49 @@ class _SkinViewerState extends State<SkinViewer> {
                             ? 'Equipped'
                             : 'Equip'
                         : 'Purchase',
-                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                  ),
+                  size: MediaQuery.of(context).size.width *
+                            0.79389312977099236641221374045802,
+                        height: MediaQuery.of(context).size.height *
+                            0.08098591549295774647887323943662,
+                  onPressed: () => !owned
+                      ? purchaseSkin(
+                          context,
+                          skin.price,
+                          skin.skinName,
+                          figureName,
+                          owned,
+                        )
+                      : equipSkin(context, figureName, skin.skinName),
+                  // child: Text(
+                  //   owned
+                  //       ? (equippedSkin
+                  //                       .listOfFigureInstances[
+                  //                           Provider.of<SelectedFigureProvider>(
+                  //                                   context,
+                  //                                   listen: false)
+                  //                               .selectedFigureIndex]
+                  //                       .curSkin ==
+                  //                   skin.skinName.substring(4) &&
+                  //               equippedSkin
+                  //                       .listOfFigureInstances[
+                  //                           Provider.of<SelectedFigureProvider>(
+                  //                                   context,
+                  //                                   listen: false)
+                  //                               .selectedFigureIndex]
+                  //                       .figureName ==
+                  //                   figureName)
+                  //           ? 'Equipped'
+                  //           : 'Equip'
+                  //       : 'Purchase',
+                  //   style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  //         color: Theme.of(context).colorScheme.onPrimary,
+                  //       ),
+                  // ),
                 ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
             ],
           ),
+        ))]),
+              
         );
       },
     );

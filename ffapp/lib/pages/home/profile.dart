@@ -472,9 +472,8 @@ class _ProfileState extends State<Profile> {
               padding: const EdgeInsets.all(8.0),
               child: Row(children: [
                 manageSub == "Regular User"
-                    ? AnimatedPremiumBadge(size: 50)
-                    : const FitnessIcon(
-                        type: FitnessIconType.premium, size: 50),
+                    ? const FitnessIcon(type: FitnessIconType.regular_badge, size: 50)
+                    : AnimatedPremiumBadge(size: 50),
                 const SizedBox(width: 8),
                 Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -486,6 +485,7 @@ class _ProfileState extends State<Profile> {
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w500)),
+                      if (manageSub == "Regular User")
                       GestureDetector(
                           onTap: () {}, // TODO: Implement purchase premium page
                           child: const Text(
