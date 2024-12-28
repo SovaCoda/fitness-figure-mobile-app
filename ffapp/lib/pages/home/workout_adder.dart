@@ -502,9 +502,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
               ? Column(
                   children: [
                     Expanded(
-                      child: GradientedContainer(
-                          // radius: 2,
-                          
+                      child: GradientedContainer(                          
                           margin: const EdgeInsets.all(2),
                           padding: const EdgeInsets.all(20),
                           child: Consumer<UserModel>(builder: (_, user, __) {

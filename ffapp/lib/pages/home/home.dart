@@ -63,10 +63,11 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Connectivity service to check for internet connection and stop user from continuing offline
-
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.onError,
+
+        // Custom app bar with the logo and store button
+        // AppBar is constant 40 pixels tall across all screens
         appBar: PreferredSize(
           preferredSize: Size(MediaQuery.sizeOf(context).width, 40),
           child: const FfAppBar(),
@@ -81,7 +82,8 @@ class _DashboardPageState extends State<DashboardPage> {
           },
         ),
 
-        //permanent footer navigation that changes the page index state to switch displays
+        // Permanent footer navigation that changes the page index state to switch displays
+        // Size is a constant 80 pixels tall across all screens
         bottomNavigationBar: Consumer<HomeIndexProvider>(
           builder: (_, homeIndex, __) {
             return FfBottomNavBar(
