@@ -1,22 +1,21 @@
 import 'package:ffapp/components/legacy_charge_bar.dart';
 import 'package:ffapp/components/legacy_ev_bar.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
+import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/store.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/flutterUser.dart';
+import 'package:ffapp/services/routes.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/logger.dart';
 import 'package:logger/web.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/services/flutterUser.dart';
-import 'package:ffapp/main.dart';
-import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/routes.pb.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
-import 'package:fixnum/fixnum.dart';
-import 'package:ffapp/components/utils/chat_model.dart';
-import 'package:logger/logger.dart';
-import 'package:mockito/annotations.dart';
-import 'package:ffapp/components/skin_view.dart';
 
 @GenerateMocks([SelectedFigureProvider, FigureInstancesProvider])
 
@@ -125,13 +124,13 @@ void main() {
             Provider<AuthService>.value(value: mockAuthService),
             Provider<FlutterUser>.value(value: mockFlutterUser),
             ChangeNotifierProvider<AppBarAndBottomNavigationBarModel>.value(
-                value: mockAppBarModel),
+                value: mockAppBarModel,),
             ChangeNotifierProvider<CurrencyModel>.value(
-                value: mockCurrencyModel),
+                value: mockCurrencyModel,),
             ChangeNotifierProvider<UserModel>.value(value: mockUserModel),
             ChangeNotifierProvider<FigureModel>.value(value: mockFigureModel),
             ChangeNotifierProvider<InventoryModel>.value(
-                value: mockInventoryModel),
+                value: mockInventoryModel,),
             ChangeNotifierProvider<ChatModel>.value(value: mockChatModel),
             ChangeNotifierProvider<SelectedFigureProvider>.value(value: mockSelectedFigureProvider),
         // ChangeNotifierProvider<FigureInstancesProvider>(
@@ -139,7 +138,7 @@ void main() {
         // ),
         // Add any other providers used in SkinViewer
       ],
-      child: const Inventory()
+      child: const Inventory(),
         ),
       );
     }
@@ -161,11 +160,11 @@ void main() {
       expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
       
       // Verify that the correct values are displayed
-      RobotImageHolder robotImageHolder = tester.widget(find.byType(RobotImageHolder));
+      final RobotImageHolder robotImageHolder = tester.widget(find.byType(RobotImageHolder));
       expect(robotImageHolder.url, 'robot1/robot1_skin0_evo1_cropped_happy');
-      ChargeBar chargeBar = tester.widget(find.byType(ChargeBar));
+      final ChargeBar chargeBar = tester.widget(find.byType(ChargeBar));
       expect(chargeBar.currentCharge, 75);
-      EvBar evBar = tester.widget(find.byType(EvBar));
+      final EvBar evBar = tester.widget(find.byType(EvBar));
       expect(evBar.currentXp, 50);
 
     });

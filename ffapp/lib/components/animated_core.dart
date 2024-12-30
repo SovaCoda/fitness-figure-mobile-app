@@ -5,10 +5,10 @@ class AnimatedOverlayWidget extends StatefulWidget {
   const AnimatedOverlayWidget({super.key, required this.onRemoveOverlay});
 
   @override
-  _AnimatedOverlayWidgetState createState() => _AnimatedOverlayWidgetState();
+  AnimatedOverlayWidgetState createState() => AnimatedOverlayWidgetState();
 }
 
-class _AnimatedOverlayWidgetState extends State<AnimatedOverlayWidget>
+class AnimatedOverlayWidgetState extends State<AnimatedOverlayWidget>
     with SingleTickerProviderStateMixin {
   double _width = 0;
   double _height = 0;
@@ -26,22 +26,22 @@ class _AnimatedOverlayWidgetState extends State<AnimatedOverlayWidget>
     WidgetsBinding.instance.addPostFrameCallback((_) => _animate());
   }
 
-  void _animate() async {
+  Future<void> _animate() async {
     setState(() {
       _width = MediaQuery.of(context).size.height * 2.5;
       _height = MediaQuery.of(context).size.height * 2.5;
     });
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     _controller.forward(from: 0);
   }
 
-  void _unanimate() async {
+  Future<void> _unanimate() async {
     setState(() {
       _width = 0;
       _height = 0;
     });
     _controller.reverse();
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     widget.onRemoveOverlay();
   }
 
@@ -54,11 +54,11 @@ class _AnimatedOverlayWidgetState extends State<AnimatedOverlayWidget>
         child: AnimatedContainer(
             width: _width,
             height: _height,
-            duration: Duration(seconds: 1),
+            duration: const Duration(seconds: 1),
             curve: Curves.fastOutSlowIn,
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.primary),
+                color: Theme.of(context).colorScheme.primary,),
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
@@ -67,23 +67,23 @@ class _AnimatedOverlayWidgetState extends State<AnimatedOverlayWidget>
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text('3213'),
-                            Icon(Icons.currency_exchange_outlined)
+                            Icon(Icons.currency_exchange_outlined),
                           ],
                         ),
-                        Text('Core'),
+                        const Text('Core'),
                         ElevatedButton(
                             onPressed: () => {},
-                            child: Text('Convert Currency To Evo')),
+                            child: const Text('Convert Currency To Evo'),),
                         ElevatedButton(
-                            onPressed: _unanimate, child: Text('back'))
-                      ]),
+                            onPressed: _unanimate, child: const Text('back'),),
+                      ],),
                 );
               },
-            )),
+            ),),
       ),
     );
   }

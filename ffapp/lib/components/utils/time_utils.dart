@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 
 String formatSeconds(int seconds) {
   final formatter = NumberFormat('00');
@@ -36,6 +37,7 @@ class PersistantTimer {
   int milliseconds = 0;
   int addableTime = 1000;
   Timer? classTimer;
+  Logger logger = Logger();
 
   Future storeTime() async {
     DateTime now = DateTime.now();
@@ -82,7 +84,7 @@ class PersistantTimer {
     try {
       timerStartedDate = DateTime.parse(timerStarted!);
     } catch (e) {
-      print("Error parsing timerStartedDate: $e");
+      logger.e("Error parsing timerStartedDate: $e");
       milliseconds = 0;
       deleteTimer();
       return;

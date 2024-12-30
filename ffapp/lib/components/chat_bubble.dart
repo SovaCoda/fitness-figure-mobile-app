@@ -10,12 +10,12 @@ class BinaryGlowChatBubble extends StatefulWidget {
   final bool chatMore;
 
   const BinaryGlowChatBubble({
-    Key? key,
+    super.key,
     required this.width,
     required this.height,
     this.chatMore = false,
     this.message = "",
-  }) : super(key: key);
+  });
 
   @override
   State<BinaryGlowChatBubble> createState() => _BinaryGlowChatBubbleState();
@@ -106,7 +106,7 @@ class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
                 return CustomPaint(
                   painter: BinaryPainter(
                       binaryNumbers: _binaryNumbers,
-                      glowColor: Color.fromARGB(255, 41, 61, 111)),
+                      glowColor: const Color.fromARGB(255, 41, 61, 111)),
                 );
               },
             ),
@@ -145,7 +145,7 @@ class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
                   },
                   child: const Text(
                     'CHAT MORE >>',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color.fromARGB(255, 4, 174, 124),
                       fontSize: 16,
                       fontFamily: 'Roboto',
@@ -193,7 +193,7 @@ class BinaryPainter extends CustomPainter {
     for (var binary in binaryNumbers) {
       textPainter.text = TextSpan(
         text: binary.value,
-        style: TextStyle(
+        style: const TextStyle(
           color: Color.fromARGB(255, 41, 61, 111),
           fontSize: 16,
           letterSpacing: 2, // Add spacing between characters
@@ -206,23 +206,4 @@ class BinaryPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(BinaryPainter oldDelegate) => true;
-}
-
-// Usage Example:
-class ExampleUsage extends StatelessWidget {
-  const ExampleUsage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: BinaryGlowChatBubble(
-            width: 300,
-            height: 200,
-            message:
-                "Looks like we are short of our workout goal... if we want to make progress we need to train hard!"),
-      ),
-    );
-  }
 }

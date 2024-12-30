@@ -2,14 +2,13 @@ import 'dart:async';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
-import 'package:ffapp/components/resuables/custom_slider.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/research_option.dart';
 import 'package:ffapp/components/research_task_manager.dart';
@@ -43,8 +42,9 @@ class _CoreState extends State<Core> {
     _intializationFuture = _initialize();
   }
 
-  Future<void> _initTaskManager() async {
-    await _taskManager.init();
+  Future<void> _initializeTaskManager() async {
+    _taskManager = ResearchTaskManager(figureModel: _figure);
+    return _taskManager.init();
   }
 
   Future<void> _initialize() async {
@@ -54,17 +54,28 @@ class _CoreState extends State<Core> {
       (_) => _handleCurrencyUpdate(),
     );
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    // Run multiple initialization tasks concurrently
+    await Future.wait([
+      _initializeServices(),
+      _initializeTaskManager(),
+    ]);
+
     if (!mounted) return;
+    
+    Provider.of<SelectedFigureProvider>(context, listen: false)
+        .addListener(() => lockOrUnlock());
+  }
+
+  Future<void> _initializeServices() async {
+    if (!mounted) return;
+    
     _auth = Provider.of<AuthService>(context, listen: false);
     _user = Provider.of<UserModel>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
     _getCurrencyIncrement(_figure, _user.isPremium());
+    
+    // Run currency reactivation concurrently with other initialization tasks
     await _reactivateGenerationServer();
-    _taskManager = ResearchTaskManager(figureModel: _figure);
-    await _initTaskManager();
-    Provider.of<SelectedFigureProvider>(context, listen: false)
-        .addListener(() => lockOrUnlock());
   }
 
   void _handleCurrencyUpdate() {
@@ -78,29 +89,39 @@ class _CoreState extends State<Core> {
   }
 
   Future<void> _reactivateGenerationServer() async {
-    Routes.User? user = await _auth.getUserDBInfo();
-    _currency.setCurrency(user!.currency.toString());
-    Routes.OfflineDateTime lastLoggedGeneration =
-        await _auth.getOfflineDateTime(
-      Routes.OfflineDateTime(email: user.email),
-    );
-    DateTime parsedDateTime = DateTime.parse(lastLoggedGeneration.currency);
-    Duration difference = DateTime.now().difference(parsedDateTime);
+    // Run user info and offline datetime fetching concurrently
+    final futures = await Future.wait([
+      _auth.getUserDBInfo(),
+      _auth.getOfflineDateTime(
+        routes.OfflineDateTime(email: _user.user!.email),
+      ),
+    ]);
+
+    final routes.User? user = futures[0] as routes.User?;
+    final routes.OfflineDateTime lastLoggedGeneration = 
+        futures[1] as routes.OfflineDateTime;
+
+    if (user == null) return;
+
+    _currency.setCurrency(user.currency.toString());
+    final DateTime parsedDateTime = DateTime.parse(lastLoggedGeneration.currency);
+    final Duration difference = DateTime.now().difference(parsedDateTime);
 
     if (difference.inSeconds < 0) {
-      _auth.updateCurrency(0);
+      await _auth.updateCurrency(0);
     } else {
-      _currency.addToCurrency(difference.inSeconds * _currencyIncrement!);
-      _auth.updateCurrency(double.parse(_currency.currency).ceil());
+      final double currencyToAdd = difference.inSeconds * _currencyIncrement!;
+      _currency.addToCurrency(currencyToAdd);
+      await _auth.updateCurrency(double.parse(_currency.currency).ceil());
     }
   }
 
   void _deactivateGenerationServer() {
     _auth.updateCurrency(double.parse(_currency.currency).toInt());
-    _auth.updateOfflineDateTime(Routes.OfflineDateTime(
+    _auth.updateOfflineDateTime(routes.OfflineDateTime(
       email: _user.user!.email,
       currency: DateTime.now().toString(),
-    ));
+    ),);
   }
 
   void _resetTasks() {
@@ -114,29 +135,38 @@ class _CoreState extends State<Core> {
   }
 
   Future<bool> _subtractCurrency(double investmentAmount) async {
-    Routes.User? user = await _auth.getUserDBInfo();
-    double currentCurrency = double.parse(_currency.currency);
-    logger.i(
-        "Subtracting user's currency on purchase. Amount subtracted: ${investmentAmount.round()} from $currentCurrency");
+    final routes.User? user = await _auth.getUserDBInfo();
+    if (user == null) return false;
 
-    double updateCurrency = currentCurrency - investmentAmount.round();
+    final double currentCurrency = double.parse(_currency.currency);
+    logger.i(
+      "Subtracting user's currency on purchase. Amount subtracted: ${investmentAmount.round()} from $currentCurrency",
+    );
+
+    final double updateCurrency = currentCurrency - investmentAmount.round();
     if (updateCurrency < 0) {
       logger.i("Not enough currency to complete transaction.");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Not enough currency to complete this purchase!")),
+            content: Text("Not enough currency to complete this purchase!"),
+          ),
         );
         return false;
       }
     }
 
-    user!.currency = Int64(updateCurrency.ceil());
-    await _auth.updateUserDBInfo(user);
-    if (mounted) {
-      Provider.of<CurrencyModel>(context, listen: false)
-          .setCurrency(updateCurrency.toString());
-    }
+    // Run currency updates concurrently
+    await Future.wait([
+      _auth.updateUserDBInfo(user..currency = Int64(updateCurrency.ceil())),
+      Future(() {
+        if (mounted) {
+          Provider.of<CurrencyModel>(context, listen: false)
+              .setCurrency(updateCurrency.toString());
+        }
+      }),
+    ]);
+
     return true;
   }
 
@@ -147,15 +177,16 @@ class _CoreState extends State<Core> {
     super.dispose();
   }
 
-  void lockOrUnlock() async {
-    if (mounted) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      FigureModel figure = Provider.of<FigureModel>(context, listen: false);
-      if (figure.capabilities['Multi Tasking']!) {
-        _taskManager.releaseLockedTasks();
-      } else {
-        _taskManager.lockAllInactiveTasks();
-      }
+  Future<void> lockOrUnlock() async {
+    
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
+
+    final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
+    if (figure.capabilities['Multi Tasking']!) {
+      await _taskManager.releaseLockedTasks();
+    } else {
+      await _taskManager.lockAllInactiveTasks();
     }
   }
 
@@ -206,8 +237,8 @@ class _CoreState extends State<Core> {
 
                 Positioned(
                   right: MediaQuery.of(context).size.width * 0.3,
-                  child: FitnessIcon(
-                      type: FitnessIconType.evolution_circuits, size: 120),
+                  child: const FitnessIcon(
+                      type: FitnessIconType.evolution_circuits, size: 120,),
                 ),
               Positioned(
                   right: 0,
@@ -219,13 +250,13 @@ class _CoreState extends State<Core> {
                       : "robot1/robot1_skin0_evo0_cropped_happy",
                   height: MediaQuery.of(context).size.height * 0.3,
                   width: MediaQuery.of(context).size.width * 0.5,
-                )
+                ),
               ],
             ),
           ),
         ],
-      )
-    ]);
+      ),
+    ],);
   }
 
   Widget _buildCurrencyDisplay() {
@@ -241,7 +272,7 @@ class _CoreState extends State<Core> {
                 shape: BoxShape.circle,
               ),
               child: Image.asset("lib/assets/images/evolution_panel_circle.png",
-                  height: 150, width: 150),
+                  height: 150, width: 150,),
             ),
           ),
           Column(
@@ -250,25 +281,25 @@ class _CoreState extends State<Core> {
               Text('EVO ${_figure.EVLevel + 1}',
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 24)),
+                      fontSize: 24,),),
               Column(children: [
                 Text(
                     '\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
-                        fontFamily: 'Roberto')),
+                        fontFamily: 'Roberto',),),
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 125),
+                  constraints: const BoxConstraints(maxWidth: 125),
                   child: Text(
                       '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 16,
-                          fontFamily: 'Roberto')),
-                )
-              ])
+                          fontFamily: 'Roberto',),),
+                ),
+              ],),
             ],
           ),
         ],
@@ -279,9 +310,9 @@ class _CoreState extends State<Core> {
   Widget _buildResearchSection() {
     return Consumer<FigureModel>(
       builder: (_, figure, __) {
-        return Container(
+        return SizedBox(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.455,
+            height: MediaQuery.of(context).size.height * 0.47,
             child: ResearchGlassPanel(
               child: Stack(
                 alignment: Alignment.center,
@@ -326,7 +357,7 @@ class _CoreState extends State<Core> {
                                     .copyWith(
                                         color:
                                             Theme.of(context).colorScheme.secondary,
-                                        fontSize: 24),
+                                        fontSize: 24,),
                               ),
                             ],
                           ),
@@ -335,7 +366,7 @@ class _CoreState extends State<Core> {
                     ),
                 ],
               ),
-            ));
+            ),);
       },
     );
   }
@@ -390,7 +421,7 @@ class _CoreState extends State<Core> {
     return Expanded(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics().applyTo(
-              const BouncingScrollPhysics()), // quick fix for this https://github.com/flutter/flutter/issues/138940
+              const BouncingScrollPhysics(),), // quick fix for this https://github.com/flutter/flutter/issues/138940
         child: Column(
           children: _taskManager.getAvailableTasks().map((task) {
             return ResearchOption(
@@ -412,7 +443,7 @@ class _CoreState extends State<Core> {
    * This widget creates a button that resets the tasks for debugging.
    * Set [isDebugging] to true to enable it, but keep it disabled on the main branch.
    */
-  Widget _buildResetTasksButton({bool isDebugging = true}) {
+  Widget _buildResetTasksButton({bool isDebugging = false}) {
     return isDebugging
         ? FFAppButton(
             onPressed: _resetTasks,
@@ -421,8 +452,9 @@ class _CoreState extends State<Core> {
                 0.55,
             height: MediaQuery.of(context).size.height *
                 0.06,
-            fontSize: 14
+            fontSize: 14,
           )
         : Container();
+        
   }
 }

@@ -1,26 +1,22 @@
-import 'dart:math';
-
 import 'package:ffapp/components/utils/time_utils.dart';
-import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class HistoryModel extends ChangeNotifier {
-  List<Workout> workouts = List.empty();
+  List<Workout> workouts = List.empty(growable: true);
   bool workedOutToday = false;
   AuthService? auth;
   double investment = 0;
   double lastWeekInvestment = 0;
 
-  List<int> currentWeek = List.filled(7, 0, growable: false);
-  List<int> lastWeek = List.filled(7, 0, growable: false);
+  List<int> currentWeek = List.filled(7, 0);
+  List<int> lastWeek = List.filled(7, 0);
 
-  void retrieveWorkouts() async {
+  Future<void> retrieveWorkouts() async {
     auth = await AuthService.instance;
-    List<Workout> newWorkouts = await auth!.getWorkouts().then((value) {
+    final List<Workout> newWorkouts = await auth!.getWorkouts().then((value) {
       return value.workouts;
     });
     setWorkouts(newWorkouts);
@@ -46,15 +42,14 @@ class HistoryModel extends ChangeNotifier {
     investment = 0;
     lastWeekInvestment = 0;
     workedOutToday = false;
-    DateTime now = DateTime.now().toLocal();
-    DateTime weekstart = mostRecentSunday(now); // get week start (sunday is 7)
-    List<DateTime?> workoutsInCurrentWeek = List.filled(7, null,
-        growable: false); // track workouts in our current week
+    final DateTime now = DateTime.now().toLocal();
+    final DateTime weekstart = mostRecentSunday(now); // get week start (sunday is 7)
+    final List<DateTime?> workoutsInCurrentWeek = List.filled(7, null,); // track workouts in our current week
     for (int i = 0; i < newWorkouts.length; i++) {
-      DateTime curDate = DateTime.parse(newWorkouts[i].endDate).toLocal();
-      int currentCountable = newWorkouts[i].countable;
+      final DateTime curDate = DateTime.parse(newWorkouts[i].endDate).toLocal();
+      final int currentCountable = newWorkouts[i].countable;
 
-      bool goalMet = currentCountable == 1;
+      final bool goalMet = currentCountable == 1;
 
       if (curDate.isAfter(weekstart) && goalMet) {
         workoutsInCurrentWeek[curDate.weekday % 7] = curDate;
@@ -68,9 +63,9 @@ class HistoryModel extends ChangeNotifier {
     }
 
     for (int i = 0; i < 7; i++) {
-      DateTime curDate = weekstart.add(Duration(days: i));
+      final DateTime curDate = weekstart.add(Duration(days: i));
       for (int j = 0; j < newWorkouts.length; j++) {
-        DateTime workoutDate = DateTime.parse(newWorkouts[j].endDate);
+        final DateTime workoutDate = DateTime.parse(newWorkouts[j].endDate);
         if (workoutDate.day == curDate.day &&
             workoutDate.month == curDate.month &&
             workoutDate.year == curDate.year) {
@@ -84,14 +79,13 @@ class HistoryModel extends ChangeNotifier {
     // go through 7 dates and check the status of those workouts
     // add those statuses to the last week list
 
-    DateTime lastWeekStart = mostRecentSunday(
-        now.subtract(Duration(days: 7))); // get week start (sunday is 7)
-    List<DateTime?> workoutsInLastWeek = List.filled(7, null,
-        growable: false); // track workouts in our last week
+    final DateTime lastWeekStart = mostRecentSunday(
+        now.subtract(const Duration(days: 7)),); // get week start (sunday is 7)
+    final List<DateTime?> workoutsInLastWeek = List.filled(7, null,); // track workouts in our last week
     for (int i = 0; i < 7; i++) {
-      DateTime curDate = lastWeekStart.add(Duration(days: i));
+      final DateTime curDate = lastWeekStart.add(Duration(days: i));
       for (int j = 0; j < newWorkouts.length; j++) {
-        DateTime workoutDate = DateTime.parse(newWorkouts[j].endDate);
+        final DateTime workoutDate = DateTime.parse(newWorkouts[j].endDate);
         if (workoutDate.day == curDate.day &&
             workoutDate.month == curDate.month &&
             workoutDate.year == curDate.year) {
@@ -146,7 +140,7 @@ class HistoryModel extends ChangeNotifier {
       int curCharge,
       int curEv,
       int curStreak,
-      int curWeekComplete) async {
+      int curWeekComplete,) async {
     //get the start of the week in utc
     //loop through the week days and get the total charge and ev for that day from the snapshots (snapshots are a day ahead in utc subtract 1 day)
     //add the total charge and ev to the list
@@ -154,54 +148,54 @@ class HistoryModel extends ChangeNotifier {
     auth = await AuthService.instance;
     List<DailySnapshot> snapshots = await auth!
         .getDailySnapshots(
-            DailySnapshot(userEmail: userEmail, figureName: figureName))
+            DailySnapshot(userEmail: userEmail, figureName: figureName),)
         .then(
       (value) {
         return value.dailySnapshots;
       },
     );
 
-    DateTime weekstart = mostRecentSunday(date);
-    Map<String, List<FlSpot>> weekData = {
+    final DateTime weekstart = mostRecentSunday(date);
+    final Map<String, List<FlSpot>> weekData = {
       "charge": [],
       "ev": [],
       "changes": [],
-      "streakAndGoal": []
+      "streakAndGoal": [],
     };
 
     snapshots = snapshots
-        .where((element) => (DateTime.parse(element.date)
+        .where((element) => DateTime.parse(element.date)
                 .isAfter(weekstart.add(const Duration(days: 1))) &&
             DateTime.parse(element.date)
-                .isBefore(weekstart.add(const Duration(days: 8)))))
+                .isBefore(weekstart.add(const Duration(days: 8))),)
         .toList();
 
     if (isSameDay(mostRecentSunday(date), mostRecentSunday(DateTime.now()))) {
       snapshots.add(DailySnapshot(
-          date: DateTime.now().add(Duration(days: 1)).toString(),
+          date: DateTime.now().add(const Duration(days: 1)).toString(),
           charge: curCharge,
           evPoints: curEv,
           userStreak: curStreak,
-          userWeekComplete: curWeekComplete));
+          userWeekComplete: curWeekComplete,),);
     }
 
     if (snapshots.isNotEmpty) {
       weekData['changes']!.add(FlSpot(
           (snapshots.last.charge - snapshots.first.charge).toDouble(),
-          (snapshots.last.evPoints - snapshots.first.evPoints).toDouble()));
+          (snapshots.last.evPoints - snapshots.first.evPoints).toDouble(),),);
 
       weekData['streakAndGoal']!.add(FlSpot(
           (snapshots.last.userStreak - snapshots.first.userStreak).toDouble(),
-          (snapshots.last.userWeekComplete).toDouble()));
+          snapshots.last.userWeekComplete.toDouble(),),);
     }
 
     int snapshotIterator = 0;
     for (int i = 0; i < 7; i++) {
       if (snapshotIterator < snapshots.length) {
         if (isSameDay(weekstart.add(Duration(days: i + 1)),
-            DateTime.parse(snapshots[snapshotIterator].date))) {
+            DateTime.parse(snapshots[snapshotIterator].date),)) {
           weekData['charge']!.add(FlSpot(
-              i.toDouble() + 1, snapshots[snapshotIterator].charge.toDouble()));
+              i.toDouble() + 1, snapshots[snapshotIterator].charge.toDouble(),),);
 
           double displayEv = snapshots[snapshotIterator].evPoints.toDouble();
           if (snapshots[snapshotIterator].evPoints > maxEv) {

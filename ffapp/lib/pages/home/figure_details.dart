@@ -1,13 +1,13 @@
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/flutterUser.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ffapp/services/flutterUser.dart';
-import 'package:ffapp/services/auth.dart';
 
 class FigureDetails extends StatefulWidget {
 
-  String? figureUrl;
-  FigureDetails({super.key, this.figureUrl});
+  final String? figureUrl;
+  const FigureDetails({super.key, this.figureUrl});
 
   @override
   State<FigureDetails> createState() =>
@@ -25,7 +25,7 @@ class _FigureDetails extends State<FigureDetails> {
     initialize();
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     await user.initAuthService();
     await user.checkUser();
     curEmail = await user.getEmail();
@@ -44,7 +44,7 @@ class _FigureDetails extends State<FigureDetails> {
               RobotImageHolder(url: widget.figureUrl!, height: 300, width: 300),
               const SizedBox(height: 10,),
               const SizedBox(height: 40,),
-              ElevatedButton(onPressed: () => {context.goNamed("Home")}, child: const Text("Go Back"))
+              ElevatedButton(onPressed: () => {context.goNamed("Home")}, child: const Text("Go Back")),
             ],
           ),
         ),

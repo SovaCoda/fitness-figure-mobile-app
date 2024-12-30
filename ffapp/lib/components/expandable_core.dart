@@ -3,11 +3,11 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
 
 class ExpandableCore extends StatefulWidget {
-  bool isExpanded;
+  final bool isExpanded;
   final Duration duration;
   final Curve curve;
 
-  ExpandableCore({
+  const ExpandableCore({
     super.key,
     required this.isExpanded,
     this.duration = const Duration(milliseconds: 300),
@@ -15,10 +15,10 @@ class ExpandableCore extends StatefulWidget {
   });
 
   @override
-  _ExpandableCoreState createState() => _ExpandableCoreState();
+  ExpandableCoreState createState() => ExpandableCoreState();
 }
 
-class _ExpandableCoreState extends State<ExpandableCore> {
+class ExpandableCoreState extends State<ExpandableCore> {
   void showOverlay(BuildContext context) {
     try {
       Overlay.of(context).insert(coreOverlay);
@@ -40,7 +40,7 @@ class _ExpandableCoreState extends State<ExpandableCore> {
               border: Border.all(),
               shape: BoxShape.rectangle,
               color: Theme.of(context).primaryColor),
-          child: Center(child: Text('core'))),
+          child: const Center(child: Text('core'))),
     );
   }
 }

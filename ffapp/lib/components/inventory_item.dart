@@ -1,21 +1,14 @@
-import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/legacy_charge_bar.dart';
-import 'package:ffapp/components/legacy_ev_bar.dart';
-import 'package:ffapp/components/resuables/gradiented_container.dart';
-import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
+import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ffapp/services/auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/main.dart';
-import 'package:ffapp/icons/fitness_icon.dart';
 
 class InventoryItem extends StatefulWidget {
-  final String photoPath;
-  final bool equiped;
+  final bool equipped;
   final Function(BuildContext) onEquip;
   final bool locked;
   final FigureInstance? figureInstance;
@@ -23,21 +16,20 @@ class InventoryItem extends StatefulWidget {
   final int index;
 
   const InventoryItem({
-    Key? key,
-    required this.photoPath,
-    required this.equiped,
+    super.key,
+    required this.equipped,
     required this.onEquip,
     required this.figureInstance,
     this.locked = false,
     this.isSelected = false,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
-  _InventoryItemState createState() => _InventoryItemState();
+  InventoryItemState createState() => InventoryItemState();
 }
 
-class _InventoryItemState extends State<InventoryItem> {
+class InventoryItemState extends State<InventoryItem> {
   // late List<Skin> listOfSkins;
   // late List<SkinInstance> listOfSkinInstances;
   // late List<FigureInstance> listOfFigureInstances;
@@ -78,25 +70,7 @@ class _InventoryItemState extends State<InventoryItem> {
   //   }
   // }
 
-  void _showSkinDialog(BuildContext context) {
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return AlertDialog(
-    //       backgroundColor: Colors.grey[900],
-    //       content: SizedBox(
-    //         width: MediaQuery.of(context).size.width,
-    //         height: MediaQuery.of(context).size.height * 0.8,
-    //         child: SkinViewer(
-    //           listOfSkins: listOfSkins,
-    //           listOfSkinInstances: listOfSkinInstances,
-    //           figureName: widget.figureInstance!.figureName,
-    //           listOfFigureInstances: listOfFigureInstances,
-    //         ),
-    //       ),
-    //     );
-    //   },
-    // );
+  void _showSkinPage(BuildContext context) {
     Provider.of<HomeIndexProvider>(context, listen: false).setIndex(6);
   }
 
@@ -104,9 +78,9 @@ class _InventoryItemState extends State<InventoryItem> {
   Widget build(BuildContext context) {
     return widget.locked
         ? Image.asset("lib/assets/images/locked_figure.png",
-            height: MediaQuery.of(context).size.height * 0.33)
-        : Consumer<FigureModel>(
-            builder: (context, figureModel, _) {
+            height: MediaQuery.of(context).size.height * 0.33,)
+        : Consumer2<FigureModel, FigureInstancesProvider>(
+            builder: (context, figureModel, figureInstances, _) {
               return Stack(
                 children: [
                   LayoutBuilder(
@@ -128,9 +102,9 @@ class _InventoryItemState extends State<InventoryItem> {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .primary,
-                                          width: 3)
+                                          width: 3,)
                                       : null,
-                                  borderRadius: BorderRadius.circular(15)),
+                                  borderRadius: BorderRadius.circular(15),),
                             ),
                           ),
                           // FitnessIcon as the main container
@@ -139,7 +113,7 @@ class _InventoryItemState extends State<InventoryItem> {
                                 type: FitnessIconType.figure_full,
                                 size: MediaQuery.of(context).size.width * 0.4,
                                 height:
-                                    MediaQuery.of(context).size.height * 0.35),
+                                    MediaQuery.of(context).size.height * 0.35,),
                           ),
                           // Original elements positioned over the FitnessIcon
                           if (widget.figureInstance != null)
@@ -152,32 +126,32 @@ class _InventoryItemState extends State<InventoryItem> {
                                     figureModel
                                         .setFigure(widget.figureInstance!);
                                     Provider.of<SelectedFigureProvider>(context,
-                                            listen: false)
+                                            listen: false,)
                                         .setSelectedFigureIndex(widget.index);
                                     widget.onEquip(context);
                                   }
-                                  _showSkinDialog(context);
+                                  _showSkinPage(context);
                                 },
                                 child: Padding(
-                                  padding: EdgeInsets.all(10),
+                                  padding: const EdgeInsets.all(10),
                                   child: FitnessIcon(
                                   type: FitnessIconType.swap,
                                   size: size * 0.15,
-                                )),
+                                ),),
                               ),
                             ),
                           Positioned(
                             left: size * 0.05,
                             bottom: size * 0.05,
-                            child: _buildChargeBar(context, size),
+                            child: _buildChargeBar(context, size, figureInstances.listOfFigureInstances.isNotEmpty ? figureInstances.listOfFigureInstances[widget.index] : widget.figureInstance!),
                           ),
                           Positioned(
                             right: size * 0.05,
                             bottom: size * 0.05,
-                            child: _buildEvBar(context, size),
+                            child: _buildEvBar(context, size, figureInstances.listOfFigureInstances.isNotEmpty ? figureInstances.listOfFigureInstances[widget.index] : widget.figureInstance!),
                           ),
                           Center(
-                            child: _buildFigureImage(context, size),
+                            child: _buildFigureImage(context, size, figureInstances.listOfFigureInstances.isNotEmpty ? figureInstances.listOfFigureInstances[widget.index] : widget.figureInstance!),
                           ),
                         ],
                       );
@@ -189,14 +163,14 @@ class _InventoryItemState extends State<InventoryItem> {
           );
   }
 
-  Widget _buildChargeBar(BuildContext context, double size) {
+  Widget _buildChargeBar(BuildContext context, double size, FigureInstance figure) {
     if (widget.figureInstance != null) {
       return Padding(
         padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.01),
         child: Row(children: [
-        FitnessIcon(type: FitnessIconType.charge, size: 17, height: 28),
-        Text('${widget.figureInstance!.charge}%', style: TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFFE18F4D)))
-      ]));
+        const FitnessIcon(type: FitnessIconType.charge, size: 17, height: 28),
+        Text('${figure.charge}%', style: const TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFFE18F4D))),
+      ],),);
     } else {
       return Text(
         "--",
@@ -207,14 +181,14 @@ class _InventoryItemState extends State<InventoryItem> {
     }
   }
 
-  Widget _buildEvBar(BuildContext context, double size) {
+  Widget _buildEvBar(BuildContext context, double size, FigureInstance figure) {
     if (widget.figureInstance != null) {
       return Padding(
         padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.02),
         child: Row(children: [
-        FitnessIcon(type: FitnessIconType.evo, size: 17, height: 28),
-        Text('${widget.figureInstance!.evPoints}', style: TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFF00A7E1)))
-      ]));
+        const FitnessIcon(type: FitnessIconType.evo, size: 17, height: 28),
+        Text('${figure.evPoints}', style: const TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFF00A7E1))),
+      ],),);
     } else {
       return Text(
         "--",
@@ -225,7 +199,7 @@ class _InventoryItemState extends State<InventoryItem> {
     }
   }
 
-  Widget _buildFigureImage(BuildContext context, double size) {
+  Widget _buildFigureImage(BuildContext context, double size, FigureInstance figure) {
     if (widget.locked) {
       return Icon(
         Icons.lock,
@@ -234,7 +208,7 @@ class _InventoryItemState extends State<InventoryItem> {
       );
     } else {
       return RobotImageHolder(
-        url: widget.photoPath,
+        url: "${figure.figureName}/${figure.figureName}_skin${figure.curSkin}_evo${figure.evLevel}_cropped_happy",
         height: MediaQuery.of(context).size.height * 0.25,
         width: MediaQuery.of(context).size.height * 0.25,
       );

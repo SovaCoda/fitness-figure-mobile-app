@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ffapp/main.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/services/routes.pb.dart' as routes;
 
 void main() {
   group('FigureModel Tests', () {
@@ -17,7 +17,7 @@ void main() {
     });
 
     test('setFigure updates figure correctly', () {
-      final newFigure = Routes.FigureInstance(
+      final newFigure = routes.FigureInstance(
         figureName: "robot2",
         curSkin: "1",
         evLevel: 2,
@@ -31,7 +31,7 @@ void main() {
     test('composeFigureUrl returns correct URL', () {
       expect(figureModel.composeFigureUrl(), "robot1/robot1_skin0_evo0_cropped_happy");
       
-      figureModel.setFigure(Routes.FigureInstance(
+      figureModel.setFigure(routes.FigureInstance(
         figureName: "robot2",
         curSkin: "1",
         evLevel: 3,

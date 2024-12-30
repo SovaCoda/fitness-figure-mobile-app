@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/fitventureslite.dart' as FL;
+import 'package:ffapp/pages/home/fitventureslite.dart' as fl;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -48,21 +48,21 @@ class MissionListWidget extends StatefulWidget {
   });
 
   @override
-  _MissionState createState() => _MissionState();
+  MissionState createState() => MissionState();
 }
 
-class _MissionState extends State<MissionListWidget> {
+class MissionState extends State<MissionListWidget> {
   Timer _timer = Timer(Duration.zero, () {});
 
   void startTimer() {
     if (widget.seconds == 0) return;
-    if (Provider.of<FL.FitventuresMissionManagerProvider>(context,
+    if (Provider.of<fl.FitventuresMissionManagerProvider>(context,
                 listen: false)
             .currentMission
             .missionName !=
         "null") return;
 
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false)
+    Provider.of<fl.FitventuresMissionManagerProvider>(context, listen: false)
         .startMission(MissionListWidget(
       missionName: widget.missionName,
       url: widget.url,
@@ -83,14 +83,14 @@ class _MissionState extends State<MissionListWidget> {
   }
 
   void onMissionCancel() {
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false)
+    Provider.of<fl.FitventuresMissionManagerProvider>(context, listen: false)
         .completeMission();
     _timer.cancel();
   }
 
   void onMissionComplete() {
     _timer.cancel();
-    Provider.of<FL.FitventuresMissionManagerProvider>(context, listen: false)
+    Provider.of<fl.FitventuresMissionManagerProvider>(context, listen: false)
         .completeMission();
   }
 
@@ -110,7 +110,7 @@ class _MissionState extends State<MissionListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FL.FitventuresMissionManagerProvider>(
+    return Consumer<fl.FitventuresMissionManagerProvider>(
       builder: (context, missionManager, child) {
         return Opacity(
           opacity: (missionManager.currentMission.missionName ==

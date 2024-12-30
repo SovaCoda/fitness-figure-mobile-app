@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 
 class FigureStoreItem extends StatefulWidget {
-  FigureStoreItem({
-    Key? key,
+  const FigureStoreItem({
+    super.key,
     required this.photoPath,
     required this.itemPrice,
     required this.onOpenSkin,
@@ -12,7 +12,7 @@ class FigureStoreItem extends StatefulWidget {
     required this.figureName,
     this.onViewSkin,
     this.isLocked = false,
-  }) : super(key: key);
+  });
 
   final String photoPath;
   final String figureName;
@@ -24,10 +24,10 @@ class FigureStoreItem extends StatefulWidget {
   final bool isLocked;
 
   @override
-  _FigureStoreItemState createState() => _FigureStoreItemState();
+  FigureStoreItemState createState() => FigureStoreItemState();
 }
 
-class _FigureStoreItemState extends State<FigureStoreItem> {
+class FigureStoreItemState extends State<FigureStoreItem> {
   late bool owned;
 
   @override
@@ -56,7 +56,7 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
             color: Colors.teal.withOpacity(0.5),
             spreadRadius: 1,
             blurRadius: 5,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -68,7 +68,7 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
               fit: StackFit.expand,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                   child: Image.asset(
                     "lib/assets/${widget.photoPath}.gif",
                     fit: BoxFit.contain,
@@ -76,12 +76,12 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                 ),
                 if (widget.isLocked)
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.black54,
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(15)),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Icon(
                         Icons.lock,
                         size: 50,
@@ -94,22 +94,22 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
           ),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
               color: Colors.teal.shade700,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
             ),
             child: Column(
               children: [
                 if (!owned)
                   Text(
                     'Price: ${widget.itemPrice}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: !widget.isLocked
                       ? MainAxisAlignment.center
@@ -119,15 +119,15 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                       widget.isLocked
                           ? 'Locked'
                           : (owned ? 'Owned' : 'Available'),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     if (widget.isLocked)
                       IconButton(
-                        icon: Icon(Icons.question_mark, color: Colors.white),
+                        icon: const Icon(Icons.question_mark, color: Colors.white),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -233,7 +233,7 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                           ),
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 16, vertical: 8),
                                         ),
                                         child: Text("Get Fit",
@@ -275,7 +275,7 @@ class _FigureStoreItemState extends State<FigureStoreItem> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
                     child: const Text('View Skins'),
                   ),

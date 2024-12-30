@@ -11,7 +11,7 @@ class CustomImageSlider extends StatefulWidget {
   final String? label;
 
   const CustomImageSlider({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     this.onChangeStart,
@@ -20,13 +20,13 @@ class CustomImageSlider extends StatefulWidget {
     this.max = 1.0,
     this.divisions,
     this.label,
-  }) : super(key: key);
+  });
 
   @override
-  _CustomImageSliderState createState() => _CustomImageSliderState();
+  CustomImageSliderState createState() => CustomImageSliderState();
 }
 
-class _CustomImageSliderState extends State<CustomImageSlider> {
+class CustomImageSliderState extends State<CustomImageSlider> {
   double _currentDragValue = 0.0;
   bool _dragging = false;
 
@@ -49,7 +49,7 @@ class _CustomImageSliderState extends State<CustomImageSlider> {
   }
 
   void _handleDragUpdate(
-      DragUpdateDetails details, BoxConstraints constraints) {
+      DragUpdateDetails details, BoxConstraints constraints,) {
     if (!_dragging) {
       _dragging = true;
       widget.onChangeStart?.call(widget.value);
@@ -103,7 +103,7 @@ class _CustomImageSliderState extends State<CustomImageSlider> {
           onHorizontalDragUpdate: (details) =>
               _handleDragUpdate(details, constraints),
           onHorizontalDragEnd: (_) => _handleDragEnd(),
-          child: Container(
+          child: SizedBox(
             width: sliderWidth,
             height: sliderHeight + thumbWidth,
             child: Stack(

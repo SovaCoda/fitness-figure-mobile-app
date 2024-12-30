@@ -1,9 +1,8 @@
-import 'package:ffapp/services/auth.dart';
-import 'package:flutter/material.dart';
-import 'package:ffapp/components/custom_button.dart';
-import 'package:ffapp/components/sqaure_tile.dart';
 import 'package:ffapp/components/Input_field.dart';
+import 'package:ffapp/components/custom_button.dart';
+import 'package:ffapp/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class Register extends StatefulWidget {
@@ -25,7 +24,7 @@ class _RegisterState extends State<Register> {
     initialize();
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     await initAuthService();
   }
 
@@ -34,14 +33,17 @@ class _RegisterState extends State<Register> {
     logger.i("AuthService initialized");
   }
 
-  void createUser() async {
+  Future<void> createUser() async {
     logger.i("signing up");
 
-    bool passwordMatch = passwordController.text == password2Controller.text;
+    final bool passwordMatch =
+        passwordController.text == password2Controller.text;
     if (!passwordMatch) {
       logger.e("passwords do not match");
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Passwords do not match! Please try again.")));
+        const SnackBar(
+            content: Text("Passwords do not match! Please try again.")),
+      );
       passwordController.clear();
       password2Controller.clear();
       return;
@@ -49,7 +51,7 @@ class _RegisterState extends State<Register> {
 
     logger.i("Passwords match.");
 
-    var user = await auth.createUser(
+    final user = await auth.createUser(
       emailController.text,
       passwordController.text,
     );
@@ -59,10 +61,17 @@ class _RegisterState extends State<Register> {
       logger.e(user);
     } else if (user is User) {
       logger.i("user is created");
-      context.goNamed('SignIn');
+      if (mounted) {
+        context.goNamed('SignIn');
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("An account already exists with this email.")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("An account already exists with this email."),
+          ),
+        );
+      }
     }
   }
 
@@ -78,9 +87,9 @@ class _RegisterState extends State<Register> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 //spacer
                 const SizedBox(height: 50),
 
@@ -125,7 +134,8 @@ class _RegisterState extends State<Register> {
                 //Sign In
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: CustomButton(onTap: createUser, text: "Create Account"),
+                  child:
+                      CustomButton(onTap: createUser, text: "Create Account"),
                 ),
 
                 //Spacer
@@ -142,59 +152,61 @@ class _RegisterState extends State<Register> {
                   height: 10,
                 ),
 
-              //   // OR
-              //   Padding(
-              //     padding: const EdgeInsets.symmetric(horizontal: 25),
-              //     child: Row(
-              //       children: [
-              //         Expanded(
-              //           child: Divider(
-              //             thickness: 0.5,
-              //             color: Colors.grey.shade400,
-              //           ),
-              //         ),
-              //         Padding(
-              //           padding: const EdgeInsets.only(left: 8, right: 8),
-              //           child: Text(
-              //             'OR',
-              //             style: TextStyle(color: Colors.grey.shade600),
-              //           ),
-              //         ),
-              //         Expanded(
-              //           child: Divider(
-              //             thickness: 0.5,
-              //             color: Colors.grey.shade400,
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
+                //   // OR
+                //   Padding(
+                //     padding: const EdgeInsets.symmetric(horizontal: 25),
+                //     child: Row(
+                //       children: [
+                //         Expanded(
+                //           child: Divider(
+                //             thickness: 0.5,
+                //             color: Colors.grey.shade400,
+                //           ),
+                //         ),
+                //         Padding(
+                //           padding: const EdgeInsets.only(left: 8, right: 8),
+                //           child: Text(
+                //             'OR',
+                //             style: TextStyle(color: Colors.grey.shade600),
+                //           ),
+                //         ),
+                //         Expanded(
+                //           child: Divider(
+                //             thickness: 0.5,
+                //             color: Colors.grey.shade400,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
 
-              //   //spacer
-              //   const SizedBox(height: 40),
+                //   //spacer
+                //   const SizedBox(height: 40),
 
-              //   // Google or Apple
-              //   Row(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     children: [
-              //       //google buttom
-              //       SquareTile(
-              //         onTap: () {},
-              //         imagePath: 'lib/assets/icons/google.svg',
-              //         height: 90,
-              //       ),
+                //   // Google or Apple
+                //   Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: [
+                //       //google buttom
+                //       SquareTile(
+                //         onTap: () {},
+                //         imagePath: 'lib/assets/icons/google.svg',
+                //         height: 90,
+                //       ),
 
-              //       const SizedBox(width: 20),
-              //       // apple buttom
-              //       SquareTile(
-              //         onTap: () {},
-              //         imagePath: 'lib/assets/icons/apple.svg',
-              //         height: 60,
-              //       ),
-              //     ],
-              //   ),
-              //   const SizedBox(height: 50)
-              ])),
+                //       const SizedBox(width: 20),
+                //       // apple buttom
+                //       SquareTile(
+                //         onTap: () {},
+                //         imagePath: 'lib/assets/icons/apple.svg',
+                //         height: 60,
+                //       ),
+                //     ],
+                //   ),
+                //   const SizedBox(height: 50)
+              ],
+            ),
+          ),
         ),
       ),
     );

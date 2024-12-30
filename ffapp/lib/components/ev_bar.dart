@@ -1,10 +1,8 @@
-import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class EvBar extends StatelessWidget {
@@ -23,7 +21,7 @@ class EvBar extends StatelessWidget {
   final bool isMaxLevel;
   final bool showIcon;
   final double insetPixels = 4.0;
-  final double iconSize = 50.0;
+  final double iconSize;
   final double curvature = 20;
   final double textMargin = 4;
 
@@ -42,6 +40,7 @@ class EvBar extends StatelessWidget {
       this.showInfoBox = false,
       this.innerBarPercentage = 1,
       this.isVertical = false,
+      this.iconSize = 50.0,
       this.simulateCurrentGains = false});
 
   @override
@@ -63,9 +62,9 @@ class EvBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         showIcon
-            ? const FitnessIcon(
+            ? FitnessIcon(
                 type: FitnessIconType.evo,
-                size: 50,
+                size: iconSize,
               )
             : Container(),
         Column(
@@ -73,48 +72,59 @@ class EvBar extends StatelessWidget {
               isVertical ? MainAxisAlignment.end : MainAxisAlignment.center,
           crossAxisAlignment: showInfoBox
               ? CrossAxisAlignment.center
-              : CrossAxisAlignment.center,
+              : CrossAxisAlignment.start,
           children: [
             if (!showInfoBox)
               Consumer<UserModel>(
                 builder: (_, user, __) {
                   return GestureDetector(
-                    onTap: didWeWorkoutToday
-                        ? () => {
-                              showFFDialog(
-                                  'Why am I not gaining Evo?',
-                                  "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
-                                  true,
-                                  context)
-                            }
-                        : () => {},
-                    child: Text(
-                        simulateCurrentGains
-                            ? didWeWorkoutToday
-                                ? "$currentXp + ($totalGains) ?"
-                                : overrideGains == 0
-                                    ? "$currentXp + (${(maxXp / 5).floor()} | ${user.user!.streak * 10}🔥)"
-                                    : "$currentXp + ($overrideGains)"
-                            : currentXp.toString(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge!
-                            .copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.secondary)),
-                  );
+                      onTap: didWeWorkoutToday
+                          ? () => {
+                                showFFDialog(
+                                    'Why am I not gaining Evo?',
+                                    "Fitness is a marathon, not a sprint. In order to stay consistent you need to pace yourself. Your figure reflects this and you will not be able to gain any charge from multiple workouts per day. You can still gain Evo at a reduced rate.",
+                                    true,
+                                    context)
+                              }
+                          : () => {},
+                      child: Row(
+                        
+                        children: [
+                        Text(
+                          textAlign: TextAlign.left,
+                          simulateCurrentGains
+                              ? didWeWorkoutToday
+                                  ? "$currentXp + ($totalGains) ?"
+                                  : overrideGains == 0
+                                      ? "$currentXp [+ ${(maxXp / 5).floor()} | ${user.user!.streak * 10}]"
+                                      : "$currentXp + ($overrideGains)"
+                              : currentXp.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayLarge!
+                              .copyWith(
+                                  fontFamily: "Roboto",
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w800,
+                                  color:
+                                      const Color(0xFF00A7E1)),
+                        ),
+                        const FitnessIcon(type: FitnessIconType.fire, size: 30)
+                      ]));
                 },
               ),
             Visibility(
               visible: showInfoBox,
               child: GestureDetector(
                 onTap: () {
-                  if (!isMaxLevel && evoReady)
-                    Provider.of<HomeIndexProvider>(context, listen: false).setIndex(5);
+                  if (!isMaxLevel && evoReady) {
+                    Provider.of<HomeIndexProvider>(context, listen: false)
+                        .setIndex(5);
+                  }
                 },
                 child: Container(
                     margin: EdgeInsets.all(textMargin),
-                    height: barHeight,
+                    height: barHeight * 1.2,
                     width: barWidth * 0.5,
                     child: Center(
                         child: isMaxLevel
@@ -262,34 +272,34 @@ class EvBar extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (simulateCurrentGains)
-                        Align(
-                          alignment: isVertical
-                              ? Alignment.topCenter
-                              : Alignment.centerLeft,
-                          child: Container(
-                            width: isVertical
-                                ? barWidth
-                                : ((totalGains / maxXp).clamp(0, 1) * barWidth)
-                                    .clamp(
-                                    0,
-                                    barWidth -
-                                        (currentXp / maxXp).clamp(0, 1) *
-                                            barWidth,
-                                  ),
-                            height: isVertical
-                                ? (totalGains / maxXp).clamp(0, 1) * barHeight
-                                : barHeight,
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10)),
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer,
-                            ),
-                          ),
-                        ),
+                      // if (simulateCurrentGains)
+                      //   Align(
+                      //     alignment: isVertical
+                      //         ? Alignment.topCenter
+                      //         : Alignment.centerLeft,
+                      //     child: Container(
+                      //       width: isVertical
+                      //           ? barWidth
+                      //           : ((totalGains / maxXp).clamp(0, 1) * barWidth)
+                      //               .clamp(
+                      //               0,
+                      //               barWidth -
+                      //                   (currentXp / maxXp).clamp(0, 1) *
+                      //                       barWidth,
+                      //             ),
+                      //       height: isVertical
+                      //           ? (totalGains / maxXp).clamp(0, 1) * barHeight
+                      //           : barHeight,
+                      //       decoration: BoxDecoration(
+                      //         borderRadius: const BorderRadius.only(
+                      //             topRight: Radius.circular(10),
+                      //             bottomRight: Radius.circular(10)),
+                      //         color: Theme.of(context)
+                      //             .colorScheme
+                      //             .secondaryContainer,
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   ),
                 ),

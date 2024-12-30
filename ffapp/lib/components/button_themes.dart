@@ -183,7 +183,7 @@ class FlowingProgressBar extends StatefulWidget {
   final TextStyle textStyle;
 
   const FlowingProgressBar({
-    Key? key,
+    super.key,
     required this.text,
     this.icon,
     required this.textStyle,
@@ -194,7 +194,7 @@ class FlowingProgressBar extends StatefulWidget {
     this.width = 176.31,
     this.height = 39.09,
     this.iconSize = 20,
-  }) : super(key: key);
+  });
 
   @override
   State<FlowingProgressBar> createState() => _FlowingProgressBarState();

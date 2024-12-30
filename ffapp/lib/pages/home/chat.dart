@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/message_sender.dart';
 import 'package:ffapp/components/robot_response.dart';
 import 'package:ffapp/components/user_message.dart';
-import 'package:go_router/go_router.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/main.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -48,7 +48,7 @@ class _ChatPageState extends State<ChatPage> {
             icon: const Icon(Icons.chevron_left, size: 40),
             onPressed: () => context.goNamed('Home'),
           ),
-          title: Text('Chat'),
+          title: const Text('Chat'),
           actions: [
             Container(
               margin: const EdgeInsets.only(right: 10),
@@ -86,7 +86,7 @@ class _ChatPageState extends State<ChatPage> {
                       return message.user == 'assistant' || message.user == 'system'
                           ? message.user == 'system' ? null : RobotResponse(
                               text: message.text,
-                              figure_url: Provider.of<FigureModel>(context).composeFigureUrl(),
+                              figureUrl: Provider.of<FigureModel>(context).composeFigureUrl(),
                               datetime: "now",
                             )
                           : UserMessage(

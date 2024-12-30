@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class PersonalityModule {
   final String name;
@@ -12,11 +12,13 @@ class PersonalityModule {
 }
 
 class EditPersonalityPage extends StatefulWidget {
+  const EditPersonalityPage({super.key});
+
   @override
-  _EditPersonalityPageState createState() => _EditPersonalityPageState();
+  EditPersonalityPageState createState() => EditPersonalityPageState();
 }
 
-class _EditPersonalityPageState extends State<EditPersonalityPage> {
+class EditPersonalityPageState extends State<EditPersonalityPage> {
   final List<PersonalityModule> modules = [
     PersonalityModule(name: 'Happy', icon: Icons.sentiment_very_satisfied),
     PersonalityModule(name: 'Sad', icon: Icons.sentiment_very_dissatisfied),
@@ -45,16 +47,16 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Personality Modules'),
+        title: const Text('Edit Personality Modules'),
         actions: [
           IconButton(
-            icon: Icon(Icons.check),
+            icon: const Icon(Icons.check),
             onPressed: () async {
               final chatModel = Provider.of<ChatModel>(context, listen: false);
               await chatModel.savePersonalityModules(); // Save before navigating
-              context.go('/chat');
+              if(context.mounted) context.go('/chat');
               if(!listEquals(initialPersonalityModules, chatModel.personalityModules)) {
-                chatModel.init(changeFlag: true, context: context);
+                if(context.mounted) chatModel.init(changeFlag: true, context: context);
               }
               
             },
@@ -64,10 +66,9 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
       body: Consumer<ChatModel>(
         builder: (context, chatModel, child) {
           return GridView.builder(
-            padding: EdgeInsets.all(16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              childAspectRatio: 1,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
@@ -84,7 +85,7 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
                   }
                 },
                 child: AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
                     color: isSelected ? Theme.of(context).primaryColor : null,
                     borderRadius: BorderRadius.circular(8),
@@ -92,7 +93,7 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
                         blurRadius: 4,
-                        offset: isSelected ? Offset(0, 2) : Offset(0, 0),
+                        offset: isSelected ? const Offset(0, 2) : Offset.zero,
                       ),
                     ],
                   ),
@@ -104,7 +105,7 @@ class _EditPersonalityPageState extends State<EditPersonalityPage> {
                         size: 48,
                         color: isSelected ? Colors.white : null,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         module.name,
                         style: TextStyle(

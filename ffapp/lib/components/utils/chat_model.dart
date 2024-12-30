@@ -1,19 +1,20 @@
-import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
-import 'package:ffapp/pages/home/store.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ffapp/main.dart';
-import 'package:ffapp/components/utils/history_model.dart';
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/services/auth.dart' as auth;
-import 'package:fixnum/fixnum.dart';
 // import 'package:ffapp/services/local_notification_service.dart';
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/utils/history_model.dart';
+import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart';
+import 'package:ffapp/services/auth.dart' as auth;
 import 'package:ffapp/services/routes.pb.dart';
+import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /*
  *  When the program starts, four API calls will be made: 
@@ -77,10 +78,6 @@ class ChatModel extends ChangeNotifier {
     // _initNotificationTimer(); unused as the server should handle notifications
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   // Functionality for sending exercise reminder notifications (currently unused)
   // void _initNotificationTimer() {
@@ -154,36 +151,36 @@ class ChatModel extends ChangeNotifier {
     prefs = await SharedPreferences.getInstance();
     final String? modulesJson = prefs?.getString('personalityModules');
     if (modulesJson != null) {
-      personalityModules = List<String>.from(json.decode(modulesJson));
+      personalityModules = List<String>.from(json.decode(modulesJson) as Iterable<dynamic>);
     }
     notifyListeners();
   }
 
   Future<void> savePersonalityModules() async {
     await prefs?.setString(
-        'personalityModules', json.encode(personalityModules));
+        'personalityModules', json.encode(personalityModules),);
   }
 
-  Future<void> init({changeFlag = false, required BuildContext context}) async {
-    User? user = await Provider.of<auth.AuthService>(context, listen: false)
+  Future<void> init({bool changeFlag = false, required BuildContext context}) async {
+    final User? user = await Provider.of<auth.AuthService>(context, listen: false)
         .getUserDBInfo();
-    if (user?.premium == Int64(0)) {
+    if (user?.premium == Int64()) {
       messages.add(ChatMessage(
           "Welcome to Fitness Figure! Let's start an exercise!",
           "assistant",
-          "robot1"));
+          "robot1",),);
       notifyListeners();
       return;
     }
-    await dotenv.load(fileName: ".env");
+    await dotenv.load();
     prefs = await SharedPreferences.getInstance();
     await loadPersonalityModules();
     openAI = OpenAI.instance.build(
-        token: dotenv.env['OPENAI_KEY']!,
+        token: dotenv.env['OPENAI_KEY'],
         baseOption: HttpSetup(
             receiveTimeout: const Duration(seconds: 20),
-            connectTimeout: const Duration(seconds: 20)),
-        enableLog: true);
+            connectTimeout: const Duration(seconds: 20),),
+        enableLog: true,);
     messages.clear();
     instructions =
         "you are robot in an App, you have three statistics that are unique to you. 1. Charge - this is a percent based stat from 0 - 100% your charge increases when a user works out and increases more based on how consistent the user is in their workout schedule 2. evo - this a value that tracks your evolution progress, you have 8 different levels of evolution and the user has to gain enough evo points based on your level to increase your level of evolution. the user can generate evo points for you by working out, keeping your charge high, and doing research on the research tab. 3. Currency - this is a shared stat between you and the user. you generate currency per second based on how high your evolution level is. You have personality modules installed that affect your responses. Your current personality is: ${personalityModules.isEmpty ? "Happy" : personalityModules.join(", ")}. Do not mention your personality modules in conversation. Your personality cores dictate everything about you and your responses. In your first message to the user, respond as if they have just walked through the door, keep your response short but only for the first message.";
@@ -206,36 +203,36 @@ class ChatModel extends ChangeNotifier {
                 "properties": {
                   "charge": {
                     "type": "number",
-                    "description": "The current charge of the robot (0-100%)"
+                    "description": "The current charge of the robot (0-100%)",
                   },
                   "evo": {
                     "type": "number",
-                    "description": "The current evolution points of the robot"
+                    "description": "The current evolution points of the robot",
                   },
                   "currency": {
                     "type": "number",
-                    "description": "The current amount of currency"
-                  }
+                    "description": "The current amount of currency",
+                  },
                 },
-                "required": ["charge", "evo", "currency"]
-              }
-            }
+                "required": ["charge", "evo", "currency"],
+              },
+            },
           },
           {
             "type": "function",
             "function": {
               "name": "startWorkoutTimer",
               "description": "Start a timer for a workout session",
-              "parameters": {"type": "object", "properties": {}, "required": []}
-            }
+              "parameters": {"type": "object", "properties": {}, "required": []},
+            },
           },
           {
             "type": "function",
             "function": {
               "name": "evolutionInfo",
               "description": "Fetch evolution details for the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []}
-            }
+              "parameters": {"type": "object", "properties": {}, "required": []},
+            },
           }
         ],
       );
@@ -252,18 +249,19 @@ class ChatModel extends ChangeNotifier {
     messages.add(ChatMessage(
         "Welcome to Fitness Figure! Let's start an exercise!",
         "assistant",
-        "robot1"));
+        "robot1",),);
     notifyListeners();
   }
 
+  // ignore: non_constant_identifier_names
   Future<Map<String, dynamic>> get_robot_stats(BuildContext context) async {
     // currently unused
     final figureModel = Provider.of<FigureModel>(context, listen: false);
     final userModel = Provider.of<UserModel>(context, listen: false);
 
-    int charge = figureModel.figure?.charge ?? 0;
-    int evoPoints = figureModel.figure?.evPoints ?? 0;
-    int currency = userModel.user?.currency.toInt() ?? 0;
+    final int charge = figureModel.figure?.charge ?? 0;
+    final int evoPoints = figureModel.figure?.evPoints ?? 0;
+    final int currency = userModel.user?.currency.toInt() ?? 0;
 
     return {
       "charge": charge,
@@ -275,41 +273,43 @@ class ChatModel extends ChangeNotifier {
   Future<Map<String, dynamic>> getWeekData(BuildContext context) async {
     DateTime date = DateTime.now();
     date = date.toUtc();
-    User? userModel = Provider.of<UserModel>(context, listen: false).user!;
-    HistoryModel historyModel =
+    final User? userModel = Provider.of<UserModel>(context, listen: false).user;
+    final HistoryModel historyModel =
         Provider.of<HistoryModel>(context, listen: false);
     return {
       "workedOutToday": historyModel.workedOutToday,
-      "CurrentStreak": userModel.streak.toInt(),
+      "CurrentStreak": userModel!.streak.toInt(),
     };
   }
 
   Future<Map<String, dynamic>> evolutionInfo(BuildContext context) async {
     final figureModel = Provider.of<FigureModel>(context, listen: false);
 
-    int? evLevel = figureModel.figure?.evLevel;
-    int? evoPoints = figureModel.figure?.evPoints;
-    int? evoMax = figure1.EvCutoffs[evLevel!];
+    final int? evLevel = figureModel.figure?.evLevel;
+    final int? evoPoints = figureModel.figure?.evPoints;
+    final int evoMax = figure1.evCutoffs[evLevel!];
 
     return {
       "EVLevel": evLevel + 1,
       "evo": evoPoints,
       "EVMAX": evoMax,
-      "isEvolvable": evoPoints! >= evoMax ? true : false,
-      "evolutionBenefits": figure1.figureEvUpgrades[evLevel + 2], //
+      "isEvolvable": evoPoints! >= evoMax,
+      "evolutionBenefits": figure1.figureEvUpgrades[evLevel + 2], 
     };
   }
 
   Future<String> startWorkoutTimer(BuildContext context) async {
-    String timerName = "workout_timer";
-    DateTime now = DateTime.now();
+    const String timerName = "workout_timer";
+    final DateTime now = DateTime.now();
     await prefs!.setString('$timerName timerStarted', now.toString());
-    context.goNamed('Workout');
+    if(context.mounted) {
+      context.goNamed('Workout');
+    }
     return "Workout timer started successfully.";
   }
 
   Future<void> sendMessage(
-      String message, String role, BuildContext context) async {
+      String message, String role, BuildContext context,) async {
     if (message.trim().isEmpty) {
       return;
     }
@@ -339,24 +339,24 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "get_robot_stats",
               "description": "Get the current stats of the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []}
-            }
+              "parameters": {"type": "object", "properties": {}, "required": []},
+            },
           },
           {
             "type": "function",
             "function": {
               "name": "startWorkoutTimer",
               "description": "Start a timer for a workout session",
-              "parameters": {"type": "object", "properties": {}, "required": []}
-            }
+              "parameters": {"type": "object", "properties": {}, "required": []},
+            },
           },
           {
             "type": "function",
             "function": {
               "name": "evolutionInfo",
               "description": "Fetch evolution details for the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []}
-            }
+              "parameters": {"type": "object", "properties": {}, "required": []},
+            },
           },
           {
             "type": "function",
@@ -364,8 +364,8 @@ class ChatModel extends ChangeNotifier {
               "name": "getWeekData",
               "description":
                   "Fetch information such as if the user did a workout today and the current streak",
-              "parameters": {"type": "object", "properties": {}, "required": []}
-            }
+              "parameters": {"type": "object", "properties": {}, "required": []},
+            },
           }
         ],
       );
@@ -379,21 +379,23 @@ class ChatModel extends ChangeNotifier {
       String runStatus = run.status;
       int retries = 0;
       const maxRetries = 30; // Adjust as needed
-      const pollingInterval = Duration(milliseconds: 0); // Adjust as needed
+      const pollingInterval = Duration.zero; // Adjust as needed
 
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         final updatedRun = await openAI.threads.runs.retrieveRun(
             threadId: threadId!,
-            runId: run.id); // starts api call (probably doesn't use tokens?)
+            runId: run.id,); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
         // logger.i("Run created: ${updatedRun.id}");
         // logger.i("Run status: ${updatedRun.status}");
         // logger.i("Run requires action: ${updatedRun.requiredAction}");
         if (runStatus == "requires_action") {
-          await handleRequiredAction(updatedRun, context);
+          if(context.mounted) {
+            await handleRequiredAction(updatedRun, context);
+          }
         } else if (runStatus == "failed") {
-          logger.e("Run failed: ${updatedRun.lastError.toString()}");
+          logger.e("Run failed: ${updatedRun.lastError}");
           setRobotTyping(false);
           return;
         }
@@ -415,47 +417,59 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<void> handleRequiredAction(
-      CreateRunResponse updatedRun, BuildContext context) async {
-    final toolCalls =
-        updatedRun.requiredAction?['submit_tool_outputs']?['tool_calls'] ?? [];
-    List<Map<String, dynamic>> toolOutputs = [];
+  CreateRunResponse updatedRun,
+  BuildContext context,
+) async {
+  final requiredAction = updatedRun.requiredAction;
+  if (requiredAction == null) return;
 
-    for (var toolCall in toolCalls) {
-      if (toolCall['function']['name'] == "startWorkoutTimer") {
-        final result = await startWorkoutTimer(context);
-        toolOutputs.add({
-          'tool_call_id': toolCall['id'],
-          'output': result,
-        });
-      } else if (toolCall['function']['name'] == "get_robot_stats") {
-        final stats = await get_robot_stats(context);
-        toolOutputs.add({
-          'tool_call_id': toolCall['id'],
-          'output': jsonEncode(stats),
-        });
-      } else if (toolCall['function']['name'] == "evolutionInfo") {
-        final stats = await evolutionInfo(context);
-        toolOutputs.add({
-          'tool_call_id': toolCall['id'],
-          'output': jsonEncode(stats),
-        });
-      } else if (toolCall['function']['name'] == "getWeekData") {
-        final stats = await getWeekData(context);
-        toolOutputs.add({
-          'tool_call_id': toolCall['id'],
-          'output': jsonEncode(stats),
-        });
-      }
-    }
+  // Define a type-safe structure for tool calls
+  final toolCallsData = requiredAction['submit_tool_outputs'];
+  if (toolCallsData == null) return;
 
-    if (toolOutputs.isNotEmpty) {
-      await openAI.threads.runs.submitToolOutputsToRun(
-        threadId: threadId!,
-        runId: updatedRun.id,
-        toolOutputs: toolOutputs,
-      );
+  final toolCallsList = (toolCallsData as Map<String, dynamic>)['tool_calls'];
+  if (toolCallsList is! List) return;
+
+  final List<Map<String, dynamic>> toolOutputs = [];
+
+  // Define a type-safe mapping of function names to their handlers
+  final functionHandlers = <String, Future<dynamic> Function(BuildContext)>{
+    'startWorkoutTimer': startWorkoutTimer,
+    'get_robot_stats': get_robot_stats,
+    'evolutionInfo': evolutionInfo,
+    'getWeekData': getWeekData,
+  };
+
+  for (final toolCall in toolCallsList) {
+    if (toolCall is! Map<String, dynamic>) continue;
+    
+    final function = toolCall['function'];
+    if (function is! Map<String, dynamic>) continue;
+    
+    final functionName = function['name'];
+    if (functionName is! String) continue;
+    
+    final toolCallId = toolCall['id'];
+    if (toolCallId == null) continue;
+
+    final handler = functionHandlers[functionName];
+    if (handler != null) {
+      final result = await handler(context);
+      toolOutputs.add({
+        'tool_call_id': toolCallId,
+        'output': result is String ? result : jsonEncode(result),
+      });
     }
   }
+
+  if (toolOutputs.isNotEmpty) {
+    await openAI.threads.runs.submitToolOutputsToRun(
+      threadId: threadId!,
+      runId: updatedRun.id,
+      toolOutputs: toolOutputs,
+    );
+  }
+}
 
   Future<void> retrieveAndProcessAssistantResponse() async {
     final messagesResponse =
@@ -464,7 +478,7 @@ class ChatModel extends ChangeNotifier {
       final assistantMessage = messagesResponse.data.first;
       if (assistantMessage.content.isNotEmpty) {
         messages.add(ChatMessage(
-            assistantMessage.content.first.text.value, "assistant", "robot1"));
+            assistantMessage.content.first.text.value, "assistant", "robot1",),);
         setRobotTyping(false);
         notifyListeners();
       } else {
@@ -477,58 +491,58 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _sendWelcomeMessage() async {
-    // Currently unused
-    try {
-      // Create a message in the thread
-      final createMessage = CreateMessage(
-        role: 'system',
-        content:
-            "The user has just signed in. Give them a short, warm welcome and encourage them to start exercising.",
-      );
-      await openAI.threads.v2.messages.createMessage(
-        threadId: threadId!,
-        request: createMessage,
-      );
+  // Future<void> _sendWelcomeMessage() async {
+  //   // Currently unused
+  //   try {
+  //     // Create a message in the thread
+  //     final createMessage = CreateMessage(
+  //       role: 'system',
+  //       content:
+  //           "The user has just signed in. Give them a short, warm welcome and encourage them to start exercising.",
+  //     );
+  //     await openAI.threads.v2.messages.createMessage(
+  //       threadId: threadId!,
+  //       request: createMessage,
+  //     );
 
-      // Run the assistant
-      final runRequest = CreateRun(assistantId: assistantId!);
-      final run = await openAI.threads.runs
-          .createRun(threadId: threadId!, request: runRequest);
+  //     // Run the assistant
+  //     final runRequest = CreateRun(assistantId: assistantId!);
+  //     final run = await openAI.threads.runs
+  //         .createRun(threadId: threadId!, request: runRequest);
 
-      // Wait for the run to complete
-      String runStatus = run.status;
-      while (runStatus != "completed") {
-        final updatedRun = await openAI.threads.runs
-            .retrieveRun(threadId: threadId!, runId: run.id);
-        runStatus = updatedRun.status;
+  //     // Wait for the run to complete
+  //     String runStatus = run.status;
+  //     while (runStatus != "completed") {
+  //       final updatedRun = await openAI.threads.runs
+  //           .retrieveRun(threadId: threadId!, runId: run.id);
+  //       runStatus = updatedRun.status;
 
-        if (runStatus == "failed") {
-          logger.e("Run failed: ${updatedRun.lastError.toString()}");
-          return;
-        }
-      }
+  //       if (runStatus == "failed") {
+  //         logger.e("Run failed: ${updatedRun.lastError}");
+  //         return;
+  //       }
+  //     }
 
-      // Retrieve the messages
-      final messagesResponse =
-          await openAI.threads.v2.messages.listMessage(threadId: threadId!);
-      if (messagesResponse.data.isNotEmpty) {
-        final assistantMessage = messagesResponse.data.first;
-        if (assistantMessage.content.isNotEmpty) {
-          logger.i(assistantMessage.content.first.text.value);
-          messages.add(ChatMessage(assistantMessage.content.first.text.value,
-              "assistant", "robot1"));
-          notifyListeners();
-        } else {
-          logger.i("Received an empty message from the assistant");
-        }
-      } else {
-        logger.i("No messages received from the assistant");
-      }
-    } catch (e) {
-      logger.e("An error occurred while sending welcome message: $e");
-    }
-  }
+  //     // Retrieve the messages
+  //     final messagesResponse =
+  //         await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+  //     if (messagesResponse.data.isNotEmpty) {
+  //       final assistantMessage = messagesResponse.data.first;
+  //       if (assistantMessage.content.isNotEmpty) {
+  //         logger.i(assistantMessage.content.first.text.value);
+  //         messages.add(ChatMessage(assistantMessage.content.first.text.value,
+  //             "assistant", "robot1",),);
+  //         notifyListeners();
+  //       } else {
+  //         logger.i("Received an empty message from the assistant");
+  //       }
+  //     } else {
+  //       logger.i("No messages received from the assistant");
+  //     }
+  //   } catch (e) {
+  //     logger.e("An error occurred while sending welcome message: $e");
+  //   }
+  // }
 
   void addPersonalityModule(String module) {
     if (!personalityModules.contains(module)) {
@@ -546,8 +560,8 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<String>? generatePostWorkoutMessage(
-      Map<String, dynamic> gameState) async {
-    String message =
+      Map<String, dynamic> gameState,) async {
+    final String message =
         "The user just completed a workout with these stats create a message congratulating and encouraging them $gameState. Don't use emoji's, Be personable and human. Take into account your personality cores.";
 
     try {
@@ -576,19 +590,19 @@ class ChatModel extends ChangeNotifier {
       String runStatus = run.status;
       int retries = 0;
       const maxRetries = 30; // Adjust as needed
-      const pollingInterval = Duration(milliseconds: 0); // Adjust as needed
+      const pollingInterval = Duration.zero; // Adjust as needed
 
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         final updatedRun = await openAI.threads.runs.retrieveRun(
             threadId: threadId!,
-            runId: run.id); // starts api call (probably doesn't use tokens?)
+            runId: run.id,); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
         // logger.i("Run created: ${updatedRun.id}");
         // logger.i("Run status: ${updatedRun.status}");
         // logger.i("Run requires action: ${updatedRun.requiredAction}");
         if (runStatus == "failed") {
-          logger.e("Run failed: ${updatedRun.lastError.toString()}");
+          logger.e("Run failed: ${updatedRun.lastError}");
         }
 
         retries++;
@@ -620,8 +634,8 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<String?> generatePremiumOfflineStatusMessage(
-      Map<String, dynamic> gameState) async {
-    String message =
+      Map<String, dynamic> gameState,) async {
+    final String message =
         "Send a message to a user that would appear in a push notification on their phone based on this info $gameState. Only pick two of the stats to mention. Don't use emoji's, Be personable and human. Take into account your personality cores.";
 
     try {
@@ -650,19 +664,19 @@ class ChatModel extends ChangeNotifier {
       String runStatus = run.status;
       int retries = 0;
       const maxRetries = 30; // Adjust as needed
-      const pollingInterval = Duration(milliseconds: 0); // Adjust as needed
+      const pollingInterval = Duration.zero; // Adjust as needed
 
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         final updatedRun = await openAI.threads.runs.retrieveRun(
             threadId: threadId!,
-            runId: run.id); // starts api call (probably doesn't use tokens?)
+            runId: run.id,); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
         // logger.i("Run created: ${updatedRun.id}");
         // logger.i("Run status: ${updatedRun.status}");
         // logger.i("Run requires action: ${updatedRun.requiredAction}");
         if (runStatus == "failed") {
-          logger.e("Run failed: ${updatedRun.lastError.toString()}");
+          logger.e("Run failed: ${updatedRun.lastError}");
           return null;
         }
 
@@ -692,6 +706,7 @@ class ChatModel extends ChangeNotifier {
     } catch (e) {
       logger.e("An error occurred: $e");
     }
+    return null;
   }
 
   void setRobotTyping(bool isTyping) {

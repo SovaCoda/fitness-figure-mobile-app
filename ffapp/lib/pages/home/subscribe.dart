@@ -1,20 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
-import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:fixnum/fixnum.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 
@@ -412,7 +406,7 @@ void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
   }
 
   // Debugging button to toggle premium status
-  Widget _buildTogglePremiumButton(context, {bool debugging = true}) {
+  Widget _buildTogglePremiumButton(BuildContext context, {bool debugging = true}) {
     return debugging ? ElevatedButton(
       onPressed: () {
         //Provider.of<SubscribePageModel>(context, listen: false).togglePremium();

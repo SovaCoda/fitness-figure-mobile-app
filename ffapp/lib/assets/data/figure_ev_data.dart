@@ -1,5 +1,5 @@
 class figureEvData {
-  List<int> EvCutoffs = [];
+  List<int> evCutoffs = [];
   String figureName = "";
   int numberOfEvolutions = 0;
   int baseEvRequired = 0;
@@ -17,7 +17,7 @@ class figureEvData {
     this.figureEvUpgrades = const [],
     this.currencyGens = const [],
   }) {
-    EvCutoffs = _generateEvCutoffs;
+    evCutoffs = _generateEvCutoffs;
   }
 
   List<int> get _generateEvCutoffs {

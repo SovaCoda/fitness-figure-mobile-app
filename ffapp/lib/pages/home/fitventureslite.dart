@@ -8,7 +8,7 @@ class FitVenturesLite extends StatefulWidget {
   const FitVenturesLite({super.key});
 
   @override
-  _FitVenturesLiteState createState() => _FitVenturesLiteState();
+  FitVenturesLiteState createState() => FitVenturesLiteState();
 }
 
 class FitventuresMissionManagerProvider with ChangeNotifier {
@@ -43,7 +43,7 @@ class FitventuresMissionManagerProvider with ChangeNotifier {
   }
 }
 
-class _FitVenturesLiteState extends State<FitVenturesLite> {
+class FitVenturesLiteState extends State<FitVenturesLite> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(

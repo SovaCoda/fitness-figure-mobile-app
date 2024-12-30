@@ -1,22 +1,21 @@
 import 'dart:async';
 
-import 'package:ffapp/components/ShimmeringPremiumBadge.dart';
+import 'package:bottom_picker/bottom_picker.dart';
+import 'package:ffapp/components/shimmering_premium_badge.dart';
 import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/flutterUser.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
-import 'package:ffapp/main.dart';
+import 'package:ffapp/services/routes.pb.dart' as routes;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:bottom_picker/bottom_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ffapp/components/resuables/gradiented_container.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -26,16 +25,14 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  late AuthService auth;
-  FlutterUser user = FlutterUser();
+  late final AuthService auth;
+  final FlutterUser user = FlutterUser();
   late String name = "Loading...";
   late String email = "Loading...";
   late String password = "Loading...";
   late int weeklyGoal = 4; // default values
   late int minExerciseGoal = 30;
   late String manageSub = "Loading...";
-  late SharedPreferences prefs;
-  late Timer _timer = Timer(Duration.zero, () {});
 
   @override
   void initState() {
@@ -44,31 +41,20 @@ class _ProfileState extends State<Profile> {
     initialize();
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     try {
-      Routes.User? databaseUser = await auth.getUserDBInfo();
-      prefs = await SharedPreferences.getInstance();
+      final Future<routes.User?> userFuture = auth.getUserDBInfo();
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      final routes.User? databaseUser = await userFuture;
+      if (!mounted || databaseUser == null) return;
+      userModel.setUser(databaseUser);
+
       if (mounted) {
-        Provider.of<UserModel>(context, listen: false).setUser(databaseUser!);
-        if (prefs.getString("isVerified") == "false" &&
-            prefs.getString("oldEmail") ==
-                databaseUser
-                    .email) // make sure our listener doesn't mistrigger from potential alt accounts
-        {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    "You have still not verified your new email at ${prefs.getString("newEmail")}. Please check your inbox.")),
-          );
-          auth.startEmailVerificationListener(
-              databaseUser.email, prefs.getString("newEmail")!);
-          checkEmailVerification(prefs.getString("newEmail")!);
-        }
-        String curName = databaseUser.name;
-        String curEmail = databaseUser.email;
-        int curGoal = databaseUser.weekGoal.toInt();
-        int minExerciseTime = databaseUser.workoutMinTime.toInt();
-        bool premiumStatus =
+        final String curName = databaseUser.name;
+        final String curEmail = databaseUser.email;
+        final int curGoal = databaseUser.weekGoal.toInt();
+        final int minExerciseTime = databaseUser.workoutMinTime.toInt();
+        final bool premiumStatus =
             Provider.of<UserModel>(context, listen: false).isPremium();
 
         setState(() {
@@ -88,16 +74,18 @@ class _ProfileState extends State<Profile> {
   @override
   void dispose() {
     super.dispose();
-    _timer.cancel();
   }
 
   void _showWeeklyGoalPicker() {
-    int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
+    final int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
     BottomPicker(
       items: List.generate(
-          7,
-          (index) => Text("${index + 1} ${index == 0 ? "day" : "days"}",
-              style: const TextStyle(fontSize: 35))),
+        7,
+        (index) => Text(
+          "${index + 1} ${index == 0 ? "day" : "days"}",
+          style: const TextStyle(fontSize: 35),
+        ),
+      ),
       pickerTitle: const Text(
         "Select Weekly Workout Goal",
         textAlign: TextAlign.center,
@@ -113,19 +101,23 @@ class _ProfileState extends State<Profile> {
       selectedItemIndex: safeWeeklyGoal - 1,
       itemExtent: 38,
       dismissable: true,
-      onSubmit: (index) {
+      onSubmit: (dynamic index) {
         setState(() {
-          weeklyGoal = index + 1;
+          final int indexInt = index as int;
+          weeklyGoal = indexInt + 1;
         });
         updateWeeklyGoal(weeklyGoal);
       },
-      buttonAlignment: MainAxisAlignment.center,
       displayCloseIcon: false,
       buttonWidth: MediaQuery.of(context).size.width * 0.5,
-      buttonContent: Text("Confirm",
-          style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16),
-          textAlign: TextAlign.center),
+      buttonContent: Text(
+        "Confirm",
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
+          fontSize: 16,
+        ),
+        textAlign: TextAlign.center,
+      ),
       buttonStyle: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
         borderRadius: const BorderRadius.all(Radius.circular(13)),
@@ -135,13 +127,16 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showMinGoalPicker() {
-    int safeWeeklyGoal =
+    final int safeWeeklyGoal =
         weeklyGoal.clamp(1, 12); // prevents errors from user input
     BottomPicker(
       items: List.generate(
-          12,
-          (index) => Text("${(index + 1) * 15} minutes",
-              style: const TextStyle(fontSize: 35))),
+        12,
+        (index) => Text(
+          "${(index + 1) * 15} minutes",
+          style: const TextStyle(fontSize: 35),
+        ),
+      ),
       pickerTitle: const Text(
         "Select Weekly Workout Goal",
         textAlign: TextAlign.center,
@@ -159,17 +154,21 @@ class _ProfileState extends State<Profile> {
       dismissable: true,
       onSubmit: (index) {
         setState(() {
-          minExerciseGoal = (index + 1) * 15;
+          final int indexInt = index as int;
+          minExerciseGoal = (indexInt + 1) * 15;
         });
         updateMinWorkoutTime(minExerciseGoal);
       },
-      buttonAlignment: MainAxisAlignment.center,
       displayCloseIcon: false,
       buttonWidth: MediaQuery.of(context).size.width * 0.5,
-      buttonContent: Text("Confirm",
-          style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16),
-          textAlign: TextAlign.center),
+      buttonContent: Text(
+        "Confirm",
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
+          fontSize: 16,
+        ),
+        textAlign: TextAlign.center,
+      ),
       buttonStyle: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
         borderRadius: const BorderRadius.all(Radius.circular(13)),
@@ -178,76 +177,87 @@ class _ProfileState extends State<Profile> {
     ).show(context);
   }
 
-  void updateName(String newName) async {
+  Future<void> updateName(String newName) async {
     await auth.updateName(newName);
     setState(() {
       name = newName;
     });
   }
 
-  Future updateEmail(
-      String userEmail, String userPassword, String newEmail) async {
-    try {
-      AuthCredential credential = EmailAuthProvider.credential(
-          email: userEmail, password: userPassword);
-      String result = await auth.updateEmail(userEmail, newEmail, credential);
-      prefs.setString("oldEmail", userEmail);
-      prefs.setString("newEmail", newEmail);
-      prefs.setString("isVerified", "false");
+  // Future updateEmail(
+  //   String userEmail,
+  //   String userPassword,
+  //   String newEmail,
+  // ) async {
+  //   try {
+  //     final AuthCredential credential = EmailAuthProvider.credential(
+  //       email: userEmail,
+  //       password: userPassword,
+  //     );
+  //     final String result =
+  //         await auth.updateEmail(userEmail, newEmail, credential);
+  //     prefs.setString("oldEmail", userEmail);
+  //     prefs.setString("newEmail", newEmail);
+  //     prefs.setString("isVerified", "false");
 
-      if (mounted) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result)),
-          );
-        }
-      }
+  //     if (mounted) {
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text(result)),
+  //         );
+  //       }
+  //     }
 
-      // Don't sign out or navigate away, wait for verification
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    }
-  }
+  //     // Don't sign out or navigate away, wait for verification
+  //   } catch (e) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text(e.toString())),
+  //       );
+  //     }
+  //   }
+  // }
 
-  void checkEmailVerification(String newEmail) {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      try {
-        User? user = FirebaseAuth.instance.currentUser;
-        await user?.reload();
-        if (user?.email == newEmail && user?.emailVerified == true) {
-          timer.cancel();
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Email updated successfully!")),
-            );
-          }
-        }
-      } on FirebaseAuthException {
-        // setState(() {
-        //   email = newEmail;
-        // });
-        prefs.setString("isVerified", "true");
-        prefs.setString("newEmail", "");
-        if (mounted) {
-          signOut(context);
-          GoRouter.of(context).go("/");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Success! Please sign back in.")),
-          );
-        }
-      }
-    });
-  }
+  // void checkEmailVerification(String newEmail) {
+  //   _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+  //     try {
+  //       final User? user = FirebaseAuth.instance.currentUser;
+  //       await user?.reload();
+  //       if (user?.email == newEmail && user?.emailVerified == true) {
+  //         timer.cancel();
+  //         if (mounted) {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             const SnackBar(content: Text("Email updated successfully!")),
+  //           );
+  //         }
+  //       }
+  //     } on FirebaseAuthException {
+  //       // setState(() {
+  //       //   email = newEmail;
+  //       // });
+  //       prefs.setString("isVerified", "true");
+  //       prefs.setString("newEmail", "");
+  //       if (mounted) {
+  //         signOut(context);
+  //         GoRouter.of(context).go("/");
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(content: Text("Success! Please sign back in.")),
+  //         );
+  //       }
+  //     }
+  //   });
+  // }
 
   Future<void> updatePassword(
-      String userEmail, String userPassword, String newPassword) async {
+    String userEmail,
+    String userPassword,
+    String newPassword,
+  ) async {
     try {
-      AuthCredential credential = EmailAuthProvider.credential(
-          email: userEmail, password: userPassword);
+      final AuthCredential credential = EmailAuthProvider.credential(
+        email: userEmail,
+        password: userPassword,
+      );
       await auth.updatePassword(newPassword, credential);
       if (mounted) {
         signOut(context);
@@ -265,7 +275,7 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  void updateWeeklyGoal(int goal) async {
+  Future<void> updateWeeklyGoal(int goal) async {
     await auth.updateWeeklyGoal(goal);
     if (mounted) {
       Provider.of<UserModel>(context, listen: false)
@@ -273,9 +283,10 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  void updateMinWorkoutTime(int time) async {
+  Future<void> updateMinWorkoutTime(int time) async {
     await auth.updateUserDBInfo(
-        Routes.User(email: email, workoutMinTime: Int64(time)));
+      routes.User(email: email, workoutMinTime: Int64(time)),
+    );
     if (mounted) {
       Provider.of<UserModel>(context, listen: false)
           .setWorkoutMinTime(Int64(time));
@@ -296,15 +307,18 @@ class _ProfileState extends State<Profile> {
         // Existing content
         SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics().applyTo(
-              const BouncingScrollPhysics()), // quick fix for this https://github.com/flutter/flutter/issues/138940
+            const BouncingScrollPhysics(),
+          ), // quick fix for this https://github.com/flutter/flutter/issues/138940
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('PROFILE',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-                    textAlign: TextAlign.center),
+                const Text(
+                  'PROFILE',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 24),
                 _buildProfileSection(),
                 const SizedBox(height: 24),
@@ -328,26 +342,39 @@ class _ProfileState extends State<Profile> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('PERSONAL INFORMATION',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400)),
+            const Text(
+              'PERSONAL INFORMATION',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             const SizedBox(height: 16),
-            _buildProfileItem(Icons.person, 'Name', name,
-                () => _showEditDialog("Name", name, updateName)),
             _buildProfileItem(
-                Icons.email,
-                'Email',
-                email,
-                () => _showEditDialog("Email", email, (newEmail) async {
-                      final userPassword = await _showPasswordConfirmDialog();
-                      if (userPassword != null) {
-                        updateEmail(email, userPassword, newEmail);
-                      }
-                    })),
+              Icons.person,
+              'Name',
+              name,
+              () => _showEditDialog("Name", name, updateName),
+            ),
             _buildProfileItem(
-                Icons.lock, 'Password', '********', _showPasswordChangeDialog),
+              Icons.email,
+              'Email',
+              email,
+              // () => _showEditDialog("Email", email, (newEmail) async {
+              //   final userPassword = await _showPasswordConfirmDialog();
+              //   if (userPassword != null) {
+              //     updateEmail(email, userPassword, newEmail);
+              //   }
+              // }),
+              () {} // don't allow updating email bc too much of a pain
+            ),
+            _buildProfileItem(
+              Icons.lock,
+              'Password',
+              '********',
+              _showPasswordChangeDialog,
+            ),
           ],
         ),
       ),
@@ -355,34 +382,43 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildProfileItem(
-      IconData icon, String title, String value, VoidCallback onTap) {
+    IconData icon,
+    String title,
+    String value,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
         onTap: onTap,
         child: Row(
           children: [
-            icon == Icons.person
-                ? const FitnessIcon(type: FitnessIconType.logo_white, size: 24)
-                : Icon(icon, color: Colors.white),
+            if (icon == Icons.person)
+              const FitnessIcon(type: FitnessIconType.logo_white, size: 24)
+            else
+              Icon(icon, color: Colors.white),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(value,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Roboto')),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
                   Text(
                     title,
                     style: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontFamily: 'Roboto',
-                        fontSize: 14,
-                        color: Color.fromARGB(255, 145, 145, 145)),
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      color: Color.fromARGB(255, 145, 145, 145),
+                    ),
                   ),
                 ],
               ),
@@ -401,20 +437,25 @@ class _ProfileState extends State<Profile> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('WORKOUT GOALS',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400)),
+            const Text(
+              'WORKOUT GOALS',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             const SizedBox(height: 16),
             _buildGoalItem(
-                'Weekly Workout Goal',
-                '$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}',
-                _showWeeklyGoalPicker),
+              'Weekly Workout Goal',
+              '$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}',
+              _showWeeklyGoalPicker,
+            ),
             _buildGoalItem(
-                'Minimum Workout Time',
-                '$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}',
-                _showMinGoalPicker),
+              'Minimum Workout Time',
+              '$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}',
+              _showMinGoalPicker,
+            ),
           ],
         ),
       ),
@@ -430,19 +471,23 @@ class _ProfileState extends State<Profile> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Roboto')),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Roboto',
+                ),
+              ),
               Text(
                 title,
                 style: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontFamily: 'Roboto',
-                    fontSize: 14,
-                    color: Color.fromARGB(255, 145, 145, 145)),
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Roboto',
+                  fontSize: 14,
+                  color: Color.fromARGB(255, 145, 145, 145),
+                ),
               ),
             ],
           ),
@@ -457,48 +502,63 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildSubscriptionSection() {
     return GradientedContainer(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("SUBSCRIPTION",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 18))),
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              "SUBSCRIPTION",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+                fontSize: 18,
+              ),
+            ),
+          ),
           Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(children: [
-                manageSub == "Regular User"
-                    ? const FitnessIcon(type: FitnessIconType.regular_badge, size: 50)
-                    : AnimatedPremiumBadge(size: 50),
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                if (manageSub == "Regular User")
+                  const FitnessIcon(
+                      type: FitnessIconType.regular_badge, size: 50,)
+                else
+                  const AnimatedPremiumBadge(size: 50),
                 const SizedBox(width: 8),
                 Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(manageSub == "Regular User" ? "REGULAR" : "PREMIUM",
-                          style: const TextStyle(
-                              fontFamily: 'Roboto',
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500)),
-                      if (manageSub == "Regular User")
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      manageSub == "Regular User" ? "REGULAR" : "PREMIUM",
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (manageSub == "Regular User")
                       GestureDetector(
-                          onTap: () {}, // TODO: Implement purchase premium page
-                          child: const Text(
-                            "Tap To Purchase Premium",
-                            style: TextStyle(
-                                fontFamily: 'Roboto',
-                                color: Color.fromARGB(255, 145, 145, 145),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400),
-                          ))
-                    ])
-              ])),
-        ]));
+                        onTap: () {}, // TODO: Implement purchase premium page
+                        child: const Text(
+                          "Tap To Purchase Premium",
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            color: Color.fromARGB(255, 145, 145, 145),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildActionButtons() {
@@ -506,11 +566,11 @@ class _ProfileState extends State<Profile> {
       children: [
         FFAppButton(
           onPressed: () => _showSignOutConfirmation(),
-          icon: Icons.logout,
+          isSignOut: true,
           text: "SIGN OUT",
           fontSize: 24,
           size: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.08
+          height: MediaQuery.of(context).size.height * 0.08,
         ),
         const SizedBox(height: 16),
         FFAppButton(
@@ -518,31 +578,48 @@ class _ProfileState extends State<Profile> {
           text: "DELETE ACCOUNT",
           fontSize: 20,
           isDelete: true,
-          size: MediaQuery.of(context).size.width * 0.79389312977099236641221374045802,
-          height: MediaQuery.of(context).size.height * 0.08098591549295774647887323943662
-          ),
-        
-        
+          size: MediaQuery.of(context).size.width *
+              0.79389312977099236641221374045802,
+          height: MediaQuery.of(context).size.height *
+              0.08098591549295774647887323943662,
+        ),
       ],
     );
   }
 
   void _showDeleteAccountConfirmation() {
-    showFFDialogBinary("Delete Account", "Are you sure you want to delete your account? This action cannot be undone.", true, context, FfButton(text: "Delete Account", textColor: Colors.red, backgroundColor: Colors.transparent, onPressed: () async {
-                // current issue: auth.deleteUser() requires user reauthorization
-                final userPassword = await _showPasswordConfirmDialog();
-                if (userPassword != null) {
-                  AuthCredential credential = EmailAuthProvider.credential(
-                      email: email, password: userPassword);
-                  await auth.deleteUser(credential);
-                  signOut(context);
-                  GoRouter.of(context).go("/");
-                }
-              },), FfButton(text: 'Cancel', textColor: Colors.white, backgroundColor: Colors.transparent, onPressed: () {
-                if (mounted) {
-                  Navigator.of(context).pop();
-                }
-              },));
+    showFFDialogBinary(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      true,
+      context,
+      FFAppButton(
+        text: "Delete Account",
+        onPressed: () async {
+          // current issue: auth.deleteUser() requires user reauthorization
+          final userPassword = await _showPasswordConfirmDialog();
+          if (userPassword != null) {
+            final AuthCredential credential = EmailAuthProvider.credential(
+              email: email,
+              password: userPassword,
+            );
+            await auth.deleteUser(credential);
+            if (mounted) {
+              signOut(context);
+              GoRouter.of(context).go("/");
+            }
+          }
+        },
+      ),
+      FFAppButton(
+        text: 'Cancel',
+        onPressed: () {
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+      ),
+    );
     //     return GradientedContainer(
     //     child: AlertDialog(
     //       content: const GradientedContainer(
@@ -586,7 +663,10 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showEditDialog(
-      String title, String currentValue, Function(String) onSave) {
+    String title,
+    String currentValue,
+    Function(String) onSave,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -608,16 +688,10 @@ class _ProfileState extends State<Profile> {
               child: const Text("Save"),
               onPressed: () async {
                 // In the _showEditDialog method, replace the existing email update logic with:
-                if (title == "Email") {
-                  final userPassword = await _showPasswordConfirmDialog();
-                  if (userPassword != null) {
-                    await updateEmail(currentValue, userPassword, newValue);
-                    checkEmailVerification(newValue);
-                  }
-                } else {
                   onSave(newValue);
-                }
-                if (mounted) {
+                
+                if(mounted) {
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pop();
                 }
               },
@@ -658,9 +732,11 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void _showPasswordChangeDialog() async {
-    String? currentPassword = await _showPasswordConfirmDialog();
+  Future<void> _showPasswordChangeDialog() async {
+    
+    final String? currentPassword = await _showPasswordConfirmDialog();
     if (currentPassword == null) return;
+    if(!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -724,6 +800,6 @@ class InvalidEmailException implements Exception {
 }
 
 Future<void> signOut(BuildContext context) async {
-  Provider.of<UserModel>(context, listen: false).setUser(Routes.User());
+  Provider.of<UserModel>(context, listen: false).setUser(routes.User());
   await FirebaseAuth.instance.signOut();
 }

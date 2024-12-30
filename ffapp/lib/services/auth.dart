@@ -1,14 +1,15 @@
+import 'dart:async';
+
+import "package:ffapp/firebase_options.dart";
+import 'package:ffapp/routes.dart';
 import "package:ffapp/services/google/protobuf/empty.pb.dart";
 import "package:ffapp/services/routes.pb.dart" as Routes;
 import "package:firebase_auth/firebase_auth.dart" as FB;
 import "package:firebase_core/firebase_core.dart";
-import "package:ffapp/firebase_options.dart";
-import 'package:ffapp/routes.dart';
-import 'package:logger/logger.dart';
 import 'package:fixnum/fixnum.dart';
-import 'dart:async';
+import 'package:logger/logger.dart';
 
-var logger = Logger();
+Logger logger = Logger();
 
 class AuthService {
   final FB.FirebaseAuth _auth; // firebase backend instance
@@ -24,11 +25,11 @@ class AuthService {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      FB.FirebaseAuth auth = FB.FirebaseAuth.instance;
+      final FB.FirebaseAuth auth = FB.FirebaseAuth.instance;
 
       await RoutesService.instance.init();
       logger.i("RoutesService initialized");
-      RoutesService routes = RoutesService.instance;
+      final RoutesService routes = RoutesService.instance;
 
       _instance = AuthService._(auth, routes);
     }
@@ -37,10 +38,10 @@ class AuthService {
 
   Future<FB.User?> createUser(String email, String password) async {
     try {
-      Routes.User user = Routes.User(email: email);
+      final Routes.User user = Routes.User(email: email);
       await _routes.routesClient.createUser(user);
 
-      FB.UserCredential userCredential =
+      final FB.UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -61,7 +62,7 @@ class AuthService {
 
   Future<dynamic> signIn(String email, String password) async {
     try {
-      FB.UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      final FB.UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -87,11 +88,11 @@ class AuthService {
   }
 
   Future<Routes.User?> getUserDBInfo() async {
-    FB.User? currentUser = _auth.currentUser;
+    final FB.User? currentUser = _auth.currentUser;
     if (currentUser == null) {
       throw Exception("No user is currently signed in.");
     }
-    Routes.User user = Routes.User(email: currentUser.email);
+    final Routes.User user = Routes.User(email: currentUser.email);
     return await _routes.routesClient.getUser(user);
   }
 
@@ -108,35 +109,39 @@ class AuthService {
     return await _routes.routesClient.resetUserWeekComplete(user);
   }
 
-  Future updateEmail(String oldEmail, String newEmail, FB.AuthCredential credential) async {
-  try {
-    await _auth.currentUser?.reauthenticateWithCredential(credential);
-    await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
-    startEmailVerificationListener(oldEmail, newEmail);
-    // listenToAuthChanges();
-    return "Verification email sent to: $newEmail";
-  } catch (e) {
-    logger.e("Error sending verification email: $e");
-    rethrow;
-  }
-}
+ /* 
+  *   Old change email implementation in case we still need it
+  */
+  
+//   Future<String> updateEmail(String oldEmail, String newEmail, FB.AuthCredential credential) async {
+//   try {
+//     await _auth.currentUser?.reauthenticateWithCredential(credential);
+//     await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
+//     startEmailVerificationListener(oldEmail, newEmail);
+//     // listenToAuthChanges();
+//     return "Verification email sent to: $newEmail";
+//   } catch (e) {
+//     logger.e("Error sending verification email: $e");
+//     rethrow;
+//   }
+// }
 
-  // TODO: regain brain cells and fix this
-  // Checks every 5 seconds if the user is verified, and, if so, updates the database
-  void startEmailVerificationListener(String oldEmail, String newEmail) {
+
+//   // Checks every 5 seconds if the user is verified, and, if so, updates the database
+//   void startEmailVerificationListener(String oldEmail, String newEmail) {
     
-    Timer.periodic(const Duration(seconds: 5), (timer) async {
-      try {
-      await _auth.currentUser?.reload();
-      } catch(e) { // if this errors out, it means there was an update to the account
-        completeEmailUpdate(oldEmail, newEmail);
-      }
-      if (_auth.currentUser?.email == newEmail && _auth.currentUser?.emailVerified == true) {
-        timer.cancel();
-        await completeEmailUpdate(oldEmail, newEmail);
-      }
-    });
-}
+//     Timer.periodic(const Duration(seconds: 5), (timer) async {
+//       try {
+//       await _auth.currentUser?.reload();
+//       } catch(e) { // if this errors out, it means there was an update to the account
+//         completeEmailUpdate(oldEmail, newEmail);
+//       }
+//       if (_auth.currentUser?.email == newEmail && _auth.currentUser?.emailVerified == true) {
+//         timer.cancel();
+//         await completeEmailUpdate(oldEmail, newEmail);
+//       }
+//     });
+// }
 
 // This doesn't work as far as I know
 // void listenToAuthChanges() {
@@ -153,8 +158,8 @@ class AuthService {
   Future completeEmailUpdate(String oldEmail, String newEmail) async {
   try {
     await _auth.currentUser?.reload();
-      Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
-        Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail)
+      final Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
+        Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail),
       );
       logger.i("Email updated successfully in database to: ${updatedUser.email}");
       return updatedUser;
@@ -164,44 +169,44 @@ class AuthService {
   }
 }
 
-  Future<void> deleteUser(credential) async {
+  Future<void> deleteUser(FB.AuthCredential credential) async {
     // I'll opt for the braindead solution for now
     // get everything from db
-    Future<List<Routes.FigureInstance>> figureInstances = 
-        getFigureInstances(Routes.User(email: _auth.currentUser!.email!))
+    final Future<List<Routes.FigureInstance>> figureInstances = 
+        getFigureInstances(Routes.User(email: _auth.currentUser!.email))
         .then((value) => value.figureInstances);
-    Future<List<Routes.SkinInstance>> skinInstances = getSkinInstances(Routes.User(email: _auth.currentUser!.email!)).then((value) => value.skinInstances);
-    Future<List<Routes.SurveyResponse>> surveyResponses = getSurveyResponses(Routes.User(email: _auth.currentUser!.email!)).then((value) => value.surveyResponses);
-    Future<List<Routes.Workout>> workouts = getWorkouts().then((value) => value.workouts);
-    Future<List<Routes.DailySnapshot>> dailySnapshot = getDailySnapshots(Routes.DailySnapshot(userEmail: _auth.currentUser!.email!)).then((value) => value.dailySnapshots);
-    Future<Routes.OfflineDateTime> offlineDateTime = getOfflineDateTime(Routes.OfflineDateTime(email: _auth.currentUser!.email!));
+    final Future<List<Routes.SkinInstance>> skinInstances = getSkinInstances(Routes.User(email: _auth.currentUser!.email)).then((value) => value.skinInstances);
+    final Future<List<Routes.SurveyResponse>> surveyResponses = getSurveyResponses(Routes.User(email: _auth.currentUser!.email)).then((value) => value.surveyResponses);
+    final Future<List<Routes.Workout>> workouts = getWorkouts().then((value) => value.workouts);
+    final Future<List<Routes.DailySnapshot>> dailySnapshot = getDailySnapshots(Routes.DailySnapshot(userEmail: _auth.currentUser!.email)).then((value) => value.dailySnapshots);
+    final Future<Routes.OfflineDateTime> offlineDateTime = getOfflineDateTime(Routes.OfflineDateTime(email: _auth.currentUser!.email));
     // then loop over them and delete them, dont want to edit proto bc what happened last time, but please add multi delete methods to proto
     // or create a delete everything method to proto, either is fine
-    for(Routes.FigureInstance figureInstance in await figureInstances) {
+    for(final Routes.FigureInstance figureInstance in await figureInstances) {
       deleteFigureInstance(figureInstance);
     }
-    for(Routes.SkinInstance skinInstance in await skinInstances) {
+    for(final Routes.SkinInstance skinInstance in await skinInstances) {
       deleteSkinInstance(skinInstance);
     }
-    for (Routes.Workout workout in await workouts) {
+    for (final Routes.Workout workout in await workouts) {
       deleteWorkout(workout);
     }
-    for (Routes.SurveyResponse surveyResponse in await surveyResponses) {
+    for (final Routes.SurveyResponse surveyResponse in await surveyResponses) {
       deleteSurveyResponse(surveyResponse);
     }
-    for (Routes.DailySnapshot snapshot in await dailySnapshot) {
+    for (final Routes.DailySnapshot snapshot in await dailySnapshot) {
       deleteDailySnapshot(snapshot);
     }
     await deleteOfflineDateTime(await offlineDateTime);
     _routes.routesClient
-        .deleteUser(Routes.User(email: _auth.currentUser!.email!));
+        .deleteUser(Routes.User(email: _auth.currentUser!.email));
     await _auth.currentUser?.reauthenticateWithCredential(credential);
     _auth.currentUser?.delete();
     
   }
 
   Future<Routes.MultiDailySnapshot> getDailySnapshots(
-      Routes.DailySnapshot dailySnapshot) async {
+      Routes.DailySnapshot dailySnapshot,) async {
     try {
       return await _routes.routesClient.getDailySnapshots(dailySnapshot);
     } catch (e) {
@@ -211,7 +216,7 @@ class AuthService {
   }
 
   Future<Routes.DailySnapshot> getDailySnapshot(
-      Routes.DailySnapshot dailySnapshot) async {
+      Routes.DailySnapshot dailySnapshot,) async {
     try {
       return await _routes.routesClient.getDailySnapshot(dailySnapshot);
     } catch (e) {
@@ -221,7 +226,7 @@ class AuthService {
   }
 
   Future<Routes.DailySnapshot> createDailySnapshot(
-      Routes.DailySnapshot dailySnapshot) async {
+      Routes.DailySnapshot dailySnapshot,) async {
     try {
       return await _routes.routesClient.createDailySnapshot(dailySnapshot);
     } catch (e) {
@@ -231,7 +236,7 @@ class AuthService {
   }
 
   Future<Routes.DailySnapshot> updateDailySnapshot(
-      Routes.DailySnapshot dailySnapshot) async {
+      Routes.DailySnapshot dailySnapshot,) async {
     try {
       return await _routes.routesClient.updateDailySnapshot(dailySnapshot);
     } catch (e) {
@@ -241,7 +246,7 @@ class AuthService {
   }
 
   Future<Routes.DailySnapshot> deleteDailySnapshot(
-      Routes.DailySnapshot dailySnapshot) async {
+      Routes.DailySnapshot dailySnapshot,) async {
     try {
       return await _routes.routesClient.deleteDailySnapshot(dailySnapshot);
     } catch (e) {
@@ -263,8 +268,8 @@ class AuthService {
   }
 
   Future<Routes.MultiWorkout> getWorkouts() async {
-    FB.User? currentUser = _auth.currentUser;
-    Routes.User user = Routes.User(email: currentUser!.email);
+    final FB.User? currentUser = _auth.currentUser;
+    final Routes.User user = Routes.User(email: currentUser!.email);
     return await _routes.routesClient.getWorkouts(user);
   }
 
@@ -276,34 +281,34 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> updatePassword(String password, credential) async {
+  Future<void> updatePassword(String password, FB.AuthCredential credential) async {
     await _auth.currentUser?.reauthenticateWithCredential(credential);
     await _auth.currentUser?.updatePassword(password);
     await _auth.currentUser?.reload();
   }
 
   Future<void> updateName(String name) async {
-    FB.User? currentUser = _auth.currentUser;
-    Routes.User user = Routes.User(email: currentUser!.email);
+    final FB.User? currentUser = _auth.currentUser;
+    final Routes.User user = Routes.User(email: currentUser!.email);
     user.name = name;
     await _routes.routesClient.updateUser(user);
   }
 
   Future<void> updateWeeklyGoal(int goal) async {
-    FB.User? currentUser = _auth.currentUser;
-    Routes.User user = Routes.User(email: currentUser!.email);
-    Int64 goal64 = Int64(goal);
+    final FB.User? currentUser = _auth.currentUser;
+    final Routes.User user = Routes.User(email: currentUser!.email);
+    final Int64 goal64 = Int64(goal);
     user.weekGoal = goal64;
     await _routes.routesClient.updateUser(user);
   }
 
   Future<void> updateCurrency(int currency) async {
-    FB.User? currentUser = _auth.currentUser;
-    Routes.User user = Routes.User(
+    final FB.User? currentUser = _auth.currentUser;
+    final Routes.User user = Routes.User(
         email:
-            currentUser?.email); // Caused crash if user logged out when using !
+            currentUser?.email,); // Caused crash if user logged out when using !
     if (currentUser == null) return;
-    Int64 currency64 = Int64(currency);
+    final Int64 currency64 = Int64(currency);
     user.currency = currency64;
     await _routes.routesClient.updateUser(user);
   }
@@ -354,7 +359,7 @@ class AuthService {
   }
 
   Future<Routes.FigureInstance> getFigureInstance(
-      Routes.FigureInstance figureInstance) async {
+      Routes.FigureInstance figureInstance,) async {
     try {
       return await _routes.routesClient.getFigureInstance(figureInstance);
     } catch (e) {
@@ -364,7 +369,7 @@ class AuthService {
   }
 
   Future<Routes.FigureInstance> updateFigureInstance(
-      Routes.FigureInstance figureInstance) async {
+      Routes.FigureInstance figureInstance,) async {
     try {
       return await _routes.routesClient.updateFigureInstance(figureInstance);
     } catch (e) {
@@ -374,7 +379,7 @@ class AuthService {
   }
 
   Future<Routes.FigureInstance> createFigureInstance(
-      Routes.FigureInstance figureInstance) async {
+      Routes.FigureInstance figureInstance,) async {
     try {
       return await _routes.routesClient.createFigureInstance(figureInstance);
     } catch (e) {
@@ -384,7 +389,7 @@ class AuthService {
   }
 
   Future<Routes.FigureInstance> deleteFigureInstance(
-      Routes.FigureInstance figureInstance) async {
+      Routes.FigureInstance figureInstance,) async {
     try {
       return await _routes.routesClient.deleteFigureInstance(figureInstance);
     } catch (e) {
@@ -394,7 +399,7 @@ class AuthService {
   }
 
   Future<Routes.MultiFigureInstance> getFigureInstances(
-      Routes.User user) async {
+      Routes.User user,) async {
     try {
       return await _routes.routesClient.getFigureInstances(user);
     } catch (e) {
@@ -450,7 +455,7 @@ class AuthService {
   }
 
   Future<Routes.SkinInstance> getSkinInstance(
-      Routes.SkinInstance skinInstance) async {
+      Routes.SkinInstance skinInstance,) async {
     try {
       return await _routes.routesClient.getSkinInstance(skinInstance);
     } catch (e) {
@@ -460,7 +465,7 @@ class AuthService {
   }
 
   Future<Routes.SkinInstance> updateSkinInstance(
-      Routes.SkinInstance skinInstance) async {
+      Routes.SkinInstance skinInstance,) async {
     try {
       return await _routes.routesClient.updateSkinInstance(skinInstance);
     } catch (e) {
@@ -470,7 +475,7 @@ class AuthService {
   }
 
   Future<Routes.SkinInstance> createSkinInstance(
-      Routes.SkinInstance skinInstance) async {
+      Routes.SkinInstance skinInstance,) async {
     try {
       return await _routes.routesClient.createSkinInstance(skinInstance);
     } catch (e) {
@@ -480,7 +485,7 @@ class AuthService {
   }
 
   Future<Routes.SkinInstance> deleteSkinInstance(
-      Routes.SkinInstance skinInstance) async {
+      Routes.SkinInstance skinInstance,) async {
     try {
       return await _routes.routesClient.deleteSkinInstance(skinInstance);
     } catch (e) {
@@ -503,7 +508,7 @@ class AuthService {
   // BEGIN SUBSCRIPTION METHODS //
   
   Future<Routes.SubscriptionTimeStamp> createSubscriptionTimeStamp(
-    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp,) async {
     try {
     return await _routes.routesClient.createSubscriptionTimeStamp(subscriptionTimeStamp);
     } catch (e) {
@@ -513,7 +518,7 @@ class AuthService {
   }
 
   Future<Routes.SubscriptionTimeStamp> getSubscriptionTimeStamp(
-    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp,) async {
     try {
     return await _routes.routesClient.getSubscriptionTimeStamp(subscriptionTimeStamp);
     } catch (e) {
@@ -523,7 +528,7 @@ class AuthService {
   }
 
   Future<Routes.SubscriptionTimeStamp> updateSubscriptionTimeStamp(
-    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp,) async {
     try {
     return await _routes.routesClient.updateSubscriptionTimeStamp(subscriptionTimeStamp);
     } catch (e) {
@@ -533,7 +538,7 @@ class AuthService {
   }
 
   Future<Routes.SubscriptionTimeStamp> deleteSubscriptionTimeStamp(
-    Routes.SubscriptionTimeStamp subscriptionTimeStamp) async {
+    Routes.SubscriptionTimeStamp subscriptionTimeStamp,) async {
     try {
     return await _routes.routesClient.deleteSubscriptionTimeStamp(subscriptionTimeStamp);
     } catch (e) {
@@ -546,7 +551,7 @@ class AuthService {
 
   // BEGIN SURVEY METHODS //
   Future<Routes.SurveyResponse> getSurveyResponse(
-      Routes.SurveyResponse surveyResponse) async {
+      Routes.SurveyResponse surveyResponse,) async {
     try {
       return await _routes.routesClient.getSurveyResponse(surveyResponse);
     } catch (e) {
@@ -556,7 +561,7 @@ class AuthService {
   }
 
   Future<Routes.SurveyResponse> updateSurveyResponse(
-      Routes.SurveyResponse surveyResponse) async {
+      Routes.SurveyResponse surveyResponse,) async {
     try {
       return await _routes.routesClient.updateSurveyResponse(surveyResponse);
     } catch (e) {
@@ -566,7 +571,7 @@ class AuthService {
   }
 
   Future<Routes.SurveyResponse> createSurveyResponse(
-      Routes.SurveyResponse surveyResponse) async {
+      Routes.SurveyResponse surveyResponse,) async {
     try {
       return await _routes.routesClient.createSurveyResponse(surveyResponse);
     } catch (e) {
@@ -576,7 +581,7 @@ class AuthService {
   }
 
   Future<Routes.SurveyResponse> deleteSurveyResponse(
-      Routes.SurveyResponse surveyResponse) async {
+      Routes.SurveyResponse surveyResponse,) async {
     try {
       return await _routes.routesClient.deleteSurveyResponse(surveyResponse);
     } catch (e) {
@@ -586,7 +591,7 @@ class AuthService {
   }
 
   Future<Routes.MultiSurveyResponse> getSurveyResponses(
-      Routes.User user) async {
+      Routes.User user,) async {
     try {
       return await _routes.routesClient.getSurveyResponses(user);
     } catch (e) {
@@ -596,7 +601,7 @@ class AuthService {
   }
 
   Future<Routes.MultiSurveyResponse> createSurveyResponseMulti(
-      Routes.MultiSurveyResponse multiSurveyResponse) async {
+      Routes.MultiSurveyResponse multiSurveyResponse,) async {
     try {
       return await _routes.routesClient
           .createSurveyResponseMulti(multiSurveyResponse);
@@ -609,7 +614,7 @@ class AuthService {
 
   // BEGIN OFFLINE DATE TIME METHODS //
   Future<Routes.OfflineDateTime> getOfflineDateTime(
-      Routes.OfflineDateTime offlineDateTime) async {
+      Routes.OfflineDateTime offlineDateTime,) async {
     try {
       return await _routes.routesClient.getOfflineDateTime(offlineDateTime);
     } catch (e) {
@@ -619,7 +624,7 @@ class AuthService {
   }
 
   Future<Routes.OfflineDateTime> updateOfflineDateTime(
-      Routes.OfflineDateTime offlineDateTime) async {
+      Routes.OfflineDateTime offlineDateTime,) async {
     try {
       return await _routes.routesClient.updateOfflineDateTime(offlineDateTime);
     } catch (e) {
@@ -629,7 +634,7 @@ class AuthService {
   }
 
   Future<Routes.OfflineDateTime> deleteOfflineDateTime(
-      Routes.OfflineDateTime offlineDateTime) async {
+      Routes.OfflineDateTime offlineDateTime,) async {
     try {
       return await _routes.routesClient.deleteOfflineDateTime(offlineDateTime);
     } catch (e) {
@@ -641,7 +646,7 @@ class AuthService {
 
   // BEGIN SERVER ACTIONS //
   Future<Routes.GenericStringResponse> figureDecay(
-      Routes.FigureInstance figure) async {
+      Routes.FigureInstance figure,) async {
     try {
       return await _routes.routesClient.figureDecay(figure);
     } catch (e) {

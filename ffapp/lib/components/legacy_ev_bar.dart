@@ -1,4 +1,3 @@
-import 'package:ffapp/components/clippers/ev_bar_clipper.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';

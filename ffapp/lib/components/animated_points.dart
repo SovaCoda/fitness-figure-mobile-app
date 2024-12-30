@@ -6,10 +6,10 @@ class FloatingText extends StatefulWidget {
 
   const FloatingText({super.key, required this.text, required this.color});
   @override
-  _FloatingTextState createState() => _FloatingTextState();
+  FloatingTextState createState() => FloatingTextState();
 }
 
-class _FloatingTextState extends State<FloatingText>
+class FloatingTextState extends State<FloatingText>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
@@ -30,7 +30,7 @@ class _FloatingTextState extends State<FloatingText>
     ).animate(_controller);
 
     _positionAnimation = Tween<Offset>(
-      begin: const Offset(0, 0),
+      begin: Offset.zero,
       end: const Offset(0, -1),
     ).animate(_controller);
   }

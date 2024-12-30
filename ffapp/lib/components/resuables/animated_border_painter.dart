@@ -48,10 +48,10 @@ class AnimatedBorderContainer extends StatefulWidget {
   final Color borderColor;
 
   const AnimatedBorderContainer({
-    Key? key,
+    super.key,
     required this.child,
     required this.borderColor,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedBorderContainer> createState() =>

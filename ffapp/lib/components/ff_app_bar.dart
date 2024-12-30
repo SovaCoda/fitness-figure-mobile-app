@@ -1,9 +1,9 @@
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/services/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class FfAppBar extends StatelessWidget {
@@ -51,7 +51,7 @@ class FfAppBar extends StatelessWidget {
 
                 // Store button
                 InkWell(
-                  onTap: () => context.goNamed('SkinStore'),
+                  onTap: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(7),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

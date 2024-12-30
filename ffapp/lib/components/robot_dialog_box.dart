@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import "dart:math";
+
+import 'package:flutter/material.dart';
 
 class RobotDialogBox extends StatelessWidget {
   final List<String> dialogOptions;
@@ -11,7 +12,7 @@ class RobotDialogBox extends StatelessWidget {
       {super.key,
       required this.dialogOptions,
       required this.width,
-      required this.height});
+      required this.height,});
 
   @override
   Widget build(BuildContext context) {
