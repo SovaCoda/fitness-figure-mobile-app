@@ -1,11 +1,11 @@
 PODS:
   - app_group_directory (1.0.0):
     - Flutter
-  - AppAuth (1.7.5):
-    - AppAuth/Core (= 1.7.5)
-    - AppAuth/ExternalUserAgent (= 1.7.5)
-  - AppAuth/Core (1.7.5)
-  - AppAuth/ExternalUserAgent (1.7.5):
+  - AppAuth (1.7.6):
+    - AppAuth/Core (= 1.7.6)
+    - AppAuth/ExternalUserAgent (= 1.7.6)
+  - AppAuth/Core (1.7.6)
+  - AppAuth/ExternalUserAgent (1.7.6):
     - AppAuth/Core
   - awesome_notifications (0.9.3):
     - Flutter
@@ -271,7 +271,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   app_group_directory: 7bf9f8f9819ead554de29da7c25fb7a680d6a9a0
-  AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
+  AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   awesome_notifications: 66d28ab7174ca2823b04d275cb043e0a4a3eb9cf
   connectivity_plus: 4c41c08fc6d7c91f63bc7aec70ffe3730b04f563
   Firebase: 0312a2352584f782ea56f66d91606891d4607f06

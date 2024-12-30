@@ -4,6 +4,7 @@ import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -232,7 +233,7 @@ class _EvolutionPageState extends State<EvolutionPage>
                                 ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped_happy")
                                 : "robot1/robot1_skin0_evo0_cropped_happy",
                             height: _isAnimating
-                                ? usableScreenHeight! - 182
+                                ? MediaQuery.of(context).size.height * 0.8
                                 : MediaQuery.of(context).size.height * 0.4,
                             width: MediaQuery.of(context).size.width),
                       ),
@@ -289,12 +290,15 @@ class _EvolutionPageState extends State<EvolutionPage>
                             : FFAppButton(
                                 height: 75.0,
                                 size: MediaQuery.sizeOf(context).width * 0.8,
-                                text: "Evolve",
+                                text: "Awesome",
                                 onPressed: () {
                                   setState(() {
                                     _showNewBenefits = false;
+                                    _isEvolved = false;
                                   });
-                                  _disabledButtons ? () : viewRewards();
+                                  Provider.of<HomeIndexProvider>(context,
+                                          listen: false)
+                                      .setIndex(0);
                                 }),
                       ),
                     ],
