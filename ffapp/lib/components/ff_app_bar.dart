@@ -19,12 +19,12 @@ class FfAppBar extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           OverflowBox(
-            maxHeight: MediaQuery.sizeOf(context).width *
-                0.45, // Height is a function of the device width because the image does not expand far enough given a constricted height
+            maxHeight: 165,
             maxWidth: MediaQuery.sizeOf(context).width,
             child: Align(
               alignment: Alignment.bottomCenter,
               child: SvgPicture.asset(
+                fit: BoxFit.fill,
                 'lib/assets/art/panel_top_bg.svg',
                 width: MediaQuery.sizeOf(context).width,
               ),

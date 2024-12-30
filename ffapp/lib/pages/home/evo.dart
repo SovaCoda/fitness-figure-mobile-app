@@ -1,3 +1,6 @@
+import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/button_themes.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
@@ -27,7 +30,6 @@ class _EvolutionPageState extends State<EvolutionPage>
 
   late AnimationController _flashController;
   late Animation<double> _flashAnimation;
-
 
   late FigureModel figure = FigureModel();
   int _evolutionCost = 0;
@@ -67,7 +69,6 @@ class _EvolutionPageState extends State<EvolutionPage>
       begin: Colors.transparent,
       end: Colors.green,
     ).animate(_controller);
-
 
     _opacityAnimation = Tween<double>(begin: 1, end: 0).animate(_controller);
     appBarAndBottomNavigationBar =
@@ -198,198 +199,111 @@ class _EvolutionPageState extends State<EvolutionPage>
   double? usableScreenHeight;
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final appBarHeight =
-          appBarAndBottomNavigationBar.appBarKey.currentContext?.size?.height;
-      final bottomNavBarHeight = appBarAndBottomNavigationBar
-          .bottomNavBarKey.currentContext?.size?.height;
-      final screenheight = MediaQuery.sizeOf(context).height;
-      setState(() {
-        Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false)
-            .setUsableScreenHeight(
-                screenheight - (appBarHeight ?? 0) - (bottomNavBarHeight ?? 0));
-        usableScreenHeight =
-            screenheight - (appBarHeight ?? 0) - (bottomNavBarHeight ?? 0);
-      });
-    });
     return Scaffold(
-        appBar: AppBar(
-            backgroundColor:
-                Theme.of(context).colorScheme.surface.withAlpha(127),
-            title: Text("Evolution",
-                style: Theme.of(context).textTheme.displayMedium),
-            leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  context.goNamed('Home');
-                })),
-        backgroundColor: Colors.black,
-        body: Stack(alignment: Alignment.center, children: [
-          Container(
-              padding: const EdgeInsets.all(10),
-              margin:
-                  const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 5),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(13)),
-                gradient: RadialGradient(
-                  center: Alignment.center,
-                  focalRadius: 0.1,
-                  colors: [
-                    Theme.of(context).colorScheme.onPrimary.withOpacity(0),
-                    Theme.of(context).colorScheme.surface.withOpacity(0.45),
-                  ],
-                ),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.surface,
-                  width: 3,
-                ),
-              ),
-              child: Center(child: Consumer<FigureModel>(
-                builder: (context, figure, child) {
-                  return AnimatedBuilder(
-                      animation: _colorAnimation,
-                      builder: (context, child) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                              width: 350,
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.white, width: 1)),
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(
-                                      _flashAnimation.value * 10 ?? 0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _colorAnimation.value!,
-                                      spreadRadius: _flashAnimation.value * 100,
-                                      blurRadius: 7,
-                                      offset: Offset(0, 3),
+      backgroundColor: Theme.of(context).colorScheme.onError.withOpacity(0.3),
+      body: Stack(alignment: Alignment.center, children: [
+        Center(child: Consumer<FigureModel>(
+          builder: (context, figure, child) {
+            return AnimatedBuilder(
+                animation: _colorAnimation,
+                builder: (context, child) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        width: 350,
+                        decoration: BoxDecoration(
+                            border: const Border(
+                                bottom:
+                                    BorderSide(color: Colors.white, width: 1)),
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(
+                                _flashAnimation.value * 10 ?? 0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _colorAnimation.value!,
+                                spreadRadius: _flashAnimation.value * 100,
+                                blurRadius: 7,
+                                offset: Offset(0, 3),
+                              ),
+                            ]),
+                        child: RobotImageHolder(
+                            url: (figure.figure != null)
+                                ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped_happy")
+                                : "robot1/robot1_skin0_evo0_cropped_happy",
+                            height: _isAnimating
+                                ? usableScreenHeight! - 182
+                                : MediaQuery.of(context).size.height * 0.4,
+                            width: MediaQuery.of(context).size.width),
+                      ),
+                      _showNewBenefits
+                          ? Center(
+                              child: GradientedContainer(
+                                width: 200,
+                                child: GridView.count(
+                                  crossAxisCount: 1,
+                                  padding: const EdgeInsets.all(16),
+                                  mainAxisSpacing: 16,
+                                  crossAxisSpacing: 16,
+                                  shrinkWrap: true,
+                                  children: [
+                                    EvolutionItem(
+                                      title: 'EVO ${figure.EVLevel + 1}',
+                                      upgrades: figure1.figureEvUpgrades[figure
+                                          .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
                                     ),
-                                  ]),
-                              child: RobotImageHolder(
-                                  url: (figure.figure != null)
-                                      ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped_happy")
-                                      : "robot1/robot1_skin0_evo0_cropped_happy",
-                                  height: _isAnimating
-                                      ? usableScreenHeight! - 182
-                                      : MediaQuery.of(context).size.height *
-                                          0.4,
-                                  width: MediaQuery.of(context).size.width),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : Row(
+                              children: [
+                                EvolutionItem(
+                                  title: 'EVO ${figure.EVLevel + 1}',
+                                  upgrades: figure1.figureEvUpgrades[figure
+                                      .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+                                ),
+                                EvolutionItem(
+                                  title: 'EVO ${figure.EVLevel + 2}',
+                                  upgrades: figure1
+                                      .figureEvUpgrades[figure.EVLevel + 1],
+                                  isUnlocked:
+                                      false, // Adds lock icon to next line
+                                ),
+                                // Add more EvolutionItem widgets as needed
+                              ],
                             ),
-                            _showNewBenefits
-                                ? Center(
-                                    child: SizedBox(
-                                      width: 200,
-                                      child: GridView.count(
-                                        crossAxisCount: 1,
-                                        padding: const EdgeInsets.all(16),
-                                        mainAxisSpacing: 16,
-                                        crossAxisSpacing: 16,
-                                        shrinkWrap: true,
-                                        children: [
-                                          EvolutionItem(
-                                            title: 'EVO ${figure.EVLevel + 1}',
-                                            upgrades: figure1.figureEvUpgrades[
-                                                figure
-                                                    .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                : Expanded(
-                                    child: GridView.count(
-                                      crossAxisCount: 2,
-                                      padding: const EdgeInsets.all(16),
-                                      mainAxisSpacing: 16,
-                                      crossAxisSpacing: 16,
-                                      children: [
-                                        EvolutionItem(
-                                          title: 'EVO ${figure.EVLevel + 1}',
-                                          upgrades: figure1.figureEvUpgrades[figure
-                                              .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
-                                        ),
-                                        EvolutionItem(
-                                          title: 'EVO ${figure.EVLevel + 2}',
-                                          upgrades: figure1.figureEvUpgrades[
-                                              figure.EVLevel + 1],
-                                          isUnlocked:
-                                              false, // Adds lock icon to next line
-                                        ),
-                                        // Add more EvolutionItem widgets as needed
-                                      ],
-                                    ),
-                                  ),
-                            Opacity(
-                              opacity: _opacityAnimation.value ?? 0,
-                              child: !_isEvolved
-                                  ? Container(
-                                      width: MediaQuery.of(context).size.width -
-                                          40,
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      height: 45.0,
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                        ),
-                                        onPressed: () async {
-                                          await subtractEVPoints()
-                                              ? setState(() {
-                                                  _isAnimating = true;
-                                                  _disabledButtons
-                                                      ? ()
-                                                      : evolveFigure();
-                                                })
-                                              : null;
-                                        },
-                                        child: Text('EVOLVE',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium),
-                                      ))
-                                  : Container(
-                                      width: MediaQuery.of(context).size.width -
-                                          40,
-                                      height: 45.0,
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              _showNewBenefits = false;
-                                            });
-                                            _disabledButtons
-                                                ? ()
-                                                : viewRewards();
-                                          },
-                                          child: Text('Awesome!',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .displayMedium))),
-                            ),
-                          ],
-                        );
-                      });
-                },
-              )))
-        ]));
+                      Opacity(
+                        opacity: _opacityAnimation.value ?? 0,
+                        child: !_isEvolved
+                            ? FFAppButton(
+                                height: 75.0,
+                                size: MediaQuery.sizeOf(context).width * 0.8,
+                                text: "Evolve",
+                                onPressed: () {
+                                  setState(() {
+                                    _isAnimating = true;
+                                    _disabledButtons ? () : evolveFigure();
+                                  });
+                                })
+                            : FFAppButton(
+                                height: 75.0,
+                                size: MediaQuery.sizeOf(context).width * 0.8,
+                                text: "Evolve",
+                                onPressed: () {
+                                  setState(() {
+                                    _showNewBenefits = false;
+                                  });
+                                  _disabledButtons ? () : viewRewards();
+                                }),
+                      ),
+                    ],
+                  );
+                });
+          },
+        ))
+      ]),
+    );
   }
 
   @override

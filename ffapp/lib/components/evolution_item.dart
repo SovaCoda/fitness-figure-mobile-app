@@ -1,3 +1,4 @@
+import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,36 +16,21 @@ class EvolutionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GradientedContainer(
       width: 140,
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: isUnlocked
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.secondary, width: 2)
-              : null),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 140,
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onSurface.withAlpha(127),
-                  width: 2,
-                ),
-              ),
-            ),
+            decoration: BoxDecoration(),
             margin: const EdgeInsets.only(top: 10, bottom: 3),
             child: Text(
               title,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 20,
+                fontSize: 24,
               ),
               textAlign: TextAlign.left,
             ),
@@ -64,7 +50,7 @@ class EvolutionItem extends StatelessWidget {
                         "- ",
                         style: Theme.of(context)
                             .textTheme
-                            .displayMedium!
+                            .displaySmall!
                             .copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -74,7 +60,7 @@ class EvolutionItem extends StatelessWidget {
                           benefit,
                           style: Theme.of(context)
                               .textTheme
-                              .displayMedium!
+                              .displaySmall!
                               .copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
@@ -89,7 +75,7 @@ class EvolutionItem extends StatelessWidget {
           if (!isUnlocked)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Icon(Icons.lock, color: Colors.white, size: 16),
+              child: Icon(Icons.lock, color: Colors.white, size: 24),
             ),
         ],
       ),
