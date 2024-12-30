@@ -38,7 +38,7 @@ class LocalNotificationService {
       await notificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {});
   }
 
-  notificationDetails () {
+  NotificationDetails notificationDetails () {
     return const NotificationDetails(android: AndroidNotificationDetails('channelId', 'channelName', importance: Importance.max), iOS: DarwinNotificationDetails());
   }
 
@@ -53,7 +53,7 @@ class LocalNotificationService {
     title,
     body,
     tz.TZDateTime.now(tz.local).add(const Duration(hours: 2)),
-    await notificationDetails(),
+    notificationDetails(),
     uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime);
     sharedPrefs!.setString("lastOfflineNotificationTime", DateTime.now().toUtc().toString());

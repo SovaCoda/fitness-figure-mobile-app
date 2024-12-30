@@ -1,10 +1,10 @@
+import 'package:ffapp/main.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/flutterUser.dart';
+import "package:ffapp/services/routes.pb.dart" as routes;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ffapp/services/flutterUser.dart';
-import "package:ffapp/services/routes.pb.dart" as Routes;
-import 'package:ffapp/services/auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/main.dart';
 
 class AvatarSelection extends StatefulWidget {
   const AvatarSelection({super.key});
@@ -26,26 +26,29 @@ class _AvatarSelectionState extends State<AvatarSelection> {
     initialize();
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     await user.initAuthService();
     await user.checkUser();
     curEmail = await user.getEmail();
     setState(() {
-      curEmail = curEmail;
+
     });
     logger.i(user);
   }
 
-  void submitFigure(String figureUrl) async {
-    user.updateUser(Routes.User(
+  Future<void> submitFigure(String figureUrl) async {
+    user.updateUser(routes.User(
         email: curEmail,
-        curFigure: figureUrl));
+        curFigure: figureUrl,),);
 
-    await auth.createFigureInstance(Routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
-    await auth.createSkinInstance(Routes.SkinInstance(skinName:'0', userEmail: curEmail, figureName: figureUrl));
-    Provider.of<FigureModel>(context, listen: false).setFigure(Routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
-    
-    context.goNamed('WorkoutFrequencySelection');
+    await auth.createFigureInstance(routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
+    await auth.createSkinInstance(routes.SkinInstance(skinName:'0', userEmail: curEmail, figureName: figureUrl));
+    if(mounted) {
+      Provider.of<FigureModel>(context, listen: false).setFigure(routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
+    }
+    if(mounted) {
+      context.goNamed('WorkoutFrequencySelection');
+    }
 
   }
 
@@ -53,7 +56,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
   Widget _buildFigureOption(int index, String assetPath, String label) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double size = constraints.maxWidth < 600 ? constraints.maxWidth * 0.4 : 260.0;
+        final double size = constraints.maxWidth < 600 ? constraints.maxWidth * 0.4 : 260.0;
         return GestureDetector(
           onTap: () {
             setState(() {
@@ -72,7 +75,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -93,7 +96,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   label,
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -131,7 +134,6 @@ class _AvatarSelectionState extends State<AvatarSelection> {
     return Row(
       children: [
         Expanded(
-          flex: 1,
           child: _buildInstructions(),
         ),
         Expanded(
@@ -171,7 +173,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Text(
             "Select your virtual fitness buddy to guide and motivate you throughout your workout journey.",
             textAlign: TextAlign.center,
@@ -197,13 +199,13 @@ class _AvatarSelectionState extends State<AvatarSelection> {
               _buildFigureOption(1, 'lib/assets/robot2/robot2_skin0_evo0_cropped_happy.gif', 'Robot 2'),
             ],
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           ElevatedButton(
             onPressed: selectedFigure != -1
                 ? () => submitFigure("robot${selectedFigure + 1}")
                 : null,
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),

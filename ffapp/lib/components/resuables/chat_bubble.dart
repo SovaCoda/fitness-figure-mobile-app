@@ -8,10 +8,10 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GradientedContainer(
-        padding: EdgeInsets.all(4),
+        padding: const EdgeInsets.all(4),
         child: Text(
           message,
           style: Theme.of(context).textTheme.displaySmall,
-        ));
+        ),);
   }
 }

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 class GradientedContainer extends StatelessWidget {
   final Widget? child;
@@ -13,17 +14,16 @@ class GradientedContainer extends StatelessWidget {
   final bool isScrollable;
 
   const GradientedContainer(
-      {Key? key,
+      {super.key,
       this.child,
       this.width,
       this.height,
-      this.margin = const EdgeInsets.all(0),
-      this.padding = const EdgeInsets.all(0),
+      this.margin = EdgeInsets.zero,
+      this.padding = EdgeInsets.zero,
       this.showTopRectangle = false,
       this.title,
       this.description,
-      this.isScrollable = false})
-      : super(key: key);
+      this.isScrollable = false,});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +60,6 @@ class GradientedContainer extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
                         blurRadius: 31.8,
-                        offset: Offset(0, 0),
                       ),
                     ],
                   ),

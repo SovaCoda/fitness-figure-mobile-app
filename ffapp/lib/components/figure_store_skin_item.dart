@@ -1,5 +1,4 @@
 import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/store.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -12,38 +11,35 @@ class FigureStoreSkinItem extends StatefulWidget {
   final Function(BuildContext, int, String?, String?, bool) onPurchaseSkin;
   final Function(BuildContext, String) onViewSkin;
   final Function(BuildContext, String, String) onEquipSkin;
-  final bool owned;
-  final bool equipped;
+  final bool initialOwned;  // Changed from 'owned' to 'initialOwned'
+  final bool initialEquipped;  // Changed from 'equipped' to 'initialEquipped'
 
-  const FigureStoreSkinItem({
+  const FigureStoreSkinItem({  // Added const constructor
     super.key,
     required this.photoPath,
     required this.itemPrice,
     required this.onPurchaseSkin,
-    required this.owned,
+    required this.initialOwned,
     required this.skinName,
     required this.figureName,
     required this.onViewSkin,
     required this.onEquipSkin,
-    required this.equipped,
+    required this.initialEquipped,
   });
 
   @override
-  _FigureStoreSkinItemState createState() =>
-      _FigureStoreSkinItemState(stateowned: owned);
+  FigureStoreSkinItemState createState() => FigureStoreSkinItemState();
 }
 
-class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
-  bool stateowned;
-  bool equipped = false;
-
-  _FigureStoreSkinItemState({required this.stateowned});
+class FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
+  late bool equipped;
+  late bool owned;  // Moved the owned state here
 
   @override
   void initState() {
     super.initState();
-    stateowned = widget.owned;
-    equipped = widget.equipped;
+    equipped = widget.initialEquipped;
+    owned = widget.initialOwned;  // Initialize owned from widget's initial value
   }
 
   @override
@@ -73,50 +69,62 @@ class _FigureStoreSkinItemState extends State<FigureStoreSkinItem> {
                   color: Theme.of(context).colorScheme.onSecondaryContainer,
                 ),
           ),
-          stateowned
-              ? equipped
-                  ? ElevatedButton(
-                      onPressed: () {
-                        widget.onEquipSkin(
-                            context, widget.figureName, widget.skinName);
-                        setState(() {
-                          equipped = true;
-                        });
-                      },
-                      child: const Text("Equipped"),
-                    )
-                  : ElevatedButton(
-                      onPressed: () {
-                        widget.onEquipSkin(
-                            context, widget.figureName, widget.skinName);
-                        setState(() {
-                          equipped = true;
-                        });
-                        context.goNamed('Home');
-                      },
-                      child: const Text("Equip"),
-                    )
-              : ElevatedButton(
-                  onPressed: () {},
-                  child: const Text("Not Owned"),
-                ),
+          if (owned)
+            equipped
+                ? ElevatedButton(
+                    onPressed: () {
+                      widget.onEquipSkin(
+                        context,
+                        widget.figureName,
+                        widget.skinName,
+                      );
+                      setState(() {
+                        equipped = true;
+                      });
+                    },
+                    child: const Text("Equipped"),
+                  )
+                : ElevatedButton(
+                    onPressed: () {
+                      widget.onEquipSkin(
+                        context,
+                        widget.figureName,
+                        widget.skinName,
+                      );
+                      setState(() {
+                        equipped = true;
+                      });
+                      context.goNamed('Home');
+                    },
+                    child: const Text("Equip"),
+                  )
+          else
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text("Not Owned"),
+            ),
           Opacity(
-            opacity: !stateowned ? 1.0 : 0.5,
+            opacity: !owned ? 1.0 : 0.5,
             child: ElevatedButton(
-              onPressed: () => {
-                widget.onPurchaseSkin(context, widget.itemPrice,
-                    widget.skinName, widget.figureName, stateowned),
+              onPressed: () {
+                widget.onPurchaseSkin(
+                  context,
+                  widget.itemPrice,
+                  widget.skinName,
+                  widget.figureName,
+                  owned,
+                );
                 setState(() {
                   if (Provider.of<UserModel>(context, listen: false)
                           .user!
                           .currency
                           .toInt() >=
                       widget.itemPrice) {
-                    stateowned = true;
+                    owned = true;
                   }
-                })
+                });
               },
-              child: !stateowned ? const Text("Buy Skin") : const Text("Owned"),
+              child: !owned ? const Text("Buy Skin") : const Text("Owned"),
             ),
           ),
         ],

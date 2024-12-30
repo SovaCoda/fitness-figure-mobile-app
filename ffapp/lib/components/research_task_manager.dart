@@ -90,7 +90,7 @@ class ResearchTaskManager {
   }
 
   List<ResearchTask> getAvailableTasks() {
-    List<ResearchTask> availableTasks = _availableTasks
+    final List<ResearchTask> availableTasks = _availableTasks
         .where((task) => !_completedTaskIds.contains(task.id))
         .toList();
 
@@ -106,7 +106,7 @@ class ResearchTaskManager {
 
   void completeTask(String taskId) {
     _completedTaskIds.add(taskId);
-    for (var task in _availableTasks) {
+    for (final task in _availableTasks) {
       task.locked = false;
     }
     _tasksCompletedToday++;
@@ -120,17 +120,18 @@ class ResearchTaskManager {
   }
 
   ResearchTask _createRandomTask() {
-    String id = _uuid.v4();
-    int chance = 5 + _random.nextInt(46);
-    int durationMinutes = ((10 * figureModel.EVLevel) +
-        (_random.nextInt(10) * figureModel.EVLevel));
-    Duration duration = Duration(minutes: durationMinutes);
+    final String id = _uuid.v4();
+    final int chance = 5 + _random.nextInt(46);
+    final int durationMinutes = (10 * figureModel.EVLevel) +
+        (_random.nextInt(10) * figureModel.EVLevel);
+    final Duration duration = Duration(minutes: durationMinutes);
 
-    double evMultiplier = 0.5 + (1 / (chance / 100));
-    double randomFactor = 2 + (_random.nextDouble() * 0.3);
-    double durationFactor = duration.inSeconds * 0.004;
+    final double evMultiplier = 0.5 + (1 / (chance / 100));
+    final double randomFactor = 2 + (_random.nextDouble() * 0.3);
+    final double durationFactor = duration.inSeconds * 0.004;
 
-    int ev = 10 + (0.5 * evMultiplier * randomFactor * durationFactor).round();
+    final int ev =
+        10 + (0.5 * evMultiplier * randomFactor * durationFactor).round();
 
     return ResearchTask(
       id: id,
@@ -147,7 +148,8 @@ class ResearchTaskManager {
         Set<String>.from(prefs.getStringList('completedTaskIds') ?? []);
     _tasksCompletedToday = prefs.getInt('tasksCompletedToday') ?? 0;
     _lastResetDate = DateTime.parse(
-        prefs.getString('lastResetDate') ?? DateTime.now().toIso8601String());
+      prefs.getString('lastResetDate') ?? DateTime.now().toIso8601String(),
+    );
 
     final savedTasks = prefs.getStringList('availableTasks') ?? [];
     _availableTasks = savedTasks.map(ResearchTask.fromString).toList();
@@ -185,15 +187,15 @@ class ResearchTaskManager {
     _saveData();
   }
 
-  void releaseLockedTasks() async {
-    for (var task in _availableTasks) {
+  Future<void> releaseLockedTasks() async {
+    for (final task in _availableTasks) {
       task.locked = false;
     }
     // _saveData();
   }
 
-  void lockAllInactiveTasks() async {
-    List<ResearchTask> startedTasks =
+  Future<void> lockAllInactiveTasks() async {
+    final List<ResearchTask> startedTasks =
         _availableTasks.where((task) => task.startTime != null).toList();
     if (startedTasks.isEmpty) {
       return;
@@ -213,7 +215,9 @@ class ResearchTaskManager {
           .where((task) => (task.startTime == null) && (task.id != taskId))
           .forEach((task) => task.locked = true);
     } else {
-      _availableTasks.forEach((task) => task.locked = false);
+      for (final task in _availableTasks) {
+        task.locked = false;
+      }
     }
     if (taskIndex != -1) {
       _availableTasks[taskIndex].startTime = DateTime.now();

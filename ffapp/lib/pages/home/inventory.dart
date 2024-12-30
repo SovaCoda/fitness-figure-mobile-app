@@ -1,15 +1,11 @@
 import 'package:ffapp/components/animated_button.dart';
-import 'package:ffapp/components/button_themes.dart';
-import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/inventory_item.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
-import 'package:ffapp/services/routes.pb.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/providers.dart';
+import 'package:ffapp/services/routes.pb.dart' as routes;
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -27,8 +23,8 @@ class _InventoryState extends State<Inventory> {
 
   late AuthService auth;
   late int currency = 0;
-  late List<Routes.FigureInstance> figureInstancesList = List.empty();
-  late List<Routes.Figure> figureList = List.empty();
+  late List<routes.FigureInstance> figureInstancesList = List.empty();
+  late List<routes.Figure> figureList = List.empty();
 
   @override
   void initState() {
@@ -38,23 +34,23 @@ class _InventoryState extends State<Inventory> {
     initialize();
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     try {
-      Routes.User? databaseUser = await auth.getUserDBInfo();
-      String stringCur = databaseUser?.currency.toString() ?? "0";
+      final routes.User? databaseUser = await auth.getUserDBInfo();
+      final String stringCur = databaseUser?.currency.toString() ?? "0";
       currency = int.parse(stringCur);
       await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
             figureInstancesList = value.figureInstances;
-          }));
+          }),);
       await auth.getFigures().then((value) => setState(() {
             figureList = value.figures;
-          }));
+          }),);
     } catch (e) {
       logger.e(e);
     }
   }
 
-  void selectFigure(int index) async {
+  Future<void> selectFigure(int index) async {
     if (index ==
         Provider.of<SelectedFigureProvider>(context, listen: false)
             .selectedFigureIndex) {
@@ -65,7 +61,7 @@ class _InventoryState extends State<Inventory> {
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .setSelectedFigureIndex(index);
 
-    equipNew(figureInstancesList[index].figureName.toString(), index);
+    equipNew(figureInstancesList[index].figureName, index);
   }
 
   @override
@@ -76,10 +72,10 @@ class _InventoryState extends State<Inventory> {
           SingleChildScrollView(
               child: Column(
             children: [
-              SizedBox(height: 10),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               Consumer<UserModel>(
                 builder: (context, userModel, _) {
-                  int totalSlots = 6; // 4 slots for now
+                  const int totalSlots = 6; // 4 slots for now
                   return Column(
                     children: [
                       for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
@@ -92,21 +88,22 @@ class _InventoryState extends State<Inventory> {
                                   i * 2,
                                   userModel,
                                   selectedFigureProvider,
-                                  totalSlots),
+                                  totalSlots,),
                             ),
-                            SizedBox(width: 10),
+                            SizedBox(width: MediaQuery.of(context).size.width * 0.001),
                             Expanded(
                               child: _buildInventorySlot(
                                   context,
                                   i * 2 + 1,
                                   userModel,
                                   selectedFigureProvider,
-                                  totalSlots),
+                                  totalSlots,),
                             ),
                           ],
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                       ],
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                     ],
                   );
                 },
@@ -122,7 +119,7 @@ class _InventoryState extends State<Inventory> {
               //   ),
               // ),
             ],
-          )),
+          ),),
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.01,
           child: FFAppButton(
@@ -133,10 +130,10 @@ class _InventoryState extends State<Inventory> {
                 0.08098591549295774647887323943662,
                 fontSize: 20,
             isStore: true,
-            onPressed: () => context.goNamed('SkinStore'),
-          )
+            onPressed: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(7),
           ),
-        ]);
+          ),
+        ],);
       },
     );
   }
@@ -146,38 +143,35 @@ class _InventoryState extends State<Inventory> {
       int index,
       UserModel userModel,
       SelectedFigureProvider selectedFigureProvider,
-      int totalSlots) {
+      int totalSlots,) {
     if (index < figureInstancesList.length) {
       return GestureDetector(
         onTap: () => selectFigure(index),
         child: InventoryItem(
             figureInstance: figureInstancesList[index],
-            photoPath:
-                ("${figureInstancesList[index].figureName}/${figureInstancesList[index].figureName}_skin${figureInstancesList[index].curSkin}_evo${figureInstancesList[index].evLevel}_cropped_happy"),
-            equiped: figureInstancesList[index].figureName.toString() ==
+            equipped: figureInstancesList[index].figureName ==
                 userModel.user?.curFigure,
             onEquip: (context) => equipNew(
-                figureInstancesList[index].figureName.toString(), index),
+                figureInstancesList[index].figureName, index,),
             isSelected: selectedFigureProvider.selectedFigureIndex == index,
-            index: index),
+            index: index,),
       );
     } else if (index < totalSlots) {
       // Additional slots for future figures
       return InventoryItem(
           figureInstance: null,
           locked: true,
-          photoPath: "null",
-          equiped: false,
+          equipped: false,
           onEquip: (context) => {},
-          index: index);
+          index: index,);
     } else {
       // Empty slot
-      return SizedBox();
+      return const SizedBox();
     }
   }
 
   void equipNew(String newFigureName, int figureIndex) {
-    Routes.User user = Provider.of<UserModel>(context, listen: false).user!;
+    final routes.User user = Provider.of<UserModel>(context, listen: false).user!;
     user.curFigure = newFigureName;
     Provider.of<UserModel>(context, listen: false).setUser(user);
 

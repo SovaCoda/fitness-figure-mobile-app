@@ -1,4 +1,4 @@
-import 'package:ffapp/components/resuables/border_fillable_%20container.dart';
+import 'package:ffapp/components/resuables/border_fillable_container.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +10,13 @@ class WorkoutNumbersRow extends StatelessWidget {
   final double availableWidth;
 
   const WorkoutNumbersRow({
-    Key? key,
+    super.key,
     required this.weeklyCompleted,
     required this.streak,
     required this.weeklyGoal,
     required this.lifeTimeCompleted,
     this.availableWidth = 0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

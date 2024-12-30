@@ -4,10 +4,12 @@ import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 class ConnectivityService {
   // Singleton instance
   static final ConnectivityService _instance = ConnectivityService._internal();
+  Logger logger = Logger();
 
   // Factory constructor
   factory ConnectivityService() {
@@ -52,16 +54,16 @@ class ConnectivityService {
         _currentConnectivity = connectivityResults.first;
       }
     } catch (e) {
-      print('Error checking connectivity: $e');
+      logger.e('Error checking connectivity: $e');
     }
   }
 
   // Handle connectivity changes
   void _handleConnectivityChange(ConnectivityResult result) async {
-    await Future.delayed(Duration(seconds: 0)); // Some platforms need a delay for context to load before connection changes
+    await Future.delayed(Duration.zero); // Some platforms need a delay for context to load before connection changes
     final context = navigatorKey.currentState?.overlay?.context;
     
-    if (context != null) {
+    if (context != null && context.mounted) {
       switch (result) {
         case ConnectivityResult.none: // No Connection Send User to Sign In
           _showOfflinePopUp(context);

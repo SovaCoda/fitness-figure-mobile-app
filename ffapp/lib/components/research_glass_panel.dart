@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class ResearchGlassPanel extends StatelessWidget {
   final Widget child;
 
-  const ResearchGlassPanel({required this.child});
+  const ResearchGlassPanel({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      size: Size(853, 495),
+      size: const Size(853, 495),
       painter: SvgPainter(),
       child: child,
     );
@@ -34,7 +34,7 @@ class SvgPainter extends CustomPainter {
     canvas.drawRect(rect, paint);
 
     // draw the overlay rectangle
-    final overlayPaint = Paint()..color = Color(0xFF3385A2);
+    final overlayPaint = Paint()..color = const Color(0xFF3385A2);
     final overlayRect = Rect.fromLTRB(0, 4, size.width, -4);
 
     // apply mask

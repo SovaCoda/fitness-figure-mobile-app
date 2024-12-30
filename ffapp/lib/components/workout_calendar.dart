@@ -21,14 +21,14 @@ class WorkoutCalendar extends StatefulWidget {
       this.showWorkoutData = false,
       this.workoutMinTime = 30,
       this.calendarFormat = CalendarFormat.week,
-      this.isInteractable = true});
+      this.isInteractable = true,});
 
   @override
   WorkoutCalendarState createState() => WorkoutCalendarState();
 }
 
 class WorkoutCalendarState extends State<WorkoutCalendar> {
-  int _workoutMinTime = 30;
+  // int _workoutMinTime = 30;
   bool showWorkoutData = true;
   Color _selectedColor = Colors.blue;
   List<int> indicatorsShown = [];
@@ -40,8 +40,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   void initState() {
     super.initState();
 
-    DateTime weekStart = mostRecentSunday(DateTime.now());
-    DateTime weekEnd = weekStart.add(Duration(days: 6));
+    final DateTime weekStart = mostRecentSunday(DateTime.now());
+    final DateTime weekEnd = weekStart.add(const Duration(days: 6));
 
     setState(() {
       if (widget.isInteractable) {
@@ -49,7 +49,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         _rangeEnd = weekEnd;
       }
       showWorkoutData = widget.showWorkoutData;
-      _workoutMinTime = widget.workoutMinTime;
+      // _workoutMinTime = widget.workoutMinTime;
       _selectedDay = _focusedDay;
       _calendarFormat = widget.calendarFormat;
       _interactable = widget.isInteractable;
@@ -68,40 +68,42 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     return DateTime(date.year, date.month, date.day - date.weekday % 7);
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       _selectedColor = Theme.of(context).colorScheme.primary;
     });
     getWeekDataForDate(DateTime.now());
-    usermodelref = Provider.of<UserModel>(context, listen: false);
+    if(mounted) {
+      usermodelref = Provider.of<UserModel>(context, listen: false);
+    }
     usermodelref!.addListener(() => getWeekDataForDate(DateTime.now()));
   }
 
   int? _chargeChange;
   int? _evChange;
-  int? _streakChange;
+  // int? _streakChange;
   int? _goal;
-  DateTime? _weekOfDate;
+  late DateTime? _weekOfDate;
 
-  void getWeekDataForDate(DateTime date) async {
+  Future<void> getWeekDataForDate(DateTime date) async {
     if (!mounted) {
       return;
     }
     date = date.toUtc();
-    User user = Provider.of<UserModel>(context, listen: false).user!;
-    FigureInstance figure =
+    final User user = Provider.of<UserModel>(context, listen: false).user!;
+    final FigureInstance figure =
         Provider.of<FigureModel>(context, listen: false).figure!;
     weekData = await Provider.of<HistoryModel>(context, listen: false)
         .getWeekData(
             user.email,
-            figure1.EvCutoffs[figure.evLevel],
+            figure1.evCutoffs[figure.evLevel],
             user.curFigure,
             date,
             figure.charge,
             figure.evPoints,
             user.streak.toInt(),
-            user.weekComplete.toInt());
+            user.weekComplete.toInt(),);
 
     indicatorsShown = weekData['charge']!.map((e) {
       return weekData['charge']!.indexWhere((element) => element == e);
@@ -109,26 +111,25 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     if (mounted) {
       setState(() {
         if (weekData['charge']!.isEmpty) {
-          weekData['charge']!.add(FlSpot(1, 0));
+          weekData['charge']!.add(const FlSpot(1, 0));
           _chargeChange = null;
           _evChange = null;
-          _streakChange = null;
+          // _streakChange = null;
           _goal = null;
         } else {
           _chargeChange = weekData['changes']![0].x.toInt();
           _evChange = weekData['changes']![0].y.toInt();
-          _streakChange = weekData['streakAndGoal']![0].x.toInt();
+          // _streakChange = weekData['streakAndGoal']![0].x.toInt();
           _goal = weekData['streakAndGoal']![0].y.toInt();
-          _weekOfDate = (date);
+          _weekOfDate = date;
         }
 
-        maxEv = figure1.EvCutoffs[figure.evLevel];
+        maxEv = figure1.evCutoffs[figure.evLevel];
         lineBarsData = [
           LineChartBarData(
             showingIndicators: indicatorsShown,
             spots: evTrueChargeFalse ? weekData['ev']! : weekData['charge']!,
             color: _selectedColor,
-            isCurved: false,
           ),
         ];
       });
@@ -143,8 +144,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       child: Consumer<HistoryModel>(
         builder: (_, workoutHistory, __) {
           bool hasWorkout = false;
-          for (var workout in workoutHistory.workouts) {
-            DateTime date = DateTime.parse(workout.endDate).toLocal();
+          for (final workout in workoutHistory.workouts) {
+            final DateTime date = DateTime.parse(workout.endDate).toLocal();
             if (date.year == day.year &&
                 date.month == day.month &&
                 date.day == day.day &&
@@ -154,7 +155,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             }
           }
           return Container(
-            margin: const EdgeInsets.all(0),
+            margin: EdgeInsets.zero,
             width: 40,
             height: 40,
             alignment: Alignment.center,
@@ -169,19 +170,18 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                             ? Theme.of(context).colorScheme.surface
                             : Theme.of(context).colorScheme.primaryFixedDim
                         : Theme.of(context).colorScheme.surface,
-                shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
                     strokeAlign: BorderSide.strokeAlignOutside,
                     width: 2,
-                    color: Theme.of(context).colorScheme.primary)),
+                    color: Theme.of(context).colorScheme.primary,),),
             child: Text(day.day.toString(),
                 style: Theme.of(context).textTheme.displaySmall!.copyWith(
                     color: hasWorkout
                         ? Theme.of(context).colorScheme.onPrimary
                         : day.isBefore(DateTime.now().toUtc())
                             ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurface)),
+                            : Theme.of(context).colorScheme.onSurface,),),
           );
         },
       ),
@@ -191,10 +191,10 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
   Widget _buildCellDate(DateTime day) {
     return Consumer<HistoryModel>(
       builder: (_, workoutHistory, __) {
-        DateTime parsedDay = day.toUtc();
+        final DateTime parsedDay = day.toUtc();
         bool hasWorkout = false;
-        for (var workout in workoutHistory.workouts) {
-          DateTime date = DateTime.parse(workout.endDate).toLocal();
+        for (final workout in workoutHistory.workouts) {
+          final DateTime date = DateTime.parse(workout.endDate).toLocal();
           if (date.year == parsedDay.year &&
               date.month == parsedDay.month &&
               date.day == parsedDay.day &&
@@ -206,7 +206,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         }
         return Center(
           child: Container(
-            margin: const EdgeInsets.all(0),
+            margin: EdgeInsets.zero,
             width: 40,
             height: 40,
             alignment: Alignment.center,
@@ -221,7 +221,6 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                           ? Theme.of(context).colorScheme.surface
                           : Theme.of(context).colorScheme.primaryFixedDim
                       : Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(5.0),
             ),
             child: Text(day.day.toString(),
@@ -230,7 +229,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                         ? Theme.of(context).colorScheme.onPrimary
                         : day.isBefore(DateTime.now().toUtc())
                             ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurface)),
+                            : Theme.of(context).colorScheme.onSurface,),),
           ),
         );
       },
@@ -239,8 +238,8 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
 
   CalendarFormat _calendarFormat = CalendarFormat.week;
   bool _interactable = true;
-  List<Workout> _workouts = [];
-  Workout? workoutData = null;
+  // final List<Workout> _workouts = [];
+  Workout? workoutData;
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -277,41 +276,37 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
                               topLeft: isSameDay(day, _rangeStart)
-                                  ? Radius.circular(5)
-                                  : Radius.circular(0),
+                                  ? const Radius.circular(5)
+                                  : Radius.zero,
                               bottomLeft: isSameDay(day, _rangeStart)
-                                  ? Radius.circular(5)
-                                  : Radius.circular(0),
+                                  ? const Radius.circular(5)
+                                  : Radius.zero,
                               topRight: isSameDay(day, _rangeEnd)
-                                  ? Radius.circular(5)
-                                  : Radius.circular(0),
+                                  ? const Radius.circular(5)
+                                  : Radius.zero,
                               bottomRight: isSameDay(day, _rangeEnd)
-                                  ? Radius.circular(5)
-                                  : Radius.circular(0)),
+                                  ? const Radius.circular(5)
+                                  : Radius.zero,),
                           border: Border(
                             top: BorderSide(
-                                strokeAlign: BorderSide.strokeAlignInside,
                                 width: 2,
-                                color: Theme.of(context).colorScheme.primary),
+                                color: Theme.of(context).colorScheme.primary,),
                             bottom: BorderSide(
-                                strokeAlign: BorderSide.strokeAlignInside,
                                 width: 2,
-                                color: Theme.of(context).colorScheme.primary),
+                                color: Theme.of(context).colorScheme.primary,),
                             left: isSameDay(day, _rangeStart)
                                 ? BorderSide(
-                                    strokeAlign: BorderSide.strokeAlignInside,
                                     width: 2,
                                     color:
-                                        Theme.of(context).colorScheme.primary)
+                                        Theme.of(context).colorScheme.primary,)
                                 : BorderSide.none,
                             right: isSameDay(day, _rangeEnd)
                                 ? BorderSide(
-                                    strokeAlign: BorderSide.strokeAlignInside,
                                     width: 2,
                                     color:
-                                        Theme.of(context).colorScheme.primary)
+                                        Theme.of(context).colorScheme.primary,)
                                 : BorderSide.none,
-                          )),
+                          ),),
                     )
                   : Container();
             },
@@ -336,15 +331,15 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
           },
           onDaySelected: (selectedDay, focusedDay) {
             if (!isSameDay(_selectedDay, selectedDay) && _interactable) {
-              DateTime weekStart = mostRecentSunday(selectedDay);
-              DateTime weekEnd = weekStart.add(Duration(days: 6));
+              final DateTime weekStart = mostRecentSunday(selectedDay);
+              final DateTime weekEnd = weekStart.add(const Duration(days: 6));
 
               getWeekDataForDate(selectedDay);
 
               evTrueChargeFalse
                   ? _showEvoData(context)
                   : _showChargeData(context);
-              Color selectedColor = evTrueChargeFalse
+              final Color selectedColor = evTrueChargeFalse
                   ? Theme.of(context).colorScheme.secondary
                   : Theme.of(context).colorScheme.primary;
               setState(() {
@@ -384,47 +379,41 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             selectedTextStyle: Theme.of(context).textTheme.displaySmall!,
             outsideDecoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(5.0),
             ),
             weekendDecoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(5.0),
             ),
             defaultDecoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(5.0),
             ),
             selectedDecoration: BoxDecoration(
-              shape: BoxShape.rectangle,
               border: Border.all(
                   width: 2,
                   strokeAlign: BorderSide.strokeAlignOutside,
-                  color: Theme.of(context).colorScheme.primary),
+                  color: Theme.of(context).colorScheme.primary,),
             ),
             todayDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5.0),
               color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
               border: Border.all(
                   width: 2,
                   strokeAlign: BorderSide.strokeAlignOutside,
-                  color: Theme.of(context).colorScheme.primary),
+                  color: Theme.of(context).colorScheme.primary,),
             ),
           ),
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
-            headerPadding: const EdgeInsets.all(0),
+            headerPadding: EdgeInsets.zero,
             rightChevronPadding: const EdgeInsets.all(4),
             leftChevronPadding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
-                      width: 1,
-                      color: Theme.of(context).colorScheme.onSurface)),
+                      color: Theme.of(context).colorScheme.onSurface,),),
             ),
           ),
         ),
@@ -444,17 +433,16 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                             .textTheme
                             .displayMedium!
                             .copyWith(
-                                color: Theme.of(context).colorScheme.onSurface),
+                                color: Theme.of(context).colorScheme.onSurface,),
                       ),
                       Center(
                           child: Container(
-                        margin: const EdgeInsets.only(top: 0, bottom: 4),
+                        margin: const EdgeInsets.only(bottom: 4),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
-                            shape: BoxShape.rectangle,
-                            color: Theme.of(context).colorScheme.onSurface),
+                            color: Theme.of(context).colorScheme.onSurface,),
                         height: 2,
-                      )),
+                      ),),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -469,15 +457,15 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                           .copyWith(
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .onSurface)),
-                                  Text('${"$_goal/${user.user!.weekGoal}"}',
+                                                  .onSurface,),),
+                                  Text("$_goal/${user.user!.weekGoal}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .displaySmall!
                                           .copyWith(
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .primary)),
+                                                  .primary,),),
                                 ],
                               );
                             },
@@ -507,25 +495,24 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                   LineBarSpot(
                                       lineBarsData[0],
                                       lineBarsData.indexOf(lineBarsData[0]),
-                                      lineBarsData[0].spots[index])
+                                      lineBarsData[0].spots[index],),
                                 ]);
                               }).toList(),
                               lineTouchData: LineTouchData(
-                                enabled: true,
                                 handleBuiltInTouches: false,
                                 touchCallback: (FlTouchEvent event,
-                                    LineTouchResponse? response) {
+                                    LineTouchResponse? response,) {
                                   if (response == null ||
                                       response.lineBarSpots == null) {
                                     return;
                                   }
                                   if (event is FlTapUpEvent) {
-                                    final spotIndex =
-                                        response.lineBarSpots!.first.spotIndex;
+                                    // final spotIndex =
+                                    //     response.lineBarSpots!.first.spotIndex;
                                   }
                                 },
                                 mouseCursorResolver: (FlTouchEvent event,
-                                    LineTouchResponse? response) {
+                                    LineTouchResponse? response,) {
                                   if (response == null ||
                                       response.lineBarSpots == null) {
                                     return SystemMouseCursors.basic;
@@ -534,14 +521,13 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                 },
                                 getTouchedSpotIndicator:
                                     (LineChartBarData barData,
-                                        List<int> spotIndexes) {
+                                        List<int> spotIndexes,) {
                                   return spotIndexes.map((index) {
                                     return TouchedSpotIndicatorData(
                                       FlLine(
                                         color: _selectedColor,
                                       ),
                                       FlDotData(
-                                        show: true,
                                         getDotPainter:
                                             (spot, percent, barData, index) =>
                                                 FlDotCirclePainter(
@@ -571,7 +557,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                         TextStyle(
                                             color: _selectedColor,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 12),
+                                            fontSize: 12,),
                                       );
                                     }).toList();
                                   },
@@ -591,16 +577,13 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                           },
                                           interval: 1,
                                           showTitles: true,
-                                          reservedSize: 40)),
-                                  leftTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  rightTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  topTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)))),
+                                          reservedSize: 40,),),
+                                  leftTitles: const AxisTitles(
+                                      ),
+                                  rightTitles: const AxisTitles(
+                                      ),
+                                  topTitles: const AxisTitles(
+                                      ),),),
                         ),
                       ),
                       Row(
@@ -617,7 +600,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                   Theme.of(context).colorScheme.onPrimary,
                               backgroundColor:
                                   Theme.of(context).colorScheme.primary,
-                              onPressed: () => {_showChargeData(context)}),
+                              onPressed: () => {_showChargeData(context)},),
                           FfButton(
                               width: 120,
                               height: 40,
@@ -629,18 +612,18 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                                   Theme.of(context).colorScheme.onSecondary,
                               backgroundColor:
                                   Theme.of(context).colorScheme.secondary,
-                              onPressed: () => {_showEvoData(context)})
+                              onPressed: () => {_showEvoData(context)},),
                         ],
                       ),
                     ],
                   ),
                 )
-              : Text("No data available for this week"),
+              : const Text("No data available for this week"),
       ],
     );
   }
 
-  void _showChargeData(context) {
+  void _showChargeData(BuildContext context) {
     setState(() {
       evTrueChargeFalse = false;
       _selectedColor = Theme.of(context).colorScheme.primary;
@@ -648,14 +631,13 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         LineChartBarData(
           showingIndicators: indicatorsShown,
           spots: weekData['charge']!,
-          isCurved: false,
           color: _selectedColor,
         ),
       ];
     });
   }
 
-  void _showEvoData(context) {
+  void _showEvoData(BuildContext context) {
     setState(() {
       evTrueChargeFalse = true;
       _selectedColor = Theme.of(context).colorScheme.secondary;
@@ -663,7 +645,6 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
         LineChartBarData(
           showingIndicators: indicatorsShown,
           spots: weekData['ev']!,
-          isCurved: false,
           color: _selectedColor,
         ),
       ];
@@ -674,20 +655,20 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
 Widget dayOfWeekLabel(double value, TitleMeta meta) {
   switch (value.toInt()) {
     case 2:
-      return Text('Mo');
+      return const Text('Mo');
     case 3:
-      return Text('Tu');
+      return const Text('Tu');
     case 4:
-      return Text('We');
+      return const Text('We');
     case 5:
-      return Text('Th');
+      return const Text('Th');
     case 6:
-      return Text('Fr');
+      return const Text('Fr');
     case 7:
-      return Text('Sa');
+      return const Text('Sa');
     case 1:
-      return Text('Su');
+      return const Text('Su');
     default:
-      return Text('');
+      return const Text('');
   }
 }

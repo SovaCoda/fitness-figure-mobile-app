@@ -1,26 +1,39 @@
-import 'package:ffapp/components/figure_store_item.dart';
+import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/routes.pb.dart' as routes;
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:ffapp/services/auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
-import 'package:fixnum/fixnum.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ffapp/components/skin_view.dart';
 
 var logger = Logger();
 
 class FigureInstancesProvider extends ChangeNotifier {
-  late List<Routes.FigureInstance> listOfFigureInstances;
+  late List<routes.FigureInstance> listOfFigureInstances;
   void initializeListOfFigureInstances(
-      List<Routes.FigureInstance> listOfFigureInstances) {
+    List<routes.FigureInstance> listOfFigureInstances,
+  ) {
     this.listOfFigureInstances = listOfFigureInstances;
   }
 
   void setFigureInstanceCurSkin(
-      String figureName, String curSkin, int selectedFigureIndex) {
+    String figureName,
+    String curSkin,
+    int selectedFigureIndex,
+  ) {
     listOfFigureInstances[selectedFigureIndex].curSkin = curSkin.substring(4);
+    notifyListeners();
+  }
+
+  void setFigureInstanceCharge(int selectedFigureIndex, int charge) {
+    listOfFigureInstances[selectedFigureIndex].charge = charge;
+    notifyListeners();
+  }
+
+  void setFigureInstanceEV(int selectedFigureIndex, int evPoints) {
+    listOfFigureInstances[selectedFigureIndex].evPoints = evPoints;
     notifyListeners();
   }
 }
@@ -33,14 +46,12 @@ class Store extends StatefulWidget {
 }
 
 class _StoreState extends State<Store> {
-  //add a skin's image path and its price to render it in the store
-  late List<Routes.Skin> listOfSkin = List.empty();
-  late List<Routes.Figure> listOfFigures = List.empty();
-  late List<Routes.FigureInstance> listOfFigureInstances = List.empty();
-  late List<Routes.SkinInstance> listOfSkinInstances = List.empty();
-
+  late List<routes.Figure> listOfFigures = List.empty();
+  late List<routes.FigureInstance> listOfFigureInstances = List.empty();
   late AuthService auth;
   late int currency = 0;
+  int currentFigureIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -48,309 +59,234 @@ class _StoreState extends State<Store> {
     initialize();
   }
 
-  void initialize() async {
-    Routes.User? databaseUser = await auth.getUserDBInfo();
+  Future<void> initialize() async {
+    final routes.User? databaseUser = await auth.getUserDBInfo();
 
-    listOfSkin = await auth.getSkins().then((value) => value.skins);
     listOfFigures = await auth.getFigures().then((value) => value.figures);
     listOfFigureInstances = await auth
         .getFigureInstances(databaseUser!)
         .then((value) => value.figureInstances);
-    listOfSkinInstances = await auth
-        .getSkinInstances(databaseUser)
-        .then((value) => value.skinInstances);
 
-    String stringCur = databaseUser.currency.toString();
+    final String stringCur = databaseUser.currency.toString();
     currency = int.parse(stringCur);
     logger.i("Currency: $currency");
-    // Check to see if mounted to prevent crash from exiting menu too fast
+
     if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void showOverlayAlert(
+    BuildContext context,
+    String message,
+    MaterialColor color,
+    int offset,
+  ) {
+    final OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 30,
+        left: MediaQuery.sizeOf(context).width / 2 - offset,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+    Future.delayed(const Duration(seconds: 2))
+        .then((_) => overlayEntry.remove());
+  }
+
+  void nextFigure() {
+    setState(() {
+      currentFigureIndex = (currentFigureIndex + 1) % listOfFigures.length;
+    });
+  }
+
+  void previousFigure() {
+    setState(() {
+      currentFigureIndex = (currentFigureIndex - 1 + listOfFigures.length) %
+          listOfFigures.length;
+    });
+  }
+
+  Future<void> purchaseFigure(
+      BuildContext context, int price, String figureName) async {
+    if (listOfFigureInstances.length > 4) {
+      showOverlayAlert(context, "Maximum figures reached!", Colors.red, 90);
+      return;
+    }
+
+    final routes.User user =
+        Provider.of<UserModel>(context, listen: false).user!;
+    final int currentCurrency = user.currency.toInt();
+
+    if (currentCurrency >= price) {
+      // Update currency
+      user.currency = Int64(currentCurrency - price);
+      await auth.updateUserDBInfo(user);
+
+      // Create figure instance
+      await auth.createFigureInstance(
+        routes.FigureInstance(
+          figureName: figureName,
+          curSkin: "0",
+          userEmail: user.email,
+          lastReset: "2001-09-04 19:21:00",
+          evPoints: 0,
+          charge: 70,
+        ),
+      );
+
+      // Update state
       setState(() {
-        listOfFigures = listOfFigures;
+        listOfFigureInstances.add(
+          routes.FigureInstance(
+            figureName: figureName,
+            curSkin: "0",
+            userEmail: user.email,
+          ),
+        );
       });
-    }
-  }
 
-  void showSkinView(String figureName) {
-    // print("Showing skin view for figure: $figureName");
-    // showDialog(
-    //   context: context,
-    //   builder: (context) {
-    //     return AlertDialog(
-    //         backgroundColor: Colors.grey[900],
-    //         content: SizedBox(
-    //           width: MediaQuery.of(context).size.width,
-    //           height: MediaQuery.of(context).size.height *
-    //               0.8, // Set the height to 80% of the screen height
-    //           child: ChangeNotifierProvider(
-    //               create: (context) => FigureInstancesProvider(),
-    //               child: SkinViewer(
-    //                   listOfSkins: listOfSkin,
-    //                   listOfSkinInstances: listOfSkinInstances,
-    //                   figureName: figureName,
-    //                   listOfFigureInstances: listOfFigureInstances)),
-    //         ));
-    //   },
-    // );
-  }
+      // Update currency in provider
+      if (context.mounted) {
+        Provider.of<CurrencyModel>(context, listen: false)
+            .setCurrency((currentCurrency - price).toString());
 
-  void addSkinInstance(
-      BuildContext context, Routes.SkinInstance skinInstance) async {
-    await auth.createSkinInstance(skinInstance);
-    logger.i("Added skin instance to user's inventory.");
-  }
-
-  void subtractCurrency(BuildContext context, int subtractCurrency) async {
-    Routes.User databaseUser = Provider.of<UserModel>(context, listen: false)
-        .user!; // Changed to use provider
-    if (listOfFigureInstances.length > 4) { // Added check for max figures
-      logger.i("User already has 4 figures. Cannot purchase more.");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("You already have the maximum amount of figures.")),
-        );
-        return;
+        showOverlayAlert(context, "Figure purchased!", Colors.green, 73);
       }
-    }
-    int currentCurrency = databaseUser.currency.toInt();
-    logger.i(
-        "Subtracting user's currency on purchase. Amount subtracted: $subtractCurrency");
-    int updateCurrency = currentCurrency - subtractCurrency;
-    if (updateCurrency < 0) {
-      logger.i("Not enough currency to complete transaction.");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Not enough currency to complete this purchase!")),
-        );
-        return;
-      }
-    }
-    databaseUser.currency = Int64(updateCurrency);
-    await auth.updateUserDBInfo(databaseUser);
-    if (mounted) {
-      Provider.of<CurrencyModel>(context, listen: false)
-          .setCurrency(updateCurrency.toString());
+    } else {
+      showOverlayAlert(context, "Not enough currency!", Colors.red, 90);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      //permanent top bar if we want it
-      appBar: AppBar(
-        title: InkWell(
-          onTap: () => context.goNamed("Home"),
-          child: Text(
-            'FF',
-            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
+    return Column(
+      children: [
+        const SizedBox(height: 30),
+        Text(
+          "Figure Store",
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.39,
+          width: MediaQuery.of(context).size.width,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                top: 0,
+                child: RobotImageHolder(
+                  url:
+                      "${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}/${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}_skin0_evo0_cropped_happy",
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: MediaQuery.of(context).size.width * 0.5,
                 ),
+              ),
+              Positioned(
+                left: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  onPressed: previousFigure,
+                ),
+              ),
+              Positioned(
+                right: 10,
+                child: IconButton(
+                  icon:
+                      const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                  onPressed: nextFigure,
+                ),
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: InkWell(
-              onTap: () => context.goNamed('SkinStore'),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Consumer<CurrencyModel>(
-                    builder: (context, currencyModel, child) {
-                      return Text(currencyModel.currency,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineLarge!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ));
-                    },
-                  ),
-                  const SizedBox(width: 10.0),
-                  Icon(
-                    Icons.currency_exchange,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ],
-              ),
+        Container(
+          padding:
+              const EdgeInsets.only(left: 40, top: 12, bottom: 12, right: 40),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.295,
+          decoration: const BoxDecoration(
+            border:
+                Border(top: BorderSide(color: Color.fromRGBO(51, 133, 162, 1))),
+            gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(28, 109, 189, 0.29),
+                Color.fromRGBO(0, 164, 123, 0.29),
+              ],
             ),
           ),
-
-          //question mark area that displays an alert on tap
-          InkWell(
-              onTap: () => {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("Questions?"),
-                            content: const Text(
-                                '''Fitness figure is a gamified fitness motivation app that aims to combat inactivity and health problems every where. If you have any questions feel free to reach out to us at our email: \n\n\t\t\t\t\t\t\t\tfitnessfigure@gmail.com'''),
-                            actions: [
-                              ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text("Get Fit")),
-                            ],
-                          );
-                        })
-                  },
-              child: Row(
-                children: [
-                  const SizedBox(width: 10.0),
-                  Icon(Icons.question_mark,
-                      color: Theme.of(context).colorScheme.onSurface),
-                  const SizedBox(width: 4.0),
-                ],
-              ))
-        ],
-      ),
-
-      body: SingleChildScrollView(
-        child: (Column(
-          children: [
-            const SizedBox(
-              height: 30,
-            ),
-            Text("Figure Store",
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    )),
-            const SizedBox(height: 10),
-            Column(
-              // generates the store as a bunch of rows with 2 elements each from the array above
-              children: List.generate(
-                  (listOfFigures.length / 2).floor(),
-                  (index) => Column(children: [
-                        const SizedBox(height: 15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(width: 5),
-                            Consumer<UserModel>(
-                              builder: (context, userModel, child) {
-                                return Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        // Robot 1
-                                        FigureStoreItem(
-                                          owned: listOfFigureInstances.any(
-                                              (instance) =>
-                                                  instance.figureName ==
-                                                  listOfFigures[index * 2]
-                                                      .figureName),
-                                          photoPath:
-                                              "${listOfFigures[index * 2].figureName}/${listOfFigures[index * 2].figureName}_skin0_evo0_cropped_happy",
-                                          itemPrice: int.parse(
-                                              listOfFigures[index * 2]
-                                                  .price
-                                                  .toString()),
-                                          onOpenSkin:
-                                              (context, price, skinSkinName) {
-                                            subtractCurrency(context, price);
-                                            if (userModel.user!.currency >=
-                                                price) {
-                                              auth.createFigureInstance(
-                                                  Routes.FigureInstance(
-                                                figureName:
-                                                    listOfFigures[index * 2]
-                                                        .figureName,
-                                                curSkin: "0",
-                                                userEmail:
-                                                    userModel.user?.email,
-                                                lastReset:
-                                                    "2001-09-04 19:21:00",
-                                                evPoints: 0,
-                                                charge: 70,
-                                              ));
-                                            }
-                                          },
-                                          onViewSkin: (context, figureName) {
-                                            print("Viewing skin for figure: $figureName");
-                                            showSkinView(
-                                                listOfFigures[index * 2]
-                                                    .figureName);
-                                          },
-                                          skinName: "",
-                                          figureName: listOfFigures[index * 2]
-                                              .figureName,
-                                        ),
-                                        const SizedBox(width: 15),
-                                        // Robot 2
-                                        FigureStoreItem(
-                                          skinName: "",
-                                          owned: listOfFigureInstances.any(
-                                              (instance) =>
-                                                  instance.figureName ==
-                                                  listOfFigures[index * 2 + 1]
-                                                      .figureName),
-                                          photoPath:
-                                              "${listOfFigures[index * 2 + 1].figureName}/${listOfFigures[index * 2 + 1].figureName}_skin0_evo0_cropped_happy",
-                                          itemPrice: int.parse(
-                                              listOfFigures[index * 2 + 1]
-                                                  .price
-                                                  .toString()),
-                                          isLocked:
-                                              false, //Provider.of<FigureModel>(context, listen: false).figure!.evLevel < 5 ? true : false,
-                                          onOpenSkin:
-                                              (context, price, skinSkinName) {
-                                            subtractCurrency(context, price);
-                                            if (userModel.user!.currency >=
-                                                price) {
-                                              auth.createFigureInstance(
-                                                  Routes.FigureInstance(
-                                                figureName:
-                                                    listOfFigures[index * 2 + 1]
-                                                        .figureName,
-                                                curSkin: "0",
-                                                userEmail:
-                                                    userModel.user?.email,
-                                                lastReset:
-                                                    "2001-09-04 19:21:00",
-                                                evPoints: 0,
-                                                charge: 70,
-                                              ));
-                                            }
-                                          },
-                                          onViewSkin: (context, skinName) {
-                                            
-                                            showSkinView(
-                                                listOfFigures[index * 2 + 1]
-                                                    .figureName);
-                                          },
-                                          figureName:
-                                              listOfFigures[index * 2 + 1]
-                                                  .figureName,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 5),
-                          ],
-                        ),
-                      ])),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-                onPressed: () => context.goNamed('Home'),
-                child: const Text("Go Home")),
-            const SizedBox(
-              height: 40,
-            )
-          ],
-        )),
-      ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: Text(
+                    listOfFigures.isNotEmpty
+                        ? listOfFigures[currentFigureIndex].figureName ==
+                                "robot1"
+                            ? 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.'
+                            : 'A more advanced companion for those seeking an extra challenge. Unlock new possibilities with this sophisticated model.'
+                        : 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.',
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              Text(
+                '\$${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].price : "0"}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+              FFAppButton(
+                text: listOfFigureInstances.any(
+                  (instance) =>
+                      instance.figureName ==
+                      listOfFigures[currentFigureIndex].figureName,
+                )
+                    ? 'Owned'
+                    : 'Purchase',
+                size: MediaQuery.of(context).size.width * 0.79,
+                height: MediaQuery.of(context).size.height * 0.08,
+                onPressed: () => listOfFigureInstances.any(
+                  (instance) =>
+                      instance.figureName ==
+                      listOfFigures[currentFigureIndex].figureName,
+                )
+                    ? null
+                    : purchaseFigure(
+                        context,
+                        int.parse(
+                            listOfFigures[currentFigureIndex].price.toString()),
+                        listOfFigures[currentFigureIndex].figureName,
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

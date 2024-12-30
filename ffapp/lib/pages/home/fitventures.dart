@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 
 // IMPORTANT NOTE: This code is currently not being used in the app in favor of a simpler less graphically intense version, code is saved for future reference
@@ -26,7 +27,7 @@ class HoleClipper extends CustomClipper<Path> {
 class Fitventures extends StatefulWidget {
   const Fitventures({super.key});
   @override
-  _FitventuresState createState() => _FitventuresState();
+  FitventuresState createState() => FitventuresState();
 }
 
 class Location {
@@ -43,13 +44,14 @@ final List<Location> locations = [
   Location(name: 'Coffee Shop', rect: const Rect.fromLTWH(100, 100, 50, 50)),
 ];
 
-class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin {
+class FitventuresState extends State<Fitventures> with TickerProviderStateMixin {
   late Animation<double> figureAnimation;
   late AnimationController figureAnimationController;
 
   TransformationController mapTransformationController = TransformationController();
   late AnimationController zoomAnimator;
   late Animation<Matrix4> zoomAnimation;
+  final Logger logger = Logger();
 
   @override
   void initState() {
@@ -95,7 +97,7 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
   }
    
   void zoomToLocation(Location location, TransformationController controller, {double scale = 3}) {
-    print('Zooming to ${location.name}');
+    logger.i('Zooming to ${location.name}');
     final targetMatrix = Matrix4.identity()
       ..translate(-location.rect.center.dx * scale + (location.rect.size.width / 2) + 175, -location.rect.center.dy * scale + (location.rect.size.height / 2) + 175)
       ..scale(scale);
@@ -110,7 +112,7 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
 
   void showMissionsMenu()
   {
-    print('Showing Missions');
+    logger.i('Showing Missions');
     final holeRect = Rect.fromCenter(center: const Offset(200, 200), width: 100, height: 100);
     showDialog(
       context: context,
@@ -138,7 +140,9 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
     );
   }
 
-  final FIGURE_SIZE_OFFSET = 100.0;
+
+  // ignore: constant_identifier_names
+  static const FIGURE_SIZE_OFFSET = 100.0;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -148,7 +152,7 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
             onTapUp: (TapUpDetails details)  {
               for (var location in locations) {
                 if (location.rect.contains(details.localPosition)) {
-                  print('Tapped on ${location.name}');
+                  logger.i('Tapped on ${location.name}');
                   zoomToLocation(location, mapTransformationController);
                 }
               }
@@ -160,36 +164,34 @@ class _FitventuresState extends State<Fitventures> with TickerProviderStateMixin
               minScale: 0.5,
               maxScale: 4.0,
               transformationController: mapTransformationController,
-              child: Container(
-                child: Stack(
-                  children: [
-                    // Background
-                    Container(
-                      color: Colors.blue[50],
-                      width: 400,
-                      height: 400,
-                    ),
-                    // Loop through locations and draw them
-                    for (var location in locations)
-                      Positioned(
-                        left: location.rect.left,
-                        top: location.rect.top,
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          color: Colors.green,
-                          child: Center(
-                            child: Text(location.name),
-                          ),
+              child: Stack(
+                children: [
+                  // Background
+                  Container(
+                    color: Colors.blue[50],
+                    width: 400,
+                    height: 400,
+                  ),
+                  // Loop through locations and draw them
+                  for (var location in locations)
+                    Positioned(
+                      left: location.rect.left,
+                      top: location.rect.top,
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        color: Colors.green,
+                        child: Center(
+                          child: Text(location.name),
                         ),
                       ),
-                    CustomPaint(
-                      size: const Size(400, 400),
-                      painter: TreasureMapPainter(),
                     ),
-            
-                  ],
-                ),
+                  CustomPaint(
+                    size: const Size(400, 400),
+                    painter: TreasureMapPainter(),
+                  ),
+                          
+                ],
               ),
             ),
           ),

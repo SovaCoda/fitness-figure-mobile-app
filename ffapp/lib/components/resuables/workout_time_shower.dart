@@ -47,15 +47,11 @@ class WorkoutTimeShower extends StatelessWidget {
                 ? formatSeconds(workoutMinTime)
                 : formatSeconds(workoutMinTime * 60),
             style: textStyle.copyWith(color: themeColor, shadows: [
-              const BoxShadow(
-                  blurRadius: 4, color: Colors.black, offset: Offset(0, 4))
-            ])),
+            ], fontFamily: "Roboto", fontSize: 19)),
+            const SizedBox(width: 7.13),
         Icon(Icons.access_time,
             color: themeColor,
-            shadows: const [
-              BoxShadow(
-                  blurRadius: 4, color: Colors.black, offset: Offset(0, 4))
-            ],
+            
             size: 30),
       ],
     );

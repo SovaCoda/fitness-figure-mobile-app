@@ -1,42 +1,40 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ffapp/components/skin_view.dart';
-import 'package:ffapp/services/connectivity_manager.dart';
-import 'package:ffapp/services/providers.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:flutter/foundation.dart';
-import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:dart_openai/dart_openai.dart';
+import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
-import 'package:ffapp/pages/home/chat.dart';
-import 'package:ffapp/pages/home/evo.dart';
-import 'package:ffapp/services/routes.pbgrpc.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/pages/auth/register.dart';
 import 'package:ffapp/pages/auth/sign_in.dart';
 import 'package:ffapp/pages/home/avatar_selection.dart';
+import 'package:ffapp/pages/home/chat.dart';
+import 'package:ffapp/pages/home/evo.dart';
 import 'package:ffapp/pages/home/fitventures.dart';
+import 'package:ffapp/pages/home/home.dart';
+import 'package:ffapp/pages/home/personality.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/subscribe.dart';
 import 'package:ffapp/pages/home/survey.dart';
 import 'package:ffapp/pages/home/workout_frequency_selection.dart';
 import 'package:ffapp/pages/landing.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/connectivity_manager.dart';
+import 'package:ffapp/services/providers.dart';
+import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:ffapp/services/routes.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ffapp/pages/home/home.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ffapp/pages/home/store.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
+import 'package:provider/provider.dart';
 // import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ffapp/pages/home/personality.dart';
+
+
 
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
@@ -189,9 +187,6 @@ class FigureModel extends ChangeNotifier {
     if (figure != null) {
       figure?.curSkin = newValue;
       notifyListeners();
-      print("Figure skin updated to: $newValue");
-    } else {
-      print("Error: Figure is null when trying to set skin");
     }
   }
 
@@ -358,12 +353,12 @@ GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, r
   GoRoute(
     name: 'Personality',
     path: '/edit_personality',
-    builder: (context, state) => EditPersonalityPage(),
+    builder: (context, state) => const EditPersonalityPage(),
   ),
   GoRoute(
     name: 'SkinViewer',
     path: '/skin_viewer',
-    builder: (context, state) => SkinViewer(),
+    builder: (context, state) => const SkinViewer(),
   ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
@@ -372,7 +367,7 @@ GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, r
 //       figureUrl: state.pathParameters['figureUrl'],
 //   ),
 // ),   !!THIS WAS REMOVED IN FAVOR OF POPUP INSTEAD OF ACUTAL ROUTE BUT IM KEEPING IT CAUSE I DONT KNOW IF REESE WANTS IT!!
-]);
+],);
 
 final bool _kAutoConsume = Platform.isIOS || true;
 const String _fitnessFigurePlusSubscriptionId = 'ffigure';
@@ -463,21 +458,21 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class TestApp extends StatelessWidget {
-  const TestApp({super.key});
+// class TestApp extends StatelessWidget {
+//   const TestApp({super.key});
   
-  @override
-  Widget build(BuildContext context) {
-    ConnectivityService();
-    return MaterialApp(
-      navigatorKey: ConnectivityService.navigatorKey,
-      title: 'Test App',
-      theme: ThemeData(
-        useMaterial3: true,
+//   @override
+//   Widget build(BuildContext context) {
+//     ConnectivityService();
+//     return MaterialApp(
+//       navigatorKey: ConnectivityService.navigatorKey,
+//       title: 'Test App',
+//       theme: ThemeData(
+//         useMaterial3: true,
 
-        // Define the default brightness and colors.
-      ),
-      home: const SignIn(),
-    );
-  }
-}
+//         // Define the default brightness and colors.
+//       ),
+//       home: const SignIn(),
+//     );
+//   }
+// }

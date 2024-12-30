@@ -7,12 +7,16 @@ class FFAppButton extends StatefulWidget {
   final String text;
   final Color? color;
   final double fontSize;
+  final double iconSize;
   final VoidCallback? onPressed;
   final bool isShiny; // do this now, optimize later
   final bool isBack;
   final bool isDelete;
   final bool isStore;
+  final bool isSignOut;
+  final bool isNoThanks;
   final IconData? icon;
+  final double iconPadding;
   const FFAppButton({
     super.key,
     required this.text,
@@ -20,19 +24,23 @@ class FFAppButton extends StatefulWidget {
     this.height,
     this.color,
     this.fontSize = 30,
+    this.iconSize = 30,
     this.onPressed,
     this.isShiny = false,
     this.isBack = false,
     this.isDelete = false,
     this.isStore = false,
+    this.isSignOut = false,
+    this.isNoThanks = false,
     this.icon,
+    this.iconPadding = 50,
   });
 
   @override
-  _FFAppButtonState createState() => _FFAppButtonState();
+  FFAppButtonState createState() => FFAppButtonState();
 }
 
-class _FFAppButtonState extends State<FFAppButton> {
+class FFAppButtonState extends State<FFAppButton> {
   bool _isPressed = false;
 
   @override
@@ -42,7 +50,7 @@ class _FFAppButtonState extends State<FFAppButton> {
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: widget.onPressed,
-      child: Container(
+      child: SizedBox(
         width: widget.size,
         height: widget.height ?? widget.size,
         child: Stack(
@@ -60,7 +68,8 @@ class _FFAppButtonState extends State<FFAppButton> {
                         ? "lib/assets/art/back_button.png"
                         : widget.isDelete
                             ? "lib/assets/art/delete_button.png"
-                            : "lib/assets/art/button_base.png",
+                            : widget.isNoThanks ? "lib/assets/art/button_grey.png" : "lib/assets/art/button_base.png"
+                            ,
                 width: widget.size,
                 height: widget.height ?? widget.size,
                 fit: BoxFit.fill,
@@ -72,88 +81,118 @@ class _FFAppButtonState extends State<FFAppButton> {
             ),
 
             // Content Stack with LayoutBuilder
-            LayoutBuilder(builder: (context, constraints) {
-              return Stack(
-                children: [
-                  // Centered Text
-                  Center(
-                    child: Padding(
-                      padding: widget.icon != null || widget.isBack || widget.isDelete || widget.isStore ? EdgeInsets.only(left: 20) : EdgeInsets.all(0),
-                      child: Stack(
-                      children: [
-                        Text(
-                          widget.text,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium!
-                              .copyWith(
-                                  fontSize: widget.fontSize,
-                                  fontWeight: FontWeight.w400,
-                                  foreground: Paint()
-                                    ..style = PaintingStyle.stroke
-                                    ..strokeWidth = 2
-                                    ..color = const Color(0xFFA5BEB7)),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  children: [
+                    // Centered Text
+                    Center(
+                      child: Padding(
+                        padding: widget.icon != null ||
+                                widget.isBack ||
+                                widget.isDelete ||
+                                widget.isStore
+                            ? const EdgeInsets.only(left: 20)
+                            : EdgeInsets.zero,
+                        child: Stack(
+                          children: [
+                            Text(
+                              widget.text,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayMedium!
+                                  .copyWith(
+                                    fontSize: widget.fontSize,
+                                    fontWeight: FontWeight.w400,
+                                    foreground: Paint()
+                                      ..style = PaintingStyle.stroke
+                                      ..strokeWidth = 2
+                                      ..color = const Color(0xFF1C6E6A),
+                                  ),
+                            ),
+                            Text(
+                              widget.text,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayMedium!
+                                  .copyWith(
+                                    color: Colors.white,
+                                    fontSize: widget.fontSize,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          widget.text,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium!
-                              .copyWith(
-                                color: Colors.white,
-                                fontSize: widget.fontSize,
-                                fontWeight: FontWeight.w400,
-                              ),
-                        ),
-                      ],
-                    )),
-                  ),
-                  if (widget.isDelete)
-                    Positioned(
-                      left: MediaQuery.of(context).size.width * 0.08,
-                      top: MediaQuery.of(context).size.height * 0.02,
-                      child: SvgPicture.asset("lib/assets/art/trashcan.svg",
+                      ),
+                    ),
+                    if (widget.isDelete)
+                      Positioned(
+                        left: MediaQuery.of(context).size.width * 0.1,
+                        top: constraints.maxHeight / 2 -
+                            MediaQuery.of(context).size.width *
+                                0.09167938931297709923664122137405 /
+                                2,
+                        child: SvgPicture.asset(
+                          "lib/assets/art/trashcan.svg",
                           width: MediaQuery.of(context).size.width *
                               0.09167938931297709923664122137405,
                           height: MediaQuery.of(context).size.width *
-                              0.09167938931297709923664122137405),
-                    ),
+                              0.09167938931297709923664122137405,
+                        ),
+                      ),
 
-                  if (widget.isStore)
-                    Positioned(
-                      left: MediaQuery.of(context).size.width * 0.1,
-                      top: MediaQuery.of(context).size.height * 0.02,
-                      child: SvgPicture.asset("lib/assets/art/store.svg",
+                    if (widget.isStore)
+                      Positioned(
+                        left: MediaQuery.of(context).size.width * 0.1,
+                        top: MediaQuery.of(context).size.height * 0.02,
+                        child: SvgPicture.asset(
+                          "lib/assets/art/store.svg",
                           width: MediaQuery.of(context).size.width *
                               0.11959287531806615776081424936387,
                           height: MediaQuery.of(context).size.height *
-                              0.0434272300469483568075117370892),
-                    ),
-
-                  // Left-aligned Icon with padding
-                  if (widget.icon != null)
-                    Positioned(
-                      left: MediaQuery.of(context).size.width *
-                          0.1, // Increased padding from left
-                      top: constraints.maxHeight / 2 - widget.fontSize / 2,
-                      child: Stack(
-                        children: [
-                          Icon(
-                            widget.icon,
-                            size: widget.fontSize + 2, // 2 px padding on border
-                            color: const Color(0xFFA5BEB7),
-                          ),
-                          Icon(
-                            widget.icon,
-                            size: widget.fontSize,
-                            color: Colors.white,
-                          ),
-                        ],
+                              0.0434272300469483568075117370892,
+                        ),
                       ),
-                    ),
-                ],
-              );
-            }),
+                    if (widget.isSignOut)
+                      Positioned(
+                        left: MediaQuery.of(context).size.width * 0.11,
+                        top: constraints.maxHeight / 2 -
+                            MediaQuery.of(context).size.width *
+                              0.07167938931297709923664122137405 /
+                                2,
+                        child: SvgPicture.asset(
+                          "lib/assets/icons/sign_out.svg",
+                          width: MediaQuery.of(context).size.width *
+                              0.07167938931297709923664122137405,
+                          height: MediaQuery.of(context).size.width *
+                              0.07167938931297709923664122137405,
+                        ),
+                      ),
+                    // Left-aligned Icon with padding
+                    if (widget.icon != null)
+                      Positioned(
+                        left: widget.iconPadding, // Increased padding from left
+                        top: constraints.maxHeight / 2 - widget.iconSize / 2,
+                        child: Stack(
+                          children: [
+                            Icon(
+                              widget.icon,
+                              size:
+                                  widget.iconSize + 2, // 2 px padding on border
+                              color: const Color(0xFFA5BEB7),
+                            ),
+                            Icon(
+                              widget.icon,
+                              size: widget.iconSize,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),

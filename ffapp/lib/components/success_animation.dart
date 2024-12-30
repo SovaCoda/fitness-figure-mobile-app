@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
 
 class ConfettiSuccessWidget extends StatefulWidget {
   final Widget child;
 
-  const ConfettiSuccessWidget({Key? key, required this.child})
-      : super(key: key);
+  const ConfettiSuccessWidget({super.key, required this.child});
 
   @override
-  _ConfettiSuccessWidgetState createState() => _ConfettiSuccessWidgetState();
+  ConfettiSuccessWidgetState createState() => ConfettiSuccessWidgetState();
 }
 
-class _ConfettiSuccessWidgetState extends State<ConfettiSuccessWidget> {
+class ConfettiSuccessWidgetState extends State<ConfettiSuccessWidget> {
   late ConfettiController _controllerCenter;
 
   @override
@@ -47,17 +46,16 @@ class _ConfettiSuccessWidgetState extends State<ConfettiSuccessWidget> {
           child: ConfettiWidget(
             confettiController: _controllerCenter,
             blastDirectionality: BlastDirectionality.explosive,
-            shouldLoop: false,
             colors: const [
               Colors.green,
               Colors.blue,
               Colors.pink,
               Colors.orange,
-              Colors.purple
+              Colors.purple,
             ],
             createParticlePath: (size) => Path()
               ..addOval(
-                  Rect.fromCircle(center: Offset.zero, radius: size.width / 2)),
+                  Rect.fromCircle(center: Offset.zero, radius: size.width / 2),),
           ),
         ),
       ],

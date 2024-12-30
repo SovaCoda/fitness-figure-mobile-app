@@ -1,11 +1,10 @@
+import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/components/custom_button.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
-import 'package:ffapp/components/sqaure_tile.dart';
-import 'package:ffapp/components/Input_field.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -28,7 +27,7 @@ class _SignInState extends State<SignIn> {
     initialize();
   }
 
-  void initialize() async {
+  Future<void> initialize() async {
     await initAuthService();
     await checkUser();
   }
@@ -40,52 +39,64 @@ class _SignInState extends State<SignIn> {
 
   Future<void> checkUser() async {
     logger.i("Checking User Status");
-    User? user = await auth.getUser();
+    final User? user = await auth.getUser();
     if (user != null) {
       logger.i("User is signed in");
-      var dbUser = await auth.getUserDBInfo();
+      final dbUser = await auth.getUserDBInfo();
       logger.i("Getting user info...");
       logger.i(dbUser?.weekGoal);
-      if (dbUser?.curFigure == "none" || dbUser?.curFigure == "") {
-          context.goNamed('AvatarSelection');
-        }
-        else if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0 || dbUser?.workoutMinTime == null || dbUser?.workoutMinTime == 0) {
-          context.goNamed('WorkoutFrequencySelection');
-        } else {
+      if ((dbUser?.curFigure == "none" || dbUser?.curFigure == "") && mounted) {
+        context.goNamed('AvatarSelection');
+      } else if ((dbUser?.weekGoal == null ||
+              dbUser?.weekGoal == 0 ||
+              dbUser?.workoutMinTime == null ||
+              dbUser?.workoutMinTime == 0) &&
+          mounted) {
+        context.goNamed('WorkoutFrequencySelection');
+      } else {
+        if (mounted) {
           context.goNamed('Home');
         }
+      }
     }
     logger.i("User is not signed in");
   }
 
-  void signIn() async {
+  Future<void> signIn() async {
     logger.i("signing in");
-    var user = await auth.signIn(
+    final user = await auth.signIn(
       emailController.text,
       passwordController.text,
     );
-    
+
     if (user != null) {
       if (user is String) {
         logger.e(user);
       } else if (user is User) {
-        String email = emailController.text;
+        final String email = emailController.text;
         logger.i("$email is signed in");
-        var dbUser = await auth.getUserDBInfo();
+        final dbUser = await auth.getUserDBInfo();
         logger.i("Getting user info...");
         logger.i(dbUser?.weekGoal);
-        if (dbUser?.curFigure == null) {
+        if (dbUser?.curFigure == null && mounted) {
           context.goNamed('AvatarSelection');
-        }
-        else if (dbUser?.weekGoal == null || dbUser?.weekGoal == 0 || dbUser?.workoutMinTime == null || dbUser?.workoutMinTime == 0) {
+        } else if ((dbUser?.weekGoal == null ||
+                dbUser?.weekGoal == 0 ||
+                dbUser?.workoutMinTime == null ||
+                dbUser?.workoutMinTime == 0) &&
+            mounted) {
           context.goNamed('WorkoutFrequencySelection');
         } else {
-          context.goNamed('Home');
+          if (mounted) {
+            context.goNamed('Home');
+          }
         }
       }
     } else {
       logger.i("Invalid email/password.");
-      showSnackBar(context, "Invalid email or password! Please try again.");
+      if (mounted) {
+        showSnackBar(context, "Invalid email or password! Please try again.");
+      }
     }
   }
 
@@ -97,9 +108,9 @@ class _SignInState extends State<SignIn> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     // Establishing Client ID through OAuth
-    clientId:
+    // clientId:
     const String.fromEnvironment('GOOGLE_CLIENT_ID');
 
     // Trigger auth flow
@@ -111,19 +122,25 @@ class _SignInState extends State<SignIn> {
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
 
     // userCredentials var
-    var userCredents =
+    final userCredents =
         await FirebaseAuth.instance.signInWithCredential(credential);
 
     if (userCredents.user != null) {
       //logged in
-      context.goNamed("Home");
+      if (mounted) {
+        context.goNamed("Home");
+      }
     } else {
       //not logged in
       logger.i("Invalid Google Authentication.");
-      showSnackBar(context, "Invalid Google sign in! Please try again.");
+      if (mounted) {
+        showSnackBar(context, "Invalid Google sign in! Please try again.");
+      }
     }
   }
 
@@ -155,7 +172,9 @@ class _SignInState extends State<SignIn> {
       return await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
       logger.e("Google sign-in failed: $e");
-      showSnackBar(context, "Google sign-in failed. Please try again.");
+      if (mounted) {
+        showSnackBar(context, "Google sign-in failed. Please try again.");
+      }
       return null;
     }
   }
@@ -222,7 +241,13 @@ class _SignInState extends State<SignIn> {
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
                     child: GestureDetector(
-                      onTap: () => {showFFDialog("Forgot Password?", "If you're having trouble logging in email fitnessfigure01@gmail.com with your email and we will reset your password for you.", true, context)},
+                      onTap: () => {
+                        showFFDialog(
+                            "Forgot Password?",
+                            "If you're having trouble logging in email fitnessfigure01@gmail.com with your email and we will reset your password for you.",
+                            true,
+                            context,),
+                      },
                       child: Container(
                         alignment: Alignment.center,
                         child: Text(
@@ -234,7 +259,7 @@ class _SignInState extends State<SignIn> {
                           ),
                         ),
                       ),
-                    )),
+                    ),),
 
                 //spacer
                 const SizedBox(height: 15),
@@ -253,7 +278,7 @@ class _SignInState extends State<SignIn> {
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: CustomButton(
                       onTap: () => context.goNamed('Register'),
-                      text: "Create Account"),
+                      text: "Create Account",),
                 ),
 
                 //spacer
@@ -261,9 +286,8 @@ class _SignInState extends State<SignIn> {
                   height: 10,
                 ),
 
-                
-                const SizedBox(height: 50)
-              ])),
+                const SizedBox(height: 50),
+              ],),),
         ),
       ),
     );

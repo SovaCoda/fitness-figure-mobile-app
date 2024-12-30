@@ -92,7 +92,7 @@ class WeekCompleteShowcase extends StatelessWidget {
                                       simulateCurrentGains: true,
                                       currentXp: figure.figure!.evPoints,
                                       maxXp: figure1
-                                          .EvCutoffs[figure.figure!.evLevel],
+                                          .evCutoffs[figure.figure!.evLevel],
                                       fillColor: Theme.of(context)
                                           .colorScheme
                                           .secondary,

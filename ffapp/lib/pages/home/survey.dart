@@ -1,7 +1,6 @@
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -12,11 +11,11 @@ class SurveyWidget extends StatefulWidget {
   const SurveyWidget({super.key});
 
   @override
-  _SurveyWidgetState createState() => _SurveyWidgetState();
+  SurveyWidgetState createState() => SurveyWidgetState();
 
 }
 
-class _SurveyWidgetState extends State<SurveyWidget> {
+class SurveyWidgetState extends State<SurveyWidget> {
   late AuthService auth;
 
   final Map<String, String> questions = {
@@ -36,16 +35,16 @@ class _SurveyWidgetState extends State<SurveyWidget> {
 
   // Function that takes in a map of Strings to Strings and stores them as survey responses
   bool storeSurveyAnswers(Map<String, String> answers) {
-    List<SurveyResponse> responses = [];
+    final List<SurveyResponse> responses = [];
     answers.forEach((key, value) {
-      SurveyResponse response = SurveyResponse();
+      final SurveyResponse response = SurveyResponse();
       response.question = key;
       response.answer = value;
       response.email = Provider.of<UserModel>(context, listen: false).user?.email ?? '';
       response.date = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
       responses.add(response);
     });
-    MultiSurveyResponse response = MultiSurveyResponse(surveyResponses: responses);
+    final MultiSurveyResponse response = MultiSurveyResponse(surveyResponses: responses);
     auth.createSurveyResponseMulti(response);
     return false;
   }
@@ -116,7 +115,7 @@ class _SurveyWidgetState extends State<SurveyWidget> {
                   return Column(
                     children: [
                       Text(questions.keys.elementAt(index)),
-                      OneThroughFiveSelector(question: questions[index], setAnswer: (String answer) => setAnswer(questions.keys.elementAt(index), answer))
+                      OneThroughFiveSelector(question: questions[index.toString()], setAnswer: (String answer) => setAnswer(questions.keys.elementAt(index), answer)),
                     ],
                   );
                 },
@@ -137,18 +136,18 @@ class _SurveyWidgetState extends State<SurveyWidget> {
 }
 
 class OneThroughFiveSelector extends StatefulWidget {
-  String answer;
+  final String answer;
   int _answer;
-  final question;
-  void Function(String) setAnswer;
-  bool columned;
-  OneThroughFiveSelector({Key? key, required this.question, required this.setAnswer}) : _answer = 0, answer = '', columned=false, super(key: key);
+  final String? question;
+  final void Function(String) setAnswer;
+  final bool columned;
+  OneThroughFiveSelector({super.key, required this.question, required this.setAnswer}) : _answer = 0, answer = '', columned=false;
 
   @override
-  _OneThroughFiveSelectorState createState() => _OneThroughFiveSelectorState();
+  OneThroughFiveSelectorState createState() => OneThroughFiveSelectorState();
 }
 
-class _OneThroughFiveSelectorState extends State<OneThroughFiveSelector> {
+class OneThroughFiveSelectorState extends State<OneThroughFiveSelector> {
   @override
   Widget build(BuildContext context) {
     return Container(

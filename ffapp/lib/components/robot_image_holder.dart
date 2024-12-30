@@ -1,4 +1,3 @@
-import "package:ffapp/components/expandable_core.dart";
 import "package:flutter/material.dart";
 
 class RobotImageHolder extends StatefulWidget {
@@ -8,18 +7,17 @@ class RobotImageHolder extends StatefulWidget {
   final bool? coreClickable;
 
   const RobotImageHolder(
-      {Key? key,
+      {super.key,
       this.coreClickable,
       required this.url,
       required this.height,
-      required this.width})
-      : super(key: key);
+      required this.width,});
 
   @override
-  _RobotImageHolderState createState() => _RobotImageHolderState();
+  RobotImageHolderState createState() => RobotImageHolderState();
 }
 
-class _RobotImageHolderState extends State<RobotImageHolder> {
+class RobotImageHolderState extends State<RobotImageHolder> {
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -42,7 +40,7 @@ class _RobotImageHolderState extends State<RobotImageHolder> {
                       child: Image.asset("lib/assets/${widget.url}.gif",
                           scale: 0.8,
                           height: widget.height * 2,
-                          width: widget.width * 2),
+                          width: widget.width * 2,),
                     ),
                   ),
                 ),

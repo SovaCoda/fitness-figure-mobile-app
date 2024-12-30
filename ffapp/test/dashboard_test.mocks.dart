@@ -355,39 +355,6 @@ class MockAuthService extends _i1.Mock implements _i3.AuthService {
         )),
       ) as _i6.Future<_i2.User>);
 
-  @override
-  _i6.Future<dynamic> updateEmail(
-    String? oldEmail,
-    String? newEmail,
-    _i7.AuthCredential? credential,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #updateEmail,
-          [
-            oldEmail,
-            newEmail,
-            credential,
-          ],
-        ),
-        returnValue: _i6.Future<dynamic>.value(),
-      ) as _i6.Future<dynamic>);
-
-  @override
-  void startEmailVerificationListener(
-    String? oldEmail,
-    String? newEmail,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #startEmailVerificationListener,
-          [
-            oldEmail,
-            newEmail,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
 
   @override
   _i6.Future<dynamic> completeEmailUpdate(

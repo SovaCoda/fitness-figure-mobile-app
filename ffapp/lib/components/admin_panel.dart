@@ -2,7 +2,6 @@ import 'package:ffapp/components/button_themes.dart';
 import 'package:flutter/material.dart';
 
 class DraggableAdminPanel extends StatefulWidget {
-  @override
   final VoidCallback onButton1Pressed;
   final VoidCallback onButton2Pressed;
   final String button1Text;
@@ -13,12 +12,12 @@ class DraggableAdminPanel extends StatefulWidget {
       required this.onButton1Pressed,
       required this.onButton2Pressed,
       required this.button1Text,
-      required this.button2Text});
+      required this.button2Text,});
   @override
-  _DraggableAdminPanelState createState() => _DraggableAdminPanelState();
+  DraggableAdminPanelState createState() => DraggableAdminPanelState();
 }
 
-class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
+class DraggableAdminPanelState extends State<DraggableAdminPanel> {
   Offset offset = const Offset(0.0, 0.0);
 
   @override
@@ -35,7 +34,7 @@ class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
                 offset.dx,
                 offset.dy -
                     MediaQuery.of(context).padding.top -
-                    kToolbarHeight);
+                    kToolbarHeight,);
           });
         },
       ),
@@ -50,12 +49,12 @@ class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
         height: 200,
         child: Column(
           children: <Widget>[
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Text('Admin Panel',
                 style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -65,15 +64,15 @@ class _DraggableAdminPanelState extends State<DraggableAdminPanel> {
                       text: widget.button1Text,
                       textColor: Colors.white,
                       backgroundColor: Theme.of(context).colorScheme.surface,
-                      onPressed: widget.onButton1Pressed),
-                  SizedBox(
+                      onPressed: widget.onButton1Pressed,),
+                  const SizedBox(
                     height: 10,
                   ),
                   FfButton(
                       text: widget.button2Text,
                       textColor: Colors.white,
                       backgroundColor: Theme.of(context).colorScheme.surface,
-                      onPressed: widget.onButton2Pressed),
+                      onPressed: widget.onButton2Pressed,),
                 ],
               ),
             ),

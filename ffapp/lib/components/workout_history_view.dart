@@ -1,8 +1,5 @@
 import 'package:ffapp/components/progress_bar.dart';
-import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 class WorkoutHistoryView extends StatelessWidget {
   final String dateTime;
@@ -12,8 +9,8 @@ class WorkoutHistoryView extends StatelessWidget {
   final int evoGain;
   final int currencyGain;
 
-  WorkoutHistoryView(
-      {required this.dateTime,
+  const WorkoutHistoryView(
+      {super.key, required this.dateTime,
       required this.elapsedTime,
       required this.chargeGain,
       required this.evoGain,
@@ -47,14 +44,14 @@ class WorkoutHistoryView extends StatelessWidget {
               Column(
                 children: [
                   Text(
-                    '$dateTime',
+                    dateTime,
                     style: Theme.of(context)
                         .textTheme
                         .headlineLarge
                         ?.copyWith(color: Colors.lime[800]),
                   ),
                   Text(
-                    '$elapsedTime',
+                    elapsedTime,
                     style: Theme.of(context)
                         .textTheme
                         .headlineLarge

@@ -2,7 +2,6 @@ import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class ChargeBar extends StatelessWidget {
@@ -13,7 +12,7 @@ class ChargeBar extends StatelessWidget {
   final int overrideGains;
   final double curvature = 20.0;
   final double insetPixels = 4.0;
-  final double iconSize = 50.0;
+  final double iconSize;
   final double textMargin = 4.0;
 
   final bool isVertical;
@@ -37,7 +36,8 @@ class ChargeBar extends StatelessWidget {
       this.showDashedLines = false,
       this.showInfoCircle = false,
       this.overrideGains = 0,
-      this.simulateCurrentGains = false});
+      this.simulateCurrentGains = false,
+      this.iconSize = 50});
 
   @override
   Widget build(BuildContext context) {
@@ -66,22 +66,23 @@ class ChargeBar extends StatelessWidget {
                         false,
                         context)
                     : () => {},
-                child: Text(
+                child: Row(children: [Text(
                     simulateCurrentGains
                         ? overrideGains == 0
                             ? didWeWorkoutToday
                                 ? "$currentCharge% + [0%] ?"
-                                : "$currentCharge% + [${user.baseGain}% | ${(user.user!.streak.toInt() * 0.25).ceil()}%🔥]"
+                                : "$currentCharge% [+ ${user.baseGain}% | ${(user.user!.streak.toInt() * 0.25).ceil()}%]"
                             : "$currentCharge% + [$overrideGains%]"
                         : "$currentCharge%",
-                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.primary)),
+                    style: TextStyle(fontSize: 19, fontFamily: "Roboto", fontWeight: FontWeight.w600, color: Color(0xFFFF9E45))),
+                    const FitnessIcon(type: FitnessIconType.fire, size: 30)
+                    ]),
               );
             },
           ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             showIcon
                 ? FitnessIcon(type: FitnessIconType.charge, size: iconSize)
@@ -92,16 +93,15 @@ class ChargeBar extends StatelessWidget {
                   visible: showInfoCircle,
                   child: Container(
                       margin: EdgeInsets.all(textMargin),
-                      height: barHeight,
+                      height: barHeight * 1.2,
                       width: barWidth * 0.5,
                       child: Center(
                           child: Text('$currentCharge%',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium!
-                                  .copyWith(
-                                      color:
-                                          Color.fromRGBO(255, 158, 69, 1))))),
+                              style: const TextStyle(
+                                  fontFamily: "Roboto",
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFF9E45))))),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +130,8 @@ class ChargeBar extends StatelessWidget {
                               ]
                             : null,
                       ),
-                      child: Column(
+                      child: 
+                      Column(
                         mainAxisAlignment: isVertical
                             ? MainAxisAlignment.start
                             : MainAxisAlignment.end,
@@ -230,38 +231,38 @@ class ChargeBar extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              if (simulateCurrentGains && !didWeWorkoutToday)
-                                Transform.translate(
-                                  offset: Offset(-2, 0),
-                                  child: Align(
-                                    alignment: isVertical
-                                        ? Alignment.topCenter
-                                        : Alignment.centerLeft,
-                                    child: Container(
-                                      width: isVertical
-                                          ? barWidth
-                                          : (totalGains / 100).clamp(0, 1) *
-                                              barWidth,
-                                      height: isVertical
-                                          ? (totalGains / 100).clamp(0, 1) *
-                                              barHeight
-                                          : barHeight,
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primaryContainer,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primaryContainer,
-                                              offset: Offset(0.0, 0.0),
-                                              blurRadius: 10.0,
-                                            )
-                                          ]),
-                                    ),
-                                  ),
-                                ),
+                              // if (simulateCurrentGains && !didWeWorkoutToday) 
+                              //   Transform.translate(
+                              //     offset: const Offset(-2, 0),
+                              //     child: Align(
+                              //       alignment: isVertical
+                              //           ? Alignment.topCenter
+                              //           : Alignment.centerLeft,
+                              //       child: Container(
+                              //         width: isVertical
+                              //             ? barWidth
+                              //             : (totalGains / 100).clamp(0, 1) *
+                              //                 barWidth,
+                              //         height: isVertical
+                              //             ? (totalGains / 100).clamp(0, 1) *
+                              //                 barHeight
+                              //             : barHeight,
+                              //         decoration: BoxDecoration(
+                              //             color: Theme.of(context)
+                              //                 .colorScheme
+                              //                 .primaryContainer,
+                              //             boxShadow: [
+                              //               BoxShadow(
+                              //                 color: Theme.of(context)
+                              //                     .colorScheme
+                              //                     .primaryContainer,
+                              //                 offset: const Offset(0.0, 0.0),
+                              //                 blurRadius: 10.0,
+                              //               )
+                              //             ]),
+                              //       ),
+                              //     ),
+                              //   ),
                             ],
                           ),
                         ],

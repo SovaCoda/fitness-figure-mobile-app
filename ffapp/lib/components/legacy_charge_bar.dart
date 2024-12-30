@@ -1,7 +1,6 @@
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class ChargeBar extends StatelessWidget {
@@ -167,7 +166,7 @@ class ChargeBar extends StatelessWidget {
                               boxShadow: [
                                 BoxShadow(
                                   color: Theme.of(context).colorScheme.primary,
-                                  offset: Offset(0.0, 0.0),
+                                  offset: const Offset(0.0, 0.0),
                                   blurRadius: 10.0,
                                 )
                               ]),
@@ -175,7 +174,7 @@ class ChargeBar extends StatelessWidget {
                       ),
                       if (simulateCurrentGains && !didWeWorkoutToday)
                         Transform.translate(
-                          offset: Offset(-2, 0),
+                          offset: const Offset(-2, 0),
                           child: Align(
                             alignment: isVertical
                                 ? Alignment.topCenter
@@ -200,7 +199,7 @@ class ChargeBar extends StatelessWidget {
                                       color: Theme.of(context)
                                           .colorScheme
                                           .primaryContainer,
-                                      offset: Offset(0.0, 0.0),
+                                      offset: const Offset(0.0, 0.0),
                                       blurRadius: 10.0,
                                     )
                                   ]),
@@ -213,7 +212,7 @@ class ChargeBar extends StatelessWidget {
                               ? Alignment.topCenter
                               : Alignment.centerLeft,
                           child: Container(
-                            margin: EdgeInsets.only(left: 5),
+                            margin: const EdgeInsets.only(left: 5),
                             width: isVertical
                                 ? barWidth
                                 : (currentCharge / 100).clamp(0, 1) *
@@ -233,7 +232,7 @@ class ChargeBar extends StatelessWidget {
                                   BoxShadow(
                                     color:
                                         Theme.of(context).colorScheme.primary,
-                                    offset: Offset(0.0, 0.0),
+                                    offset: const Offset(0.0, 0.0),
                                     blurRadius: 10.0,
                                   )
                                 ]),
@@ -245,7 +244,7 @@ class ChargeBar extends StatelessWidget {
                               ? Alignment.topCenter
                               : Alignment.centerLeft,
                           child: Container(
-                            margin: EdgeInsets.only(left: 5),
+                            margin: const EdgeInsets.only(left: 5),
                             width: isVertical
                                 ? barWidth
                                 : (currentCharge / 100).clamp(0, 1) *
@@ -265,7 +264,7 @@ class ChargeBar extends StatelessWidget {
                                   BoxShadow(
                                     color:
                                         Theme.of(context).colorScheme.primary,
-                                    offset: Offset(0.0, 0.0),
+                                    offset: const Offset(0.0, 0.0),
                                     blurRadius: 10.0,
                                   )
                                 ]),

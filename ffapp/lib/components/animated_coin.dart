@@ -7,10 +7,10 @@ class AnimatedCoin extends StatefulWidget {
   const AnimatedCoin({super.key, required this.size});
 
   @override
-  _AnimatedCoinState createState() => _AnimatedCoinState();
+  AnimatedCoinState createState() => AnimatedCoinState();
 }
 
-class _AnimatedCoinState extends State<AnimatedCoin>
+class AnimatedCoinState extends State<AnimatedCoin>
     with SingleTickerProviderStateMixin {
   late AnimationController _shineController;
   late Animation<double> _shineAnimation;
@@ -24,7 +24,7 @@ class _AnimatedCoinState extends State<AnimatedCoin>
     _shineController = AnimationController(
       duration: const Duration(seconds: 5),
       vsync: this,
-    )..repeat(reverse: false);
+    )..repeat();
 
     // Create a curved animation for a smooth shine effect
     _shineAnimation = Tween<double>(begin: -2.0, end: 1.0).animate(
@@ -68,7 +68,7 @@ class _AnimatedCoinState extends State<AnimatedCoin>
               },
               blendMode: BlendMode.srcATop,
               child: SvgPicture.asset("lib/assets/art/ffcoin.svg",
-                  width: widget.size),
+                  width: widget.size,),
             );
           },
         ),

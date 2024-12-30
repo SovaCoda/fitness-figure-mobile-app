@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ffapp/icons/fitness_icon.dart';
-import 'dart:math';
 
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -10,10 +8,10 @@ class AnimatedPremiumBadge extends StatefulWidget {
   const AnimatedPremiumBadge({super.key, required this.size});
 
   @override
-  _AnimatedPremiumBadgeState createState() => _AnimatedPremiumBadgeState();
+  AnimatedPremiumBadgeState createState() => AnimatedPremiumBadgeState();
 }
 
-class _AnimatedPremiumBadgeState extends State<AnimatedPremiumBadge>
+class AnimatedPremiumBadgeState extends State<AnimatedPremiumBadge>
     with SingleTickerProviderStateMixin {
   late AnimationController _shineController;
   late Animation<double> _shineAnimation;
@@ -27,7 +25,7 @@ class _AnimatedPremiumBadgeState extends State<AnimatedPremiumBadge>
     _shineController = AnimationController(
       duration: const Duration(seconds: 5),
       vsync: this,
-    )..repeat(reverse: false);
+    )..repeat();
 
     // Create a curved animation for a smooth shine effect
     _shineAnimation = Tween<double>(begin: -2.0, end: 1.0).animate(
@@ -71,7 +69,7 @@ class _AnimatedPremiumBadgeState extends State<AnimatedPremiumBadge>
               },
               blendMode: BlendMode.srcATop,
               child: SvgPicture.asset("lib/assets/icons/premium_icon.svg",
-                  width: widget.size),
+                  width: widget.size,),
             );
           },
         ),
@@ -79,5 +77,3 @@ class _AnimatedPremiumBadgeState extends State<AnimatedPremiumBadge>
     );
   }
 }
-
-

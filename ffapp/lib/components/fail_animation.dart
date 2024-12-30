@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:ffapp/icons/fitness_icon.dart';
 import 'dart:math';
 
+import 'package:ffapp/icons/fitness_icon.dart';
+import 'package:flutter/material.dart';
+
 class AnimatedFitnessIcon extends StatefulWidget {
-  const AnimatedFitnessIcon({Key? key}) : super(key: key);
+  const AnimatedFitnessIcon({super.key});
 
   @override
   State<AnimatedFitnessIcon> createState() => _AnimatedFitnessIconState();
@@ -30,7 +31,7 @@ class _AnimatedFitnessIconState extends State<AnimatedFitnessIcon>
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
-    ));
+    ),);
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
@@ -38,7 +39,7 @@ class _AnimatedFitnessIconState extends State<AnimatedFitnessIcon>
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
-    ));
+    ),);
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {

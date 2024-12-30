@@ -13,7 +13,7 @@ class RobotLinePainter extends CustomPainter {
 
     // Draw three lines
     for (int i = 0; i < 3; i++) {
-      double yOffset = (i - 1) * 40;
+      final double yOffset = (i - 1) * 40;
       canvas.drawLine(
         startPoint.translate(0, yOffset),
         endPoint.translate(0, yOffset),

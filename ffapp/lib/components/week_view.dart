@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 // This is just a static week view for testing. It doesn't have any functionality.
 class WeekView extends StatelessWidget {
+  const WeekView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return buildWeekView(context);
@@ -30,7 +32,7 @@ class WeekView extends StatelessWidget {
             ],
           ),
         ),
-        Divider(color: Colors.grey, height: 0.5, indent: 32, endIndent: 32),
+        const Divider(color: Colors.grey, height: 0.5, indent: 32, endIndent: 32),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

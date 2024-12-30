@@ -9,11 +9,11 @@ class FfAlertDialog extends StatelessWidget {
   final String? description;
 
   const FfAlertDialog({
-    Key? key,
+    super.key,
     this.child,
     this.title,
     this.description,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +29,8 @@ class FfAlertDialog extends StatelessWidget {
           showTopRectangle: true,
           title: title,
           description: description,
-          child: child,
           isScrollable: true,
+          child: child,
         ),
       ),
     );
@@ -77,8 +77,8 @@ void showFFDialogBinary(
   String message,
   bool dismissable,
   BuildContext context,
-  FfButton yesButton,
-  FfButton noButton,
+  FFAppButton yesButton,
+  FFAppButton noButton,
 ) {
   showDialog(
     barrierDismissible: dismissable,

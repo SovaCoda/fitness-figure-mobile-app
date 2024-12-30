@@ -1,28 +1,28 @@
 import 'dart:math';
+
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/animated_coin.dart';
+import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/fail_animation.dart';
 import 'package:ffapp/components/research_progress_bar.dart';
+import 'package:ffapp/components/research_task_manager.dart';
 import 'package:ffapp/components/resuables/custom_slider.dart';
+import 'package:ffapp/components/resuables/gradiented_container.dart';
+import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/success_animation.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
-import 'package:ffapp/icons/fitness_icon.dart';
-import 'package:flutter/material.dart';
-import 'package:ffapp/components/button_themes.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
-import 'package:provider/provider.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart';
-import 'package:ffapp/components/research_task_manager.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ffapp/components/animated_button.dart';
-import 'package:ffapp/components/resuables/gradiented_container.dart';
 
 class ResearchOption extends StatefulWidget {
   final ResearchTask task;
   final Function(String) onComplete;
   final Function(String, BuildContext) onStart;
-  final Function(double) onSubtractCurrency;
+  final Future<bool>Function(double) onSubtractCurrency;
   final Function releaseLockedTasks;
   final Function lockAllInactiveTasks;
 
@@ -52,7 +52,7 @@ class _ResearchOptionState extends State<ResearchOption> {
   bool _isCompleted = false;
   bool _isDelete = false;
   bool _isInitialized = false;
-  bool _isLocked = false;
+  // bool _isLocked = false;
   bool _isSuccess = false; // added for handling failure button in stack
 
   double _investmentAmount = 0;
@@ -74,7 +74,7 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   void _uponFigureChange(FigureModel figureModel, int time) {
     if (!_isInitialized) return;
-    Map<String, bool> capabilities = figureModel.capabilities;
+    final Map<String, bool> capabilities = figureModel.capabilities;
     _tickSpeed = 1000;
     if (capabilities['Research 20% Faster'] == true) {
       _tickSpeed = 800;
@@ -92,11 +92,11 @@ class _ResearchOptionState extends State<ResearchOption> {
     _timer.changeTickSpeedMS(_tickSpeed);
   }
 
-  void _initializeState() async {
+  Future<void> _initializeState() async {
     task = widget.task;
     prefs = await SharedPreferences.getInstance();
-
-    Map<String, bool> capabilities =
+    if(!mounted) return;
+    final Map<String, bool> capabilities =
         Provider.of<FigureModel>(context, listen: false).capabilities;
     if (capabilities['Research 20% Faster'] == true) {
       _tickSpeed = 800;
@@ -113,9 +113,8 @@ class _ResearchOptionState extends State<ResearchOption> {
     _timer = PersistantTimer(
         timerName: task.title,
         prefs: prefs,
-        milliseconds: 0,
         tickSpeedMS: _tickSpeed,
-        onTick: _updateTimer);
+        onTick: _updateTimer,);
     if (_timer.hasStoredTime()) {
       if (hasStoredInvestment()) {
         _updateInvestment(prefs.getDouble('${task.title} investment')!);
@@ -135,8 +134,10 @@ class _ResearchOptionState extends State<ResearchOption> {
       _currentCountdown = widget.task.duration.inSeconds;
       _currentChance = widget.task.chance;
     }
+    if(mounted) {
     _auth = Provider.of<AuthService>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
+    }
 
     _randValue = Random().nextInt(100);
     _isInitialized = true;
@@ -180,24 +181,24 @@ class _ResearchOptionState extends State<ResearchOption> {
     }
   }
 
-  void _giveRewards() async {
+  Future<void> _giveRewards() async {
     FigureInstance figureInstance = _figure.figure!;
-    int totalEV = figureInstance.evPoints + _currentEv;
+    final int totalEV = figureInstance.evPoints + _currentEv;
     _figure.setFigureEv(totalEV);
-    UserModel user = Provider.of<UserModel>(context, listen: false);
+    final UserModel user = Provider.of<UserModel>(context, listen: false);
     figureInstance = _figure.figure!;
 
     await _auth.updateFigureInstance(FigureInstance(
       figureId: figureInstance.figureId,
       userEmail: user.user!.email,
       figureName: figureInstance.figureName,
-      charge: figureInstance.charge.toInt(),
-      evPoints: figureInstance.evPoints.toInt(),
-    ));
+      charge: figureInstance.charge,
+      evPoints: figureInstance.evPoints,
+    ),);
     widget.onComplete(widget.task.id);
   }
 
-  void _startResearch() async {
+  Future<void> _startResearch() async {
     if (await widget.onSubtractCurrency(_investmentAmount)) {
       setState(() {
         _startTimer();
@@ -210,7 +211,7 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   String _getRobotImageUrl({required bool happy}) {
     if (_figure.figure != null) {
-      String emotion = happy ? 'happy' : 'sad';
+      final String emotion = happy ? 'happy' : 'sad';
       return "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_$emotion";
     }
     return "robot1/robot1_skin0_evo0_cropped_happy";
@@ -236,16 +237,16 @@ class _ResearchOptionState extends State<ResearchOption> {
     });
   }
 
-  void _cancelTask() {
-    _timer.deleteTimer();
-    prefs.remove('${task.title} investment');
+  // void _cancelTask() {
+  //   _timer.deleteTimer();
+  //   prefs.remove('${task.title} investment');
 
-    _isDelete = false;
-    _isExpanded = false;
-    _isCountdown = false;
-    _isExpanded = false;
-    widget.onComplete(widget.task.id);
-  }
+  //   _isDelete = false;
+  //   _isExpanded = false;
+  //   _isCountdown = false;
+  //   _isExpanded = false;
+  //   widget.onComplete(widget.task.id);
+  // }
 
   @override
   void dispose() {
@@ -282,14 +283,11 @@ class _ResearchOptionState extends State<ResearchOption> {
                     ? MainAxisAlignment.start
                     : MainAxisAlignment.end,
                 children: [
-                  _isExpanded
-                      ? _buildExpandedContent()
-                      : _buildCollapsedContent(),
+                  if (_isExpanded) _buildExpandedContent() else _buildCollapsedContent(),
                 ],
               ),
             ),
-            _isExpanded && !_isCompleted
-                ? Positioned(
+            if (_isExpanded && !_isCompleted) Positioned(
                     bottom: MediaQuery.of(context).size.height * 0.025,
                     left: MediaQuery.of(context).size.width * 0.10,
                     child: FFAppButton(
@@ -299,10 +297,9 @@ class _ResearchOptionState extends State<ResearchOption> {
                         size: MediaQuery.of(context).size.width *
                             0.79389312977099236641221374045802,
                         height: MediaQuery.of(context).size.height *
-                            0.08098591549295774647887323943662),
-                  )
-                : Container(),
-            _isExpanded && _isCompleted ? _isSuccess
+                            0.08098591549295774647887323943662,),
+                  ) else Container(),
+            if (_isExpanded && _isCompleted) _isSuccess
                 ? Positioned(
                     bottom: MediaQuery.of(context).size.height * 0.035,
                     left: MediaQuery.of(context).size.width * 0.10,
@@ -313,7 +310,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                         size: MediaQuery.of(context).size.width *
                             0.79389312977099236641221374045802,
                         height: MediaQuery.of(context).size.height *
-                            0.08098591549295774647887323943662),
+                            0.08098591549295774647887323943662,),
                   ) : Positioned(
                     bottom: MediaQuery.of(context).size.height * 0.035,
                     left: MediaQuery.of(context).size.width * 0.10,
@@ -324,8 +321,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                         size: MediaQuery.of(context).size.width *
                             0.79389312977099236641221374045802,
                         height: MediaQuery.of(context).size.height *
-                            0.08098591549295774647887323943662))
-                : Container()
+                            0.08098591549295774647887323943662,),) else Container(),
           ],
         ),
         if (widget.task.locked)
@@ -362,22 +358,23 @@ class _ResearchOptionState extends State<ResearchOption> {
                           .displayMedium!
                           .copyWith(
                               color: Theme.of(context).colorScheme.secondary,
-                              fontSize: 16),
+                              fontSize: 16,),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
 
   double _getContainerHeight() {
-    if (!_isExpanded)
+    if (!_isExpanded) {
       return MediaQuery.of(context).size.height *
           0.13754694835680751173708920187793;
+    }
     return _isCompleted
         ? MediaQuery.of(context).size.height * 0.39
         : MediaQuery.of(context).size.height * 0.38;
@@ -391,7 +388,6 @@ class _ResearchOptionState extends State<ResearchOption> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 widget.task.title,
@@ -400,10 +396,10 @@ class _ResearchOptionState extends State<ResearchOption> {
                       fontSize: 16,
                     ),
               ),
-              if (!_isCompleted) _buildTimer()
-            ]),
-        _buildChanceAndEVInfo()
-      ]),
+              if (!_isCompleted) _buildTimer(),
+            ],),
+        _buildChanceAndEVInfo(),
+      ],),
     );
   }
 
@@ -413,14 +409,13 @@ class _ResearchOptionState extends State<ResearchOption> {
       children: [
         // _buildTimerAndButton(),
         _buildTitle(),
-        _buildActionButton()
+        _buildActionButton(),
       ],
     );
   }
 
   Widget _buildChanceAndEVInfo() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -433,29 +428,28 @@ class _ResearchOptionState extends State<ResearchOption> {
                 0,
               ),
               fontSize: 14,
-              fontFamily: 'Roboto'),
+              fontFamily: 'Roboto',),
         ),
         const SizedBox(height: 4),
         Text(
-          '+${_currentEv} EVO',
+          '+$_currentEv EVO',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
               color: Theme.of(context).colorScheme.secondary,
               fontSize: 14,
-              fontFamily: 'Roboto'),
+              fontFamily: 'Roboto',),
         ),
       ],
     );
   }
 
-  Widget _buildTimerAndButton() {
-    // currently unused
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [if (!_isCompleted) _buildTimer(), _buildActionButton()],
-    );
-  }
+  // Widget _buildTimerAndButton() {
+  //   // currently unused
+  //   return Column(
+  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //     crossAxisAlignment: CrossAxisAlignment.end,
+  //     children: [if (!_isCompleted) _buildTimer(), _buildActionButton()],
+  //   );
+  // }
 
   Widget _buildTimer() {
     return Row(
@@ -467,7 +461,7 @@ class _ResearchOptionState extends State<ResearchOption> {
               style: Theme.of(context).textTheme.displaySmall!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: _isExpanded ? 20 : 14,
-                  fontFamily: 'Roboto')),
+                  fontFamily: 'Roboto',),),
         Text(
           _isCountdown
               ? _formatDuration(Duration(seconds: _currentCountdown))
@@ -475,7 +469,7 @@ class _ResearchOptionState extends State<ResearchOption> {
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
               fontSize: _isExpanded ? 20 : 14,
               fontFamily: 'Roboto',
-              fontWeight: FontWeight.w700),
+              fontWeight: FontWeight.w700,),
         ),
         const SizedBox(width: 2),
         Icon(Icons.access_time, size: _isExpanded ? 29 : 20, weight: 700),
@@ -505,7 +499,7 @@ class _ResearchOptionState extends State<ResearchOption> {
           setState(() {
             _isExpanded = !_isExpanded;
           });
-        });
+        },);
   }
 
   Widget _buildProgressButton() {
@@ -534,38 +528,38 @@ class _ResearchOptionState extends State<ResearchOption> {
       setState(() {
           _isExpanded = !_isExpanded;
         });
-    });
+    },);
   }
 
-  ButtonStyle _getButtonStyle({Color? color}) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
-      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
-    );
-  }
+  // ButtonStyle _getButtonStyle({Color? color}) {
+  //   return ElevatedButton.styleFrom(
+  //     backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
+  //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  //     minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
+  //   );
+  // }
 
-  _getExpandedButtonStyle({Color? color}) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
-      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      minimumSize: Size(MediaQuery.of(context).size.width * 0.82, 40),
-    );
-  }
+  // _getExpandedButtonStyle({Color? color}) {
+  //   return ElevatedButton.styleFrom(
+  //     backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
+  //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  //     minimumSize: Size(MediaQuery.of(context).size.width * 0.82, 40),
+  //   );
+  // }
 
-  TextStyle _getButtonTextStyle() {
-    return Theme.of(context).textTheme.displaySmall!.copyWith(
-          color: Theme.of(context).colorScheme.onPrimary,
-        );
-  }
+  // TextStyle _getButtonTextStyle() {
+  //   return Theme.of(context).textTheme.displaySmall!.copyWith(
+  //         color: Theme.of(context).colorScheme.onPrimary,
+  //       );
+  // }
 
-  TextStyle _getBackButtonTextStyle() {
-    return Theme.of(context).textTheme.displaySmall!.copyWith(
-          color: Theme.of(context).colorScheme.onSurface,
-        );
-  }
+  // TextStyle _getBackButtonTextStyle() {
+  //   return Theme.of(context).textTheme.displaySmall!.copyWith(
+  //         color: Theme.of(context).colorScheme.onSurface,
+  //       );
+  // }
 
   Widget _buildExpandedContent() {
     if (!_isCompleted) {
@@ -582,11 +576,9 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   Widget _buildInvestmentContent() {
     return GradientedContainer(
-        isScrollable: false, // makes scrolling disabled
         height: MediaQuery.of(context).size.height *
             0.2934272300469483568075117370892,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -595,7 +587,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                       .textTheme
                       .displayMedium!
                       .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
-                  textAlign: TextAlign.left),
+                  textAlign: TextAlign.left,),
               FFAppButton(
                 text: "",
                 isBack: true,
@@ -606,11 +598,11 @@ class _ResearchOptionState extends State<ResearchOption> {
                     _isExpanded = false;
                   });
                 },
-              )
-            ]),
+              ),
+            ],),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: Text(
                     'Invest funds to improve chances of research success!',
@@ -618,20 +610,19 @@ class _ResearchOptionState extends State<ResearchOption> {
                         .textTheme
                         .displaySmall!
                         .copyWith(fontSize: 14, fontFamily: 'roboto'),
-                  )),
+                  ),),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 AnimatedCoin(
-                    size: MediaQuery.of(context).size.height * 0.058685),
+                    size: MediaQuery.of(context).size.height * 0.058685,),
                 SizedBox(width: MediaQuery.of(context).size.width * 0.01),
                 Text('$_cost',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontFamily: 'Roboto',
                         fontSize: 20,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: FontWeight.w600,),),
               ],
             ),
             Center(
@@ -642,13 +633,12 @@ class _ResearchOptionState extends State<ResearchOption> {
                 child: CustomImageSlider(
                   divisions: 100,
                   value: _investmentAmount,
-                  min: 0,
                   max: 10000,
                   onChanged: _updateInvestment,
                   label: _cost.toString(),
                 ),
               ),
-            )),
+            ),),
             Center(
               child: Text(
                 '$_currentChance% Chance',
@@ -671,12 +661,12 @@ class _ResearchOptionState extends State<ResearchOption> {
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w600,
                       fontSize: 20,
-                      color: Theme.of(context).colorScheme.secondary)),
-              _buildTimer()
-            ]),
+                      color: Theme.of(context).colorScheme.secondary,),),
+              _buildTimer(),
+            ],),
             // if you are looking for begin button, look in the stack in the main widget build function
           ],
-        ));
+        ),);
   }
 
   Widget _buildSuccessContent() {
@@ -704,11 +694,10 @@ class _ResearchOptionState extends State<ResearchOption> {
                   ),
                 ),
                 Center(
-                    child: Container(
+                    child: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.55,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             RobotImageHolder(
                               url: _getRobotImageUrl(happy: true),
@@ -722,16 +711,16 @@ class _ResearchOptionState extends State<ResearchOption> {
                                     fontSize: 24,
                                     color: Theme.of(context)
                                         .colorScheme
-                                        .secondary)),
+                                        .secondary,),),
                           ],
-                        ))),
+                        ),),),
                 // ElevatedButton(
                 //   onPressed: _handleSuccessCompletion,
                 //   style: _getButtonStyle(),
                 //   child: Text('Awesome!', style: _getButtonTextStyle()),
                 // ),
               ],
-            )));
+            ),),);
   }
 
   Widget _buildFailureContent() {
@@ -751,14 +740,13 @@ class _ResearchOptionState extends State<ResearchOption> {
           Stack(children: [
             
             Center(
-                child: Container(
+                child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.55,
                     child: Column(
                       children: [
                         SizedBox(height: MediaQuery.of(context).size.height * 0.06,),
                         Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         RobotImageHolder(
                           url: _getRobotImageUrl(happy: false),
@@ -771,14 +759,14 @@ class _ResearchOptionState extends State<ResearchOption> {
                                 fontWeight: FontWeight.w700,
                                 fontSize: 24,
                                 color:
-                                    Theme.of(context).colorScheme.secondary)),
+                                    Theme.of(context).colorScheme.secondary,),),
                       ],
-                    )]))),
+                    ),],),),),
                     Positioned(
               top: -MediaQuery.of(context).size.height * 0.06,
-              child: AnimatedFitnessIcon(),
+              child: const AnimatedFitnessIcon(),
             ),
-          ]),
+          ],),
           // ElevatedButton(
           //   onPressed: _handleFailureCompletion,
           //   style: _getExpandedButtonStyle(),
@@ -791,8 +779,8 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    final String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    final String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
 }
@@ -800,13 +788,13 @@ class _ResearchOptionState extends State<ResearchOption> {
 class ResearchButton extends StatefulWidget {
   final VoidCallback onPressed;
 
-  const ResearchButton({Key? key, required this.onPressed}) : super(key: key);
+  const ResearchButton({super.key, required this.onPressed});
 
   @override
-  _ResearchButtonState createState() => _ResearchButtonState();
+  ResearchButtonState createState() => ResearchButtonState();
 }
 
-class _ResearchButtonState extends State<ResearchButton> {
+class ResearchButtonState extends State<ResearchButton> {
   bool _isButtonDisabled = false;
 
   void _handleButtonPress() {
@@ -827,7 +815,7 @@ class _ResearchButtonState extends State<ResearchButton> {
     );
   }
 
-  _getExpandedButtonStyle({Color? color}) {
+  ButtonStyle? _getExpandedButtonStyle({Color? color}) {
     return ElevatedButton.styleFrom(
       backgroundColor: color ?? Theme.of(context).colorScheme.onSurface,
       foregroundColor: Theme.of(context).colorScheme.onPrimary,

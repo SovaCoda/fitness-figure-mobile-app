@@ -17,26 +17,25 @@ class BorderFillableContainer extends StatelessWidget {
       this.fillColor = const Color.fromRGBO(68, 68, 68, 1),
       this.padding = const EdgeInsets.all(10),
       this.max = 4.0,
-      this.current = 2.0});
+      this.current = 2.0,});
 
   @override
   Widget build(BuildContext context) {
-    double fullStop = current / max;
-    bool full = current >= max;
+    final double fullStop = current / max;
+    // final bool full = current >= max;
     return Container(
       width: 100,
       height: 100,
       decoration: BoxDecoration(
         gradient: SweepGradient(
-          colors: [
+          colors: const [
             Color.fromRGBO(34, 90, 76, 1),
             Color.fromRGBO(34, 90, 76, 1),
-            Color.fromRGBO(0, 164, 123, 0)
+            Color.fromRGBO(0, 164, 123, 0),
           ],
           stops: [0, fullStop - 0.01, fullStop],
         ),
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.all(Radius.circular(200)),
+        borderRadius: const BorderRadius.all(Radius.circular(200)),
       ),
       child: Stack(
         alignment: Alignment.center,

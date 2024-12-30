@@ -1,7 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:logger/logger.dart';
 
 class FirebaseApi {
   final _firebaseMessaging = FirebaseMessaging.instance;
+  Logger logger = Logger();
 
   Future<void> initNotifications() async {
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
@@ -13,8 +15,8 @@ class FirebaseApi {
       provisional: false,
       sound: true,
     );
-    print('user granted permission: ${settings.authorizationStatus}');
+    logger.i('user granted permission: ${settings.authorizationStatus}');
     final token = await _firebaseMessaging.getToken();
-    print('FirebaseMessaging token: $token');
+    logger.i('FirebaseMessaging token: $token');
   }
 }

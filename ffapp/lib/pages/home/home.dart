@@ -7,6 +7,7 @@ import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/evo.dart';
 import 'package:ffapp/pages/home/inventory.dart';
 import 'package:ffapp/pages/home/profile.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/providers.dart';
@@ -31,7 +32,8 @@ class _DashboardPageState extends State<DashboardPage> {
     const Profile(),
     const Core(),
     const EvolutionPage(),
-    const SkinViewer()
+    const SkinViewer(),
+    const Store()
   ];
 
   @override
@@ -59,7 +61,7 @@ class _DashboardPageState extends State<DashboardPage> {
         currency = usrCurrency;
       });
     } catch (e) {
-      print("Error initializing currency: $e");
+      logger.e("Error initializing currency: $e");
     }
   }
 

@@ -42,7 +42,7 @@ class _EvolutionPageState extends State<EvolutionPage>
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
     figure = Provider.of<FigureModel>(context, listen: false);
-    _evolutionCost = figure1.EvCutoffs[figure.EVLevel];
+    _evolutionCost = figure1.evCutoffs[figure.EVLevel];
     _controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -97,7 +97,7 @@ class _EvolutionPageState extends State<EvolutionPage>
       _disabledButtons = false;
       _isAnimating = false;
       _showNewBenefits = true;
-      _evolutionCost = figure1.EvCutoffs[figure.EVLevel];
+      _evolutionCost = figure1.evCutoffs[figure.EVLevel];
     });
   }
 

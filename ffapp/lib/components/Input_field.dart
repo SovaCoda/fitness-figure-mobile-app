@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
-  final dynamic controller;
+  final TextEditingController controller;
   final String hintText;
   final bool obscureText;
   const InputField({

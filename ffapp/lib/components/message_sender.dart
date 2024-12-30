@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 
 class MessageSender extends StatefulWidget {
-  const MessageSender({Key? key}) : super(key: key);
+  const MessageSender({super.key});
 
   @override
   State<MessageSender> createState() => _MessageSenderState();

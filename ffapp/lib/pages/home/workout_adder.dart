@@ -1,46 +1,44 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:ffapp/components/animated_button.dart';
-import 'package:ffapp/components/resuables/week_goal_shower.dart';
-import 'package:ffapp/components/utils/chat_model.dart';
-import 'package:ffapp/components/utils/time_utils.dart';
-import 'package:ffapp/services/dynamic_island_manager.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/admin_panel.dart';
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
-import 'package:ffapp/components/legacy_charge_bar.dart';
-import 'package:ffapp/components/legacy_ev_bar.dart';
+import 'package:ffapp/components/chat_bubble.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
-import 'package:ffapp/components/resuables/chat_bubble.dart';
-import 'package:ffapp/components/resuables/gradiented_container.dart';
+import 'package:ffapp/components/charge_bar.dart';
+import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/resuables/streak_shower.dart';
+import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/resuables/week_to_go_shower.dart';
 import 'package:ffapp/components/resuables/workout_time_shower.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
+import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:ffapp/components/workout_calendar.dart';
+import 'package:ffapp/components/workout_progress_bar.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/auth.dart';
+import 'package:ffapp/services/dynamic_island_manager.dart';
 import 'package:ffapp/services/local_notification_service.dart';
-import 'package:ffapp/services/robotDialog.dart';
+import 'package:ffapp/services/robot_dialog.dart';
+import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:provider/provider.dart';
-import 'package:purchases_flutter/models/customer_info_wrapper.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:ffapp/components/chat_bubble.dart';
+import 'dart:io';
 
 class WorkoutAdder extends StatefulWidget {
   const WorkoutAdder({super.key});
@@ -55,16 +53,20 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   final logger = Logger();
   bool _logging = false;
   PersistantTimer _timer = PersistantTimer(
-      prefs: null, timerName: "workout", onTick: () => {}, tickSpeedMS: 1000);
-  Int64 time = Int64(0);
-  Int64 _timePassed = Int64(0);
-  late Int64 _timegoal = Int64(0);
-  late String _startTime, _endTime;
+    prefs: null,
+    timerName: "workout",
+    onTick: () => {},
+  );
+  Int64 time = Int64(); // default value for Int64 is zero
+  Int64 _timePassed = Int64();
+  late Int64 _timegoal = Int64();
+  late String _startTime;
+  late String _endTime;
   late AuthService auth;
   late String figureURL = "robot1_skin0_cropped";
   RobotDialog robotDialog = RobotDialog();
-  final int RANDRANGE = 100;
-  final double OFFSET = 250 / 4;
+  // final int RANDRANGE = 100;
+  // final double OFFSET = 250 / 4;
   late double scoreIncrement;
   final int sigfigs = 2;
   bool _goalMet = false;
@@ -74,34 +76,49 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   bool hasInvested = false;
   late Future<String>? _postWorkoutMessage;
 
-
+  // ignore: unused_field
   late final AppLifecycleListener _listener;
+  // ignore: unused_field
   late AppLifecycleState? _lifeState;
+  // ignore: unused_field
   final List<String> _lifeStates = <String>[];
-  DynamicIslandManager liveActivityManager = DynamicIslandManager(channelKey: "LI"); // class that can use method channels to communicate with Ios App
+  DynamicIslandManager liveActivityManager = DynamicIslandManager(
+    channelKey: "LI",
+  ); // class that can use method channels to communicate with Ios App
 
   @override
   void initState() {
     super.initState();
-    _lifeState = SchedulerBinding.instance!.lifecycleState;
+    _lifeState = SchedulerBinding.instance.lifecycleState;
     _listener = AppLifecycleListener(
-
       onRestart: () {
-         logger.i("restarted");
+        if (_logging) {
+          logger.i("restarted");
+        }
       },
       onResume: () async {
-        logger.i("resumed");
-        
+        if (_logging) {
+          logger.i("resumed");
+        }
+
         _timer.loadTime();
       },
-      onExitRequested: () async{
-        logger.i('shutting down ');
-        liveActivityManager.stopLiveActivity();
+      onExitRequested: () async {
+        if (_logging) {
+          logger.i('shutting down ');
+        }
+        if (Platform.isIOS) {
+          liveActivityManager.stopLiveActivity();
+        }
         return AppExitResponse.exit;
       },
       onDetach: () {
-        logger.i("detached");
-        liveActivityManager.stopLiveActivity();
+        if (_logging) {
+          logger.i("detached");
+        }
+        if (Platform.isIOS) {
+          liveActivityManager.stopLiveActivity();
+        }
         if (states['logging']! && !states['paused']!) {
           prefs!.setBool("hasOngoingWorkout", true);
           prefs!.setBool("hasOngoingWorkoutPaused", false);
@@ -113,7 +130,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     initialize();
 
     auth = Provider.of<AuthService>(context, listen: false);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         minWorkoutTime = Provider.of<UserModel>(context, listen: false)
             .user!
@@ -124,30 +141,39 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void stopLiveActivities(DynamicIslandManager liveActivityManager) {
-  for (int i = 0; i < 5; i++) {
-    try {
-      liveActivityManager.stopLiveActivity();
-      print('Successfully stopped live activity on attempt ${i + 1}');
-      break; 
-    } catch (err) {
-      print('Attempt ${i + 1} failed: $err');
+    if (!Platform.isIOS) return; // function should only run for iOS users
 
+    for (int i = 0; i < 5; i++) {
+      try {
+        liveActivityManager.stopLiveActivity();
+        if (kDebugMode) {
+          print('Successfully stopped live activity on attempt ${i + 1}');
+        }
+        break;
+      } catch (err) {
+        if (kDebugMode) {
+          print('Attempt ${i + 1} failed: $err');
+        }
+      }
+    }
+    if (kDebugMode) {
+      print('Finished trying to stop live activities.');
     }
   }
-  print('Finished trying to stop live activities.');
-}
 
-  void initialize({bool restartLiveActivity = true}) async {
+  Future<void> initialize({bool restartLiveActivity = true}) async {
     stopLiveActivities(liveActivityManager);
     prefs = await SharedPreferences.getInstance();
-    User user = await getUserModel().then((value) => value.user!);
-    Int64 timegoal = user.workoutMinTime;
+    final User user = await getUserModel().then((value) => value.user!);
+    final Int64 timegoal = user.workoutMinTime;
     scoreIncrement = 1 / (timegoal.toDouble() * 60);
-    logger.i(timegoal);
+    if (_logging) {
+      logger.i(timegoal);
+    }
 
     setState(() {
       if (timegoal != Int64.ZERO) {
-         _timegoal = timegoal * 60; //convert to seconds
+        _timegoal = timegoal * 60; //convert to seconds
         // _timegoal = Int64(5);
       }
     });
@@ -160,52 +186,76 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     UserModel userModel;
     do {
       await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return Future.error("MountedException");
       userModel = Provider.of<UserModel>(context, listen: false);
     } while (userModel.user == User());
     return userModel;
   }
 
-  void startTimer(bool isInit, bool restartLiveActivity) async {
+  Future<void> startTimer(bool isInit, bool restartLiveActivity) async {
     _timer = PersistantTimer(
-        prefs: prefs,
-        timerName: "workout_timer",
-        onTick: () {
-          if (mounted) {
-            liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt(), paused: false).toMap());
-            setState(() {
-              if (mounted) {
-                time = Int64(_timer.getTimeInSeconds());
-                if (time >= _timegoal) {
-                  _goalMet = true;
-                  if (time == _timegoal) {
-                    LocalNotificationService().showNotification(
-                      id: 0,
-                      title: "Goal Met!",
-                      body: "You have met your workout goal.",
-                    );
+      prefs: prefs,
+      timerName: "workout_timer",
+      onTick: () {
+        if (mounted) {
+          if (Platform.isIOS) {
+            liveActivityManager.updateLiveActivity(
+              jsonData: DynamicIslandStopwatchDataModel(
+                elapsedSeconds: time.toInt() + 1,
+                timeGoal: _timegoal.toInt(),
+                paused: false,
+              ).toMap(),
+            );
+          }
+          setState(() {
+            if (mounted) {
+              time = Int64(_timer.getTimeInSeconds());
+              if (time >= _timegoal) {
+                _goalMet = true;
+                if (time == _timegoal) {
+                  LocalNotificationService().showNotification(
+                    title: "Goal Met!",
+                    body: "You have met your workout goal.",
+                  );
+                  if (_logging) {
                     logger.i('Goal met, sending user notification');
                   }
                 }
               }
-            });
-          }
-        },
-        tickSpeedMS: 1000,
-        milliseconds: 0);
+            }
+          });
+        }
+      },
+    );
     if (_timer.hasStoredTime()) {
       states["logging"] = true;
       states["paused"] = _timer.hasStoredPauseTime();
       states["pre-logging"] = false;
       await _timer.start();
-      
+
       setState(() {
         time = Int64(_timer.getTimeInSeconds());
       });
-      
-      liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt(), timeGoal: _timegoal.toInt(), paused: _timer.hasStoredPauseTime()).toMap());
+      if (Platform.isIOS) {
+        liveActivityManager.startLiveActivity(
+          jsonData: DynamicIslandStopwatchDataModel(
+            elapsedSeconds: time.toInt(),
+            timeGoal: _timegoal.toInt(),
+            paused: _timer.hasStoredPauseTime(),
+          ).toMap(),
+        );
+      }
     } else {
       if (!isInit) {
-        liveActivityManager.startLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: 0, timeGoal: _timegoal.toInt(), paused: false).toMap());
+        if (Platform.isIOS) {
+          liveActivityManager.startLiveActivity(
+            jsonData: DynamicIslandStopwatchDataModel(
+              elapsedSeconds: 0,
+              timeGoal: _timegoal.toInt(),
+              paused: false,
+            ).toMap(),
+          );
+        }
         await _timer.start();
         states["logging"] = true;
         states["paused"] = false;
@@ -221,16 +271,32 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  void resumeTimer() async {
-    liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt(), paused: false).toMap());
+  Future<void> resumeTimer() async {
+    if (Platform.isIOS) {
+      liveActivityManager.updateLiveActivity(
+        jsonData: DynamicIslandStopwatchDataModel(
+          elapsedSeconds: time.toInt() + 1,
+          timeGoal: _timegoal.toInt(),
+          paused: false,
+        ).toMap(),
+      );
+    }
     _timer.resume();
     setState(() {
       states['paused'] = false;
     });
   }
 
-  void pauseTimer() async {
-    liveActivityManager.updateLiveActivity(jsonData: DynamicIslandStopwatchDataModel(elapsedSeconds: time.toInt() + 1, timeGoal: _timegoal.toInt(), paused: true).toMap());
+  Future<void> pauseTimer() async {
+    if (Platform.isIOS) {
+      liveActivityManager.updateLiveActivity(
+        jsonData: DynamicIslandStopwatchDataModel(
+          elapsedSeconds: time.toInt() + 1,
+          timeGoal: _timegoal.toInt(),
+          paused: true,
+        ).toMap(),
+      );
+    }
     _timer.pause();
     setState(() {
       states["paused"] = true;
@@ -245,15 +311,19 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     }
 
     if (states['paused']!) prefs!.setBool("hasOngoingWorkoutPaused", true);
-    liveActivityManager.stopLiveActivity();
-    if(_timer.classTimer != null){
+    if (Platform.isIOS) {
+      liveActivityManager.stopLiveActivity();
+    }
+    if (_timer.classTimer != null) {
       _timer.dispose();
     }
     super.dispose();
   }
 
   Future<void> endLogging() async {
-    liveActivityManager.stopLiveActivity();
+    if (Platform.isIOS) {
+      liveActivityManager.stopLiveActivity();
+    }
     prefs!.setBool("hasOngoingWorkout", false);
     prefs!.setBool("hasOngoingWorkoutPaused", false);
     prefs!.remove("workout lastTicked");
@@ -262,82 +332,104 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     _timePassed = time;
     setState(() {
       _timePassed = time;
-      
     });
     _timer.deleteTimer();
     time = Int64.ZERO;
     _endTime = DateTime.now().toUtc().toString();
-    await awardAll(weeklyGoalMet: false, timeGoalMet: _goalMet, investment: _investment);
-
+    await awardAll(
+      weeklyGoalMet: false,
+      timeGoalMet: _goalMet,
+      investment: _investment,
+    );
   }
 
   int addableEV = 50;
   int addableCharge = 0;
   //function that does all the awarding in one
-  Future<void> awardAll(
-      {required bool weeklyGoalMet,
-      required bool timeGoalMet,
-      double investment = 0}) async {
-    UserModel user = Provider.of<UserModel>(context, listen: false);
+  Future<void> awardAll({
+    required bool weeklyGoalMet,
+    required bool timeGoalMet,
+    double investment = 0,
+  }) async {
+    final UserModel user = Provider.of<UserModel>(context, listen: false);
     FigureInstance figureInstance =
         Provider.of<FigureModel>(context, listen: false).figure!;
-    HistoryModel history = Provider.of<HistoryModel>(context, listen: false);
+    final HistoryModel history =
+        Provider.of<HistoryModel>(context, listen: false);
 
-    double workoutPercent =
+    final double workoutPercent =
         (_timePassed.toDouble() / _timegoal.toDouble()).clamp(0, 1);
 
-    double maxEVGain = figure1.EvCutoffs[figureInstance.evLevel].toDouble() / 5;
-    double baseEVGain = user.isPremium() ? 75.00 : 50.00;
-    double eVConcistencyBonus = (10) * user.user!.streak.toDouble();
+    final double maxEVGain =
+        figure1.evCutoffs[figureInstance.evLevel].toDouble() / 5;
+    final double baseEVGain = user.isPremium() ? 75.00 : 50.00;
+    final double eVConcistencyBonus = (10) * user.user!.streak.toDouble();
     addableEV = history.workedOutToday
         ? (baseEVGain * workoutPercent).ceil()
         : ((maxEVGain + eVConcistencyBonus) * workoutPercent).ceil();
-    int totalEV = (figureInstance.evPoints + addableEV).toInt();
+    final int totalEV = figureInstance.evPoints + addableEV;
 
-    int baseChargeGain = user.isPremium() ? 6 : 5;
-    int chargeConcistencyBonus = ((0.25) * user.user!.streak.toInt()).ceil();
+    final int baseChargeGain = user.isPremium() ? 6 : 5;
+    final int chargeConcistencyBonus =
+        ((0.25) * user.user!.streak.toInt()).ceil();
     addableCharge = history.workedOutToday
         ? 0
         : (baseChargeGain + chargeConcistencyBonus) * workoutPercent.floor();
-    int totalCharge = figureInstance.charge + addableCharge;
+    final int totalCharge = figureInstance.charge + addableCharge;
 
-    setState(() {
-      addableCharge = addableCharge;
-      addableEV = addableEV;
-    });
+    setState(() {});
 
     Provider.of<FigureModel>(context, listen: false).setFigureEv(totalEV);
-    Provider.of<FigureModel>(context, listen: false)
-        .setFigureCharge(!weeklyGoalMet
-            ? ((totalCharge) > 100)
-                ? 100
-                : totalCharge
-            : figureInstance.charge);
+    Provider.of<FigureModel>(context, listen: false).setFigureCharge(
+      !weeklyGoalMet
+          ? (totalCharge > 100)
+              ? 100
+              : totalCharge
+          : figureInstance.charge,
+    );
+    // update the figure instances provider for inventory to update charge and ev values
+    final int index =
+        Provider.of<SelectedFigureProvider>(context, listen: false)
+            .selectedFigureIndex;
+    Provider.of<FigureInstancesProvider>(context, listen: false)
+        .setFigureInstanceCharge(index, totalCharge);
+    Provider.of<FigureInstancesProvider>(context, listen: false)
+        .setFigureInstanceEV(index, totalEV);
 
     // if we havent worked out today, update the user's streak and week complete
     if (!Provider.of<HistoryModel>(context, listen: false).workedOutToday &&
         timeGoalMet) {
-      await auth.updateUserDBInfo(Routes.User(
+      await auth.updateUserDBInfo(
+        routes.User(
           email: user.user!.email,
           streak: Int64(user.user!.streak.toInt() + 1),
-          weekComplete: Int64(user.user!.weekComplete.toInt() + 1)));
+          weekComplete: Int64(user.user!.weekComplete.toInt() + 1),
+        ),
+      );
+      if (mounted) {
+        Provider.of<UserModel>(context, listen: false)
+            .setUserWeekCompleted(Int64(user.user!.weekComplete.toInt() + 1));
+      }
+      if (mounted) {
+        Provider.of<UserModel>(context, listen: false).user!.streak =
+            Int64(user.user!.streak.toInt() + 1);
+      }
+    }
+    if (mounted) {
+      figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
 
-      Provider.of<UserModel>(context, listen: false)
-          .setUserWeekCompleted(Int64(user.user!.weekComplete.toInt() + 1));
-      Provider.of<UserModel>(context, listen: false).user!.streak =
-          Int64(user.user!.streak.toInt() + 1);
+      await auth.updateFigureInstance(
+        FigureInstance(
+          figureId: figureInstance.figureId,
+          userEmail: user.user!.email,
+          figureName: figureInstance.figureName,
+          charge: figureInstance.charge,
+          evPoints: figureInstance.evPoints,
+        ),
+      );
     }
 
-    figureInstance = Provider.of<FigureModel>(context, listen: false).figure!;
-
-    await auth.updateFigureInstance(FigureInstance(
-        figureId: figureInstance.figureId,
-        userEmail: user.user!.email,
-        figureName: figureInstance.figureName,
-        charge: (figureInstance.charge).toInt(),
-        evPoints: (figureInstance.evPoints).toInt()));
-
-    Workout workout = Workout(
+    final Workout workout = Workout(
       startDate: _startTime,
       endDate: _endTime,
       elapsed: _timePassed,
@@ -347,60 +439,64 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       investment: investment,
       countable: workoutPercent >= 1 ? 1 : 0,
     );
-    Provider.of<HistoryModel>(context, listen: false).addWorkout(workout);
+    if (mounted) {
+      Provider.of<HistoryModel>(context, listen: false).addWorkout(workout);
+    }
 
     final SharedPreferences prefs = await _prefs;
     if (prefs.getBool("hasSurveyed") == null ||
         prefs.getBool("hasSurveyed") == true) {}
-        
   }
 
-  add30Seconds() {
+  void add30Seconds() {
     setState(() {
       time += Int64(30);
     });
   }
 
-  add10Minutes() {
+  void add10Minutes() {
     setState(() {
       time += Int64(600);
     });
   }
 
-  void endWorkout() async {
+  Future<void> endWorkout() async {
     if (time < _timegoal.toInt()) {
       showFFDialogBinary(
-        "Hold on!",
-        "You havent worked out at least as long as ${formatSeconds(_timegoal.toInt())}! If you stop now, this workout won't contribute to your weekly goal and you'll gain no charge, you will still recieve evo for the time you worked out.",
+        "ARE YOU SURE?",
+        "This will stop your current workout. You can't restore your progress.\n\nContinue?",
         true,
         context,
-        FfButton(
-            height: 50,
-            text: "I'll keep at it!",
-            textStyle: Theme.of(context).textTheme.displayMedium!,
-            textColor: Theme.of(context).colorScheme.onPrimary,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            onPressed: () => {Navigator.of(context).pop()}),
-        FfButton(
-            height: 50,
-            text: "End workout",
-            textStyle: Theme.of(context).textTheme.displayMedium!,
-            textColor: Theme.of(context).colorScheme.onSurface,
-            backgroundColor:
-                Theme.of(context).colorScheme.surface.withAlpha(126),
-            onPressed: () async => {
-               liveActivityManager.stopLiveActivity(),
-                  setState(() {
-                    _timePassed = time;
-                    states['chatting'] = true;
-                    states['logging'] = false;
-                    _postWorkoutMessage = generatePostWorkoutComment();
-                  }),
-                  Navigator.of(context).pop()
-                }),
+        FFAppButton(
+          height: MediaQuery.of(context).size.height * 0.0751173708920188,
+          fontSize: 20,
+          text: "OK",
+          onPressed: () async => {
+            if (Platform.isIOS) {
+              liveActivityManager.stopLiveActivity()
+            },
+            setState(() {
+              _timePassed = time;
+              states['chatting'] = true;
+              states['logging'] = false;
+              _postWorkoutMessage = generatePostWorkoutComment();
+            }),
+            Navigator.of(context).pop(),
+          },
+        ),
+        FFAppButton(
+          height: MediaQuery.of(context).size.height * 0.0751173708920188,
+          fontSize: 20,
+          isNoThanks: true,
+          text: "GO BACK",
+          onPressed: () => {Navigator.of(context).pop()},
+        ),
+        
       );
     } else {
-      liveActivityManager.stopLiveActivity();
+      if (Platform.isIOS) {
+        liveActivityManager.stopLiveActivity();
+      }
       setState(() {
         _timePassed = time;
         states['chatting'] = true;
@@ -410,16 +506,23 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     }
   }
 
-  Future<String>? generatePostWorkoutComment () async { 
-    if(Provider.of<UserModel>(context, listen: false).user!.hasPremium()) {
-      return Provider.of<ChatModel>(context, listen: false).generatePostWorkoutMessage({"workoutTimeMinutes" : _timePassed.toDouble()/60, "workoutTimeNeededMinutes" : _timegoal.toDouble()/60})!;
+  Future<String>? generatePostWorkoutComment() async {
+    if (Provider.of<UserModel>(context, listen: false).user!.hasPremium()) {
+      return Provider.of<ChatModel>(context, listen: false)
+          .generatePostWorkoutMessage({
+        "workoutTimeMinutes": _timePassed.toDouble() / 60,
+        "workoutTimeNeededMinutes": _timegoal.toDouble() / 60,
+      })!;
     } else {
-      if(_goalMet) {return ("Awesome job! Keep up workouts like this and we'll evolve in no time at all!");}
-      else {return "Looks like we are short of our workout goal... if we want to make progress we need to train hard!";}
+      if (_goalMet) {
+        return "Awesome job! Keep up workouts like this and we'll evolve in no time at all!";
+      } else {
+        return "Looks like we are short of our workout goal... if we want to make progress we need to train hard!";
+      }
     }
   }
 
-  void chatMore(context) async {
+  Future<void> chatMore(BuildContext context) async {
     Provider.of<UserModel>(context, listen: false).isPremium()
         ? GoRouter.of(context).go('/chat')
         : showFFDialogBinary(
@@ -427,47 +530,78 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
             "Subscribe now to FF+ to gain acess to chatting with your figure. Your figure can help you with all your fitness goals as well as assist in managing your growth! \n \nAdditionally, you earn extra rewards and cosmetics while you're subscribed!",
             true,
             context,
-            FfButton(
-              height: 50,
+            FFAppButton(
+              height: 0.0751173708920188,
+              fontSize: 20,
               text: "Subscribe Now \$1.99",
-              textStyle: Theme.of(context).textTheme.displayMedium!,
-              textColor: Theme.of(context).colorScheme.onPrimary,
-              backgroundColor: Theme.of(context).colorScheme.primary,
               onPressed: () async {
                 try {
-                  CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+                  final CustomerInfo customerInfo =
+                      await Purchases.getCustomerInfo();
                   // access latest customerInfo
-                  if (customerInfo.entitlements.active['ff_plus'] != null)
-                  {
-                    DateTime expiraryDate = DateTime.parse(customerInfo.entitlements.active['ff_plus']!.expirationDate!).toLocal();
-                    DateFormat displayFormat = DateFormat("MM/dd/yyyy hh:mm a");
-                    showFFDialogWithChildren("Youre Subscribed!", [
-                      Column(children: [
-                        Text('Your benefits last until ${displayFormat.format(expiraryDate)}')
-                      ],)
-                    ], true, FfButton(text: "Awesome!", textColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).colorScheme.primary, onPressed: () => Navigator.of(context).pop()), context);
-                  }
-                  else {
+                  if (customerInfo.entitlements.active['ff_plus'] != null) {
+                    final DateTime expiraryDate = DateTime.parse(
+                      customerInfo
+                          .entitlements.active['ff_plus']!.expirationDate!,
+                    ).toLocal();
+                    final DateFormat displayFormat =
+                        DateFormat("MM/dd/yyyy hh:mm a");
+                    if (mounted && context.mounted) {
+                      showFFDialogWithChildren(
+                        "Youre Subscribed!",
+                        [
+                          Column(
+                            children: [
+                              Text(
+                                'Your benefits last until ${displayFormat.format(expiraryDate)}',
+                              ),
+                            ],
+                          ),
+                        ],
+                        true,
+                        FfButton(
+                          text: "Awesome!",
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        context,
+                      );
+                    }
+                  } else {
                     final offers = await Purchases.getOfferings();
                     final offer = offers.getOffering('ffigure_offering');
-                    final paywallresult = await RevenueCatUI.presentPaywall(offering: offer, displayCloseButton: true);
-                    logger.i('Paywall Result $paywallresult');
-                    if(paywallresult == PaywallResult.purchased || paywallresult == PaywallResult.restored){
-                      Provider.of<UserModel>(context, listen: false).setPremium(Int64.ONE);
+                    final paywallresult = await RevenueCatUI.presentPaywall(
+                      offering: offer,
+                      displayCloseButton: true,
+                    );
+                    if (_logging) {
+                      logger.i('Paywall Result $paywallresult');
+                    }
+                    if ((paywallresult == PaywallResult.purchased ||
+                            paywallresult == PaywallResult.restored) &&
+                        context.mounted) {
+                      Provider.of<UserModel>(context, listen: false)
+                          .setPremium(Int64.ONE);
                     }
                   }
                 } on PlatformException catch (e) {
-                    // Error fetching customer info
-                  }}
+                  // Error fetching customer info
+                  if (_logging) {
+                    logger.e(e.details);
+                  }
+                }
+              },
             ),
-            FfButton(
-                height: 50,
-                text: "No Thanks",
-                textStyle: Theme.of(context).textTheme.displayMedium!,
-                textColor: Theme.of(context).colorScheme.onSurface,
-                backgroundColor:
-                    Theme.of(context).colorScheme.surface.withAlpha(126),
-                onPressed: () => {Navigator.of(context).pop()}));
+            FFAppButton(
+              fontSize: 20,
+              isBack: true,
+              height: 0.0751173708920188,
+              text: "No Thanks",
+              onPressed: () => {Navigator.of(context).pop()},
+            ),
+          );
   }
 
   Map<String, bool> states = {
@@ -485,661 +619,771 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          states['post-logging']!
-              ? Container()
-              : Positioned(
-                  top: 0,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width.clamp(0, 400),
-                    child: WorkoutCalendar(
-                      calendarFormat: CalendarFormat.week,
-                      isInteractable: false,
-                      workoutMinTime: minWorkoutTime,
-                      showWorkoutData: false,
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.03,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width.clamp(0, 400),
+                child: WorkoutCalendar(
+                  isInteractable: false,
+                  workoutMinTime: minWorkoutTime,
+                ),
+              ),
+            ),
+          if (states['post-logging']!)
+            Positioned(
+              bottom: MediaQuery.of(context).size.height * -0.015,
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                    padding: const EdgeInsets.only(
+                      left: 40,
+                      top: 12,
+                      bottom: 12,
+                      right: 40,
                     ),
-                  )),
-          states['post-logging']!
-              ? Column(
-                  children: [
-                    Expanded(
-                      child: GradientedContainer(
-                          // radius: 2,
-                          
-                          margin: const EdgeInsets.all(2),
-                          padding: const EdgeInsets.all(20),
-                          child: Consumer<UserModel>(builder: (_, user, __) {
-                            return Consumer<FigureModel>(
-                                builder: (_, figure, __) {
-                              return Column(
-                                children: states['investing']!
-                                    ? [
-                                        Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Feeling Confident?",
-                                                textAlign: TextAlign.start,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineLarge!
-                                                    .copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface),
-                                              ),
-                                              Center(
-                                                  child: Container(
-                                                margin: const EdgeInsets.only(
-                                                    top: 15, bottom: 15),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    shape: BoxShape.rectangle,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.615, // 0.295
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Color.fromRGBO(51, 133, 162, 1),
+                        ),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromRGBO(28, 109, 189, 0.29),
+                          Color.fromRGBO(0, 164, 123, 0.29),
+                        ],
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [ Consumer<UserModel>(
+                      builder: (_, user, __) {
+                        return Consumer<FigureModel>(
+                          builder: (_, figure, __) {
+                            return Column(
+                              children: states['investing']!
+                                  ? [
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Feeling Confident?",
+                                              textAlign: TextAlign.start,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headlineLarge!
+                                                  .copyWith(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .onSurface),
+                                                        .onSurface,
+                                                  ),
+                                            ),
+                                            Center(
+                                              child: Container(
+                                                margin: const EdgeInsets.only(
+                                                  top: 15,
+                                                  bottom: 15,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    4,
+                                                  ),
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
                                                 width:
                                                     MediaQuery.sizeOf(context)
                                                             .width *
                                                         1,
                                                 height: 2,
-                                              )),
-                                              Text(
-                                                "Invest in your week to earn extra rewards if you reach your weekly workout goal. \n",
-                                                textAlign: TextAlign.start,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .displaySmall!
-                                                    .copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface),
                                               ),
-                                              Text(
-                                                "NOTE: If you don't reach your goal by end of the week, you will lose the investment.",
-                                                textAlign: TextAlign.start,
-                                                style: Theme.of(context)
+                                            ),
+                                            Text(
+                                              "Invest in your week to earn extra rewards if you reach your weekly workout goal. \n",
+                                              textAlign: TextAlign.start,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displaySmall!
+                                                  .copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                  ),
+                                            ),
+                                            Text(
+                                              "NOTE: If you don't reach your goal by end of the week, you will lose the investment.",
+                                              textAlign: TextAlign.start,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displaySmall!
+                                                  .copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                  ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            WeekGoalShower(
+                                              weeklyCompleted: user
+                                                  .user!.weekComplete
+                                                  .toInt(),
+                                              weeklyGoal:
+                                                  user.user!.weekGoal.toInt(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Consumer<HistoryModel>(
+                                              builder: (_, history, __) {
+                                                return Column(
+                                                  children: [
+                                                    WeekToGoShower(
+                                                      boxSize: Size(
+                                                        MediaQuery.sizeOf(
+                                                              context,
+                                                            ).width *
+                                                            0.11,
+                                                        MediaQuery.sizeOf(
+                                                              context,
+                                                            ).width *
+                                                            0.11,
+                                                      ),
+                                                      weekGoal: user
+                                                          .user!.weekGoal
+                                                          .toInt(),
+                                                      workouts:
+                                                          history.currentWeek,
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Text(
+                                                      "Currently Invested: \$${history.investment.toStringAsFixed(2)}",
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                            Consumer<UserModel>(
+                                              builder: (context, value, child) {
+                                                return FfButton(
+                                                  disabled: hasInvested,
+                                                  text:
+                                                      "Invest ${(user.user!.currency.toInt() * 0.2).toStringAsFixed(2)}",
+                                                  textColor: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .surface,
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      hasInvested = true;
+                                                      _investment = value
+                                                              .user!.currency
+                                                              .toInt() *
+                                                          0.2;
+                                                      Provider.of<HistoryModel>(
+                                                        context,
+                                                        listen: false,
+                                                      ).setInvestment(
+                                                        Provider.of<
+                                                                HistoryModel>(
+                                                              context,
+                                                              listen: false,
+                                                            ).investment +
+                                                            _investment,
+                                                      );
+                                                      final User user = Provider
+                                                          .of<UserModel>(
+                                                        context,
+                                                        listen: false,
+                                                      ).user!;
+                                                      user.currency = Int64(
+                                                        (user.currency
+                                                                    .toDouble() -
+                                                                _investment)
+                                                            .toInt(),
+                                                      );
+                                                      Provider.of<UserModel>(
+                                                        context,
+                                                        listen: false,
+                                                      ).setUser(user);
+                                                      Provider.of<
+                                                          CurrencyModel>(
+                                                        context,
+                                                        listen: false,
+                                                      ).setCurrency(
+                                                        user.currency
+                                                            .toString(),
+                                                      );
+                                                      auth.updateUserDBInfo(
+                                                        routes.User(
+                                                          email: user.email,
+                                                          currency:
+                                                              user.currency,
+                                                        ),
+                                                      );
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]
+                                  : [
+                                      Row(
+                                        children: [
+                                          RobotImageHolder(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height * 0.278169014084507,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *0.4460559796437659,
+                                            url: figure.composeFigureUrl(),
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              WorkoutTimeShower(
+                                                textStyle: Theme.of(context)
                                                     .textTheme
-                                                    .displaySmall!
-                                                    .copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface),
+                                                    .displayMedium!,
+                                                workoutMinTime:
+                                                    _timePassed.toInt(),
+                                                secondsTrueMinutesFalse: true,
+                                                showStatus: true,
+                                                goalMet: _goalMet,
                                               ),
                                               const SizedBox(
                                                 height: 10,
                                               ),
-                                              WeekGoalShower(
-                                                  weeklyCompleted: user
-                                                      .user!.weekComplete
-                                                      .toInt(),
-                                                  weeklyGoal: user
-                                                      .user!.weekGoal
-                                                      .toInt()),
+                                              StreakShower(
+                                                textStyle: Theme.of(context)
+                                                    .textTheme
+                                                    .displayMedium!,
+                                                streak:
+                                                    user.user!.streak.toInt(),
+                                                showStatus: true,
+                                                goalMet: true,
+                                              ),
                                               const SizedBox(
                                                 height: 10,
                                               ),
                                               Consumer<HistoryModel>(
-                                                builder: (_, history, __) {
-                                                  return Column(
+                                                builder:
+                                                    (_, workoutHistory, __) {
+                                                  return Row(
                                                     children: [
                                                       WeekToGoShower(
-                                                          boxSize: Size(
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.11,
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.11),
-                                                          weekGoal: user
-                                                              .user!.weekGoal
-                                                              .toInt(),
-                                                          workouts: history
-                                                              .currentWeek),
-                                                      const SizedBox(
-                                                        height: 10,
-                                                      ),
-                                                      Text(
-                                                        "Currently Invested: \$${history.investment.toStringAsFixed(2)}",
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              ),
-                                              Consumer<UserModel>(
-                                                builder:
-                                                    (context, value, child) {
-                                                  return FfButton(
-                                                    disabled: hasInvested,
-                                                      text:
-                                                          "Invest ${(user.user!.currency.toInt() * 0.2).toStringAsFixed(2)}",
-                                                      textColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .primary,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .surface,
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          hasInvested = true;
-                                                          _investment = value
-                                                                  .user!
-                                                                  .currency
-                                                                  .toInt() *
-                                                              0.2;
-                                                          Provider.of<HistoryModel>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .setInvestment(Provider.of<
-                                                                              HistoryModel>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .investment +
-                                                                  _investment);
-                                                          User user = Provider
-                                                                  .of<UserModel>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                              .user!;
-                                                          user.currency = Int64((user
-                                                                      .currency
-                                                                      .toDouble() -
-                                                                  _investment)
-                                                              .toInt());
-                                                          Provider.of<UserModel>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .setUser(user);
-                                                          Provider.of<CurrencyModel>(context, listen: false).setCurrency(user.currency.toString());
-                                                          auth.updateUserDBInfo(
-                                                              Routes.User(
-                                                                  email: user
-                                                                      .email,
-                                                                  currency: user
-                                                                      .currency));
-                                                        });
-                                                      });
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                        )
-                                      ]
-                                    : [
-                                        Row(
-                                          children: [
-                                            RobotImageHolder(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  4,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              url: figure.composeFigureUrl(),
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                WorkoutTimeShower(
-                                                    textStyle: Theme.of(context)
-                                                        .textTheme
-                                                        .displayMedium!,
-                                                    workoutMinTime:
-                                                        _timePassed.toInt(),
-                                                    secondsTrueMinutesFalse:
-                                                        true,
-                                                    showStatus: true,
-                                                    goalMet: _goalMet),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                StreakShower(
-                                                  showChevron: false,
-                                                  textStyle: Theme.of(context)
-                                                      .textTheme
-                                                      .displayMedium!,
-                                                  streak:
-                                                      user.user!.streak.toInt(),
-                                                  showStatus: true,
-                                                  goalMet: true,
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                Consumer<HistoryModel>(builder:
-                                                    (_, workoutHistory, __) {
-                                                  return Row(children: [
-                                                    WeekToGoShower(
                                                         weekGoal: user
                                                             .user!.weekGoal
                                                             .toInt(),
                                                         boxSize:
                                                             const Size(16, 16),
                                                         workouts: workoutHistory
-                                                            .currentWeek)
-                                                  ]);
-                                                }),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                        Column(
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                ChargeBar(
-                                                  barHeight: 10,
-                                                  barWidth:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width /
-                                                          2,
-                                                  fillColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  currentCharge:
-                                                      figure.figure!.charge,
-                                                ),
-                                                Text(
-                                                  "[+$addableCharge%]",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .displayMedium!
-                                                      .copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary),
-                                                )
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                EvBar(
-                                                  currentXp:
-                                                      figure.figure!.evPoints,
-                                                  maxXp: figure1.EvCutoffs[
-                                                      figure.EVLevel],
-                                                  fillColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                  barHeight: 10,
-                                                  barWidth:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width /
-                                                          2,
-                                                ),
-                                                Text(
-                                                  "(+$addableEV)",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .displayMedium!
-                                                      .copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .secondary),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                              );
-                            });
-                          })),
+                                                            .currentWeek,
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              ChargeBar(
+                                                barHeight: MediaQuery.of(context).size.height *0.0195305164319249,
+                                                barWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width * 0.5338422391857506,
+                                                fillColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                currentCharge:
+                                                    figure.figure!.charge,
+                                                    showIcon: true,
+                                                    showInfoCircle: true,
+                                              ),
+                                              Text(
+                                                "[+$addableCharge]",
+                                                style: TextStyle(fontFamily: "Roboto", fontSize: 21.05, fontWeight: FontWeight.w600, color: Color(0xFFFF9E45))
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: MediaQuery.of(context).size.height * 0.03,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              EvBar(
+                                                currentXp:
+                                                    figure.figure!.evPoints,
+                                                maxXp: figure1
+                                                    .evCutoffs[figure.EVLevel],
+                                                fillColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                                barHeight: MediaQuery.of(context).size.height *0.0195305164319249,
+                                                barWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width * 0.5338422391857506,
+                                                showInfoBox: true,
+                                                showIcon: true,
+                                              ),
+                                              Text(
+                                                "[+$addableEV]",
+                                                style: TextStyle(fontFamily: "Roboto", fontSize: 21.05, fontWeight: FontWeight.w600, color: Color(0xFF00A7E1)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                            );
+                          },
+                        );
+                      },
                     ),
-                    FfButton(
-                        height: 90,
-                        text: "Awesome!",
-                        textStyle: Theme.of(context).textTheme.headlineLarge!,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        onPressed: () => {
-                              if (states['investing']!)
-                                setState(() {
-                                  states['investing'] = false;
-                                  endLogging();
-                                })
-                              else
-                                setState(() {
-                                  states['post-logging'] = false;
-                                  states['pre-logging'] = true;
-                                  states['investing '] = false;
-        
-                                _logging = false;
-                                _goalMet = false;
-                                _investment = 0;
-                                _timePassed = Int64.ZERO;
+                    FFAppButton(
+                  
+                  text: "AWESOME!",
+                  fontSize: 20,
+                  size: MediaQuery.of(context).size.width * 0.85272264631043256997455470737913,
+                  height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.0946478873239436619718309859155,
+                  onPressed: () => {
+                    if (states['investing']!)
+                      setState(() {
+                        states['investing'] = false;
+                        endLogging();
+                      })
+                    else
+                      setState(() {
+                        states['post-logging'] = false;
+                        states['pre-logging'] = true;
+                        states['investing '] = false;
 
-                                })
-                            }),
-                    const SizedBox(
-                      height: 10,
+                        _logging = false;
+                        _goalMet = false;
+                        _investment = 0;
+                        _timePassed = Int64.ZERO;
+                      }),
+                  },
+                ),
+              ]),
+              ),
+                
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            )
+            )
+          else
+          Positioned(
+              bottom: MediaQuery.of(context).size.height * -0.015,
+              child:
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: states['chatting']!
+                  ? [
+                      Container(
+                        padding: const EdgeInsets.only(
+                      left: 40,
+                      top: 12,
+                      bottom: 12,
+                      right: 40,
                     ),
-                  ],
-                )
-              : 
-              Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: states['chatting']!
-                      ? [
-                          FutureBuilder<String> (
-                            future: _postWorkoutMessage,
-                            builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return BinaryGlowChatBubble(width: MediaQuery.of(context).size.width * 0.8, height: MediaQuery.of(context).size.height * 0.12, message: snapshot.data!, chatMore: true);
-                            } else if (snapshot.hasError) {
-                              return BinaryGlowChatBubble(width: MediaQuery.of(context).size.width * 0.8, height: MediaQuery.of(context).size.height * 0.12, message: "[CRITICAL CHAT MODULE ERR ::Code 402::]");
-                            } else {
-                              return const SizedBox(width: 100, height: 60, child: CircularProgressIndicator(),);
-                            }
-                          },),
-                          Container(
-                              child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Consumer<FigureModel>(
-                                builder: (_, figure, __) {
-                                  return RobotImageHolder(
-                                    height:
-                                        MediaQuery.of(context).size.height / 4,
-                                    width:
-                                        MediaQuery.of(context).size.width / 2,
-                                    url: figure.composeFigureUrl(),
-                                  );
-                                },
-                              ),
-                              FfButton(
-                                  height: 45,
-                                  width: MediaQuery.sizeOf(context).width / 2,
-                                  text: "Chat More >",
-                                  textStyle:
-                                      Theme.of(context).textTheme.displaySmall!,
-                                  textColor:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  onPressed: () => {chatMore(context)})
-                            ],
-                          )),
-                          FfButton(
-                              height: 90,
-                              text: "Awesome!",
-                              textStyle:
-                                  Theme.of(context).textTheme.headlineLarge!,
-                              textColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              onPressed: () => {
-                                    setState(() {
-                                      states['chatting'] = false;
-                                      if (_goalMet) {
-                                        states['post-logging'] = true;
-                                        states['investing'] = true;
-                                      } else {
-                                        states['investing'] = false;
-                                        endLogging();
-                                        states['post-logging'] = true;
-                                      }
-                                      
-                                    })
-                                  }),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                        ]
-                      : [
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.615, // 0.295
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Color.fromRGBO(51, 133, 162, 1),
+                        ),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromRGBO(28, 109, 189, 0.29),
+                          Color.fromRGBO(0, 164, 123, 0.29),
+                        ],
+                      ),
+                    ),
+                        child:
+                        Column(children: [ FutureBuilder<String>(
+                        future: _postWorkoutMessage,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return BinaryGlowChatBubble(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              height: MediaQuery.of(context).size.height * 0.2,
+                              message: snapshot.data!,
+                              chatMore: true,
+                            );
+                          } else if (snapshot.hasError) {
+                            return BinaryGlowChatBubble(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              height: MediaQuery.of(context).size.height * 0.2,
+                              message:
+                                  "[CRITICAL CHAT MODULE ERR ::Code 402::]",
+                            );
+                          } else {
+                            return const SizedBox(
+                              width: 100,
+                              height: 60,
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Consumer<FigureModel>(
                             builder: (_, figure, __) {
-                              return Stack(
-                                children: [
-                                  RobotImageHolder(
-                                    height:
-                                        MediaQuery.of(context).size.height / 3,
-                                    width: MediaQuery.of(context).size.width,
-                                    url: figure.composeFigureUrl(),
-                                  ),
-                                  // DraggableAdminPanel(
-                                  //   onButton1Pressed: add10Minutes,
-                                  //   onButton2Pressed: add30Seconds,
-                                  //   button1Text: "add 10 min",
-                                  //   button2Text: "add 30 sec",
-                                  // ),
-                                ],
+                              return RobotImageHolder(
+                                height: MediaQuery.of(context).size.height * 0.278169014084507,
+                                width: MediaQuery.of(context).size.width * 0.4452926208651399,
+                                url: figure.composeFigureUrl(),
                               );
                             },
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: GradientedContainer(
-                              height: MediaQuery.of(context).size.height * 0.125,
-                              // doWeBinkTheBorder: false,
-                              // radius: 0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: states["logging"]!
-                                      ? [
-                                          GestureDetector(
-                                            onTap: () => {endWorkout()},
-                                            child: Icon(
-                                              Icons.stop,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              size: 60,
-                                            ),
+                        ],
+                      ),
+                      FFAppButton(
+                        fontSize: 20,
+                  size: MediaQuery.of(context).size.width * 0.85272264631043256997455470737913,
+                  height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.0946478873239436619718309859155,
+                        text: "OK",
+                        onPressed: () => {
+                          setState(() {
+                            states['chatting'] = false;
+                            if (_goalMet) {
+                              states['post-logging'] = true;
+                              states['investing'] = true;
+                            } else {
+                              states['investing'] = false;
+                              endLogging();
+                              states['post-logging'] = true;
+                            }
+                          }),
+                        },
+                      ),
+                        ])),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ]
+                  : [
+                      Consumer<FigureModel>(
+                        builder: (_, figure, __) {
+                          return Stack(
+                            children: [
+                              RobotImageHolder(
+                                height: MediaQuery.of(context).size.height / 3,
+                                width: MediaQuery.of(context).size.width,
+                                url: figure.composeFigureUrl(),
+                              ),
+                              // DraggableAdminPanel(
+                              //   onButton1Pressed: add10Minutes,
+                              //   onButton2Pressed: add30Seconds,
+                              //   button1Text: "add 10 min",
+                              //   button2Text: "add 30 sec",
+                              // ),
+                            ],
+                          );
+                        },
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(
+                          left: 20,
+                          top: 20,
+                          right: 14,
+                        ),
+                        width: MediaQuery.of(context).size.width,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Color.fromRGBO(51, 133, 162, 1),
+                            ),
+                          ),
+                          gradient: LinearGradient(
+                            colors: [
+                              Color.fromRGBO(28, 109, 189, 0.29),
+                              Color.fromRGBO(0, 164, 123, 0.29),
+                            ],
+                          ),
+                        ),
+                        height: MediaQuery.of(context).size.height * 0.285,
+                        // doWeBinkTheBorder: false,
+                        // radius: 0,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: states["logging"]!
+                                    ? [
+                                        GestureDetector(
+                                          onTap: () => {endWorkout()},
+                                          child: Icon(
+                                            Icons.stop,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            size: 60,
                                           ),
-                                          Text(
-                                            formatSeconds(time.toInt()),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!
-                                                .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () => {
-                                              states["paused"]!
-                                                  ? resumeTimer()
-                                                  : pauseTimer()
-                                            },
-                                            child: states["paused"]!
-                                                ? Icon(
-                                                    Icons.play_arrow,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                    size: 60,
-                                                  )
-                                                : Icon(
-                                                    Icons.pause,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                    size: 60,
-                                                  ),
-                                          ),
-                                        ]
-                                      : [
-                                          Consumer<FigureModel>(
-                                            builder: (_, figure, __) {
-                                              return Consumer<HistoryModel>(
-                                                  builder:
-                                                      (_, workoutHistory, __) {
+                                        ),
+                                        Text(
+                                          formatSeconds(time.toInt()),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall!
+                                              .copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () => {
+                                            if (states["paused"]!)
+                                              resumeTimer()
+                                            else
+                                              pauseTimer(),
+                                          },
+                                          child: states["paused"]!
+                                              ? Icon(
+                                                  Icons.play_arrow,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  size: 60,
+                                                )
+                                              : Icon(
+                                                  Icons.pause,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  size: 60,
+                                                ),
+                                        ),
+                                      ]
+                                    : [
+                                        Consumer<FigureModel>(
+                                          builder: (_, figure, __) {
+                                            return Consumer<HistoryModel>(
+                                              builder: (
+                                                _,
+                                                workoutHistory,
+                                                __,
+                                              ) {
                                                 return Column(
                                                   children: [
-                                                    ChargeBar(
-                                                      didWeWorkoutToday:
-                                                          workoutHistory
-                                                              .workedOutToday,
-                                                      areWeShadowing: true,
-                                                      simulateCurrentGains:
-                                                          true,
-                                                      barHeight: 10,
-                                                      barWidth:
-                                                          MediaQuery.of(context)
+                                                    Row(
+                                                      children: [
+                                                        ChargeBar(
+                                                          didWeWorkoutToday:
+                                                              workoutHistory
+                                                                  .workedOutToday,
+                                                          simulateCurrentGains:
+                                                              true,
+                                                          showIcon: true,
+                                                          barHeight: MediaQuery
+                                                                      .of(context)
                                                                   .size
-                                                                  .width /
-                                                              2,
-                                                      fillColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .primary,
-                                                      currentCharge:
-                                                          figure.figure!.charge,
+                                                                  .height *
+                                                              0.0157863849765258215962441314554, // sizes calculated from figma
+                                                          barWidth: MediaQuery
+                                                                  .of(
+                                                                context,
+                                                              ).size.width *
+                                                              0.43531806615776081424936386768448,
+                                                          fillColor:  Theme.of(context).colorScheme.tertiary,
+                                                          currentCharge: figure
+                                                              .figure!.charge,
+                                                          iconSize: 40,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    const SizedBox(
-                                                      height: 5,
-                                                    ),
-                                                    EvBar(
-                                                      didWeWorkoutToday:
-                                                          workoutHistory
-                                                              .workedOutToday,
-                                                      simulateCurrentGains:
-                                                          true,
-                                                      areWeShadowing: true,
-                                                      currentXp: figure
-                                                          .figure!.evPoints,
-                                                      maxXp: figure1.EvCutoffs[
-                                                          figure.EVLevel],
-                                                      fillColor:
-                                                          Theme.of(context)
+
+                                                    Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        EvBar(
+                                                          showIcon: true,
+                                                          didWeWorkoutToday:
+                                                              workoutHistory
+                                                                  .workedOutToday,
+                                                          simulateCurrentGains:
+                                                              true,
+                                                          areWeShadowing: true,
+                                                          currentXp: figure
+                                                              .figure!.evPoints,
+                                                          maxXp: figure1
+                                                                  .evCutoffs[
+                                                              figure.EVLevel],
+                                                          fillColor: Theme.of(
+                                                            context,
+                                                          )
                                                               .colorScheme
                                                               .secondary,
-                                                      barHeight: 10,
-                                                      barWidth:
-                                                          MediaQuery.of(context)
+                                                          barHeight: MediaQuery
+                                                                      .of(context)
                                                                   .size
-                                                                  .width /
-                                                              2,
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 5,
+                                                                  .height *
+                                                              0.0157863849765258215962441314554,
+                                                          barWidth: MediaQuery
+                                                                  .of(
+                                                                context,
+                                                              ).size.width *
+                                                              0.43531806615776081424936386768448,
+                                                          iconSize: 40
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 );
-                                              });
-                                            },
-                                          ),
-                                          Consumer<UserModel>(
-                                            builder: (_, user, __) {
-                                              return Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  WorkoutTimeShower(
-                                                    textStyle: Theme.of(context)
-                                                        .textTheme
-                                                        .displayMedium!,
-                                                    workoutMinTime: user
-                                                        .user!.workoutMinTime
-                                                        .toInt(),
-                                                  ),
-                                                  const SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  StreakShower(
-                                                    goalMet: true,
-                                                    textStyle: Theme.of(context)
-                                                        .textTheme
-                                                        .displayMedium!,
-                                                    streak: user.user!.streak
-                                                        .toInt(),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          )
-                                        ],
-                                ),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        Consumer<UserModel>(
+                                          builder: (_, user, __) {
+                                            return Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                WorkoutTimeShower(
+                                                  textStyle: Theme.of(context)
+                                                      .textTheme
+                                                      .displayMedium!,
+                                                  workoutMinTime: user
+                                                      .user!.workoutMinTime
+                                                      .toInt(),
+                                                ),
+                                                SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.016431924882629107981220657277,
+                                                ),
+                                                StreakShower(
+                                                  goalMet: true,
+                                                  textStyle: Theme.of(context)
+                                                      .textTheme
+                                                      .displayMedium!,
+                                                  streak:
+                                                      user.user!.streak.toInt(),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      ],
                               ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: states['logging']!
-                                ? FfButtonProgressable(
-                                    progress:
-                                        (time.toDouble() / _timegoal.toDouble())
-                                            .clamp(0, 1),
-                                    disabled: false,
-                                    height: 90,
-                                    icon: Icons.add,
-                                    iconSize: 50,
-                                    text: 'Complete Workout',
-                                    textStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge!,
-                                    textColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor:
-                                        Theme.of(context).colorScheme.primary,
-                                    onPressed: () => 
-                                    { endWorkout()
-                                    })
-                                : FFAppButton(
-                                    icon: Icons.add,
-                                    text: "START WORKOUT",
-                                    fontSize: 30,
-                                    size: MediaQuery.of(context).size.width * 1,
-                                    height: MediaQuery.of(context).size.height * 0.15,
-                                    onPressed: () {
-                                      startLogging(false);
-                                      startTimer(false, false);
-                                    },
-                                    isShiny: true
-                                  ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                ),
-        ],
+                            ),states['pre-logging']!
+                                    ? FFAppButton(
+                                        icon: Icons.add,
+                                        iconPadding:
+                                            MediaQuery.of(context).size.width *
+                                                0.15,
+                                        text: "START WORKOUT",
+                                        fontSize: 20,
+                                        size: MediaQuery.of(context)
+                                                .size
+                                                .width *
+                                            0.85272264631043256997455470737913,
+                                        height: MediaQuery.of(context)
+                                                .size
+                                                .height *
+                                            0.0946478873239436619718309859155,
+                                        onPressed: () {
+                                          startLogging(false);
+                                          startTimer(false, false);
+                                        },
+                                        isShiny: true,
+                                      )
+                                    : states['paused']!
+                                        ? 
+                                Padding(
+                                padding: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height *
+                                        0.0461971830985915492957746478873),
+                                        child: FFAppButton(
+                                            icon: Icons.add,
+                                            size: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.85272264631043256997455470737913,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.0946478873239436619718309859155,
+                                            fontSize: 20,
+                                            text: 'COMPLETE WORKOUT',
+                                            onPressed: () => {endWorkout()},
+                                        ))
+                                        : WorkoutProgressBar(
+                                            progress: ((_timer.milliseconds /
+                                                    1000) /
+                                                (Provider.of<UserModel>(context,
+                                                            listen: false)
+                                                        .user!
+                                                        .workoutMinTime
+                                                        .toInt() *
+                                                    60)),
+                                            width: 300,
+                                            height: 30,
+                                          ),
+                          ],
+                        ),
+                      ),
+                    ],
+            ),
+      )],
+      
       ),
     );
   }

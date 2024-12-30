@@ -1,5 +1,3 @@
-import 'package:ffapp/services/routes.pb.dart';
-import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:flutter/material.dart';
 
 class WeekToGoShower extends StatelessWidget {
@@ -17,7 +15,7 @@ class WeekToGoShower extends StatelessWidget {
       this.invested = 0,
       required this.weekGoal,
       required this.workouts,
-      this.boxSize = const Size(20, 20)});
+      this.boxSize = const Size(20, 20),});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +27,7 @@ class WeekToGoShower extends StatelessWidget {
         break;
       }
     }
-    bool isComplete = numComplete >= weekGoal;
+    final bool isComplete = numComplete >= weekGoal;
     return Column(
       children: [
         Text(
@@ -46,16 +44,16 @@ class WeekToGoShower extends StatelessWidget {
             Container(
               width: boxSize.width,
               height: boxSize.height,
-              margin: EdgeInsets.all(2),
+              margin: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                   color: switch (workouts[index]) {
                 0 => Theme.of(context).colorScheme.primaryFixedDim,
                 1 => Theme.of(context).colorScheme.primaryFixedDim,
                 2 => Theme.of(context).colorScheme.primary,
                 int() => throw UnimplementedError
-              }),
-            )
-        ]),
+              },),
+            ),
+        ],),
       ],
     );
   }
