@@ -34,8 +34,6 @@ import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
 
@@ -290,76 +288,78 @@ Future<void> main() async {
 }
 
 /// The route configuration.
-final GoRouter _router = 
-GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, routes: [
-  GoRoute(
-      name: 'LandingPage',
-      path: '/',
-      builder: (context, state) => const LandingPage()),
-  GoRoute(
-    name: 'Home',
-    path: '/home', // Update the path to '/home'
-    builder: (context, state) => const DashboardPage(),
-  ),
-  GoRoute(
-    name: 'Workout',
-    path: '/workout',
-    builder: (context, state) => const DashboardPage(),
-  ),
-  GoRoute(
-      name: 'Register',
-      path: '/register',
-      builder: (context, state) => const Register()),
-  GoRoute(
-      name: 'SignIn',
-      path: '/signin',
-      builder: (context, state) => const SignIn()),
-  GoRoute(
-      name: 'WorkoutFrequencySelection',
-      path: '/workout_frequency_selection',
-      builder: (context, state) => const WorkoutFrequencySelection()),
-  GoRoute(
-      name: 'AvatarSelection',
-      path: '/avatar_selection',
-      builder: (context, state) => const AvatarSelection()),
-  GoRoute(
-      name: 'FigureStore',
-      path: '/store',
-      builder: (context, state) => const Store()),
-  GoRoute(
-    name: 'Fitventures',
-    path: '/fitventures',
-    builder: (context, state) => const Fitventures(),
-  ),
-  GoRoute(
-      name: 'Subscribe',
-      path: '/subscribe',
-      builder: (context, state) => const SubscribePage()),
-  GoRoute(
-    name: 'Survey',
-    path: '/survey',
-    builder: (context, state) => const SurveyWidget(),
-  ),
-  GoRoute(
-    name: 'Evolution',
-    path: '/evolution',
-    builder: (context, state) => const EvolutionPage(),
-  ),
-  GoRoute(
-    name: 'Chat',
-    path: '/chat',
-    builder: (context, state) => const ChatPage(),
-  ),
-  GoRoute(
-    name: 'Personality',
-    path: '/edit_personality',
-    builder: (context, state) => const EditPersonalityPage(),
-  ),
-  GoRoute(
-    name: 'SkinViewer',
-    path: '/skin_viewer',
-    builder: (context, state) => const SkinViewer(),
-  ),
+final GoRouter _router = GoRouter(
+    initialLocation: '/',
+    navigatorKey: ConnectivityService.navigatorKey,
+    routes: [
+      GoRoute(
+          name: 'LandingPage',
+          path: '/',
+          builder: (context, state) => const LandingPage()),
+      GoRoute(
+        name: 'Home',
+        path: '/home', // Update the path to '/home'
+        builder: (context, state) => const DashboardPage(),
+      ),
+      GoRoute(
+        name: 'Workout',
+        path: '/workout',
+        builder: (context, state) => const DashboardPage(),
+      ),
+      GoRoute(
+          name: 'Register',
+          path: '/register',
+          builder: (context, state) => const Register()),
+      GoRoute(
+          name: 'SignIn',
+          path: '/signin',
+          builder: (context, state) => const SignIn()),
+      GoRoute(
+          name: 'WorkoutFrequencySelection',
+          path: '/workout_frequency_selection',
+          builder: (context, state) => const WorkoutFrequencySelection()),
+      GoRoute(
+          name: 'AvatarSelection',
+          path: '/avatar_selection',
+          builder: (context, state) => const AvatarSelection()),
+      GoRoute(
+          name: 'FigureStore',
+          path: '/store',
+          builder: (context, state) => const Store()),
+      GoRoute(
+        name: 'Fitventures',
+        path: '/fitventures',
+        builder: (context, state) => const Fitventures(),
+      ),
+      GoRoute(
+          name: 'Subscribe',
+          path: '/subscribe',
+          builder: (context, state) => const SubscribePage()),
+      GoRoute(
+        name: 'Survey',
+        path: '/survey',
+        builder: (context, state) => const SurveyWidget(),
+      ),
+      GoRoute(
+        name: 'Evolution',
+        path: '/evolution',
+        builder: (context, state) => const EvolutionPage(),
+      ),
+      GoRoute(
+        name: 'Chat',
+        path: '/chat',
+        builder: (context, state) => const ChatPage(),
+      ),
+      GoRoute(
+        name: 'Personality',
+        path: '/edit_personality',
+        builder: (context, state) => EditPersonalityPage(),
+      ),
+      GoRoute(
+        name: 'SkinViewer',
+        path: '/skin_viewer',
+        builder: (context, state) => SkinViewer(),
+      ),
 //   GoRoute(
 //     path: '/figure_details/:figureUrl',  // 👈 Defination of params in the path is important
 //     name: 'FigureDetails',
@@ -367,7 +367,7 @@ GoRouter(initialLocation: '/', navigatorKey: ConnectivityService.navigatorKey, r
 //       figureUrl: state.pathParameters['figureUrl'],
 //   ),
 // ),   !!THIS WAS REMOVED IN FAVOR OF POPUP INSTEAD OF ACUTAL ROUTE BUT IM KEEPING IT CAUSE I DONT KNOW IF REESE WANTS IT!!
-],);
+    ]);
 
 final bool _kAutoConsume = Platform.isIOS || true;
 const String _fitnessFigurePlusSubscriptionId = 'ffigure';
