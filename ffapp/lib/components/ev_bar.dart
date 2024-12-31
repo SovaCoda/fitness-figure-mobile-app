@@ -142,9 +142,7 @@ class EvBar extends StatelessWidget {
                                         .textTheme
                                         .displayMedium!
                                         .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSecondary))
+                                            color: Colors.white))
                                 : Text('$currentXp',
                                     style: Theme.of(context)
                                         .textTheme

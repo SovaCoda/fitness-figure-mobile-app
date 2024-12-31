@@ -179,7 +179,7 @@ class FigureModel extends ChangeNotifier {
     if (figure == null) {
       return "robot1/robot1_skin0_evo0_cropped_happy";
     } else {
-      return "${figure!.figureName}/${figure!.figureName}_skin${figure!.curSkin}_evo${figure!.evLevel}_cropped_happy";
+      return "${figure!.figureName}/${figure!.figureName}_skin0_evo${figure!.evLevel}_cropped_happy"; // set to skin0 for now bc no skins
     }
   }
 

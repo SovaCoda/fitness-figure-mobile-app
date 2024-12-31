@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:ffapp/components/animated_button.dart';
-import 'package:ffapp/components/animated_coin.dart';
+import 'package:ffapp/components/ff_app_button.dart';
+import 'package:ffapp/components/ff_app_coin.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/fail_animation.dart';
 import 'package:ffapp/components/research_progress_bar.dart';
 import 'package:ffapp/components/research_task_manager.dart';
-import 'package:ffapp/components/resuables/custom_slider.dart';
+import 'package:ffapp/components/resuables/ff_app_slider.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/success_animation.dart';
@@ -212,7 +212,7 @@ class _ResearchOptionState extends State<ResearchOption> {
   String _getRobotImageUrl({required bool happy}) {
     if (_figure.figure != null) {
       final String emotion = happy ? 'happy' : 'sad';
-      return "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_$emotion";
+      return "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin0_evo${_figure.EVLevel}_cropped_$emotion";
     }
     return "robot1/robot1_skin0_evo0_cropped_happy";
   }
@@ -615,7 +615,7 @@ class _ResearchOptionState extends State<ResearchOption> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AnimatedCoin(
+                FFCoin(
                     size: MediaQuery.of(context).size.height * 0.058685,),
                 SizedBox(width: MediaQuery.of(context).size.width * 0.01),
                 Text('$_cost',
@@ -630,7 +630,7 @@ class _ResearchOptionState extends State<ResearchOption> {
               height: MediaQuery.of(context).size.height *
                   0.05, // Adjust this value as needed
               child: Center(
-                child: CustomImageSlider(
+                child: FFAppSlider(
                   divisions: 100,
                   value: _investmentAmount,
                   max: 10000,

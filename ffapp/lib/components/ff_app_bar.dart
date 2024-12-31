@@ -51,7 +51,7 @@ class FfAppBar extends StatelessWidget {
 
                 // Store button
                 InkWell(
-                  onTap: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(7),
+                  onTap: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(6),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

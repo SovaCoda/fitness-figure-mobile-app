@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class AnimatedCoin extends StatefulWidget {
+class FFCoin extends StatefulWidget {
   final double size;
 
-  const AnimatedCoin({super.key, required this.size});
+  const FFCoin({super.key, required this.size});
 
   @override
-  AnimatedCoinState createState() => AnimatedCoinState();
+  FFCoinState createState() => FFCoinState();
 }
 
-class AnimatedCoinState extends State<AnimatedCoin>
+class FFCoinState extends State<FFCoin>
     with SingleTickerProviderStateMixin {
   late AnimationController _shineController;
   late Animation<double> _shineAnimation;

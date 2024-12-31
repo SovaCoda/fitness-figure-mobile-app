@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:bottom_picker/bottom_picker.dart';
-import 'package:ffapp/components/shimmering_premium_badge.dart';
-import 'package:ffapp/components/animated_button.dart';
+import 'package:bottom_picker/resources/arrays.dart';
+import 'package:ffapp/components/ff_app_premium_badge.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
@@ -78,103 +80,146 @@ class _ProfileState extends State<Profile> {
 
   void _showWeeklyGoalPicker() {
     final int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
-    BottomPicker(
-      items: List.generate(
-        7,
-        (index) => Text(
-          "${index + 1} ${index == 0 ? "day" : "days"}",
-          style: const TextStyle(fontSize: 35),
-        ),
-      ),
-      pickerTitle: const Text(
-        "Select Weekly Workout Goal",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-      ),
-      titleAlignment: Alignment.center,
-      pickerTextStyle: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.bold,
-      ),
-      height: MediaQuery.of(context).size.height * 0.5,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      selectedItemIndex: safeWeeklyGoal - 1,
-      itemExtent: 38,
-      dismissable: true,
-      onSubmit: (dynamic index) {
-        setState(() {
-          final int indexInt = index as int;
-          weeklyGoal = indexInt + 1;
-        });
-        updateWeeklyGoal(weeklyGoal);
+    showModalBottomSheet(
+      context: context,
+      isDismissible: true,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.5, // 0.295
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Color.fromRGBO(51, 133, 162, 1),
+                    ),
+                  ),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromRGBO(28, 109, 189, 0.29),
+                      Color.fromRGBO(0, 164, 123, 0.29),
+                    ],
+                  ),
+                ),
+                child: BottomSheet(
+                  backgroundColor: Colors.transparent,
+                  enableDrag: false,
+                  onClosing: () {},
+                  builder: (context) {
+                    return BottomPicker(
+                        items: List.generate(
+                          7,
+                          (index) => Text(
+                            "${index + 1} ${index == 0 ? "day" : "days"}",
+                            style: const TextStyle(fontSize: 35),
+                          ),
+                        ),
+                        pickerTitle: const Text(
+                          "Select Weekly Workout Goal",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 24),
+                        ),
+                        titleAlignment: Alignment.center,
+                        pickerTextStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        backgroundColor: Colors.transparent,
+                        selectedItemIndex: safeWeeklyGoal - 1,
+                        itemExtent: 38,
+                        buttonStyle: BoxDecoration(),
+                        buttonWidth: MediaQuery.of(context).size.width * 0.77,
+                        dismissable: true,
+                        onSubmit: (dynamic index) {
+                          setState(() {
+                            final int indexInt = index as int;
+                            weeklyGoal = indexInt + 1;
+                          });
+                          updateWeeklyGoal(weeklyGoal);
+                        },
+                        displayCloseIcon: false,
+                        buttonContent: FFAppButton(
+                            text: "Confirm",
+                            fontSize: 16,
+                            size: MediaQuery.of(context).size.width * 0.77,
+                            height: MediaQuery.of(context).size.height * 0.07));
+                  },
+                )));
       },
-      displayCloseIcon: false,
-      buttonWidth: MediaQuery.of(context).size.width * 0.5,
-      buttonContent: Text(
-        "Confirm",
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontSize: 16,
-        ),
-        textAlign: TextAlign.center,
-      ),
-      buttonStyle: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.all(Radius.circular(13)),
-      ),
-      buttonSingleColor: Theme.of(context).colorScheme.primary,
-    ).show(context);
+    );
   }
 
   void _showMinGoalPicker() {
-    final int safeWeeklyGoal =
-        weeklyGoal.clamp(1, 12); // prevents errors from user input
-    BottomPicker(
-      items: List.generate(
-        12,
-        (index) => Text(
-          "${(index + 1) * 15} minutes",
-          style: const TextStyle(fontSize: 35),
-        ),
-      ),
-      pickerTitle: const Text(
-        "Select Weekly Workout Goal",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-      ),
-      titleAlignment: Alignment.center,
-      pickerTextStyle: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.bold,
-      ),
-      height: MediaQuery.of(context).size.height * 0.5,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      selectedItemIndex: safeWeeklyGoal - 1,
-      itemExtent: 38,
-      dismissable: true,
-      onSubmit: (index) {
-        setState(() {
-          final int indexInt = index as int;
-          minExerciseGoal = (indexInt + 1) * 15;
+    final int safeWeeklyGoal = weeklyGoal.clamp(1, 12);
+    showModalBottomSheet(
+        context: context,
+        isDismissible: true,
+        enableDrag: false,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.5, // 0.295
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Color.fromRGBO(51, 133, 162, 1),
+                    ),
+                  ),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromRGBO(28, 109, 189, 0.29),
+                      Color.fromRGBO(0, 164, 123, 0.29),
+                    ],
+                  ),
+                ),
+                child: BottomPicker(
+            items: List.generate(
+              12,
+              (index) => Text(
+                "${(index + 1) * 15} minutes",
+                style: const TextStyle(fontSize: 35),
+              ),
+            ),
+            pickerTitle: const Text(
+              "Select Weekly Workout Goal",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+            titleAlignment: Alignment.center,
+            pickerTextStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
+            buttonStyle: BoxDecoration(),
+            buttonWidth: MediaQuery.of(context).size.width * 0.77,
+            height: MediaQuery.of(context).size.height * 0.5,
+            backgroundColor: Colors.transparent,
+            selectedItemIndex: safeWeeklyGoal - 1,
+            itemExtent: 38,
+            dismissable: true,
+            onSubmit: (index) {
+              setState(() {
+                final int indexInt = index as int;
+                minExerciseGoal = (indexInt + 1) * 15;
+              });
+              updateMinWorkoutTime(minExerciseGoal);
+            },
+            displayCloseIcon: false,
+            buttonContent: FFAppButton(
+                            text: "Confirm",
+                            fontSize: 16,
+                            size: MediaQuery.of(context).size.width * 0.77,
+                            height: MediaQuery.of(context).size.height * 0.07),
+          )));
         });
-        updateMinWorkoutTime(minExerciseGoal);
-      },
-      displayCloseIcon: false,
-      buttonWidth: MediaQuery.of(context).size.width * 0.5,
-      buttonContent: Text(
-        "Confirm",
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontSize: 16,
-        ),
-        textAlign: TextAlign.center,
-      ),
-      buttonStyle: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.all(Radius.circular(13)),
-      ),
-      buttonSingleColor: Theme.of(context).colorScheme.primary,
-    ).show(context);
   }
 
   Future<void> updateName(String newName) async {
@@ -358,17 +403,17 @@ class _ProfileState extends State<Profile> {
               () => _showEditDialog("Name", name, updateName),
             ),
             _buildProfileItem(
-              Icons.email,
-              'Email',
-              email,
-              // () => _showEditDialog("Email", email, (newEmail) async {
-              //   final userPassword = await _showPasswordConfirmDialog();
-              //   if (userPassword != null) {
-              //     updateEmail(email, userPassword, newEmail);
-              //   }
-              // }),
-              () {} // don't allow updating email bc too much of a pain
-            ),
+                Icons.email,
+                'Email',
+                email,
+                // () => _showEditDialog("Email", email, (newEmail) async {
+                //   final userPassword = await _showPasswordConfirmDialog();
+                //   if (userPassword != null) {
+                //     updateEmail(email, userPassword, newEmail);
+                //   }
+                // }),
+                () {} // don't allow updating email bc too much of a pain
+                ),
             _buildProfileItem(
               Icons.lock,
               'Password',
@@ -522,7 +567,9 @@ class _ProfileState extends State<Profile> {
               children: [
                 if (manageSub == "Regular User")
                   const FitnessIcon(
-                      type: FitnessIconType.regular_badge, size: 50,)
+                    type: FitnessIconType.regular_badge,
+                    size: 50,
+                  )
                 else
                   const AnimatedPremiumBadge(size: 50),
                 const SizedBox(width: 8),
@@ -688,9 +735,9 @@ class _ProfileState extends State<Profile> {
               child: const Text("Save"),
               onPressed: () async {
                 // In the _showEditDialog method, replace the existing email update logic with:
-                  onSave(newValue);
-                
-                if(mounted) {
+                onSave(newValue);
+
+                if (mounted) {
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).pop();
                 }
@@ -733,10 +780,9 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> _showPasswordChangeDialog() async {
-    
     final String? currentPassword = await _showPasswordConfirmDialog();
     if (currentPassword == null) return;
-    if(!mounted) return;
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -1,4 +1,4 @@
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
@@ -283,7 +283,7 @@ class SkinViewerState extends State<SkinViewer> {
                             top: 0,
                             child: RobotImageHolder(
                               url:
-                                  '$figureName/${figureName}_skin1_evo0_cropped_happy',
+                                  '$figureName/${figureName}_skin0_evo0_cropped_happy', // would be skin1, but we have no skins
                               height: MediaQuery.of(context).size.height * 0.5,
                               width: MediaQuery.of(context).size.width * 0.5,
                             ),

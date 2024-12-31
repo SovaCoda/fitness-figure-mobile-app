@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomImageSlider extends StatefulWidget {
+class FFAppSlider extends StatefulWidget {
   final double value;
   final double min;
   final double max;
@@ -10,7 +10,7 @@ class CustomImageSlider extends StatefulWidget {
   final ValueChanged<double>? onChangeEnd;
   final String? label;
 
-  const CustomImageSlider({
+  const FFAppSlider({
     super.key,
     required this.value,
     required this.onChanged,
@@ -23,10 +23,10 @@ class CustomImageSlider extends StatefulWidget {
   });
 
   @override
-  CustomImageSliderState createState() => CustomImageSliderState();
+  FFAppSliderState createState() => FFAppSliderState();
 }
 
-class CustomImageSliderState extends State<CustomImageSlider> {
+class FFAppSliderState extends State<FFAppSlider> {
   double _currentDragValue = 0.0;
   bool _dragging = false;
 

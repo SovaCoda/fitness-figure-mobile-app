@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
@@ -196,10 +196,20 @@ class _CoreState extends State<Core> {
       future: _intializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Column(
+          return Stack(
               children: [
-                _buildTopSection(),
-                _buildResearchSection(),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                child: _buildTopSection(),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                child: _buildResearchSection(),
+                )
               ],
           );
         } else {
@@ -246,7 +256,7 @@ class _CoreState extends State<Core> {
                 ),
                 RobotImageHolder(
                   url: (_figure.figure != null)
-                      ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_happy"
+                      ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin0_evo${_figure.EVLevel}_cropped_happy"
                       : "robot1/robot1_skin0_evo0_cropped_happy",
                   height: MediaQuery.of(context).size.height * 0.3,
                   width: MediaQuery.of(context).size.width * 0.5,
@@ -312,7 +322,7 @@ class _CoreState extends State<Core> {
       builder: (_, figure, __) {
         return SizedBox(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.47,
+            height: MediaQuery.of(context).size.height * 0.5,
             child: ResearchGlassPanel(
               child: Stack(
                 alignment: Alignment.center,

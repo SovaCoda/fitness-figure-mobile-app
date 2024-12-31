@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/chat_bubble.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
@@ -1132,7 +1132,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                       Container(
                         padding: const EdgeInsets.only(
                           left: 20,
-                          top: 20,
+                          top: 12,
                           right: 14,
                         ),
                         width: MediaQuery.of(context).size.width,

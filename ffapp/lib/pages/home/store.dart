@@ -1,4 +1,4 @@
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
@@ -176,117 +176,126 @@ class _StoreState extends State<Store> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 30),
-        Text(
-          "Figure Store",
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.39,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                top: 0,
-                child: RobotImageHolder(
-                  url:
-                      "${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}/${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}_skin0_evo0_cropped_happy",
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  width: MediaQuery.of(context).size.width * 0.5,
+    return Stack(children: [
+      Column(
+        children: [
+          const SizedBox(height: 30),
+          Text(
+            "Figure Store",
+            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
-              ),
-              Positioned(
-                left: 10,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                  onPressed: previousFigure,
-                ),
-              ),
-              Positioned(
-                right: 10,
-                child: IconButton(
-                  icon:
-                      const Icon(Icons.arrow_forward_ios, color: Colors.white),
-                  onPressed: nextFigure,
-                ),
-              ),
-            ],
           ),
-        ),
-        Container(
-          padding:
-              const EdgeInsets.only(left: 40, top: 12, bottom: 12, right: 40),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.295,
-          decoration: const BoxDecoration(
-            border:
-                Border(top: BorderSide(color: Color.fromRGBO(51, 133, 162, 1))),
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(28, 109, 189, 0.29),
-                Color.fromRGBO(0, 164, 123, 0.29),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.39,
+            width: MediaQuery.of(context).size.width,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: 0,
+                  child: RobotImageHolder(
+                    url:
+                        "${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}/${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}_skin0_evo0_cropped",
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    width: MediaQuery.of(context).size.width * 0.5,
+                  ),
+                ),
+                Positioned(
+                  left: 10,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    onPressed: previousFigure,
+                  ),
+                ),
+                Positioned(
+                  right: 10,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios,
+                        color: Colors.white),
+                    onPressed: nextFigure,
+                  ),
+                ),
               ],
             ),
           ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: Text(
-                    listOfFigures.isNotEmpty
-                        ? listOfFigures[currentFigureIndex].figureName ==
-                                "robot1"
-                            ? 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.'
-                            : 'A more advanced companion for those seeking an extra challenge. Unlock new possibilities with this sophisticated model.'
-                        : 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.',
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    textAlign: TextAlign.left,
+        ]
+      ),
+          Positioned(
+            bottom: 0,
+            left: 0, 
+            right: 0,
+            child: Container(
+            padding:
+                const EdgeInsets.only(left: 40, top: 12, bottom: 12, right: 40),
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.295,
+            decoration: const BoxDecoration(
+              border: Border(
+                  top: BorderSide(color: Color.fromRGBO(51, 133, 162, 1))),
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(28, 109, 189, 0.29),
+                  Color.fromRGBO(0, 164, 123, 0.29),
+                ],
+              ),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    child: Text(
+                      listOfFigures.isNotEmpty
+                          ? listOfFigures[currentFigureIndex].figureName ==
+                                  "robot1"
+                              ? 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.'
+                              : 'A more advanced companion for those seeking an extra challenge. Unlock new possibilities with this sophisticated model.'
+                          : 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.',
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      textAlign: TextAlign.left,
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                '\$${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].price : "0"}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  '\$${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].price : "0"}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-              FFAppButton(
-                text: listOfFigureInstances.any(
-                  (instance) =>
-                      instance.figureName ==
-                      listOfFigures[currentFigureIndex].figureName,
-                )
-                    ? 'Owned'
-                    : 'Purchase',
-                size: MediaQuery.of(context).size.width * 0.79,
-                height: MediaQuery.of(context).size.height * 0.08,
-                onPressed: () => listOfFigureInstances.any(
-                  (instance) =>
-                      instance.figureName ==
-                      listOfFigures[currentFigureIndex].figureName,
-                )
-                    ? null
-                    : purchaseFigure(
-                        context,
-                        int.parse(
-                            listOfFigures[currentFigureIndex].price.toString()),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                FFAppButton(
+                  text: listOfFigureInstances.any(
+                    (instance) =>
+                        instance.figureName ==
                         listOfFigures[currentFigureIndex].figureName,
-                      ),
-              ),
-            ],
+                  )
+                      ? 'Owned'
+                      : 'Purchase',
+                  size: MediaQuery.of(context).size.width * 0.79,
+                  height: MediaQuery.of(context).size.height * 0.08,
+                  onPressed: () => listOfFigureInstances.any(
+                    (instance) =>
+                        instance.figureName ==
+                        listOfFigures[currentFigureIndex].figureName,
+                  )
+                      ? null
+                      : purchaseFigure(
+                          context,
+                          int.parse(listOfFigures[currentFigureIndex]
+                              .price
+                              .toString()),
+                          listOfFigures[currentFigureIndex].figureName,
+                        ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        
+      )
+    ]);
   }
 }

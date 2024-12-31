@@ -1,4 +1,4 @@
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/inventory_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
@@ -6,6 +6,7 @@ import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/pages/home/store.dart' as store;
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -39,12 +40,20 @@ class _InventoryState extends State<Inventory> {
       final routes.User? databaseUser = await auth.getUserDBInfo();
       final String stringCur = databaseUser?.currency.toString() ?? "0";
       currency = int.parse(stringCur);
-      await auth.getFigureInstances(databaseUser!).then((value) => setState(() {
-            figureInstancesList = value.figureInstances;
-          }),);
-      await auth.getFigures().then((value) => setState(() {
-            figureList = value.figures;
-          }),);
+      await auth.getFigureInstances(databaseUser!).then(
+            (value) => setState(() {
+              figureInstancesList = value.figureInstances;
+            }),
+          );
+      if (mounted) {
+        Provider.of<store.FigureInstancesProvider>(context, listen: false)
+            .initializeListOfFigureInstances(figureInstancesList);
+      }
+      await auth.getFigures().then(
+            (value) => setState(() {
+              figureList = value.figures;
+            }),
+          );
     } catch (e) {
       logger.e(e);
     }
@@ -68,102 +77,120 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     return Consumer<SelectedFigureProvider>(
       builder: (context, selectedFigureProvider, _) {
-        return Stack(alignment: Alignment.bottomCenter, children: [
-          SingleChildScrollView(
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            SingleChildScrollView(
               child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-              Consumer<UserModel>(
-                builder: (context, userModel, _) {
-                  const int totalSlots = 6; // 4 slots for now
-                  return Column(
-                    children: [
-                      for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: _buildInventorySlot(
-                                  context,
-                                  i * 2,
-                                  userModel,
-                                  selectedFigureProvider,
-                                  totalSlots,),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                  Consumer<UserModel>(
+                    builder: (context, userModel, _) {
+                      const int totalSlots = 6; // 4 slots for now
+                      return Column(
+                        children: [
+                          for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: _buildInventorySlot(
+                                    context,
+                                    i * 2,
+                                    userModel,
+                                    selectedFigureProvider,
+                                    totalSlots,
+                                  ),
+                                ),
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.001),
+                                Expanded(
+                                  child: _buildInventorySlot(
+                                    context,
+                                    i * 2 + 1,
+                                    userModel,
+                                    selectedFigureProvider,
+                                    totalSlots,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: MediaQuery.of(context).size.width * 0.001),
-                            Expanded(
-                              child: _buildInventorySlot(
-                                  context,
-                                  i * 2 + 1,
-                                  userModel,
-                                  selectedFigureProvider,
-                                  totalSlots,),
-                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.01),
                           ],
-                        ),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                      ],
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                    ],
-                  );
-                },
+                          SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.1),
+                        ],
+                      );
+                    },
+                  ),
+                  // SizedBox(height: 20),
+                  // ElevatedButton(
+                  //   onPressed: () => context.goNamed('SkinStore'),
+                  //   child: Text('Go to Store'),
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Theme.of(context).colorScheme.primary,
+                  //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  //   ),
+                  // ),
+                ],
               ),
-              // SizedBox(height: 20),
-              // ElevatedButton(
-              //   onPressed: () => context.goNamed('SkinStore'),
-              //   child: Text('Go to Store'),
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Theme.of(context).colorScheme.primary,
-              //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              //   ),
-              // ),
-            ],
-          ),),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.01,
-          child: FFAppButton(
-            text: "GO TO STORE",
-            size: MediaQuery.of(context).size.width *
-                0.79389312977099236641221374045802,
-            height: MediaQuery.of(context).size.height *
-                0.08098591549295774647887323943662,
+            ),
+            Positioned(
+              bottom: MediaQuery.of(context).size.height * 0.01,
+              child: FFAppButton(
+                text: "GO TO STORE",
+                size: MediaQuery.of(context).size.width *
+                    0.79389312977099236641221374045802,
+                height: MediaQuery.of(context).size.height *
+                    0.08098591549295774647887323943662,
                 fontSize: 20,
-            isStore: true,
-            onPressed: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(7),
-          ),
-          ),
-        ],);
+                isStore: true,
+                onPressed: () =>
+                    Provider.of<HomeIndexProvider>(context, listen: false)
+                        .setIndex(6),
+              ),
+            ),
+          ],
+        );
       },
     );
   }
 
   Widget _buildInventorySlot(
-      BuildContext context,
-      int index,
-      UserModel userModel,
-      SelectedFigureProvider selectedFigureProvider,
-      int totalSlots,) {
+    BuildContext context,
+    int index,
+    UserModel userModel,
+    SelectedFigureProvider selectedFigureProvider,
+    int totalSlots,
+  ) {
     if (index < figureInstancesList.length) {
       return GestureDetector(
         onTap: () => selectFigure(index),
         child: InventoryItem(
-            figureInstance: figureInstancesList[index],
-            equipped: figureInstancesList[index].figureName ==
-                userModel.user?.curFigure,
-            onEquip: (context) => equipNew(
-                figureInstancesList[index].figureName, index,),
-            isSelected: selectedFigureProvider.selectedFigureIndex == index,
-            index: index,),
+          figureInstance: figureInstancesList[index],
+          equipped: figureInstancesList[index].figureName ==
+              userModel.user?.curFigure,
+          onEquip: (context) => equipNew(
+            figureInstancesList[index].figureName,
+            index,
+          ),
+          isSelected: selectedFigureProvider.selectedFigureIndex == index,
+          index: index,
+        ),
       );
     } else if (index < totalSlots) {
       // Additional slots for future figures
       return InventoryItem(
-          figureInstance: null,
-          locked: true,
-          equipped: false,
-          onEquip: (context) => {},
-          index: index,);
+        figureInstance: null,
+        locked: true,
+        equipped: false,
+        onEquip: (context) => {},
+        index: index,
+      );
     } else {
       // Empty slot
       return const SizedBox();
@@ -171,7 +198,8 @@ class _InventoryState extends State<Inventory> {
   }
 
   void equipNew(String newFigureName, int figureIndex) {
-    final routes.User user = Provider.of<UserModel>(context, listen: false).user!;
+    final routes.User user =
+        Provider.of<UserModel>(context, listen: false).user!;
     user.curFigure = newFigureName;
     Provider.of<UserModel>(context, listen: false).setUser(user);
 

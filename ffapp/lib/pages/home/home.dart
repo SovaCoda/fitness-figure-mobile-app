@@ -32,7 +32,7 @@ class _DashboardPageState extends State<DashboardPage> {
     const Profile(),
     const Core(),
     const EvolutionPage(),
-    const SkinViewer(),
+    // const SkinViewer(),
     const Store()
   ];
 

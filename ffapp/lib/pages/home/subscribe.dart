@@ -358,7 +358,7 @@ void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
                   RobotImageHolder(
                     // Replace this with some custom skin that the user needs premium for
                     url: (figure.figure != null)
-                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_happy")
+                        ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo${figure.figure!.evLevel}_cropped_happy")
                         : "robot1/robot1_skin0_evo0_cropped_happy",
                     height: MediaQuery.of(context).size.height * 0.30,
                     width: 500,
