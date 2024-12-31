@@ -133,9 +133,7 @@ class EvBar extends StatelessWidget {
                                     .textTheme
                                     .displayMedium!
                                     .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary))
+                                        color: Colors.white))
                             : evoReady
                                 ? Text('EVO Ready!',
                                     style: Theme.of(context)
