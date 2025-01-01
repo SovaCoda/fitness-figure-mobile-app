@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-var logger = Logger();
+Logger logger = Logger();
 
 class FigureInstancesProvider extends ChangeNotifier {
   late List<routes.FigureInstance> listOfFigureInstances;
@@ -46,8 +46,8 @@ class Store extends StatefulWidget {
 }
 
 class _StoreState extends State<Store> {
-  late List<routes.Figure> listOfFigures = List.empty();
-  late List<routes.FigureInstance> listOfFigureInstances = List.empty();
+  late List<routes.Figure> listOfFigures = List<routes.Figure>.empty();
+  late List<routes.FigureInstance> listOfFigureInstances = List<routes.FigureInstance>.empty();
   late AuthService auth;
   late int currency = 0;
   int currentFigureIndex = 0;
@@ -62,14 +62,14 @@ class _StoreState extends State<Store> {
   Future<void> initialize() async {
     final routes.User? databaseUser = await auth.getUserDBInfo();
 
-    listOfFigures = await auth.getFigures().then((value) => value.figures);
+    listOfFigures = await auth.getFigures().then((routes.MultiFigure value) => value.figures);
     listOfFigureInstances = await auth
         .getFigureInstances(databaseUser!)
-        .then((value) => value.figureInstances);
+        .then((routes.MultiFigureInstance value) => value.figureInstances);
 
     final String stringCur = databaseUser.currency.toString();
     currency = int.parse(stringCur);
-    logger.i("Currency: $currency");
+    logger.i('Currency: $currency');
 
     if (mounted) {
       setState(() {});
@@ -83,7 +83,7 @@ class _StoreState extends State<Store> {
     int offset,
   ) {
     final OverlayEntry overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
+      builder: (BuildContext context) => Positioned(
         bottom: 30,
         left: MediaQuery.sizeOf(context).width / 2 - offset,
         child: Material(
@@ -126,7 +126,7 @@ class _StoreState extends State<Store> {
   Future<void> purchaseFigure(
       BuildContext context, int price, String figureName) async {
     if (listOfFigureInstances.length > 4) {
-      showOverlayAlert(context, "Maximum figures reached!", Colors.red, 90);
+      showOverlayAlert(context, 'Maximum figures reached!', Colors.red, 90);
       return;
     }
 
@@ -143,9 +143,9 @@ class _StoreState extends State<Store> {
       await auth.createFigureInstance(
         routes.FigureInstance(
           figureName: figureName,
-          curSkin: "0",
+          curSkin: '0',
           userEmail: user.email,
-          lastReset: "2001-09-04 19:21:00",
+          lastReset: '2001-09-04 19:21:00',
           evPoints: 0,
           charge: 70,
         ),
@@ -156,7 +156,7 @@ class _StoreState extends State<Store> {
         listOfFigureInstances.add(
           routes.FigureInstance(
             figureName: figureName,
-            curSkin: "0",
+            curSkin: '0',
             userEmail: user.email,
           ),
         );
@@ -167,21 +167,21 @@ class _StoreState extends State<Store> {
         Provider.of<CurrencyModel>(context, listen: false)
             .setCurrency((currentCurrency - price).toString());
 
-        showOverlayAlert(context, "Figure purchased!", Colors.green, 73);
+        showOverlayAlert(context, 'Figure purchased!', Colors.green, 73);
       }
     } else {
-      showOverlayAlert(context, "Not enough currency!", Colors.red, 90);
+      showOverlayAlert(context, 'Not enough currency!', Colors.red, 90);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
+    return Stack(children: <Widget>[
       Column(
-        children: [
+        children: <Widget>[
           const SizedBox(height: 30),
           Text(
-            "Figure Store",
+            'Figure Store',
             style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -191,7 +191,7 @@ class _StoreState extends State<Store> {
             width: MediaQuery.of(context).size.width,
             child: Stack(
               alignment: Alignment.center,
-              children: [
+              children: <Widget>[
                 Positioned(
                   top: 0,
                   child: RobotImageHolder(
@@ -234,14 +234,14 @@ class _StoreState extends State<Store> {
               border: Border(
                   top: BorderSide(color: Color.fromRGBO(51, 133, 162, 1))),
               gradient: LinearGradient(
-                colors: [
+                colors: <Color>[
                   Color.fromRGBO(28, 109, 189, 0.29),
                   Color.fromRGBO(0, 164, 123, 0.29),
                 ],
               ),
             ),
             child: Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: SizedBox(
@@ -249,7 +249,7 @@ class _StoreState extends State<Store> {
                     child: Text(
                       listOfFigures.isNotEmpty
                           ? listOfFigures[currentFigureIndex].figureName ==
-                                  "robot1"
+                                  'robot1'
                               ? 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.'
                               : 'A more advanced companion for those seeking an extra challenge. Unlock new possibilities with this sophisticated model.'
                           : 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.',
@@ -269,7 +269,7 @@ class _StoreState extends State<Store> {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 FFAppButton(
                   text: listOfFigureInstances.any(
-                    (instance) =>
+                    (routes.FigureInstance instance) =>
                         instance.figureName ==
                         listOfFigures[currentFigureIndex].figureName,
                   )
@@ -278,7 +278,7 @@ class _StoreState extends State<Store> {
                   size: MediaQuery.of(context).size.width * 0.79,
                   height: MediaQuery.of(context).size.height * 0.08,
                   onPressed: () => listOfFigureInstances.any(
-                    (instance) =>
+                    (routes.FigureInstance instance) =>
                         instance.figureName ==
                         listOfFigures[currentFigureIndex].figureName,
                   )

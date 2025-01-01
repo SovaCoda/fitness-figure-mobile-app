@@ -117,29 +117,29 @@ class InventoryItemState extends State<InventoryItem> {
                           ),
                           // Original elements positioned over the FitnessIcon
                           if (widget.figureInstance != null)
-                            Positioned(
-                              left: size * 0.05,
-                              top: size * 0.05,
-                              child: GestureDetector(
-                                onTap: () {
-                                  if (!widget.isSelected) {
-                                    figureModel
-                                        .setFigure(widget.figureInstance!);
-                                    Provider.of<SelectedFigureProvider>(context,
-                                            listen: false,)
-                                        .setSelectedFigureIndex(widget.index);
-                                    widget.onEquip(context);
-                                  }
-                                  _showSkinPage(context);
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: FitnessIcon(
-                                  type: FitnessIconType.swap,
-                                  size: size * 0.15,
-                                ),),
-                              ),
-                            ),
+                            // Positioned(
+                            //   left: size * 0.05,
+                            //   top: size * 0.05,
+                            //   child: GestureDetector(
+                            //     onTap: () {
+                            //       if (!widget.isSelected) {
+                            //         figureModel
+                            //             .setFigure(widget.figureInstance!);
+                            //         Provider.of<SelectedFigureProvider>(context,
+                            //                 listen: false,)
+                            //             .setSelectedFigureIndex(widget.index);
+                            //         widget.onEquip(context);
+                            //       }
+                            //       _showSkinPage(context);
+                            //     },
+                            //     child: Padding(
+                            //       padding: const EdgeInsets.all(10),
+                            //       child: FitnessIcon(
+                            //       type: FitnessIconType.swap,
+                            //       size: size * 0.15,
+                            //     ),),
+                            //   ),
+                            // ),
                           Positioned(
                             left: size * 0.05,
                             bottom: size * 0.05,

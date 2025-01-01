@@ -1,7 +1,6 @@
 import 'package:ffapp/components/ff_app_bar.dart';
 import 'package:ffapp/components/ff_body_scaffold.dart';
 import 'package:ffapp/components/ff_bottom_nav_bar.dart';
-import 'package:ffapp/components/skin_view.dart';
 import 'package:ffapp/pages/home/core.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/evo.dart';
@@ -52,16 +51,16 @@ class _DashboardPageState extends State<DashboardPage> {
   FlutterUser user = FlutterUser();
   late String currency = "0000";
 
-  void initialize() async {
+  Future<void> initialize() async {
     try {
       await user.initAuthService();
       await user.checkUser();
-      String usrCurrency = await user.getCurrency();
+      final String usrCurrency = await user.getCurrency();
       setState(() {
         currency = usrCurrency;
       });
     } catch (e) {
-      logger.e("Error initializing currency: $e");
+      logger.e('Error initializing currency: $e');
     }
   }
 
@@ -80,7 +79,7 @@ class _DashboardPageState extends State<DashboardPage> {
         //renders the page that the nav bar has currently selected
         //indexed stack allows pages to retain their state when switching between them
         body: Consumer<HomeIndexProvider>(
-          builder: (_, homeIndex, __) {
+          builder: (_, HomeIndexProvider homeIndex, __) {
             return FfBodyScaffold(
                 selectedIndex: homeIndex.selectedIndex, pages: _pages);
           },
@@ -89,7 +88,7 @@ class _DashboardPageState extends State<DashboardPage> {
         // Permanent footer navigation that changes the page index state to switch displays
         // Size is a constant 80 pixels tall across all screens
         bottomNavigationBar: Consumer<HomeIndexProvider>(
-          builder: (_, homeIndex, __) {
+          builder: (_, HomeIndexProvider homeIndex, __) {
             return FfBottomNavBar(
               selectedIndex: homeIndex.selectedIndex,
             );

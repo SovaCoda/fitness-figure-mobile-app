@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/chat_bubble.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
