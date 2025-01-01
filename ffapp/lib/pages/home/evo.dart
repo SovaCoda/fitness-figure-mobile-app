@@ -1,4 +1,4 @@
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
@@ -198,9 +198,17 @@ class _EvolutionPageState extends State<EvolutionPage>
     return true;
   }
 
+  
+
   double? usableScreenHeight;
+
+  
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final double screenWidth = screenSize.width;
+    final double screenHeight = screenSize.height;
+    usableScreenHeight = screenHeight;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.onError.withOpacity(0.3),
       body: Stack(alignment: Alignment.center, children: [
@@ -231,7 +239,7 @@ class _EvolutionPageState extends State<EvolutionPage>
                             ]),
                         child: RobotImageHolder(
                             url: (figure.figure != null)
-                                ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped_happy")
+                                ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped_happy")
                                 : "robot1/robot1_skin0_evo0_cropped_happy",
                             height: _isAnimating
                                 ? MediaQuery.of(context).size.height * 0.8

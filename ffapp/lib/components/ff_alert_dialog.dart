@@ -1,7 +1,7 @@
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:flutter/material.dart';
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 
 class FfAlertDialog extends StatelessWidget {
   final Widget? child;

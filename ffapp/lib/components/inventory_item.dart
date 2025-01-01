@@ -208,7 +208,7 @@ class InventoryItemState extends State<InventoryItem> {
       );
     } else {
       return RobotImageHolder(
-        url: "${figure.figureName}/${figure.figureName}_skin${figure.curSkin}_evo${figure.evLevel}_cropped_happy",
+        url: "${figure.figureName}/${figure.figureName}_skin0_evo${figure.evLevel}_cropped",
         height: MediaQuery.of(context).size.height * 0.25,
         width: MediaQuery.of(context).size.height * 0.25,
       );

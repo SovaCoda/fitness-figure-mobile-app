@@ -1211,7 +1211,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         Container(
                           padding: const EdgeInsets.only(
                             left: 20,
-                            top: 20,
+                            top: 12,
                             right: 14,
                           ),
                           width: MediaQuery.of(context).size.width,
@@ -1430,9 +1430,28 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                       },
                                       isShiny: true,
                                     )
-                                  : Column(
-                                      children: [
-                                        WorkoutProgressBar(
+                                  : states['paused']!
+                                      ? Padding(
+                                          padding: EdgeInsets.only(
+                                              top: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.0461971830985915492957746478873),
+                                          child: FFAppButton(
+                                            icon: Icons.add,
+                                            size: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.85272264631043256997455470737913,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.0946478873239436619718309859155,
+                                            fontSize: 20,
+                                            text: 'COMPLETE WORKOUT',
+                                            onPressed: () => {endWorkout()},
+                                          ))
+                                      : WorkoutProgressBar(
                                           progress: ((_timer.milliseconds /
                                                   1000) /
                                               (Provider.of<UserModel>(context,
@@ -1444,50 +1463,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                           width: 300,
                                           height: 30,
                                         ),
-                                        _goalMet
-                                            ? Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: MediaQuery.of(context)
-                                                            .size
-                                                            .height *
-                                                        0.0161971830985915492957746478873),
-                                                child: FFAppButton(
-                                                  size: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.85272264631043256997455470737913,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.0946478873239436619718309859155,
-                                                  fontSize: 20,
-                                                  text: 'COMPLETE WORKOUT',
-                                                  onPressed: () =>
-                                                      {endWorkout()},
-                                                ))
-                                            : Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: MediaQuery.of(context)
-                                                            .size
-                                                            .height *
-                                                        0.0161971830985915492957746478873),
-                                                child: FFAppButton(
-                                                  isDelete: true,
-                                                  size: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.85272264631043256997455470737913,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.0946478873239436619718309859155,
-                                                  fontSize: 20,
-                                                  text: 'END WORKOUT',
-                                                  onPressed: () =>
-                                                      {endWorkout()},
-                                                ))
-                                      ],
-                                    ),
                             ],
                           ),
                         ),

@@ -1,4 +1,4 @@
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/inventory_item.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/pages/home/store.dart';
@@ -7,6 +7,7 @@ import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ffapp/pages/home/store.dart' as store;
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -45,14 +46,15 @@ class _InventoryState extends State<Inventory> {
               figureInstancesList = value.figureInstances;
             }),
           );
+      if (mounted) {
+        Provider.of<store.FigureInstancesProvider>(context, listen: false)
+            .initializeListOfFigureInstances(figureInstancesList);
+      }
       await auth.getFigures().then(
             (value) => setState(() {
               figureList = value.figures;
             }),
           );
-
-      Provider.of<FigureInstancesProvider>(context, listen: false)
-          .initializeListOfFigureInstances(figureInstancesList);
     } catch (e) {
       print(e);
     }

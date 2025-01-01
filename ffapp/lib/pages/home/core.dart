@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/animated_button.dart';
+import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
@@ -199,10 +199,20 @@ class _CoreState extends State<Core> {
       future: _intializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Column(
+          return Stack(
             children: [
-              _buildTopSection(),
-              _buildResearchSection(),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _buildTopSection(),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildResearchSection(),
+              )
             ],
           );
         } else {

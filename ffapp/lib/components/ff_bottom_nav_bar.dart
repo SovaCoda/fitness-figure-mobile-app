@@ -97,7 +97,7 @@ class FfBottomNavBar extends StatelessWidget {
                     ),
                     BottomNavigationBarItem(
                       icon: const FitnessIcon(
-                          type: FitnessIconType.history, size: 36, height: 34),
+                          type: FitnessIconType.profile, size: 36, height: 34),
                       label: 'Profile',
                       activeIcon: Image.asset(
                           'lib/assets/images/profile_active.png',

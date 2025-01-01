@@ -141,7 +141,7 @@ class MissionState extends State<MissionListWidget> {
                   builder: (context, figure, child) {
                     return RobotImageHolder(
                       url: (figure.figure != null)
-                          ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${0}_cropped_happy")
+                          ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo${0}_cropped_happy")
                           : "robot1/robot1_skin0_evo0_cropped_happy",
                       height: 100,
                       width: 100,

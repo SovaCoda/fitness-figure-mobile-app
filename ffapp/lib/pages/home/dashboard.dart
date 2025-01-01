@@ -328,7 +328,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 children: [
                                   RobotImageHolder(
                                     url: (figure.figure != null)
-                                        ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin${figure.figure!.curSkin}_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
+                                        ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
                                         : "robot1/robot1_skin0_evo0_cropped_happy",
                                     height: robotImageHeight,
                                     width: robotImageHeight,
@@ -369,7 +369,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         barHeight: evBarHeight,
                         barWidth: evBarWidth,
                         showInfoBox: true,
-                        isMaxLevel: figure.EVLevel == 7,
+                        isMaxLevel: figure.EVLevel == 2,
                       ),
                     );
                   },
