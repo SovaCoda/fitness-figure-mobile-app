@@ -32,6 +32,10 @@ enum FitnessIconType {
   evolution_circuits('evolution_circuits'),
   currency_exchange('currency_exchange'),
   currency('currency'),
+  up_arrow('up_arrow'),
+  down_arrow('down_arrow'),
+  charge_arrow('charge_arrow'),
+  evo_arrow('evo_arrow'),
   // dashboard icons
   home('dashboard_icons/home'),
   home_active('dashboard_icons/home_active'),
@@ -65,6 +69,7 @@ enum FitnessIconType {
 class FitnessIcon extends StatelessWidget {
   final double? size;
   final double? height;
+  final double rotation;
   final FitnessIconType type;
   final Color? color;
 
@@ -74,17 +79,21 @@ class FitnessIcon extends StatelessWidget {
     this.size,
     this.height, // height if needed for some icons
     this.color,
+    this.rotation = 0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      type.path,
-      width: size,
-      height:
-          height ?? size, // if height is null, default to equaling the width
-      colorFilter:
-          color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+    return Transform.rotate(
+      angle: rotation,
+      child: SvgPicture.asset(
+        type.path,
+        width: size,
+        height:
+            height ?? size, // if height is null, default to equaling the width
+        colorFilter:
+            color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+      ),
     );
   }
 }

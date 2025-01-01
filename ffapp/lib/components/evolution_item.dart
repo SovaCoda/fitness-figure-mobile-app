@@ -6,11 +6,13 @@ class EvolutionItem extends StatelessWidget {
   final String title;
   final List<String> upgrades;
   final bool isUnlocked;
+  final double rightPadding;
 
   const EvolutionItem({
     Key? key,
     required this.title,
     required this.upgrades,
+    this.rightPadding = 0,
     this.isUnlocked = true,
   }) : super(key: key);
 

@@ -5,8 +5,11 @@ class WeekGoalShower extends StatelessWidget {
   final int weeklyGoal;
   final int weeklyCompleted;
 
-  const WeekGoalShower(
-      {super.key, required this.weeklyCompleted, required this.weeklyGoal,});
+  const WeekGoalShower({
+    super.key,
+    required this.weeklyCompleted,
+    required this.weeklyGoal,
+  });
   @override
   Widget build(BuildContext context) {
     return BorderFillableContainer(
@@ -15,31 +18,41 @@ class WeekGoalShower extends StatelessWidget {
       borderWidth: 2,
       max: weeklyGoal.toDouble(),
       current: weeklyCompleted.toDouble(),
-      child: Column(children: [
-        Text("Week Complete",
+      child: Column(
+        children: [
+          Text(
+            "Week Complete",
             style: Theme.of(context).textTheme.displayMedium!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
-                ),),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(weeklyCompleted.toString(),
+                ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                weeklyCompleted.toString(),
                 style: Theme.of(context).textTheme.displayLarge!.copyWith(
                       color: Theme.of(context).colorScheme.primary,
-                    ),),
-            const SizedBox(width: 10),
-            Text("/",
+                    ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                "/",
                 style: Theme.of(context).textTheme.displayLarge!.copyWith(
                       color: Theme.of(context).colorScheme.primary,
-                    ),),
-            const SizedBox(width: 10),
-            Text(weeklyGoal.toString(),
+                    ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                weeklyGoal.toString(),
                 style: Theme.of(context).textTheme.displayLarge!.copyWith(
                       color: Theme.of(context).colorScheme.primary,
-                    ),),
-          ],
-        ),
-      ],),
+                    ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

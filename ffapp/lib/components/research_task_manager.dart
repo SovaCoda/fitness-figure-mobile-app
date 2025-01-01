@@ -122,8 +122,8 @@ class ResearchTaskManager {
   ResearchTask _createRandomTask() {
     final String id = _uuid.v4();
     final int chance = 5 + _random.nextInt(46);
-    final int durationMinutes = (10 * figureModel.EVLevel) +
-        (_random.nextInt(10) * figureModel.EVLevel);
+    final int durationMinutes = (10 * figureModel.EVLevel + 1) +
+        (_random.nextInt(10) * figureModel.EVLevel + 1);
     final Duration duration = Duration(minutes: durationMinutes);
 
     final double evMultiplier = 0.5 + (1 / (chance / 100));

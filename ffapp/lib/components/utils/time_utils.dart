@@ -142,6 +142,10 @@ class PersistantTimer {
     return milliseconds ~/ 60000;
   }
 
+  void addTime(int addableMilliseconds) {
+    milliseconds += addableMilliseconds;
+  }
+
   void pause() {
     classTimer!.cancel();
     storePauseTime();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
@@ -61,19 +62,19 @@ class _CoreState extends State<Core> {
     ]);
 
     if (!mounted) return;
-    
+
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .addListener(() => lockOrUnlock());
   }
 
   Future<void> _initializeServices() async {
     if (!mounted) return;
-    
+
     _auth = Provider.of<AuthService>(context, listen: false);
     _user = Provider.of<UserModel>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
     _getCurrencyIncrement(_figure, _user.isPremium());
-    
+
     // Run currency reactivation concurrently with other initialization tasks
     await _reactivateGenerationServer();
   }
@@ -98,13 +99,14 @@ class _CoreState extends State<Core> {
     ]);
 
     final routes.User? user = futures[0] as routes.User?;
-    final routes.OfflineDateTime lastLoggedGeneration = 
+    final routes.OfflineDateTime lastLoggedGeneration =
         futures[1] as routes.OfflineDateTime;
 
     if (user == null) return;
 
     _currency.setCurrency(user.currency.toString());
-    final DateTime parsedDateTime = DateTime.parse(lastLoggedGeneration.currency);
+    final DateTime parsedDateTime =
+        DateTime.parse(lastLoggedGeneration.currency);
     final Duration difference = DateTime.now().difference(parsedDateTime);
 
     if (difference.inSeconds < 0) {
@@ -118,10 +120,12 @@ class _CoreState extends State<Core> {
 
   void _deactivateGenerationServer() {
     _auth.updateCurrency(double.parse(_currency.currency).toInt());
-    _auth.updateOfflineDateTime(routes.OfflineDateTime(
-      email: _user.user!.email,
-      currency: DateTime.now().toString(),
-    ),);
+    _auth.updateOfflineDateTime(
+      routes.OfflineDateTime(
+        email: _user.user!.email,
+        currency: DateTime.now().toString(),
+      ),
+    );
   }
 
   void _resetTasks() {
@@ -178,7 +182,6 @@ class _CoreState extends State<Core> {
   }
 
   Future<void> lockOrUnlock() async {
-    
     await Future.delayed(const Duration(milliseconds: 100));
     if (!mounted) return;
 
@@ -197,10 +200,10 @@ class _CoreState extends State<Core> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return Column(
-              children: [
-                _buildTopSection(),
-                _buildResearchSection(),
-              ],
+            children: [
+              _buildTopSection(),
+              _buildResearchSection(),
+            ],
           );
         } else {
           return const Center(child: CircularProgressIndicator());
@@ -210,53 +213,58 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildTopSection() {
-    return Stack(alignment: Alignment.center, children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Consumer<UserModel>(
-            builder: (context, figureModel, _) {
-              return Consumer<FigureModel>(
-                builder: (context, figureModel, _) {
-                  _getCurrencyIncrement(figureModel, _user.isPremium());
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Consumer<UserModel>(
+              builder: (context, figureModel, _) {
+                return Consumer<FigureModel>(
+                  builder: (context, figureModel, _) {
+                    _getCurrencyIncrement(figureModel, _user.isPremium());
 
-                  return Container();
-                },
-              );
-            },
-          ),
-          Expanded(
-            child: Stack(
-              alignment: Alignment.centerLeft,
-              children: [
-                // CustomPaint(
-                //   size: Size(MediaQuery.of(context).size.width * 0.5,
-                //       MediaQuery.of(context).size.height * 0.3),
-                //   painter: RobotLinePainter(),
-                // ),
-
-                Positioned(
-                  right: MediaQuery.of(context).size.width * 0.3,
-                  child: const FitnessIcon(
-                      type: FitnessIconType.evolution_circuits, size: 120,),
-                ),
-              Positioned(
-                  right: 0,
-                  child: _buildCurrencyDisplay(),
-                ),
-                RobotImageHolder(
-                  url: (_figure.figure != null)
-                      ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_happy"
-                      : "robot1/robot1_skin0_evo0_cropped_happy",
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  width: MediaQuery.of(context).size.width * 0.5,
-                ),
-              ],
+                    return Container();
+                  },
+                );
+              },
             ),
-          ),
-        ],
-      ),
-    ],);
+            Expanded(
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  // CustomPaint(
+                  //   size: Size(MediaQuery.of(context).size.width * 0.5,
+                  //       MediaQuery.of(context).size.height * 0.3),
+                  //   painter: RobotLinePainter(),
+                  // ),
+
+                  Positioned(
+                    right: MediaQuery.of(context).size.width * 0.3,
+                    child: const FitnessIcon(
+                      type: FitnessIconType.evolution_circuits,
+                      size: 120,
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: _buildCurrencyDisplay(),
+                  ),
+                  RobotImageHolder(
+                    url: (_figure.figure != null)
+                        ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_happy"
+                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.5,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildCurrencyDisplay() {
@@ -271,35 +279,47 @@ class _CoreState extends State<Core> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
               ),
-              child: Image.asset("lib/assets/images/evolution_panel_circle.png",
-                  height: 150, width: 150,),
+              child: Image.asset(
+                "lib/assets/images/evolution_panel_circle.png",
+                height: 150,
+                width: 150,
+              ),
             ),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text('EVO ${_figure.EVLevel + 1}',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 24,),),
-              Column(children: [
-                Text(
+              Text(
+                'EVO ${_figure.EVLevel + 1}',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 24,
+                ),
+              ),
+              Column(
+                children: [
+                  Text(
                     '\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 16,
-                        fontFamily: 'Roberto',),),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 125),
-                  child: Text(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
+                      fontFamily: 'Roberto',
+                    ),
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 125),
+                    child: Text(
                       '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
-                          fontFamily: 'Roberto',),),
-                ),
-              ],),
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 16,
+                        fontFamily: 'Roberto',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ],
@@ -311,9 +331,11 @@ class _CoreState extends State<Core> {
     return Consumer<FigureModel>(
       builder: (_, figure, __) {
         return SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.47,
-            child: ResearchGlassPanel(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: ResearchGlassPanel(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -324,7 +346,6 @@ class _CoreState extends State<Core> {
                           ? _buildDailyLimitReachedMessage()
                           : _buildAvailableTasks(),
                       _buildResetTasksButton(),
-                     
                     ],
                   ),
                   if (!figure.capabilities['Research Unlocked']!)
@@ -355,9 +376,11 @@ class _CoreState extends State<Core> {
                                     .textTheme
                                     .displayMedium!
                                     .copyWith(
-                                        color:
-                                            Theme.of(context).colorScheme.secondary,
-                                        fontSize: 24,),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      fontSize: 24,
+                                    ),
                               ),
                             ],
                           ),
@@ -366,7 +389,9 @@ class _CoreState extends State<Core> {
                     ),
                 ],
               ),
-            ),);
+            ),
+          ),
+        );
       },
     );
   }
@@ -418,22 +443,25 @@ class _CoreState extends State<Core> {
   }
 
   Widget _buildAvailableTasks() {
+    List<Widget> content = _taskManager.getAvailableTasks().map((task) {
+      return ResearchOption(
+        key: ValueKey(task.id),
+        task: task,
+        onComplete: _onTaskComplete,
+        releaseLockedTasks: _taskManager.releaseLockedTasks,
+        onStart: _taskManager.startTask,
+        onSubtractCurrency: _subtractCurrency,
+        lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
+      );
+    }).toList();
+
     return Expanded(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics().applyTo(
-              const BouncingScrollPhysics(),), // quick fix for this https://github.com/flutter/flutter/issues/138940
+          const BouncingScrollPhysics(),
+        ), // quick fix for this https://github.com/flutter/flutter/issues/138940
         child: Column(
-          children: _taskManager.getAvailableTasks().map((task) {
-            return ResearchOption(
-              key: ValueKey(task.id),
-              task: task,
-              onComplete: _onTaskComplete,
-              releaseLockedTasks: _taskManager.releaseLockedTasks,
-              onStart: _taskManager.startTask,
-              onSubtractCurrency: _subtractCurrency,
-              lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
-            );
-          }).toList(),
+          children: content,
         ),
       ),
     );
@@ -448,13 +476,10 @@ class _CoreState extends State<Core> {
         ? FFAppButton(
             onPressed: _resetTasks,
             text: 'Reset tasks (for debugging)',
-            size: MediaQuery.of(context).size.width *
-                0.55,
-            height: MediaQuery.of(context).size.height *
-                0.06,
+            size: MediaQuery.of(context).size.width * 0.55,
+            height: MediaQuery.of(context).size.height * 0.06,
             fontSize: 14,
           )
         : Container();
-        
   }
 }

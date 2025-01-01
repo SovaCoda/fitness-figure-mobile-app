@@ -87,9 +87,7 @@ class EvBar extends StatelessWidget {
                                     context)
                               }
                           : () => {},
-                      child: Row(
-                        
-                        children: [
+                      child: Row(children: [
                         Text(
                           textAlign: TextAlign.left,
                           simulateCurrentGains
@@ -106,8 +104,7 @@ class EvBar extends StatelessWidget {
                                   fontFamily: "Roboto",
                                   fontSize: 19,
                                   fontWeight: FontWeight.w800,
-                                  color:
-                                      const Color(0xFF00A7E1)),
+                                  color: const Color(0xFF00A7E1)),
                         ),
                         const FitnessIcon(type: FitnessIconType.fire, size: 30)
                       ]));
@@ -135,7 +132,7 @@ class EvBar extends StatelessWidget {
                                     .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .onPrimary))
+                                            .secondary))
                             : evoReady
                                 ? Text('EVO Ready!',
                                     style: Theme.of(context)
@@ -144,7 +141,7 @@ class EvBar extends StatelessWidget {
                                         .copyWith(
                                             color: Theme.of(context)
                                                 .colorScheme
-                                                .onSecondary))
+                                                .secondary))
                                 : Text('$currentXp',
                                     style: Theme.of(context)
                                         .textTheme

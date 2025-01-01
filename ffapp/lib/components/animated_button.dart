@@ -15,6 +15,7 @@ class FFAppButton extends StatefulWidget {
   final bool isStore;
   final bool isSignOut;
   final bool isNoThanks;
+  final bool disabled;
   final IconData? icon;
   final double iconPadding;
   const FFAppButton({
@@ -32,6 +33,7 @@ class FFAppButton extends StatefulWidget {
     this.isStore = false,
     this.isSignOut = false,
     this.isNoThanks = false,
+    this.disabled = false,
     this.icon,
     this.iconPadding = 50,
   });
@@ -49,7 +51,7 @@ class FFAppButtonState extends State<FFAppButton> {
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      onTap: widget.onPressed,
+      onTap: widget.disabled ? () => {} : widget.onPressed,
       child: SizedBox(
         width: widget.size,
         height: widget.height ?? widget.size,
@@ -68,8 +70,9 @@ class FFAppButtonState extends State<FFAppButton> {
                         ? "lib/assets/art/back_button.png"
                         : widget.isDelete
                             ? "lib/assets/art/delete_button.png"
-                            : widget.isNoThanks ? "lib/assets/art/button_grey.png" : "lib/assets/art/button_base.png"
-                            ,
+                            : widget.isNoThanks
+                                ? "lib/assets/art/button_grey.png"
+                                : "lib/assets/art/button_base.png",
                 width: widget.size,
                 height: widget.height ?? widget.size,
                 fit: BoxFit.fill,
@@ -158,7 +161,7 @@ class FFAppButtonState extends State<FFAppButton> {
                         left: MediaQuery.of(context).size.width * 0.11,
                         top: constraints.maxHeight / 2 -
                             MediaQuery.of(context).size.width *
-                              0.07167938931297709923664122137405 /
+                                0.07167938931297709923664122137405 /
                                 2,
                         child: SvgPicture.asset(
                           "lib/assets/icons/sign_out.svg",

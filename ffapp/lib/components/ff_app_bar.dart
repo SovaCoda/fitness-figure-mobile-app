@@ -38,20 +38,28 @@ class FfAppBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Expanded to force logo to left while right aligning all other elements
-                const Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: FitnessIcon(
-                      type: FitnessIconType.logo_white,
-                      size: 40 -
-                          0, // Logo icon is 10 pixels bigger than others for some reason
+                Expanded(
+                  child: GestureDetector(
+                    // Send user back to home page
+                    onTap: () =>
+                        Provider.of<HomeIndexProvider>(context, listen: false)
+                            .setIndex(0),
+                    child: const Align(
+                      alignment: Alignment.bottomLeft,
+                      child: FitnessIcon(
+                        type: FitnessIconType.logo_white,
+                        size: 40 -
+                            0, // Logo icon is 10 pixels bigger than others for some reason
+                      ),
                     ),
                   ),
                 ),
 
                 // Store button
                 InkWell(
-                  onTap: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(7),
+                  onTap: () =>
+                      Provider.of<HomeIndexProvider>(context, listen: false)
+                          .setIndex(7),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

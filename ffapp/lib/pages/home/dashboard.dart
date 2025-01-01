@@ -57,200 +57,215 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false);
   }
 
-void initialize() async {
-  try {
-    // Start fetching multiple async data concurrently.
-    Future<Routes.User?> databaseUserFuture = auth.getUserDBInfo();
-    Future<CustomerInfo?> customerInfoFuture = _getCustomerInfoSafely();
-    Future<Routes.FigureInstance?> databaseFigureFuture = databaseUserFuture.then(
-      (databaseUser) {
+  void initialize() async {
+    try {
+      // Start fetching multiple async data concurrently.
+      Future<Routes.User?> databaseUserFuture = auth.getUserDBInfo();
+      Future<CustomerInfo?> customerInfoFuture = _getCustomerInfoSafely();
+      Provider.of<HistoryModel>(context, listen: false).retrieveWorkouts();
+      Future<Routes.FigureInstance?> databaseFigureFuture =
+          databaseUserFuture.then((databaseUser) {
         if (databaseUser != null) {
-          return auth.getFigureInstance(
-            Routes.FigureInstance(
+          return auth.getFigureInstance(Routes.FigureInstance(
               userEmail: databaseUser.email,
-              figureName: databaseUser.curFigure
-            )
-          );
+              figureName: databaseUser.curFigure));
         }
         return null;
+      });
+
+      // Wait for the results concurrently
+      Routes.User? databaseUser = await databaseUserFuture;
+      CustomerInfo? customerInfo = await customerInfoFuture;
+      Routes.FigureInstance? databaseFigure = await databaseFigureFuture;
+
+      // If databaseUser is null, exit early.
+      if (databaseUser == null) {
+        logger.e("Failed to fetch user data.");
+        return;
       }
-    );
 
-    // Wait for the results concurrently
-    Routes.User? databaseUser = await databaseUserFuture;
-    CustomerInfo? customerInfo = await customerInfoFuture;
-    Routes.FigureInstance? databaseFigure = await databaseFigureFuture;
-
-    // If databaseUser is null, exit early.
-    if (databaseUser == null) {
-      logger.e("Failed to fetch user data.");
-      return;
-    }
-
-    // Update user data based on customer info.
-    if (customerInfo != null) {
-      databaseUser.premium = (customerInfo.entitlements.active['ff_plus'] != null) ? Int64.ONE : Int64(-1);
-    } else {
-      // Handle the case where customerInfo is null (due to RevenueCat error)
-      databaseUser.premium = Int64(-1);
-    }
-
-    databaseUser.lastLogin = DateTime.now().toUtc().toString();
-    await auth.updateUserDBInfo(databaseUser);
-
-    // Proceed with other operations only if `mounted` is true.
-    if (!mounted) return;
-
-    // If `databaseFigure` is not null, set the figure and update capabilities
-    if (databaseFigure != null) {
-      // Set the figure in the model, this will notify listeners and trigger the UI update
-      Provider.of<FigureModel>(context, listen: false).setFigure(databaseFigure);
-    } else {
-      // In case no database figure is available, still proceed with the default one
-      logger.e("No figure data available from database, using default.");
-    }
-
-    final String curEmail = databaseUser.email;
-    final int curGoal = databaseUser.weekGoal.toInt();
-    final int curWeekly = databaseUser.weekComplete.toInt();
-    final String curFigure = databaseUser.curFigure;
-
-    // Update UI state
-    setState(() {
-      SystemChannels.textInput.invokeMethod('TextInput.hide');
-      FocusManager.instance.primaryFocus?.unfocus();
-      FocusScope.of(context).unfocus();
-
-      charge = curWeekly / curGoal;
-      email = curEmail;
-      weeklyGoal = curGoal;
-      weeklyCompleted = curWeekly;
-
-      if (curFigure != "none" && Provider.of<FigureModel>(context, listen: false).figure?.charge != null) {
-        // Logic for displaying figure's mood based on charge.
-        if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 20) {
-          figureURL = "${curFigure}_sad";
-        } else if (Provider.of<FigureModel>(context, listen: false).figure!.charge < 50) {
-          figureURL = curFigure;
-        } else {
-          figureURL = "${curFigure}_happy";
-        }
-      }
-    });
-
-    // Initialize offline notification service asynchronously.
-    LocalNotificationService().initNotifications;
-
-    Map<String, dynamic> gameState = {
-      "charge": databaseFigure?.charge ?? 0,
-      "evo": databaseFigure?.evPoints ?? 0,
-      "currency": databaseUser.currency,
-      "evoNeededForLevel": figure1.evCutoffs[databaseFigure?.evLevel ?? 0],
-      "workoutsCompleteThisWeek": weeklyCompleted,
-      "workoutsNeededThisWeek": weeklyGoal,
-    };
-
-    // Schedule notifications based on user's premium status
-    if (databaseUser.hasPremium() && await LocalNotificationService().isReadyForNotification()) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      String? premiumOfflineNotification = await Provider.of<ChatModel>(context, listen: false)
-          .generatePremiumOfflineStatusMessage(gameState);
-
-      if (premiumOfflineNotification != null) {
-        LocalNotificationService().scheduleOfflineNotification(
-            title: "Your Figure", body: premiumOfflineNotification);
+      // Update user data based on customer info.
+      if (customerInfo != null) {
+        databaseUser.premium =
+            (customerInfo.entitlements.active['ff_plus'] != null)
+                ? Int64.ONE
+                : Int64(-1);
       } else {
-        logger.e('Received null response from OpenAI for push notification');
+        // Handle the case where customerInfo is null (due to RevenueCat error)
+        databaseUser.premium = Int64(-1);
       }
-    } else if (await LocalNotificationService().isReadyForNotification()) {
-      String body = databaseFigure!.charge > 50
-          ? "My charge is at ${databaseFigure.charge}, great job! Let's keep it that way."
-          : "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online";
-      LocalNotificationService().scheduleOfflineNotification(title: "Your Figure", body: body);
+
+      databaseUser.lastLogin = DateTime.now().toUtc().toString();
+      await auth.updateUserDBInfo(databaseUser);
+
+      // Proceed with other operations only if `mounted` is true.
+      if (!mounted) return;
+
+      // If `databaseFigure` is not null, set the figure and update capabilities
+      if (databaseFigure != null) {
+        // Set the figure in the model, this will notify listeners and trigger the UI update
+        Provider.of<FigureModel>(context, listen: false)
+            .setFigure(databaseFigure);
+      } else {
+        // In case no database figure is available, still proceed with the default one
+        logger.e("No figure data available from database, using default.");
+      }
+
+      final String curEmail = databaseUser.email;
+      final int curGoal = databaseUser.weekGoal.toInt();
+      final int curWeekly = databaseUser.weekComplete.toInt();
+      final String curFigure = databaseUser.curFigure;
+
+      // Update UI state
+      setState(() {
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+        FocusManager.instance.primaryFocus?.unfocus();
+        FocusScope.of(context).unfocus();
+
+        charge = curWeekly / curGoal;
+        email = curEmail;
+        weeklyGoal = curGoal;
+        weeklyCompleted = curWeekly;
+
+        if (curFigure != "none" &&
+            Provider.of<FigureModel>(context, listen: false).figure?.charge !=
+                null) {
+          // Logic for displaying figure's mood based on charge.
+          if (Provider.of<FigureModel>(context, listen: false).figure!.charge <
+              20) {
+            figureURL = "${curFigure}_sad";
+          } else if (Provider.of<FigureModel>(context, listen: false)
+                  .figure!
+                  .charge <
+              50) {
+            figureURL = curFigure;
+          } else {
+            figureURL = "${curFigure}_happy";
+          }
+        }
+      });
+
+      // Initialize offline notification service asynchronously.
+      LocalNotificationService().initNotifications;
+
+      Map<String, dynamic> gameState = {
+        "charge": databaseFigure?.charge ?? 0,
+        "evo": databaseFigure?.evPoints ?? 0,
+        "currency": databaseUser.currency,
+        "evoNeededForLevel": figure1.evCutoffs[databaseFigure?.evLevel ?? 0],
+        "workoutsCompleteThisWeek": weeklyCompleted,
+        "workoutsNeededThisWeek": weeklyGoal,
+      };
+
+      // Schedule notifications based on user's premium status
+      if (databaseUser.hasPremium() &&
+          await LocalNotificationService().isReadyForNotification()) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        String? premiumOfflineNotification =
+            await Provider.of<ChatModel>(context, listen: false)
+                .generatePremiumOfflineStatusMessage(gameState);
+
+        if (premiumOfflineNotification != null) {
+          LocalNotificationService().scheduleOfflineNotification(
+              title: "Your Figure", body: premiumOfflineNotification);
+        } else {
+          logger.e('Received null response from OpenAI for push notification');
+        }
+      } else if (await LocalNotificationService().isReadyForNotification()) {
+        String body = databaseFigure!.charge > 50
+            ? "My charge is at ${databaseFigure.charge}, great job! Let's keep it that way."
+            : "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online";
+        LocalNotificationService()
+            .scheduleOfflineNotification(title: "Your Figure", body: body);
+      }
+
+      // Schedule dialog after frame callback
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (databaseUser.readyForWeekReset == 'yes') {
+          bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
+          showFFDialogWithChildren(
+            "Week Complete!",
+            [
+              WeekCompleteShowcase(isUserFirstWeek: isUsersFirstWeek),
+            ],
+            false,
+            FfButton(
+              text: "Get Fit",
+              textColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              onPressed: () async {
+                bool isComplete = isUsersFirstWeek
+                    ? true
+                    : Provider.of<HistoryModel>(context, listen: false)
+                            .lastWeek
+                            .where((element) => element == 2)
+                            .length >=
+                        Provider.of<UserModel>(context, listen: false)
+                            .user!
+                            .weekGoal
+                            .toInt();
+
+                double investment =
+                    Provider.of<HistoryModel>(context, listen: false)
+                        .lastWeekInvestment;
+                int investmentAdd = (investment / 100).toInt();
+                int numComplete =
+                    Provider.of<HistoryModel>(context, listen: false)
+                        .lastWeek
+                        .where((element) => element == 2)
+                        .length;
+
+                int chargeGain = isComplete ? numComplete * 3 : numComplete;
+                int evGain = isComplete
+                    ? numComplete * 50 + investmentAdd
+                    : numComplete * 25;
+
+                User user =
+                    Provider.of<UserModel>(context, listen: false).user!;
+                FigureInstance figure =
+                    Provider.of<FigureModel>(context, listen: false).figure!;
+                figure.charge += chargeGain;
+                figure.charge = figure.charge > 100 ? 100 : figure.charge;
+                figure.evPoints += evGain;
+
+                Navigator.of(context).pop();
+                user.readyForWeekReset = 'no';
+                user.weekComplete = Int64.ZERO;
+
+                await auth.updateUserDBInfo(user);
+                await auth.updateFigureInstance(figure);
+                await auth.resetUserWeekComplete(user);
+                await auth.resetUserStreak(user);
+
+                Provider.of<UserModel>(context, listen: false).setUser(user);
+                Provider.of<FigureModel>(context, listen: false)
+                    .setFigure(figure);
+              },
+            ),
+            context,
+          );
+        }
+      });
+
+      logger.i(figureURL);
+    } catch (e, stacktrace) {
+      logger.e("Error initializing dashboard: ${e.toString()}");
+      logger.e("Stacktrace: ${stacktrace.toString()}");
     }
-
-    // Schedule dialog after frame callback
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (databaseUser.readyForWeekReset == 'yes') {
-        bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
-        showFFDialogWithChildren(
-          "Week Complete!",
-          [
-            WeekCompleteShowcase(isUserFirstWeek: isUsersFirstWeek),
-          ],
-          false,
-          FfButton(
-            text: "Get Fit",
-            textColor: Theme.of(context).colorScheme.onPrimary,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            onPressed: () async {
-              bool isComplete = isUsersFirstWeek
-                  ? true
-                  : Provider.of<HistoryModel>(context, listen: false)
-                      .lastWeek
-                      .where((element) => element == 2)
-                      .length >= Provider.of<UserModel>(context, listen: false)
-                      .user!
-                      .weekGoal
-                      .toInt();
-
-              double investment = Provider.of<HistoryModel>(context, listen: false)
-                  .lastWeekInvestment;
-              int investmentAdd = (investment / 100).toInt();
-              int numComplete = Provider.of<HistoryModel>(context, listen: false)
-                  .lastWeek
-                  .where((element) => element == 2)
-                  .length;
-
-              int chargeGain = isComplete ? numComplete * 3 : numComplete;
-              int evGain = isComplete ? numComplete * 50 + investmentAdd : numComplete * 25;
-
-              User user = Provider.of<UserModel>(context, listen: false).user!;
-              FigureInstance figure = Provider.of<FigureModel>(context, listen: false).figure!;
-              figure.charge += chargeGain;
-              figure.charge = figure.charge > 100 ? 100 : figure.charge;
-              figure.evPoints += evGain;
-
-              Navigator.of(context).pop();
-              user.readyForWeekReset = 'no';
-              user.weekComplete = Int64.ZERO;
-
-              await auth.updateUserDBInfo(user);
-              await auth.updateFigureInstance(figure);
-              await auth.resetUserWeekComplete(user);
-              await auth.resetUserStreak(user);
-
-              Provider.of<UserModel>(context, listen: false).setUser(user);
-              Provider.of<FigureModel>(context, listen: false).setFigure(figure);
-            },
-          ),
-          context,
-        );
-      }
-    });
-
-    logger.i(figureURL);
-
-  } catch (e, stacktrace) {
-    logger.e("Error initializing dashboard: ${e.toString()}");
-    logger.e("Stacktrace: ${stacktrace.toString()}");
   }
-}
 
-
-Future<CustomerInfo?> _getCustomerInfoSafely() async {
-  try {
-    return await Purchases.getCustomerInfo();
-  } on PlatformException catch (e) {
-    // Handle the RevenueCat error
-    logger.e("RevenueCat error: ${e.message}");
-    return null; // Return null to continue gracefully
-  } catch (e) {
-    logger.e("Unexpected error: $e");
-    rethrow; // Rethrow any other exceptions
+  Future<CustomerInfo?> _getCustomerInfoSafely() async {
+    try {
+      return await Purchases.getCustomerInfo();
+    } on PlatformException catch (e) {
+      // Handle the RevenueCat error
+      logger.e("RevenueCat error: ${e.message}");
+      return null; // Return null to continue gracefully
+    } catch (e) {
+      logger.e("Unexpected error: $e");
+      rethrow; // Rethrow any other exceptions
+    }
   }
-}
-
 
   void triggerFigureDecay() {
     auth.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);

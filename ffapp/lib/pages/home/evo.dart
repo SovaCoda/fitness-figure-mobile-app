@@ -2,6 +2,7 @@ import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/providers.dart';
@@ -258,11 +259,16 @@ class _EvolutionPageState extends State<EvolutionPage>
                               ),
                             )
                           : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 EvolutionItem(
                                   title: 'EVO ${figure.EVLevel + 1}',
                                   upgrades: figure1.figureEvUpgrades[figure
                                       .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
+                                ),
+                                const FitnessIcon(
+                                  type: FitnessIconType.evo_arrow,
+                                  rotation: 3.14 / 2,
                                 ),
                                 EvolutionItem(
                                   title: 'EVO ${figure.EVLevel + 2}',

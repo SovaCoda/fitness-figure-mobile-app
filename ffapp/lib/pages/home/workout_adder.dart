@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/chat_bubble.dart';
@@ -450,13 +451,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   void add30Seconds() {
     setState(() {
-      time += Int64(30);
+      _timer.addTime(30 * 1000);
     });
   }
 
   void add10Minutes() {
     setState(() {
-      time += Int64(600);
+      _timer.addTime(600 * 1000);
     });
   }
 
@@ -472,9 +473,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           fontSize: 20,
           text: "OK",
           onPressed: () async => {
-            if (Platform.isIOS) {
-              liveActivityManager.stopLiveActivity()
-            },
+            if (Platform.isIOS) {liveActivityManager.stopLiveActivity()},
             setState(() {
               _timePassed = time;
               states['chatting'] = true;
@@ -491,7 +490,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           text: "GO BACK",
           onPressed: () => {Navigator.of(context).pop()},
         ),
-        
       );
     } else {
       if (Platform.isIOS) {
@@ -619,771 +617,884 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-            Positioned(
-              top: MediaQuery.of(context).size.height * 0.03,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width.clamp(0, 400),
-                child: WorkoutCalendar(
-                  isInteractable: false,
-                  workoutMinTime: minWorkoutTime,
-                ),
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.03,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width.clamp(0, 400),
+              child: WorkoutCalendar(
+                isInteractable: false,
+                workoutMinTime: minWorkoutTime,
               ),
             ),
+          ),
           if (states['post-logging']!)
             Positioned(
-              bottom: MediaQuery.of(context).size.height * -0.015,
-              child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                    padding: const EdgeInsets.only(
-                      left: 40,
-                      top: 12,
-                      bottom: 12,
-                      right: 40,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.615, // 0.295
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: Color.fromRGBO(51, 133, 162, 1),
+                bottom: MediaQuery.of(context).size.height * -0.015,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(
+                        left: 40,
+                        top: 12,
+                        bottom: 12,
+                        right: 40,
+                      ),
+                      width: MediaQuery.of(context).size.width,
+                      height:
+                          MediaQuery.of(context).size.height * 0.615, // 0.295
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Color.fromRGBO(51, 133, 162, 1),
+                          ),
+                        ),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromRGBO(28, 109, 189, 0.29),
+                            Color.fromRGBO(0, 164, 123, 0.29),
+                          ],
                         ),
                       ),
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromRGBO(28, 109, 189, 0.29),
-                          Color.fromRGBO(0, 164, 123, 0.29),
-                        ],
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [ Consumer<UserModel>(
-                      builder: (_, user, __) {
-                        return Consumer<FigureModel>(
-                          builder: (_, figure, __) {
-                            return Column(
-                              children: states['investing']!
-                                  ? [
-                                      SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Feeling Confident?",
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headlineLarge!
-                                                  .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                  ),
-                                            ),
-                                            Center(
-                                              child: Container(
-                                                margin: const EdgeInsets.only(
-                                                  top: 15,
-                                                  bottom: 15,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                    4,
-                                                  ),
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                                ),
-                                                width:
-                                                    MediaQuery.sizeOf(context)
-                                                            .width *
-                                                        1,
-                                                height: 2,
-                                              ),
-                                            ),
-                                            Text(
-                                              "Invest in your week to earn extra rewards if you reach your weekly workout goal. \n",
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .displaySmall!
-                                                  .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                  ),
-                                            ),
-                                            Text(
-                                              "NOTE: If you don't reach your goal by end of the week, you will lose the investment.",
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .displaySmall!
-                                                  .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                  ),
-                                            ),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                            WeekGoalShower(
-                                              weeklyCompleted: user
-                                                  .user!.weekComplete
-                                                  .toInt(),
-                                              weeklyGoal:
-                                                  user.user!.weekGoal.toInt(),
-                                            ),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                            Consumer<HistoryModel>(
-                                              builder: (_, history, __) {
-                                                return Column(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Consumer<UserModel>(
+                              builder: (_, user, __) {
+                                return Consumer<FigureModel>(
+                                  builder: (_, figure, __) {
+                                    return Column(
+                                      children: states['investing']!
+                                          ? [
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    WeekToGoShower(
-                                                      boxSize: Size(
-                                                        MediaQuery.sizeOf(
-                                                              context,
-                                                            ).width *
-                                                            0.11,
-                                                        MediaQuery.sizeOf(
-                                                              context,
-                                                            ).width *
-                                                            0.11,
+                                                    Text(
+                                                      "Feeling Confident?",
+                                                      textAlign:
+                                                          TextAlign.start,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .headlineLarge!
+                                                          .copyWith(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .onSurface,
+                                                          ),
+                                                    ),
+                                                    Center(
+                                                      child: Container(
+                                                        margin: const EdgeInsets
+                                                            .only(
+                                                          top: 15,
+                                                          bottom: 15,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                            4,
+                                                          ),
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurface,
+                                                        ),
+                                                        width:
+                                                            MediaQuery.sizeOf(
+                                                                        context)
+                                                                    .width *
+                                                                1,
+                                                        height: 2,
                                                       ),
-                                                      weekGoal: user
-                                                          .user!.weekGoal
-                                                          .toInt(),
-                                                      workouts:
-                                                          history.currentWeek,
+                                                    ),
+                                                    Text(
+                                                      "Invest in your week to earn extra rewards if you reach your weekly workout goal. \n",
+                                                      textAlign:
+                                                          TextAlign.start,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .displaySmall!
+                                                          .copyWith(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .onSurface,
+                                                          ),
+                                                    ),
+                                                    Text(
+                                                      "NOTE: If you don't reach your goal by end of the week, you will lose the investment.",
+                                                      textAlign:
+                                                          TextAlign.start,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .displaySmall!
+                                                          .copyWith(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .onSurface,
+                                                          ),
                                                     ),
                                                     const SizedBox(
                                                       height: 10,
                                                     ),
-                                                    Text(
-                                                      "Currently Invested: \$${history.investment.toStringAsFixed(2)}",
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Consumer<HistoryModel>(
+                                                      builder:
+                                                          (_, history, __) {
+                                                        return Column(
+                                                          children: [
+                                                            WeekToGoShower(
+                                                              boxSize: Size(
+                                                                MediaQuery
+                                                                        .sizeOf(
+                                                                      context,
+                                                                    ).width *
+                                                                    0.09,
+                                                                MediaQuery
+                                                                        .sizeOf(
+                                                                      context,
+                                                                    ).width *
+                                                                    0.09,
+                                                              ),
+                                                              weekGoal: user
+                                                                  .user!
+                                                                  .weekGoal
+                                                                  .toInt(),
+                                                              workouts: history
+                                                                  .currentWeek,
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Text(
+                                                                "Currently Invested: \$${history.investment.toStringAsFixed(2)}",
+                                                                style: Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .displaySmall!
+                                                                    .copyWith(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .onSurface,
+                                                                    )),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ),
+                                                    Consumer<UserModel>(
+                                                      builder: (context, value,
+                                                          child) {
+                                                        return FFAppButton(
+                                                          size: MediaQuery.sizeOf(
+                                                                      context)
+                                                                  .width *
+                                                              0.85,
+                                                          height: 50,
+                                                          disabled: hasInvested,
+                                                          isNoThanks:
+                                                              hasInvested,
+                                                          text:
+                                                              "Invest ${(user.user!.currency.toInt() * 0.2).toStringAsFixed(2)}",
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              hasInvested =
+                                                                  true;
+                                                              _investment = value
+                                                                      .user!
+                                                                      .currency
+                                                                      .toInt() *
+                                                                  0.2;
+                                                              Provider.of<
+                                                                  HistoryModel>(
+                                                                context,
+                                                                listen: false,
+                                                              ).setInvestment(
+                                                                Provider.of<
+                                                                        HistoryModel>(
+                                                                      context,
+                                                                      listen:
+                                                                          false,
+                                                                    ).investment +
+                                                                    _investment,
+                                                              );
+                                                              final User user =
+                                                                  Provider.of<
+                                                                      UserModel>(
+                                                                context,
+                                                                listen: false,
+                                                              ).user!;
+                                                              user.currency =
+                                                                  Int64(
+                                                                (user.currency
+                                                                            .toDouble() -
+                                                                        _investment)
+                                                                    .toInt(),
+                                                              );
+                                                              Provider.of<
+                                                                  UserModel>(
+                                                                context,
+                                                                listen: false,
+                                                              ).setUser(user);
+                                                              Provider.of<
+                                                                  CurrencyModel>(
+                                                                context,
+                                                                listen: false,
+                                                              ).setCurrency(
+                                                                user.currency
+                                                                    .toString(),
+                                                              );
+                                                              auth.updateUserDBInfo(
+                                                                routes.User(
+                                                                  email: user
+                                                                      .email,
+                                                                  currency: user
+                                                                      .currency,
+                                                                ),
+                                                              );
+                                                            });
+                                                          },
+                                                        );
+                                                      },
                                                     ),
                                                   ],
-                                                );
-                                              },
-                                            ),
-                                            Consumer<UserModel>(
-                                              builder: (context, value, child) {
-                                                return FfButton(
-                                                  disabled: hasInvested,
-                                                  text:
-                                                      "Invest ${(user.user!.currency.toInt() * 0.2).toStringAsFixed(2)}",
-                                                  textColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .surface,
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      hasInvested = true;
-                                                      _investment = value
-                                                              .user!.currency
-                                                              .toInt() *
-                                                          0.2;
-                                                      Provider.of<HistoryModel>(
-                                                        context,
-                                                        listen: false,
-                                                      ).setInvestment(
-                                                        Provider.of<
-                                                                HistoryModel>(
-                                                              context,
-                                                              listen: false,
-                                                            ).investment +
-                                                            _investment,
-                                                      );
-                                                      final User user = Provider
-                                                          .of<UserModel>(
-                                                        context,
-                                                        listen: false,
-                                                      ).user!;
-                                                      user.currency = Int64(
-                                                        (user.currency
-                                                                    .toDouble() -
-                                                                _investment)
-                                                            .toInt(),
-                                                      );
-                                                      Provider.of<UserModel>(
-                                                        context,
-                                                        listen: false,
-                                                      ).setUser(user);
-                                                      Provider.of<
-                                                          CurrencyModel>(
-                                                        context,
-                                                        listen: false,
-                                                      ).setCurrency(
-                                                        user.currency
-                                                            .toString(),
-                                                      );
-                                                      auth.updateUserDBInfo(
-                                                        routes.User(
-                                                          email: user.email,
-                                                          currency:
-                                                              user.currency,
-                                                        ),
-                                                      );
-                                                    });
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ]
-                                  : [
-                                      Row(
-                                        children: [
-                                          RobotImageHolder(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height * 0.278169014084507,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *0.4460559796437659,
-                                            url: figure.composeFigureUrl(),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              WorkoutTimeShower(
-                                                textStyle: Theme.of(context)
-                                                    .textTheme
-                                                    .displayMedium!,
-                                                workoutMinTime:
-                                                    _timePassed.toInt(),
-                                                secondsTrueMinutesFalse: true,
-                                                showStatus: true,
-                                                goalMet: _goalMet,
+                                                ),
                                               ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              StreakShower(
-                                                textStyle: Theme.of(context)
-                                                    .textTheme
-                                                    .displayMedium!,
-                                                streak:
-                                                    user.user!.streak.toInt(),
-                                                showStatus: true,
-                                                goalMet: true,
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              Consumer<HistoryModel>(
-                                                builder:
-                                                    (_, workoutHistory, __) {
-                                                  return Row(
+                                            ]
+                                          : [
+                                              Row(
+                                                children: [
+                                                  RobotImageHolder(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.278169014084507,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.4460559796437659,
+                                                    url: figure
+                                                        .composeFigureUrl(),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
                                                     children: [
-                                                      WeekToGoShower(
-                                                        weekGoal: user
-                                                            .user!.weekGoal
+                                                      WorkoutTimeShower(
+                                                        textStyle:
+                                                            Theme.of(context)
+                                                                .textTheme
+                                                                .displayMedium!,
+                                                        workoutMinTime:
+                                                            _timePassed.toInt(),
+                                                        secondsTrueMinutesFalse:
+                                                            true,
+                                                        showStatus: true,
+                                                        goalMet: _goalMet,
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      StreakShower(
+                                                        textStyle:
+                                                            Theme.of(context)
+                                                                .textTheme
+                                                                .displayMedium!,
+                                                        streak: user
+                                                            .user!.streak
                                                             .toInt(),
-                                                        boxSize:
-                                                            const Size(16, 16),
-                                                        workouts: workoutHistory
-                                                            .currentWeek,
+                                                        showStatus: true,
+                                                        goalMet: true,
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Consumer<HistoryModel>(
+                                                        builder: (_,
+                                                            workoutHistory,
+                                                            __) {
+                                                          return Row(
+                                                            children: [
+                                                              WeekToGoShower(
+                                                                weekGoal: user
+                                                                    .user!
+                                                                    .weekGoal
+                                                                    .toInt(),
+                                                                boxSize:
+                                                                    const Size(
+                                                                        16, 16),
+                                                                workouts:
+                                                                    workoutHistory
+                                                                        .currentWeek,
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      ChargeBar(
+                                                        barHeight: MediaQuery
+                                                                    .of(context)
+                                                                .size
+                                                                .height *
+                                                            0.0195305164319249,
+                                                        barWidth: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.5338422391857506,
+                                                        fillColor:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .primary,
+                                                        currentCharge: figure
+                                                            .figure!.charge,
+                                                        showIcon: true,
+                                                        showInfoCircle: true,
+                                                      ),
+                                                      Text("[+$addableCharge]",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  "Roboto",
+                                                              fontSize: 21.05,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color: Color(
+                                                                  0xFFFF9E45))),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.03,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      EvBar(
+                                                        currentXp: figure
+                                                            .figure!.evPoints,
+                                                        maxXp:
+                                                            figure1.evCutoffs[
+                                                                figure.EVLevel],
+                                                        fillColor:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .secondary,
+                                                        barHeight: MediaQuery
+                                                                    .of(context)
+                                                                .size
+                                                                .height *
+                                                            0.0195305164319249,
+                                                        barWidth: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.5338422391857506,
+                                                        showInfoBox: true,
+                                                        showIcon: true,
+                                                      ),
+                                                      Text(
+                                                        "[+$addableEV]",
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                "Roboto",
+                                                            fontSize: 21.05,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Color(
+                                                                0xFF00A7E1)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                            FFAppButton(
+                              text: "AWESOME!",
+                              fontSize: 20,
+                              size: MediaQuery.of(context).size.width *
+                                  0.85272264631043256997455470737913,
+                              height: MediaQuery.of(context).size.height *
+                                  0.0946478873239436619718309859155,
+                              onPressed: () => {
+                                if (states['investing']!)
+                                  setState(() {
+                                    states['investing'] = false;
+                                    endLogging();
+                                  })
+                                else
+                                  setState(() {
+                                    states['post-logging'] = false;
+                                    states['pre-logging'] = true;
+                                    states['investing '] = false;
+
+                                    _logging = false;
+                                    _goalMet = false;
+                                    _investment = 0;
+                                    _timePassed = Int64.ZERO;
+                                  }),
+                              },
+                            ),
+                          ]),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                ))
+          else
+            Positioned(
+              bottom: MediaQuery.of(context).size.height * -0.015,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: states['chatting']!
+                    ? [
+                        Container(
+                            padding: const EdgeInsets.only(
+                              left: 40,
+                              top: 12,
+                              bottom: 12,
+                              right: 40,
+                            ),
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height *
+                                0.615, // 0.295
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color: Color.fromRGBO(51, 133, 162, 1),
+                                ),
+                              ),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromRGBO(28, 109, 189, 0.29),
+                                  Color.fromRGBO(0, 164, 123, 0.29),
+                                ],
+                              ),
+                            ),
+                            child: Column(children: [
+                              FutureBuilder<String>(
+                                future: _postWorkoutMessage,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return BinaryGlowChatBubble(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.2,
+                                      message: snapshot.data!,
+                                      chatMore: true,
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return BinaryGlowChatBubble(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.2,
+                                      message:
+                                          "[CRITICAL CHAT MODULE ERR ::Code 402::]",
+                                    );
+                                  } else {
+                                    return const SizedBox(
+                                      width: 100,
+                                      height: 60,
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Consumer<FigureModel>(
+                                    builder: (_, figure, __) {
+                                      return RobotImageHolder(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.278169014084507,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.4452926208651399,
+                                        url: figure.composeFigureUrl(),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              FFAppButton(
+                                fontSize: 20,
+                                size: MediaQuery.of(context).size.width *
+                                    0.85272264631043256997455470737913,
+                                height: MediaQuery.of(context).size.height *
+                                    0.0946478873239436619718309859155,
+                                text: "OK",
+                                onPressed: () => {
+                                  setState(() {
+                                    states['chatting'] = false;
+                                    if (_goalMet) {
+                                      states['post-logging'] = true;
+                                      states['investing'] = true;
+                                    } else {
+                                      states['investing'] = false;
+                                      endLogging();
+                                      states['post-logging'] = true;
+                                    }
+                                  }),
+                                },
+                              ),
+                            ])),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ]
+                    : [
+                        Consumer<FigureModel>(
+                          builder: (_, figure, __) {
+                            return Stack(
+                              children: [
+                                RobotImageHolder(
+                                  height:
+                                      MediaQuery.of(context).size.height / 3,
+                                  width: MediaQuery.of(context).size.width,
+                                  url: figure.composeFigureUrl(),
+                                ),
+                                // DraggableAdminPanel(
+                                //   onButton1Pressed: add10Minutes,
+                                //   onButton2Pressed: add30Seconds,
+                                //   button1Text: "add 10 min",
+                                //   button2Text: "add 30 sec",
+                                // ),
+                              ],
+                            );
+                          },
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(
+                            left: 20,
+                            top: 20,
+                            right: 14,
+                          ),
+                          width: MediaQuery.of(context).size.width,
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: Color.fromRGBO(51, 133, 162, 1),
+                              ),
+                            ),
+                            gradient: LinearGradient(
+                              colors: [
+                                Color.fromRGBO(28, 109, 189, 0.29),
+                                Color.fromRGBO(0, 164, 123, 0.29),
+                              ],
+                            ),
+                          ),
+                          height: MediaQuery.of(context).size.height * 0.285,
+                          // doWeBinkTheBorder: false,
+                          // radius: 0,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: states["logging"]!
+                                      ? [
+                                          GestureDetector(
+                                            onTap: () => {endWorkout()},
+                                            child: Icon(
+                                              Icons.stop,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              size: 60,
+                                            ),
+                                          ),
+                                          Text(
+                                            formatSeconds(time.toInt()),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall!
+                                                .copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () => {
+                                              if (states["paused"]!)
+                                                resumeTimer()
+                                              else
+                                                pauseTimer(),
+                                            },
+                                            child: states["paused"]!
+                                                ? Icon(
+                                                    Icons.play_arrow,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    size: 60,
+                                                  )
+                                                : Icon(
+                                                    Icons.pause,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    size: 60,
+                                                  ),
+                                          ),
+                                        ]
+                                      : [
+                                          Consumer<FigureModel>(
+                                            builder: (_, figure, __) {
+                                              return Consumer<HistoryModel>(
+                                                builder: (
+                                                  _,
+                                                  workoutHistory,
+                                                  __,
+                                                ) {
+                                                  return Column(
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          ChargeBar(
+                                                            didWeWorkoutToday:
+                                                                workoutHistory
+                                                                    .workedOutToday,
+                                                            simulateCurrentGains:
+                                                                true,
+                                                            showIcon: true,
+                                                            barHeight: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.0157863849765258215962441314554, // sizes calculated from figma
+                                                            barWidth: MediaQuery
+                                                                    .of(
+                                                                  context,
+                                                                ).size.width *
+                                                                0.43531806615776081424936386768448,
+                                                            fillColor: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .tertiary,
+                                                            currentCharge:
+                                                                figure.figure!
+                                                                    .charge,
+                                                            iconSize: 40,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          EvBar(
+                                                              showIcon: true,
+                                                              didWeWorkoutToday:
+                                                                  workoutHistory
+                                                                      .workedOutToday,
+                                                              simulateCurrentGains:
+                                                                  true,
+                                                              areWeShadowing:
+                                                                  true,
+                                                              currentXp: figure
+                                                                  .figure!
+                                                                  .evPoints,
+                                                              maxXp: figure1
+                                                                      .evCutoffs[
+                                                                  figure
+                                                                      .EVLevel],
+                                                              fillColor:
+                                                                  Theme.of(
+                                                                context,
+                                                              )
+                                                                      .colorScheme
+                                                                      .secondary,
+                                                              barHeight: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height *
+                                                                  0.0157863849765258215962441314554,
+                                                              barWidth: MediaQuery
+                                                                      .of(
+                                                                    context,
+                                                                  ).size.width *
+                                                                  0.43531806615776081424936386768448,
+                                                              iconSize: 40),
+                                                        ],
                                                       ),
                                                     ],
                                                   );
                                                 },
-                                              ),
-                                            ],
+                                              );
+                                            },
+                                          ),
+                                          Consumer<UserModel>(
+                                            builder: (_, user, __) {
+                                              return Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  WorkoutTimeShower(
+                                                    textStyle: Theme.of(context)
+                                                        .textTheme
+                                                        .displayMedium!,
+                                                    workoutMinTime: user
+                                                        .user!.workoutMinTime
+                                                        .toInt(),
+                                                  ),
+                                                  SizedBox(
+                                                    height: MediaQuery.of(
+                                                                context)
+                                                            .size
+                                                            .height *
+                                                        0.016431924882629107981220657277,
+                                                  ),
+                                                  StreakShower(
+                                                    goalMet: true,
+                                                    textStyle: Theme.of(context)
+                                                        .textTheme
+                                                        .displayMedium!,
+                                                    streak: user.user!.streak
+                                                        .toInt(),
+                                                  ),
+                                                ],
+                                              );
+                                            },
                                           ),
                                         ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              ChargeBar(
-                                                barHeight: MediaQuery.of(context).size.height *0.0195305164319249,
-                                                barWidth: MediaQuery.of(context)
-                                                        .size
-                                                        .width * 0.5338422391857506,
-                                                fillColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                currentCharge:
-                                                    figure.figure!.charge,
-                                                    showIcon: true,
-                                                    showInfoCircle: true,
-                                              ),
-                                              Text(
-                                                "[+$addableCharge]",
-                                                style: TextStyle(fontFamily: "Roboto", fontSize: 21.05, fontWeight: FontWeight.w600, color: Color(0xFFFF9E45))
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: MediaQuery.of(context).size.height * 0.03,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              EvBar(
-                                                currentXp:
-                                                    figure.figure!.evPoints,
-                                                maxXp: figure1
-                                                    .evCutoffs[figure.EVLevel],
-                                                fillColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                                barHeight: MediaQuery.of(context).size.height *0.0195305164319249,
-                                                barWidth: MediaQuery.of(context)
-                                                        .size
-                                                        .width * 0.5338422391857506,
-                                                showInfoBox: true,
-                                                showIcon: true,
-                                              ),
-                                              Text(
-                                                "[+$addableEV]",
-                                                style: TextStyle(fontFamily: "Roboto", fontSize: 21.05, fontWeight: FontWeight.w600, color: Color(0xFF00A7E1)),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    FFAppButton(
-                  
-                  text: "AWESOME!",
-                  fontSize: 20,
-                  size: MediaQuery.of(context).size.width * 0.85272264631043256997455470737913,
-                  height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.0946478873239436619718309859155,
-                  onPressed: () => {
-                    if (states['investing']!)
-                      setState(() {
-                        states['investing'] = false;
-                        endLogging();
-                      })
-                    else
-                      setState(() {
-                        states['post-logging'] = false;
-                        states['pre-logging'] = true;
-                        states['investing '] = false;
-
-                        _logging = false;
-                        _goalMet = false;
-                        _investment = 0;
-                        _timePassed = Int64.ZERO;
-                      }),
-                  },
-                ),
-              ]),
-              ),
-                
-                const SizedBox(
-                  height: 10,
-                ),
-              ],
-            )
-            )
-          else
-          Positioned(
-              bottom: MediaQuery.of(context).size.height * -0.015,
-              child:
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: states['chatting']!
-                  ? [
-                      Container(
-                        padding: const EdgeInsets.only(
-                      left: 40,
-                      top: 12,
-                      bottom: 12,
-                      right: 40,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.615, // 0.295
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: Color.fromRGBO(51, 133, 162, 1),
-                        ),
-                      ),
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromRGBO(28, 109, 189, 0.29),
-                          Color.fromRGBO(0, 164, 123, 0.29),
-                        ],
-                      ),
-                    ),
-                        child:
-                        Column(children: [ FutureBuilder<String>(
-                        future: _postWorkoutMessage,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return BinaryGlowChatBubble(
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              height: MediaQuery.of(context).size.height * 0.2,
-                              message: snapshot.data!,
-                              chatMore: true,
-                            );
-                          } else if (snapshot.hasError) {
-                            return BinaryGlowChatBubble(
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              height: MediaQuery.of(context).size.height * 0.2,
-                              message:
-                                  "[CRITICAL CHAT MODULE ERR ::Code 402::]",
-                            );
-                          } else {
-                            return const SizedBox(
-                              width: 100,
-                              height: 60,
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                        },
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Consumer<FigureModel>(
-                            builder: (_, figure, __) {
-                              return RobotImageHolder(
-                                height: MediaQuery.of(context).size.height * 0.278169014084507,
-                                width: MediaQuery.of(context).size.width * 0.4452926208651399,
-                                url: figure.composeFigureUrl(),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      FFAppButton(
-                        fontSize: 20,
-                  size: MediaQuery.of(context).size.width * 0.85272264631043256997455470737913,
-                  height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.0946478873239436619718309859155,
-                        text: "OK",
-                        onPressed: () => {
-                          setState(() {
-                            states['chatting'] = false;
-                            if (_goalMet) {
-                              states['post-logging'] = true;
-                              states['investing'] = true;
-                            } else {
-                              states['investing'] = false;
-                              endLogging();
-                              states['post-logging'] = true;
-                            }
-                          }),
-                        },
-                      ),
-                        ])),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                    ]
-                  : [
-                      Consumer<FigureModel>(
-                        builder: (_, figure, __) {
-                          return Stack(
-                            children: [
-                              RobotImageHolder(
-                                height: MediaQuery.of(context).size.height / 3,
-                                width: MediaQuery.of(context).size.width,
-                                url: figure.composeFigureUrl(),
+                                ),
                               ),
-                              // DraggableAdminPanel(
-                              //   onButton1Pressed: add10Minutes,
-                              //   onButton2Pressed: add30Seconds,
-                              //   button1Text: "add 10 min",
-                              //   button2Text: "add 30 sec",
-                              // ),
-                            ],
-                          );
-                        },
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          top: 20,
-                          right: 14,
-                        ),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Color.fromRGBO(51, 133, 162, 1),
-                            ),
-                          ),
-                          gradient: LinearGradient(
-                            colors: [
-                              Color.fromRGBO(28, 109, 189, 0.29),
-                              Color.fromRGBO(0, 164, 123, 0.29),
-                            ],
-                          ),
-                        ),
-                        height: MediaQuery.of(context).size.height * 0.285,
-                        // doWeBinkTheBorder: false,
-                        // radius: 0,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: states["logging"]!
-                                    ? [
-                                        GestureDetector(
-                                          onTap: () => {endWorkout()},
-                                          child: Icon(
-                                            Icons.stop,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            size: 60,
-                                          ),
+                              states['pre-logging']!
+                                  ? FFAppButton(
+                                      icon: Icons.add,
+                                      iconPadding:
+                                          MediaQuery.of(context).size.width *
+                                              0.15,
+                                      text: "START WORKOUT",
+                                      fontSize: 20,
+                                      size: MediaQuery.of(context).size.width *
+                                          0.85272264631043256997455470737913,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.0946478873239436619718309859155,
+                                      onPressed: () {
+                                        startLogging(false);
+                                        startTimer(false, false);
+                                      },
+                                      isShiny: true,
+                                    )
+                                  : Column(
+                                      children: [
+                                        WorkoutProgressBar(
+                                          progress: ((_timer.milliseconds /
+                                                  1000) /
+                                              (Provider.of<UserModel>(context,
+                                                          listen: false)
+                                                      .user!
+                                                      .workoutMinTime
+                                                      .toInt() *
+                                                  60)),
+                                          width: 300,
+                                          height: 30,
                                         ),
-                                        Text(
-                                          formatSeconds(time.toInt()),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall!
-                                              .copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
-                                              ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () => {
-                                            if (states["paused"]!)
-                                              resumeTimer()
-                                            else
-                                              pauseTimer(),
-                                          },
-                                          child: states["paused"]!
-                                              ? Icon(
-                                                  Icons.play_arrow,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  size: 60,
-                                                )
-                                              : Icon(
-                                                  Icons.pause,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  size: 60,
-                                                ),
-                                        ),
-                                      ]
-                                    : [
-                                        Consumer<FigureModel>(
-                                          builder: (_, figure, __) {
-                                            return Consumer<HistoryModel>(
-                                              builder: (
-                                                _,
-                                                workoutHistory,
-                                                __,
-                                              ) {
-                                                return Column(
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        ChargeBar(
-                                                          didWeWorkoutToday:
-                                                              workoutHistory
-                                                                  .workedOutToday,
-                                                          simulateCurrentGains:
-                                                              true,
-                                                          showIcon: true,
-                                                          barHeight: MediaQuery
-                                                                      .of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.0157863849765258215962441314554, // sizes calculated from figma
-                                                          barWidth: MediaQuery
-                                                                  .of(
-                                                                context,
-                                                              ).size.width *
-                                                              0.43531806615776081424936386768448,
-                                                          fillColor:  Theme.of(context).colorScheme.tertiary,
-                                                          currentCharge: figure
-                                                              .figure!.charge,
-                                                          iconSize: 40,
-                                                        ),
-                                                      ],
-                                                    ),
-
-                                                    Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        EvBar(
-                                                          showIcon: true,
-                                                          didWeWorkoutToday:
-                                                              workoutHistory
-                                                                  .workedOutToday,
-                                                          simulateCurrentGains:
-                                                              true,
-                                                          areWeShadowing: true,
-                                                          currentXp: figure
-                                                              .figure!.evPoints,
-                                                          maxXp: figure1
-                                                                  .evCutoffs[
-                                                              figure.EVLevel],
-                                                          fillColor: Theme.of(
-                                                            context,
-                                                          )
-                                                              .colorScheme
-                                                              .secondary,
-                                                          barHeight: MediaQuery
-                                                                      .of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.0157863849765258215962441314554,
-                                                          barWidth: MediaQuery
-                                                                  .of(
-                                                                context,
-                                                              ).size.width *
-                                                              0.43531806615776081424936386768448,
-                                                          iconSize: 40
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                        ),
-                                        Consumer<UserModel>(
-                                          builder: (_, user, __) {
-                                            return Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                WorkoutTimeShower(
-                                                  textStyle: Theme.of(context)
-                                                      .textTheme
-                                                      .displayMedium!,
-                                                  workoutMinTime: user
-                                                      .user!.workoutMinTime
-                                                      .toInt(),
-                                                ),
-                                                SizedBox(
+                                        _goalMet
+                                            ? Padding(
+                                                padding: EdgeInsets.only(
+                                                    top: MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.0161971830985915492957746478873),
+                                                child: FFAppButton(
+                                                  size: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.85272264631043256997455470737913,
                                                   height: MediaQuery.of(context)
                                                           .size
                                                           .height *
-                                                      0.016431924882629107981220657277,
-                                                ),
-                                                StreakShower(
-                                                  goalMet: true,
-                                                  textStyle: Theme.of(context)
-                                                      .textTheme
-                                                      .displayMedium!,
-                                                  streak:
-                                                      user.user!.streak.toInt(),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ),
+                                                      0.0946478873239436619718309859155,
+                                                  fontSize: 20,
+                                                  text: 'COMPLETE WORKOUT',
+                                                  onPressed: () =>
+                                                      {endWorkout()},
+                                                ))
+                                            : Padding(
+                                                padding: EdgeInsets.only(
+                                                    top: MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.0161971830985915492957746478873),
+                                                child: FFAppButton(
+                                                  isDelete: true,
+                                                  size: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.85272264631043256997455470737913,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.0946478873239436619718309859155,
+                                                  fontSize: 20,
+                                                  text: 'END WORKOUT',
+                                                  onPressed: () =>
+                                                      {endWorkout()},
+                                                ))
                                       ],
-                              ),
-                            ),states['pre-logging']!
-                                    ? FFAppButton(
-                                        icon: Icons.add,
-                                        iconPadding:
-                                            MediaQuery.of(context).size.width *
-                                                0.15,
-                                        text: "START WORKOUT",
-                                        fontSize: 20,
-                                        size: MediaQuery.of(context)
-                                                .size
-                                                .width *
-                                            0.85272264631043256997455470737913,
-                                        height: MediaQuery.of(context)
-                                                .size
-                                                .height *
-                                            0.0946478873239436619718309859155,
-                                        onPressed: () {
-                                          startLogging(false);
-                                          startTimer(false, false);
-                                        },
-                                        isShiny: true,
-                                      )
-                                    : states['paused']!
-                                        ? 
-                                Padding(
-                                padding: EdgeInsets.only(
-                                    top: MediaQuery.of(context).size.height *
-                                        0.0461971830985915492957746478873),
-                                        child: FFAppButton(
-                                            icon: Icons.add,
-                                            size: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.85272264631043256997455470737913,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.0946478873239436619718309859155,
-                                            fontSize: 20,
-                                            text: 'COMPLETE WORKOUT',
-                                            onPressed: () => {endWorkout()},
-                                        ))
-                                        : WorkoutProgressBar(
-                                            progress: ((_timer.milliseconds /
-                                                    1000) /
-                                                (Provider.of<UserModel>(context,
-                                                            listen: false)
-                                                        .user!
-                                                        .workoutMinTime
-                                                        .toInt() *
-                                                    60)),
-                                            width: 300,
-                                            height: 30,
-                                          ),
-                          ],
+                                    ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-            ),
-      )],
-      
+                      ],
+              ),
+            )
+        ],
       ),
     );
   }
