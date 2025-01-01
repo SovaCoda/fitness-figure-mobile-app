@@ -29,12 +29,12 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   late final AuthService auth;
   final FlutterUser user = FlutterUser();
-  late String name = "Loading...";
-  late String email = "Loading...";
-  late String password = "Loading...";
+  late String name = 'Loading...';
+  late String email = 'Loading...';
+  late String password = 'Loading...';
   late int weeklyGoal = 4; // default values
   late int minExerciseGoal = 30;
-  late String manageSub = "Loading...";
+  late String manageSub = 'Loading...';
 
   @override
   void initState() {
@@ -46,9 +46,12 @@ class _ProfileState extends State<Profile> {
   Future<void> initialize() async {
     try {
       final Future<routes.User?> userFuture = auth.getUserDBInfo();
-      final userModel = Provider.of<UserModel>(context, listen: false);
+      final UserModel userModel =
+          Provider.of<UserModel>(context, listen: false);
       final routes.User? databaseUser = await userFuture;
-      if (!mounted || databaseUser == null) return;
+      if (!mounted || databaseUser == null) {
+        return;
+      }
       userModel.setUser(databaseUser);
 
       if (mounted) {
@@ -62,10 +65,10 @@ class _ProfileState extends State<Profile> {
         setState(() {
           name = curName;
           email = curEmail;
-          password = "*******";
+          password = '*******';
           weeklyGoal = curGoal;
           minExerciseGoal = minExerciseTime;
-          manageSub = premiumStatus ? "Subscription Tier 1" : "Regular User";
+          manageSub = premiumStatus ? 'Subscription Tier 1' : 'Regular User';
         });
       }
     } catch (e) {
@@ -82,10 +85,9 @@ class _ProfileState extends State<Profile> {
     final int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
     showModalBottomSheet(
       context: context,
-      isDismissible: true,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (BuildContext context) {
         return BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
             child: Container(
@@ -98,7 +100,7 @@ class _ProfileState extends State<Profile> {
                     ),
                   ),
                   gradient: LinearGradient(
-                    colors: [
+                    colors: <Color>[
                       Color.fromRGBO(28, 109, 189, 0.29),
                       Color.fromRGBO(0, 164, 123, 0.29),
                     ],
@@ -108,17 +110,17 @@ class _ProfileState extends State<Profile> {
                   backgroundColor: Colors.transparent,
                   enableDrag: false,
                   onClosing: () {},
-                  builder: (context) {
+                  builder: (BuildContext context) {
                     return BottomPicker(
                         items: List.generate(
                           7,
-                          (index) => Text(
+                          (int index) => Text(
                             "${index + 1} ${index == 0 ? "day" : "days"}",
                             style: const TextStyle(fontSize: 35),
                           ),
                         ),
                         pickerTitle: const Text(
-                          "Select Weekly Workout Goal",
+                          'Select Weekly Workout Goal',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 24),
@@ -132,7 +134,7 @@ class _ProfileState extends State<Profile> {
                         backgroundColor: Colors.transparent,
                         selectedItemIndex: safeWeeklyGoal - 1,
                         itemExtent: 38,
-                        buttonStyle: BoxDecoration(),
+                        buttonStyle: const BoxDecoration(),
                         buttonWidth: MediaQuery.of(context).size.width * 0.77,
                         dismissable: true,
                         onSubmit: (dynamic index) {
@@ -144,8 +146,7 @@ class _ProfileState extends State<Profile> {
                         },
                         displayCloseIcon: false,
                         buttonContent: FFAppButton(
-                            text: "Confirm",
-                            fontSize: 16,
+                            text: 'Confirm',
                             size: MediaQuery.of(context).size.width * 0.77,
                             height: MediaQuery.of(context).size.height * 0.07));
                   },
@@ -158,10 +159,9 @@ class _ProfileState extends State<Profile> {
     final int safeWeeklyGoal = weeklyGoal.clamp(1, 12);
     showModalBottomSheet(
         context: context,
-        isDismissible: true,
         enableDrag: false,
         backgroundColor: Colors.transparent,
-        builder: (context) {
+        builder: (BuildContext context) {
           return BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
               child: Container(
@@ -174,7 +174,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     gradient: LinearGradient(
-                      colors: [
+                      colors: <Color>[
                         Color.fromRGBO(28, 109, 189, 0.29),
                         Color.fromRGBO(0, 164, 123, 0.29),
                       ],
@@ -183,13 +183,13 @@ class _ProfileState extends State<Profile> {
                   child: BottomPicker(
                     items: List.generate(
                       12,
-                      (index) => Text(
-                        "${(index + 1) * 15} minutes",
+                      (int index) => Text(
+                        '${(index + 1) * 15} minutes',
                         style: const TextStyle(fontSize: 35),
                       ),
                     ),
                     pickerTitle: const Text(
-                      "Select Weekly Workout Goal",
+                      'Select Weekly Workout Goal',
                       textAlign: TextAlign.center,
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
@@ -199,14 +199,14 @@ class _ProfileState extends State<Profile> {
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
-                    buttonStyle: BoxDecoration(),
+                    buttonStyle: const BoxDecoration(),
                     buttonWidth: MediaQuery.of(context).size.width * 0.77,
                     height: MediaQuery.of(context).size.height * 0.5,
                     backgroundColor: Colors.transparent,
                     selectedItemIndex: safeWeeklyGoal - 1,
                     itemExtent: 38,
                     dismissable: true,
-                    onSubmit: (index) {
+                    onSubmit: (dynamic index) {
                       setState(() {
                         final int indexInt = index as int;
                         minExerciseGoal = (indexInt + 1) * 15;
@@ -215,8 +215,7 @@ class _ProfileState extends State<Profile> {
                     },
                     displayCloseIcon: false,
                     buttonContent: FFAppButton(
-                        text: "Confirm",
-                        fontSize: 16,
+                        text: 'Confirm',
                         size: MediaQuery.of(context).size.width * 0.77,
                         height: MediaQuery.of(context).size.height * 0.07),
                   )));
@@ -307,9 +306,9 @@ class _ProfileState extends State<Profile> {
       await auth.updatePassword(newPassword, credential);
       if (mounted) {
         signOut(context);
-        GoRouter.of(context).go("/");
+        GoRouter.of(context).go('/');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Success! Please sign back in.")),
+          const SnackBar(content: Text('Success! Please sign back in.')),
         );
       }
     } catch (e) {
@@ -342,7 +341,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: [
+      children: <Widget>[
         // Background image
         Positioned.fill(
           child: Image.asset(
@@ -359,7 +358,7 @@ class _ProfileState extends State<Profile> {
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+              children: <Widget>[
                 const Text(
                   'PROFILE',
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
@@ -387,7 +386,7 @@ class _ProfileState extends State<Profile> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             const Text(
               'PERSONAL INFORMATION',
               style: TextStyle(
@@ -401,7 +400,7 @@ class _ProfileState extends State<Profile> {
               Icons.person,
               'Name',
               name,
-              () => _showEditDialog("Name", name, updateName),
+              () => _showEditDialog('Name', name, updateName),
             ),
             _buildProfileItem(
                 Icons.email,
@@ -438,7 +437,7 @@ class _ProfileState extends State<Profile> {
       child: InkWell(
         onTap: onTap,
         child: Row(
-          children: [
+          children: <Widget>[
             if (icon == Icons.person)
               const FitnessIcon(type: FitnessIconType.logo_white, size: 24)
             else
@@ -447,7 +446,7 @@ class _ProfileState extends State<Profile> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     value,
                     style: const TextStyle(
@@ -482,7 +481,7 @@ class _ProfileState extends State<Profile> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             const Text(
               'WORKOUT GOALS',
               style: TextStyle(
@@ -513,10 +512,10 @@ class _ProfileState extends State<Profile> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        children: <Widget>[
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 value,
                 style: const TextStyle(
@@ -550,11 +549,11 @@ class _ProfileState extends State<Profile> {
     return GradientedContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              "SUBSCRIPTION",
+              'SUBSCRIPTION',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w400,
@@ -565,8 +564,8 @@ class _ProfileState extends State<Profile> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
-              children: [
-                if (manageSub == "Regular User")
+              children: <Widget>[
+                if (manageSub == 'Regular User')
                   const FitnessIcon(
                     type: FitnessIconType.regular_badge,
                     size: 50,
@@ -576,9 +575,9 @@ class _ProfileState extends State<Profile> {
                 const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
-                      manageSub == "Regular User" ? "REGULAR" : "PREMIUM",
+                      manageSub == 'Regular User' ? 'REGULAR' : 'PREMIUM',
                       style: const TextStyle(
                         fontFamily: 'Roboto',
                         color: Colors.white,
@@ -586,11 +585,11 @@ class _ProfileState extends State<Profile> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    if (manageSub == "Regular User")
+                    if (manageSub == 'Regular User')
                       GestureDetector(
                         onTap: () {}, // TODO: Implement purchase premium page
                         child: const Text(
-                          "Tap To Purchase Premium",
+                          'Tap To Purchase Premium',
                           style: TextStyle(
                             fontFamily: 'Roboto',
                             color: Color.fromARGB(255, 145, 145, 145),
@@ -611,11 +610,11 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildActionButtons() {
     return Column(
-      children: [
+      children: <Widget>[
         FFAppButton(
           onPressed: () => _showSignOutConfirmation(),
+          text: 'SIGN OUT',
           isSignOut: true,
-          text: "SIGN OUT",
           fontSize: 24,
           size: MediaQuery.of(context).size.width * 0.8,
           height: MediaQuery.of(context).size.height * 0.08,
@@ -623,7 +622,7 @@ class _ProfileState extends State<Profile> {
         const SizedBox(height: 16),
         FFAppButton(
           onPressed: () => _showDeleteAccountConfirmation(),
-          text: "DELETE ACCOUNT",
+          text: 'DELETE ACCOUNT',
           fontSize: 20,
           isDelete: true,
           size: MediaQuery.of(context).size.width *
@@ -637,15 +636,15 @@ class _ProfileState extends State<Profile> {
 
   void _showDeleteAccountConfirmation() {
     showFFDialogBinary(
-      "Delete Account",
-      "Are you sure you want to delete your account? This action cannot be undone.",
+      'Delete Account',
+      'Are you sure you want to delete your account? This action cannot be undone.',
       true,
       context,
       FFAppButton(
-        text: "Delete Account",
+        text: 'Delete Account',
         onPressed: () async {
           // current issue: auth.deleteUser() requires user reauthorization
-          final userPassword = await _showPasswordConfirmDialog();
+          final String? userPassword = await _showPasswordConfirmDialog();
           if (userPassword != null) {
             final AuthCredential credential = EmailAuthProvider.credential(
               email: email,
@@ -654,7 +653,7 @@ class _ProfileState extends State<Profile> {
             await auth.deleteUser(credential);
             if (mounted) {
               signOut(context);
-              GoRouter.of(context).go("/");
+              GoRouter.of(context).go('/');
             }
           }
         },
@@ -720,20 +719,20 @@ class _ProfileState extends State<Profile> {
       builder: (BuildContext context) {
         String newValue = currentValue;
         return AlertDialog(
-          title: Text("Edit $title"),
+          title: Text('Edit $title'),
           content: TextField(
             autofocus: true,
-            onChanged: (value) {
+            onChanged: (String value) {
               newValue = value;
             },
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
-              child: const Text("Cancel"),
+              child: const Text('Cancel'),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text("Save"),
+              child: const Text('Save'),
               onPressed: () async {
                 // In the _showEditDialog method, replace the existing email update logic with:
                 onSave(newValue);
@@ -756,22 +755,22 @@ class _ProfileState extends State<Profile> {
       builder: (BuildContext context) {
         String password = '';
         return AlertDialog(
-          title: const Text("Confirm Password"),
+          title: const Text('Confirm Password'),
           content: TextField(
             obscureText: true,
-            onChanged: (value) {
+            onChanged: (String value) {
               password = value;
             },
             decoration:
-                const InputDecoration(hintText: "Enter your current password"),
+                const InputDecoration(hintText: 'Enter your current password'),
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
-              child: const Text("Cancel"),
+              child: const Text('Cancel'),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text("Confirm"),
+              child: const Text('Confirm'),
               onPressed: () => Navigator.of(context).pop(password),
             ),
           ],
@@ -782,28 +781,29 @@ class _ProfileState extends State<Profile> {
 
   Future<void> _showPasswordChangeDialog() async {
     final String? currentPassword = await _showPasswordConfirmDialog();
-    if (currentPassword == null) return;
-    if (!mounted) return;
+    if (currentPassword == null || !mounted) {
+      return;
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String newPassword = '';
         return AlertDialog(
-          title: const Text("Change Password"),
+          title: const Text('Change Password'),
           content: TextField(
             obscureText: true,
-            onChanged: (value) {
+            onChanged: (String value) {
               newPassword = value;
             },
-            decoration: const InputDecoration(hintText: "Enter new password"),
+            decoration: const InputDecoration(hintText: 'Enter new password'),
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
-              child: const Text("Cancel"),
+              child: const Text('Cancel'),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text("Change"),
+              child: const Text('Change'),
               onPressed: () {
                 updatePassword(email, currentPassword, newPassword);
                 Navigator.of(context).pop();
@@ -820,18 +820,18 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Sign Out"),
-          content: const Text("Are you sure you want to sign out?"),
-          actions: [
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: <Widget>[
             TextButton(
-              child: const Text("Cancel"),
+              child: const Text('Cancel'),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text("Sign Out"),
+              child: const Text('Sign Out'),
               onPressed: () {
                 signOut(context);
-                GoRouter.of(context).go("/");
+                GoRouter.of(context).go('/');
               },
             ),
           ],
@@ -842,8 +842,8 @@ class _ProfileState extends State<Profile> {
 }
 
 class InvalidEmailException implements Exception {
-  String cause;
   InvalidEmailException(this.cause);
+  String cause;
 }
 
 Future<void> signOut(BuildContext context) async {
