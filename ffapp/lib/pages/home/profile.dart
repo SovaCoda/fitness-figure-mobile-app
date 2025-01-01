@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:bottom_picker/bottom_picker.dart';
 import 'package:bottom_picker/resources/arrays.dart';
 import 'package:ffapp/components/ff_app_premium_badge.dart';
-import 'package:ffapp/components/ff_app_button.dart';
+import 'package:ffapp/components/animated_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
@@ -163,62 +163,63 @@ class _ProfileState extends State<Profile> {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
-            child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.5, // 0.295
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: Color.fromRGBO(51, 133, 162, 1),
+              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.5, // 0.295
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: Color.fromRGBO(51, 133, 162, 1),
+                      ),
+                    ),
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromRGBO(28, 109, 189, 0.29),
+                        Color.fromRGBO(0, 164, 123, 0.29),
+                      ],
                     ),
                   ),
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromRGBO(28, 109, 189, 0.29),
-                      Color.fromRGBO(0, 164, 123, 0.29),
-                    ],
-                  ),
-                ),
-                child: BottomPicker(
-            items: List.generate(
-              12,
-              (index) => Text(
-                "${(index + 1) * 15} minutes",
-                style: const TextStyle(fontSize: 35),
-              ),
-            ),
-            pickerTitle: const Text(
-              "Select Weekly Workout Goal",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-            ),
-            titleAlignment: Alignment.center,
-            pickerTextStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-            buttonStyle: BoxDecoration(),
-            buttonWidth: MediaQuery.of(context).size.width * 0.77,
-            height: MediaQuery.of(context).size.height * 0.5,
-            backgroundColor: Colors.transparent,
-            selectedItemIndex: safeWeeklyGoal - 1,
-            itemExtent: 38,
-            dismissable: true,
-            onSubmit: (index) {
-              setState(() {
-                final int indexInt = index as int;
-                minExerciseGoal = (indexInt + 1) * 15;
-              });
-              updateMinWorkoutTime(minExerciseGoal);
-            },
-            displayCloseIcon: false,
-            buttonContent: FFAppButton(
-                            text: "Confirm",
-                            fontSize: 16,
-                            size: MediaQuery.of(context).size.width * 0.77,
-                            height: MediaQuery.of(context).size.height * 0.07),
-          )));
+                  child: BottomPicker(
+                    items: List.generate(
+                      12,
+                      (index) => Text(
+                        "${(index + 1) * 15} minutes",
+                        style: const TextStyle(fontSize: 35),
+                      ),
+                    ),
+                    pickerTitle: const Text(
+                      "Select Weekly Workout Goal",
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                    ),
+                    titleAlignment: Alignment.center,
+                    pickerTextStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    buttonStyle: BoxDecoration(),
+                    buttonWidth: MediaQuery.of(context).size.width * 0.77,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    backgroundColor: Colors.transparent,
+                    selectedItemIndex: safeWeeklyGoal - 1,
+                    itemExtent: 38,
+                    dismissable: true,
+                    onSubmit: (index) {
+                      setState(() {
+                        final int indexInt = index as int;
+                        minExerciseGoal = (indexInt + 1) * 15;
+                      });
+                      updateMinWorkoutTime(minExerciseGoal);
+                    },
+                    displayCloseIcon: false,
+                    buttonContent: FFAppButton(
+                        text: "Confirm",
+                        fontSize: 16,
+                        size: MediaQuery.of(context).size.width * 0.77,
+                        height: MediaQuery.of(context).size.height * 0.07),
+                  )));
         });
   }
 
