@@ -36,6 +36,9 @@ enum FitnessIconType {
   down_arrow('down_arrow'),
   charge_arrow('charge_arrow'),
   evo_arrow('evo_arrow'),
+  chat_icon('chat_icon'),
+  send_icon('send'),
+  double_back_arrow('double_back_arrow'),
   // dashboard icons
   home('dashboard_icons/home'),
   home_active('dashboard_icons/home_active'),

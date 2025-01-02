@@ -92,7 +92,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 : Int64(-1);
       } else {
         // Handle the case where customerInfo is null (due to RevenueCat error)
-        databaseUser.premium = Int64(-1);
+        // databaseUser.premium = Int64(-1); TODO: determine what to do with this code
       }
 
       databaseUser.lastLogin = DateTime.now().toUtc().toString();
