@@ -1118,9 +1118,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     return BinaryGlowChatBubble(
                                       width: MediaQuery.of(context).size.width *
                                           0.8,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.2,
                                       message: snapshot.data!,
                                       chatMore: true,
                                     );
@@ -1128,9 +1125,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     return BinaryGlowChatBubble(
                                       width: MediaQuery.of(context).size.width *
                                           0.8,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.2,
                                       message:
                                           "[CRITICAL CHAT MODULE ERR ::Code 402::]",
                                     );

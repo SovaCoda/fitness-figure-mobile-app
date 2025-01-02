@@ -1,21 +1,24 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:go_router/go_router.dart';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/providers.dart';
 
 class BinaryGlowChatBubble extends StatefulWidget {
-  final double width;
-  final double height;
-  final String message;
-  final bool chatMore;
-
   const BinaryGlowChatBubble({
     super.key,
     required this.width,
-    required this.height,
     this.chatMore = false,
-    this.message = "",
+    this.message = '',
+    this.margin,
   });
+  
+  final double width;
+  final String message;
+  final bool chatMore;
+  final EdgeInsets? margin;
 
   @override
   State<BinaryGlowChatBubble> createState() => _BinaryGlowChatBubbleState();
@@ -24,10 +27,11 @@ class BinaryGlowChatBubble extends StatefulWidget {
 class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final List<BinaryNumber> _binaryNumbers = [];
+  final List<BinaryNumber> _binaryNumbers = <BinaryNumber>[];
   final Random random = Random();
-  static const int rowHeight = 25; // Height for each row of binary numbers
-
+  static const int rowHeight = 25;
+  final GlobalKey _containerKey = GlobalKey();
+  
   @override
   void initState() {
     super.initState();
@@ -36,31 +40,40 @@ class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
       duration: const Duration(seconds: 2),
     )..repeat();
 
-    // Generate initial binary numbers
-    _generateBinaryNumbers();
+    // We'll generate binary numbers after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _generateBinaryNumbers();
+    });
   }
 
   String _generateBinaryString() {
-    return List.generate(16, (index) => random.nextInt(2).toString()).join();
+    return List.generate(16, (int index) => random.nextInt(2).toString()).join();
   }
 
   void _generateBinaryNumbers() {
-    // Calculate number of rows that can fit in the height
-    int numberOfRows =
-        (widget.height / rowHeight).floor(); // Leave space for the message
-
-    // Generate one binary number for each row
+    // Get the actual rendered height of the container
+    final RenderBox? renderBox = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    
+    final double actualHeight = renderBox.size.height;
+    final int numberOfRows = (actualHeight / rowHeight).floor();
+    
+    // Clear existing numbers
+    _binaryNumbers.clear();
+    
+    // Generate new numbers based on actual height
     for (int i = 0; i < numberOfRows; i++) {
       _binaryNumbers.add(
         BinaryNumber(
-          x: -random.nextDouble() *
-              widget.width, // Start at different positions off-screen
-          y: i * rowHeight + 5, // Add small padding
+          x: -random.nextDouble() * widget.width,
+          y: i * rowHeight + 5,
           value: _generateBinaryString(),
-          speed: 0.5 + random.nextDouble() * 1, // Reduced speed range
+          speed: 0.5 + random.nextDouble() * 1,
         ),
       );
     }
+    // Force a rebuild to show the new binary numbers
+    setState(() {});
   }
 
   @override
@@ -71,101 +84,96 @@ class _BinaryGlowChatBubbleState extends State<BinaryGlowChatBubble>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: widget.width,
-      height: widget.height,
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 25, 34, 57),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 15,
-            offset: const Offset(0, 0),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                // Update binary numbers position
-                for (var binary in _binaryNumbers) {
-                  binary.x += binary.speed;
-                  if (binary.x > widget.width) {
-                    binary.x = -200; // Start further off-screen
-                    binary.value =
-                        _generateBinaryString(); // Generate new binary string
-                  }
-                }
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double availableWidth = constraints.maxWidth;
 
-                return CustomPaint(
-                  painter: BinaryPainter(
-                      binaryNumbers: _binaryNumbers,
-                      glowColor: const Color.fromARGB(255, 41, 61, 111)),
-                );
-              },
-            ),
-            if (widget.message.isNotEmpty)
-              Positioned(
-                top: 10,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-                    child: Column(
-                      children: [
-                        Text(
-                          widget.message,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontFamily: 'Roboto',
-                          ),
-                          textAlign: TextAlign.justify,
+        return Container(
+          key: _containerKey,
+          margin: widget.margin,
+          width: widget.width,
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 25, 34, 57),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 15,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  width: availableWidth,
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (BuildContext context, Widget? child) {
+                      for (final BinaryNumber binary in _binaryNumbers) {
+                        binary.x += binary.speed;
+                        if (binary.x > widget.width) {
+                          binary.x = -200;
+                          binary.value = _generateBinaryString();
+                        }
+                      }
+
+                      return CustomPaint(
+                        painter: BinaryPainter(
+                          binaryNumbers: _binaryNumbers,
+                          glowColor: const Color.fromARGB(255, 41, 61, 111),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
-              ),
-            if (widget.chatMore)
-              Positioned(
-                bottom: 10,
-                right: 10,
-                child: GestureDetector(
-                  onTap: () {
-                    GoRouter.of(context).go('/chat');
-                  },
-                  child: const Text(
-                    'CHAT MORE >>',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 4, 174, 124),
-                      fontSize: 16,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w600,
+                if (widget.message.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+                      child: Text(
+                        widget.message,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Roboto',
+                        ),
+                        textAlign: TextAlign.justify,
+                      ),
                     ),
                   ),
-                ),
-              ),
-          ],
-        ),
-      ),
+                if (widget.chatMore)
+                  GestureDetector(
+                    onTap: () {
+                      Provider.of<HomeIndexProvider>(context, listen: false).setIndex(7);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'CHAT MORE >>',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 4, 174, 124),
+                          fontSize: 16,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 class BinaryNumber {
-  double x;
-  double y;
-  String value;
-  double speed;
 
   BinaryNumber({
     required this.x,
@@ -173,24 +181,28 @@ class BinaryNumber {
     required this.value,
     required this.speed,
   });
+  double x;
+  double y;
+  String value;
+  double speed;
 }
 
 class BinaryPainter extends CustomPainter {
-  final List<BinaryNumber> binaryNumbers;
-  final Color glowColor;
 
   BinaryPainter({
     required this.binaryNumbers,
     required this.glowColor,
   });
+  final List<BinaryNumber> binaryNumbers;
+  final Color glowColor;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final textPainter = TextPainter(
+    final TextPainter textPainter = TextPainter(
       textDirection: TextDirection.ltr,
     );
 
-    for (var binary in binaryNumbers) {
+    for (final BinaryNumber binary in binaryNumbers) {
       textPainter.text = TextSpan(
         text: binary.value,
         style: const TextStyle(

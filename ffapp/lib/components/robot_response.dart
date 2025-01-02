@@ -1,78 +1,66 @@
-import 'package:ffapp/components/robot_image_holder.dart';
+import 'package:ffapp/main.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../icons/fitness_icon.dart';
+import 'chat_bubble.dart';
 
 class RobotResponse extends StatelessWidget {
+  const RobotResponse({
+    super.key,
+    required this.text,
+    required this.figureName,
+    required this.datetime,
+    this.isInitialChat = false,
+    this.width = 100,
+  });
   final String text;
-  final String figureUrl;
+  final String figureName;
   final String datetime;
   final bool isInitialChat;
   final double width;
 
-  
-
-  const RobotResponse(
-      {super.key,
-      required this.text,
-      required this.figureUrl,
-      required this.datetime,
-      this.isInitialChat = false,
-      this.width = 100,});
-
   @override
   Widget build(BuildContext context) {
-    const double robotImageSize = 100;
-    
-    return Stack(
-      alignment: AlignmentDirectional.centerEnd,
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          width: MediaQuery.of(context).size.width - robotImageSize,
-          margin: EdgeInsets.zero,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
-            borderRadius: BorderRadius.circular(10),
+    return Column(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+      Row(crossAxisAlignment: CrossAxisAlignment.end, children: <Widget>[
+        Stack(alignment: AlignmentDirectional.center, children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.width * 0.145,
+            height: MediaQuery.of(context).size.width * 0.145,
+            decoration: const BoxDecoration(
+                color: Colors.black, shape: BoxShape.circle),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      text,
-                      style: Theme.of(context)
-                          .textTheme
-                          .displaySmall!
-                          .copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                datetime,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-              ),
-            ],
-          ),
+          Consumer<FigureModel>(builder:
+              (BuildContext context, FigureModel figureModel, Widget? child) {
+            return Image.asset(
+                figureModel.figure!.figureName == 'robot1'
+                    ? 'lib/assets/art/1_head.png'
+                    : 'lib/assets/art/2_head.png',
+                width: MediaQuery.of(context).size.width * 0.14,
+                height: MediaQuery.of(context).size.height * 0.06);
+          }),
+          FitnessIcon(
+              type: FitnessIconType.chat_icon,
+              size: MediaQuery.of(context).size.width * 0.1653944020356234),
+        ]),
+        Column(
+          children: <Widget>[
+            BinaryGlowChatBubble(
+              width: MediaQuery.of(context).size.width * 0.6513994910941476,
+              margin: const EdgeInsets.only(top: 30, right: 25, left: 25),
+              message: text,
+            ),
+            // const SizedBox(height: 20),
+            // Text(
+            //   datetime, unused for now bc not in figma and messes with spacing
+            //   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            //         color: Theme.of(context).colorScheme.onPrimary,
+            //       ),
+            // ),
+          ],
         ),
-        Visibility(
-          visible: !isInitialChat,
-          child: Positioned(
-              left: 0,
-              child: RobotImageHolder(
-                url: figureUrl,
-                height: robotImageSize,
-                width: robotImageSize,
-              ),),
-        ),
-      ],
-    );
+      ]),
+    ]);
   }
 }

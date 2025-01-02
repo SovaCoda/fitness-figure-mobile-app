@@ -10,6 +10,7 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/providers.dart';
+import 'package:ffapp/pages/home/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,8 @@ class _DashboardPageState extends State<DashboardPage> {
     const Core(),
     const EvolutionPage(),
     // const SkinViewer(),
-    const Store()
+    const Store(),
+    const ChatPage()
   ];
 
   @override

@@ -1,57 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../icons/fitness_icon.dart';
+import 'chat_bubble.dart';
 
 class UserMessage extends StatelessWidget {
+  const UserMessage({super.key, required this.text, required this.datetime});
   final String text;
   final String datetime;
 
-  const UserMessage({super.key, required this.text, required this.datetime});
-
-
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          width: MediaQuery.of(context).size.width,
-          margin: const EdgeInsets.only(top: 10, bottom: 10, left: 30),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Text(
-                      text,
-                      style: Theme.of(context)
-                          .textTheme
-                          .displaySmall!
-                          .copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                datetime,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-              ),
-            ],
-          ),
+    return Column(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+      Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        Column(
+          children: [
+            BinaryGlowChatBubble(
+              width: MediaQuery.of(context).size.width * 0.6513994910941476,
+              margin: EdgeInsets.only(top: 30, right: 25, left: 25),
+              message: text,
+            ),
+            // const SizedBox(height: 20),
+            // Text(
+            //   datetime, unused for now bc not in figma and messes with spacing
+            //   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            //         color: Theme.of(context).colorScheme.onPrimary,
+            //       ),
+            // ),
+          ],
         ),
-      ],
-    );
+        Stack(
+          alignment: AlignmentDirectional.center,
+          children: [
+          FitnessIcon(
+              type: FitnessIconType.chat_icon,
+              size: MediaQuery.of(context).size.width * 0.1653944020356234),
+          FitnessIcon(
+              type: FitnessIconType.logo,
+              size: MediaQuery.of(context).size.width * 0.1272264631043257)
+        ]),
+      ]),
+    ]);
   }
 }
