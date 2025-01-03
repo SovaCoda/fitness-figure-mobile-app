@@ -383,7 +383,7 @@ class ChatModel extends ChangeNotifier {
 
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
-        final updatedRun = await openAI.threads.runs.retrieveRun(
+        final updatedRun = await openAI.threads.v2.runs.retrieveRun(
             threadId: threadId!,
             runId: run.id,); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
@@ -416,60 +416,47 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  Future<void> handleRequiredAction(
-  CreateRunResponse updatedRun,
-  BuildContext context,
-) async {
-  final requiredAction = updatedRun.requiredAction;
-  if (requiredAction == null) return;
+  Future<void> handleRequiredAction(CreateRunResponse updatedRun, BuildContext context) async {
+    final toolCalls =
+        updatedRun.requiredAction?['submit_tool_outputs']?['tool_calls'] ?? [];
+    List<Map<String, dynamic>> toolOutputs = [];
 
-  // Define a type-safe structure for tool calls
-  final toolCallsData = requiredAction['submit_tool_outputs'];
-  if (toolCallsData == null) return;
+    for (var toolCall in toolCalls) {
+      if (toolCall['function']['name'] == "startWorkoutTimer") {
+        final result = await startWorkoutTimer(context);
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': result,
+        });
+      } else if (toolCall['function']['name'] == "get_robot_stats") {
+        final stats = await get_robot_stats(context);
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': jsonEncode(stats),
+        });
+      } else if (toolCall['function']['name'] == "evolutionInfo") {
+        final stats = await evolutionInfo(context);
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': jsonEncode(stats),
+        });
+      } else if (toolCall['function']['name'] == "getWeekData") {
+        final stats = await getWeekData(context);
+        toolOutputs.add({
+          'tool_call_id': toolCall['id'],
+          'output': jsonEncode(stats),
+        });
+      }
+    }
 
-  final toolCallsList = (toolCallsData as Map<String, dynamic>)['tool_calls'];
-  if (toolCallsList is! List) return;
-
-  final List<Map<String, dynamic>> toolOutputs = [];
-
-  // Define a type-safe mapping of function names to their handlers
-  final functionHandlers = <String, Future<dynamic> Function(BuildContext)>{
-    'startWorkoutTimer': startWorkoutTimer,
-    'get_robot_stats': get_robot_stats,
-    'evolutionInfo': evolutionInfo,
-    'getWeekData': getWeekData,
-  };
-
-  for (final toolCall in toolCallsList) {
-    if (toolCall is! Map<String, dynamic>) continue;
-    
-    final function = toolCall['function'];
-    if (function is! Map<String, dynamic>) continue;
-    
-    final functionName = function['name'];
-    if (functionName is! String) continue;
-    
-    final toolCallId = toolCall['id'];
-    if (toolCallId == null) continue;
-
-    final handler = functionHandlers[functionName];
-    if (handler != null) {
-      final result = await handler(context);
-      toolOutputs.add({
-        'tool_call_id': toolCallId,
-        'output': result is String ? result : jsonEncode(result),
-      });
+    if (toolOutputs.isNotEmpty) {
+      await openAI.threads.v2.runs.submitToolOutputsToRun(
+        threadId: threadId!,
+        runId: updatedRun.id,
+        toolOutputs: toolOutputs,
+      );
     }
   }
-
-  if (toolOutputs.isNotEmpty) {
-    await openAI.threads.runs.submitToolOutputsToRun(
-      threadId: threadId!,
-      runId: updatedRun.id,
-      toolOutputs: toolOutputs,
-    );
-  }
-}
 
   Future<void> retrieveAndProcessAssistantResponse() async {
     final messagesResponse =
@@ -594,7 +581,7 @@ class ChatModel extends ChangeNotifier {
 
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
-        final updatedRun = await openAI.threads.runs.retrieveRun(
+        final updatedRun = await openAI.threads.v2.runs.retrieveRun(
             threadId: threadId!,
             runId: run.id,); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
