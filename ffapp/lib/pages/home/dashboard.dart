@@ -1,4 +1,5 @@
 import 'package:ffapp/components/admin_panel.dart';
+import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/dashboard/workout_numbers.dart';
@@ -22,6 +23,8 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'dart:async';
+
+import 'package:spine_flutter/spine_widget.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -126,23 +129,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         email = curEmail;
         weeklyGoal = curGoal;
         weeklyCompleted = curWeekly;
-
-        if (curFigure != "none" &&
-            Provider.of<FigureModel>(context, listen: false).figure?.charge !=
-                null) {
-          // Logic for displaying figure's mood based on charge.
-          if (Provider.of<FigureModel>(context, listen: false).figure!.charge <
-              20) {
-            figureURL = "${curFigure}_sad";
-          } else if (Provider.of<FigureModel>(context, listen: false)
-                  .figure!
-                  .charge <
-              50) {
-            figureURL = curFigure;
-          } else {
-            figureURL = "${curFigure}_happy";
-          }
-        }
       });
 
       // Initialize offline notification service asynchronously.
@@ -267,12 +253,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     }
   }
 
-  void triggerFigureDecay() {
-    auth.figureDecay(Provider.of<FigureModel>(context, listen: false).figure!);
+  void setAnimationHappy() {
+    Provider.of<FigureModel>(context, listen: false)
+        .controller
+        .animationState
+        .setAnimationByName(0, "happy", true);
   }
 
-  void triggerUserReset() {
-    auth.userReset(Provider.of<UserModel>(context, listen: false).user!);
+  void setAnimationSad() {
+    Provider.of<FigureModel>(context, listen: false)
+        .controller
+        .animationState
+        .setAnimationByName(0, "sad", true);
   }
 
   double? usableScreenHeight;
@@ -286,7 +278,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     // Calculate responsive sizes
     const double chargeBarHeight = 20;
     final double chargeBarWidth = screenWidth * 0.6;
-    final double robotImageHeight = screenHeight * 0.333;
+    final double robotImageHeight = screenHeight * 0.33;
     const double evBarHeight = 20;
     final double evBarWidth = screenWidth * 0.6;
 
@@ -317,37 +309,28 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 ),
                 Expanded(
                   child: Stack(
-                    alignment: Alignment.bottomCenter,
                     children: [
-                      Consumer<FigureModel>(
-                        builder: (context, figure, child) {
-                          return Center(
-                            child: FittedBox(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  RobotImageHolder(
-                                    url: (figure.figure != null)
-                                        ? "${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo${figure.figure!.evLevel}_cropped_${figure.figure!.charge < 50 ? "sad" : "happy"}"
-                                        : "robot1/robot1_skin0_evo0_cropped_happy",
-                                    height: robotImageHeight,
-                                    width: robotImageHeight,
-                                  ),
-                                ],
-                              ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Center(
+                            child: AnimatedFigure(
+                              height: robotImageHeight,
+                              width: robotImageHeight,
                             ),
-                          );
-                        },
+                          )
+                        ],
                       ),
                       Consumer<UserModel>(
                         builder: (context, user, child) => (user.user != null &&
                                     user.user?.email == "chb263@msstate.ed" ||
                                 user.user?.email == "blizard265@gmail.com")
                             ? DraggableAdminPanel(
-                                onButton1Pressed: triggerFigureDecay,
-                                onButton2Pressed: triggerUserReset,
-                                button1Text: "Daily Decay Figure",
-                                button2Text: "Weekly Reset User",
+                                onButton1Pressed: setAnimationSad,
+                                onButton2Pressed: setAnimationHappy,
+                                button1Text: "Sad Animation",
+                                button2Text: "Happy Animation",
                               )
                             : Container(),
                       ),

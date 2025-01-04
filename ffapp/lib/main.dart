@@ -33,6 +33,8 @@ import 'package:provider/provider.dart';
 // import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as Purchases;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spine_flutter/spine_flutter.dart' as Spine;
+import 'package:spine_flutter/spine_widget.dart';
 
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
@@ -137,6 +139,11 @@ class FigureModel extends ChangeNotifier {
       figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
   bool readyToEvolve = false;
 
+  SpineWidgetController controller =
+      SpineWidgetController(onInitialized: (controller) {
+    controller.animationState.setAnimationByName(0, "happy", true);
+  });
+
   Map<String, bool> capabilities = {
     "Research Unlocked": false,
     "Research 20% Faster": false,
@@ -168,6 +175,15 @@ class FigureModel extends ChangeNotifier {
   void setFigure(Routes.FigureInstance newFigure) {
     figure = newFigure;
     updateCapabilities(newFigure);
+    String mood = "idle";
+    if (newFigure.charge < 20) {
+      mood = "sad";
+    } else if (newFigure.charge > 50) {
+      mood = "happy";
+    }
+    controller = SpineWidgetController(onInitialized: (controller) {
+      controller.animationState.setAnimationByName(0, mood, true);
+    });
     notifyListeners();
   }
 
@@ -254,6 +270,9 @@ Future<void> main() async {
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();
+
+  // Initialize Spine run time
+  Spine.initSpineFlutter(enableMemoryDebugging: true);
 
   runApp(
     MultiProvider(providers: [

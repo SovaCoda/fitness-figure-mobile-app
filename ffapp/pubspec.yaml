@@ -64,13 +64,13 @@ dependencies:
   bottom_picker: ^2.8.0
   chat_gpt_sdk: ^3.1.0
   live_activities: ^1.9.5
-  build_runner: ^2.0.0 # used for creating mockups for tests 
+  build_runner: ^2.0.0 # used for creating mockups for tests
   connectivity_plus: ^6.0.5
   in_app_purchase: ^3.2.0
-  purchases_flutter: ^8.1.6
-  purchases_ui_flutter: ^8.1.6
+  purchases_flutter: ^8.4.0
+  purchases_ui_flutter: ^8.4.0
   confetti: ^0.8.0
-
+  spine_flutter: ^4.2.33
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,7 +83,6 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   lint: ^2.2.0
   mockito: ^5.4.4
-
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -108,6 +107,13 @@ flutter:
     - .env
     - lib/assets/icons/dashboard_icons/
     - lib/assets/images/
+    - lib/assets/figures/Character_02_lvl1/export/
+    - lib/assets/figures/Character_02_lvl2/export/
+    - lib/assets/figures/Character_02_lvl3/export/
+    - lib/assets/figures/Character_02_lvl1/
+    - lib/assets/figures/Character_01_lvl1/export/
+    - lib/assets/figures/Character_01_lvl2/export/
+    - lib/assets/figures/Character_01_lvl3/export/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

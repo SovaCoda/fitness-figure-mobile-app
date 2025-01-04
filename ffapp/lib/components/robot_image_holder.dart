@@ -6,12 +6,13 @@ class RobotImageHolder extends StatefulWidget {
   final double width;
   final bool? coreClickable;
 
-  const RobotImageHolder(
-      {super.key,
-      this.coreClickable,
-      required this.url,
-      required this.height,
-      required this.width,});
+  const RobotImageHolder({
+    super.key,
+    this.coreClickable,
+    required this.url,
+    required this.height,
+    required this.width,
+  });
 
   @override
   RobotImageHolderState createState() => RobotImageHolderState();
@@ -37,10 +38,12 @@ class RobotImageHolderState extends State<RobotImageHolder> {
                       duration: const Duration(milliseconds: 500),
                       height: widget.height,
                       width: widget.width,
-                      child: Image.asset("lib/assets/${widget.url}.gif",
-                          scale: 0.8,
-                          height: widget.height * 2,
-                          width: widget.width * 2,),
+                      child: Image.asset(
+                        "lib/assets/${widget.url}.gif",
+                        scale: 0.8,
+                        height: widget.height * 2,
+                        width: widget.width * 2,
+                      ),
                     ),
                   ),
                 ),
