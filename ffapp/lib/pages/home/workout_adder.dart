@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/admin_panel.dart';
+import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/chat_bubble.dart';
@@ -875,20 +876,26 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                           : [
                                               Row(
                                                 children: [
-                                                  RobotImageHolder(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.278169014084507,
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.4460559796437659,
-                                                    url: figure
-                                                        .composeFigureUrl(),
-                                                  ),
+                                                  Consumer<FigureModel>(
+                                                      builder: (_, figure, __) {
+                                                    return AnimatedFigure(
+                                                      useEquippedFigure: false,
+                                                      figureName: figure
+                                                          .figure!.figureName,
+                                                      figureLevel: figure
+                                                          .figure!.evLevel,
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              0.278169014084507,
+                                                      width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width *
+                                                          0.4460559796437659,
+                                                    );
+                                                  }),
                                                   Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment.end,
@@ -1137,24 +1144,23 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                   }
                                 },
                               ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Consumer<FigureModel>(
-                                    builder: (_, figure, __) {
-                                      return RobotImageHolder(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.278169014084507,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.4452926208651399,
-                                        url: figure.composeFigureUrl(),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
+                              Consumer<FigureModel>(builder: (_, figure, __) {
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AnimatedFigure(
+                                      useEquippedFigure: false,
+                                      figureName: figure.figure!.figureName,
+                                      figureLevel: figure.figure!.evLevel,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.278169014084507,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.4452926208651399,
+                                    ),
+                                  ],
+                                );
+                              }),
                               FFAppButton(
                                 fontSize: 20,
                                 size: MediaQuery.of(context).size.width *
@@ -1182,15 +1188,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         ),
                       ]
                     : [
-                        Consumer<FigureModel>(
-                          builder: (_, figure, __) {
+                        Consumer2<FigureModel, FigureInstancesProvider>(
+                          builder: (_, figure, figureinstances, __) {
                             return Stack(
                               children: [
-                                RobotImageHolder(
+                                AnimatedFigure(
+                                  useEquippedFigure: false,
+                                  figureName: figure.figure!.figureName,
+                                  figureLevel: figure.figure!.evLevel,
                                   height:
-                                      MediaQuery.of(context).size.height / 3,
+                                      MediaQuery.of(context).size.height / 4,
                                   width: MediaQuery.of(context).size.width,
-                                  url: figure.composeFigureUrl(),
                                 ),
                                 // DraggableAdminPanel(
                                 //   onButton1Pressed: add10Minutes,

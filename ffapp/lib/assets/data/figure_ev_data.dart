@@ -66,3 +66,12 @@ figureEvData figure2 = figureEvData(
     // Add more lists for each evolution
   ],
 );
+
+Map<String, double> figureSizeMultipliers = {
+  "11": 0.75,
+  "12": 1,
+  "13": 1.5,
+  "21": 0.75,
+  "22": 1.0,
+  "23": 1.5,
+};

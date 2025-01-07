@@ -138,6 +138,7 @@ class FigureModel extends ChangeNotifier {
   Routes.FigureInstance? figure = Routes.FigureInstance(
       figureName: "robot1", curSkin: "0", evLevel: 0, evPoints: 0, charge: 0);
   bool readyToEvolve = false;
+  String mood = "idle";
 
   SpineWidgetController controller =
       SpineWidgetController(onInitialized: (controller) {
@@ -160,9 +161,9 @@ class FigureModel extends ChangeNotifier {
     "Halve Research Time": 7,
   };
 
-  void updateCapabilities(FigureInstance figure) {
+  void _updateCapabilities() {
     capabilities.forEach((key, value) {
-      if (figure.evLevel >= capabilityUnlocks[key]!) {
+      if (figure!.evLevel >= capabilityUnlocks[key]!) {
         capabilities[key] = true;
       } else {
         capabilities[key] = false;
@@ -172,18 +173,30 @@ class FigureModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setFigure(Routes.FigureInstance newFigure) {
-    figure = newFigure;
-    updateCapabilities(newFigure);
-    String mood = "idle";
-    if (newFigure.charge < 20) {
-      mood = "sad";
-    } else if (newFigure.charge > 50) {
-      mood = "happy";
-    }
+  void _updateAnimation() {
     controller = SpineWidgetController(onInitialized: (controller) {
       controller.animationState.setAnimationByName(0, mood, true);
     });
+  }
+
+  void _updateMood() {
+    mood = "idle";
+    if (figure!.charge < 20) {
+      mood = "sad";
+    } else if (figure!.charge > 50) {
+      mood = "happy";
+    }
+  }
+
+  void _updateAll() {
+    _updateCapabilities();
+    _updateMood();
+    _updateAnimation();
+  }
+
+  void setFigure(Routes.FigureInstance newFigure) {
+    figure = newFigure;
+    _updateAll();
     notifyListeners();
   }
 
@@ -200,6 +213,7 @@ class FigureModel extends ChangeNotifier {
   void setFigureSkin(String newValue) {
     if (figure != null) {
       figure?.curSkin = newValue;
+      _updateAll();
       notifyListeners();
     }
   }
@@ -207,6 +221,7 @@ class FigureModel extends ChangeNotifier {
   void setFigureLevel(int newValue) {
     if (figure != null && newValue <= 7) {
       figure?.evLevel = newValue;
+      _updateAll();
       notifyListeners();
     }
   }
@@ -214,6 +229,7 @@ class FigureModel extends ChangeNotifier {
   void setFigureEv(int newValue) {
     if (figure != null) {
       figure?.evPoints = newValue;
+      _updateAll();
       notifyListeners();
     }
   }
@@ -221,6 +237,7 @@ class FigureModel extends ChangeNotifier {
   void setFigureCharge(int newValue) {
     if (figure != null) {
       figure?.charge = newValue;
+      _updateAll();
       notifyListeners();
     }
   }
@@ -302,6 +319,8 @@ Future<void> main() async {
       ChangeNotifierProvider(
           create: (context) => ChatModel()..init(context: context)),
       ChangeNotifierProvider(create: (_) => HomeIndexProvider()),
+      ChangeNotifierProvider(
+          create: (_) => FigureSkeletonProvider()..initialize()),
     ], child: const MyApp()),
   );
 }

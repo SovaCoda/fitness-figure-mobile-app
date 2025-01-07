@@ -4,6 +4,7 @@ import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
+import 'package:ffapp/pages/home/store.dart' as Store;
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/services/routes.pb.dart';
@@ -89,6 +90,12 @@ class _EvolutionPageState extends State<EvolutionPage>
     setState(() {
       Provider.of<FigureModel>(context, listen: false).setFigureLevel(
           Provider.of<FigureModel>(context, listen: false).figure!.evLevel + 1);
+      int selectedFigureIndex =
+          Provider.of<SelectedFigureProvider>(context, listen: false)
+              .selectedFigureIndex;
+      Provider.of<Store.FigureInstancesProvider>(context, listen: false)
+          .setFigureInstanceEVLevel(selectedFigureIndex,
+              Provider.of<FigureModel>(context, listen: false).EVLevel);
       _isEvolved = true;
       auth.updateFigureInstance(
           Provider.of<FigureModel>(context, listen: false).figure!);
@@ -198,11 +205,8 @@ class _EvolutionPageState extends State<EvolutionPage>
     return true;
   }
 
-  
-
   double? usableScreenHeight;
 
-  
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;

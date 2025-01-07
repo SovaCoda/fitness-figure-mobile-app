@@ -35,7 +35,7 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
   Future<void> initialize() async {
     await user.initAuthService();
     await user.checkUser();
-    if(mounted) {
+    if (mounted) {
       auth = Provider.of<AuthService>(context, listen: false);
     }
 
@@ -239,13 +239,17 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     textStyle: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold,),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text("Activate Workout Mode",
-                      style: Theme.of(context).textTheme.displayMedium,),
+                  child: Text(
+                    "Activate Workout Mode",
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
                 ),
                 const SizedBox(height: 40),
               ],
