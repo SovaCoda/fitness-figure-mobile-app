@@ -285,6 +285,7 @@ class User extends $pb.GeneratedMessage {
     $fixnum.Int64? premium,
     $core.String? readyForWeekReset,
     $core.String? isInGracePeriod,
+    $fixnum.Int64? dailyChatMessages,
   }) {
     final $result = create();
     if (email != null) {
@@ -326,6 +327,9 @@ class User extends $pb.GeneratedMessage {
     if (isInGracePeriod != null) {
       $result.isInGracePeriod = isInGracePeriod;
     }
+    if (dailyChatMessages != null) {
+      $result.dailyChatMessages = dailyChatMessages;
+    }
     return $result;
   }
   User._() : super();
@@ -346,6 +350,7 @@ class User extends $pb.GeneratedMessage {
     ..aInt64(11, _omitFieldNames ? '' : 'premium')
     ..aOS(12, _omitFieldNames ? '' : 'readyForWeekReset')
     ..aOS(13, _omitFieldNames ? '' : 'isInGracePeriod')
+    ..aInt64(14, _omitFieldNames ? '' : 'dailyChatMessages')
     ..hasRequiredFields = false
   ;
 
@@ -486,6 +491,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasIsInGracePeriod() => $_has(12);
   @$pb.TagNumber(13)
   void clearIsInGracePeriod() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $fixnum.Int64 get dailyChatMessages => $_getI64(13);
+  @$pb.TagNumber(14)
+  set dailyChatMessages($fixnum.Int64 v) { $_setInt64(13, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasDailyChatMessages() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearDailyChatMessages() => clearField(14);
 }
 
 class DailySnapshot extends $pb.GeneratedMessage {

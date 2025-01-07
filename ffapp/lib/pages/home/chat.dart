@@ -142,12 +142,45 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Widget _buildMaxMessagesContent() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Icon(
+            Icons.lock,
+            size: 64,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Max messages reached',
+            style: Theme.of(context).textTheme.headlineSmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'You have reached the maximum amount of messages today. Come back tomorrow.',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          FFAppButton(
+              onPressed: () => Provider.of<HomeIndexProvider>(context, listen: false).setIndex(0),
+              text: 'Come back tomorrow',
+              size: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.08),
+        ],
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserModel>(
       builder: (BuildContext context, UserModel userModel, Widget? child) {
         final bool isPremium = userModel.isPremium();
-        return isPremium ? _buildChatContent() : _buildPremiumMessage();
+        return isPremium ? userModel.user!.dailyChatMessages <= 1 ? _buildChatContent() : _buildMaxMessagesContent() : _buildPremiumMessage();
       },
     );
   }

@@ -79,6 +79,7 @@ const User$json = {
     {'1': 'premium', '3': 11, '4': 1, '5': 3, '10': 'premium'},
     {'1': 'ready_for_week_reset', '3': 12, '4': 1, '5': 9, '10': 'readyForWeekReset'},
     {'1': 'is_in_grace_period', '3': 13, '4': 1, '5': 9, '10': 'isInGracePeriod'},
+    {'1': 'daily_chat_messages', '3': 14, '4': 1, '5': 3, '10': 'dailyChatMessages'},
   ],
 };
 
@@ -91,7 +92,8 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'dGltZRgIIAEoA1IOd29ya291dE1pblRpbWUSHQoKbGFzdF9sb2dpbhgJIAEoCVIJbGFzdExvZ2'
     'luEhYKBnN0cmVhaxgKIAEoA1IGc3RyZWFrEhgKB3ByZW1pdW0YCyABKANSB3ByZW1pdW0SLwoU'
     'cmVhZHlfZm9yX3dlZWtfcmVzZXQYDCABKAlSEXJlYWR5Rm9yV2Vla1Jlc2V0EisKEmlzX2luX2'
-    'dyYWNlX3BlcmlvZBgNIAEoCVIPaXNJbkdyYWNlUGVyaW9k');
+    'dyYWNlX3BlcmlvZBgNIAEoCVIPaXNJbkdyYWNlUGVyaW9kEi4KE2RhaWx5X2NoYXRfbWVzc2Fn'
+    'ZXMYDiABKANSEWRhaWx5Q2hhdE1lc3NhZ2Vz');
 
 @$core.Deprecated('Use dailySnapshotDescriptor instead')
 const DailySnapshot$json = {

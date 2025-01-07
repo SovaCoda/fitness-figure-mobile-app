@@ -16,6 +16,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../services/providers.dart';
+
 /*
  *  When the program starts, four API calls will be made: 
  *   
@@ -77,7 +79,6 @@ class ChatModel extends ChangeNotifier {
   ChatModel() {
     // _initNotificationTimer(); unused as the server should handle notifications
   }
-
 
   // Functionality for sending exercise reminder notifications (currently unused)
   // void _initNotificationTimer() {
@@ -151,24 +152,32 @@ class ChatModel extends ChangeNotifier {
     prefs = await SharedPreferences.getInstance();
     final String? modulesJson = prefs?.getString('personalityModules');
     if (modulesJson != null) {
-      personalityModules = List<String>.from(json.decode(modulesJson) as Iterable<dynamic>);
+      personalityModules =
+          List<String>.from(json.decode(modulesJson) as Iterable<dynamic>);
     }
     notifyListeners();
   }
 
   Future<void> savePersonalityModules() async {
     await prefs?.setString(
-        'personalityModules', json.encode(personalityModules),);
+      'personalityModules',
+      json.encode(personalityModules),
+    );
   }
 
-  Future<void> init({bool changeFlag = false, required BuildContext context}) async {
-    final User? user = await Provider.of<auth.AuthService>(context, listen: false)
-        .getUserDBInfo();
+  Future<void> init(
+      {bool changeFlag = false, required BuildContext context}) async {
+    final User? user =
+        await Provider.of<auth.AuthService>(context, listen: false)
+            .getUserDBInfo();
     if (user?.premium == Int64()) {
-      messages.add(ChatMessage(
+      messages.add(
+        ChatMessage(
           "Welcome to Fitness Figure! Let's start an exercise!",
           "assistant",
-          "robot1",),);
+          "robot1",
+        ),
+      );
       notifyListeners();
       return;
     }
@@ -176,11 +185,13 @@ class ChatModel extends ChangeNotifier {
     prefs = await SharedPreferences.getInstance();
     await loadPersonalityModules();
     openAI = OpenAI.instance.build(
-        token: dotenv.env['OPENAI_KEY'],
-        baseOption: HttpSetup(
-            receiveTimeout: const Duration(seconds: 20),
-            connectTimeout: const Duration(seconds: 20),),
-        enableLog: true,);
+      token: dotenv.env['OPENAI_KEY'],
+      baseOption: HttpSetup(
+        receiveTimeout: const Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 20),
+      ),
+      enableLog: true,
+    );
     messages.clear();
     instructions =
         "you are robot in an App, you have three statistics that are unique to you. 1. Charge - this is a percent based stat from 0 - 100% your charge increases when a user works out and increases more based on how consistent the user is in their workout schedule 2. evo - this a value that tracks your evolution progress, you have 8 different levels of evolution and the user has to gain enough evo points based on your level to increase your level of evolution. the user can generate evo points for you by working out, keeping your charge high, and doing research on the research tab. 3. Currency - this is a shared stat between you and the user. you generate currency per second based on how high your evolution level is. You have personality modules installed that affect your responses. Your current personality is: ${personalityModules.isEmpty ? "Happy" : personalityModules.join(", ")}. Do not mention your personality modules in conversation. Your personality cores dictate everything about you and your responses. In your first message to the user, respond as if they have just walked through the door, keep your response short but only for the first message.";
@@ -223,7 +234,11 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "startWorkoutTimer",
               "description": "Start a timer for a workout session",
-              "parameters": {"type": "object", "properties": {}, "required": []},
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              },
             },
           },
           {
@@ -231,7 +246,11 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "evolutionInfo",
               "description": "Fetch evolution details for the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []},
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              },
             },
           }
         ],
@@ -246,10 +265,13 @@ class ChatModel extends ChangeNotifier {
     final createdThread =
         await openAI.threads.v2.createThread(request: threadRequest);
     threadId = createdThread.id;
-    messages.add(ChatMessage(
+    messages.add(
+      ChatMessage(
         "Welcome to Fitness Figure! Let's start an exercise!",
         "assistant",
-        "robot1",),);
+        "robot1",
+      ),
+    );
     notifyListeners();
   }
 
@@ -294,7 +316,7 @@ class ChatModel extends ChangeNotifier {
       "evo": evoPoints,
       "EVMAX": evoMax,
       "isEvolvable": evoPoints! >= evoMax,
-      "evolutionBenefits": figure1.figureEvUpgrades[evLevel + 2], 
+      "evolutionBenefits": figure1.figureEvUpgrades[evLevel + 2],
     };
   }
 
@@ -302,16 +324,33 @@ class ChatModel extends ChangeNotifier {
     const String timerName = "workout_timer";
     final DateTime now = DateTime.now();
     await prefs!.setString('$timerName timerStarted', now.toString());
-    if(context.mounted) {
+    if (context.mounted) {
       context.goNamed('Workout');
+      Provider.of<HomeIndexProvider>(context, listen: false).setIndex(2);
     }
     return "Workout timer started successfully.";
   }
 
   Future<void> sendMessage(
-      String message, String role, BuildContext context,) async {
+    String message,
+    String role,
+    BuildContext context,
+  ) async {
     if (message.trim().isEmpty) {
       return;
+    }
+    final User? user =
+        await Provider.of<auth.AuthService>(context, listen: false)
+            .getUserDBInfo();
+    user!.dailyChatMessages += 1;
+    if (context.mounted) {
+      Provider.of<auth.AuthService>(context, listen: false)
+          .updateUserDBInfo(user);
+      Provider.of<UserModel>(context, listen: false).setUser(user);
+    }
+    // prevent users that are over the limit from making a pointless api request
+    if(user.dailyChatMessages > 1) {
+      return; 
     }
 
     messages.add(ChatMessage(message, role, ""));
@@ -339,7 +378,11 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "get_robot_stats",
               "description": "Get the current stats of the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []},
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              },
             },
           },
           {
@@ -347,7 +390,11 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "startWorkoutTimer",
               "description": "Start a timer for a workout session",
-              "parameters": {"type": "object", "properties": {}, "required": []},
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              },
             },
           },
           {
@@ -355,7 +402,11 @@ class ChatModel extends ChangeNotifier {
             "function": {
               "name": "evolutionInfo",
               "description": "Fetch evolution details for the robot",
-              "parameters": {"type": "object", "properties": {}, "required": []},
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              },
             },
           },
           {
@@ -364,7 +415,11 @@ class ChatModel extends ChangeNotifier {
               "name": "getWeekData",
               "description":
                   "Fetch information such as if the user did a workout today and the current streak",
-              "parameters": {"type": "object", "properties": {}, "required": []},
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              },
             },
           }
         ],
@@ -384,14 +439,15 @@ class ChatModel extends ChangeNotifier {
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         final updatedRun = await openAI.threads.v2.runs.retrieveRun(
-            threadId: threadId!,
-            runId: run.id,); // starts api call (probably doesn't use tokens?)
+          threadId: threadId!,
+          runId: run.id,
+        ); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
         // logger.i("Run created: ${updatedRun.id}");
         // logger.i("Run status: ${updatedRun.status}");
         // logger.i("Run requires action: ${updatedRun.requiredAction}");
         if (runStatus == "requires_action") {
-          if(context.mounted) {
+          if (context.mounted) {
             await handleRequiredAction(updatedRun, context);
           }
         } else if (runStatus == "failed") {
@@ -416,9 +472,11 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  Future<void> handleRequiredAction(CreateRunResponse updatedRun, BuildContext context) async {
-    final toolCalls =
-        updatedRun.requiredAction?['submit_tool_outputs']?['tool_calls'] ?? [];
+  Future<void> handleRequiredAction(
+      CreateRunResponse updatedRun, BuildContext context) async {
+    final List toolCalls = updatedRun.requiredAction?['submit_tool_outputs']
+            ?['tool_calls'] as List ??
+        [];
     List<Map<String, dynamic>> toolOutputs = [];
 
     for (var toolCall in toolCalls) {
@@ -464,8 +522,13 @@ class ChatModel extends ChangeNotifier {
     if (messagesResponse.data.isNotEmpty) {
       final assistantMessage = messagesResponse.data.first;
       if (assistantMessage.content.isNotEmpty) {
-        messages.add(ChatMessage(
-            assistantMessage.content.first.text.value, "assistant", "robot1",),);
+        messages.add(
+          ChatMessage(
+            assistantMessage.content.first.text.value,
+            "assistant",
+            "robot1",
+          ),
+        );
         setRobotTyping(false);
         notifyListeners();
       } else {
@@ -547,7 +610,8 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<String>? generatePostWorkoutMessage(
-      Map<String, dynamic> gameState,) async {
+    Map<String, dynamic> gameState,
+  ) async {
     final String message =
         "The user just completed a workout with these stats create a message congratulating and encouraging them $gameState. Don't use emoji's, Be personable and human. Take into account your personality cores.";
 
@@ -582,8 +646,9 @@ class ChatModel extends ChangeNotifier {
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         final updatedRun = await openAI.threads.v2.runs.retrieveRun(
-            threadId: threadId!,
-            runId: run.id,); // starts api call (probably doesn't use tokens?)
+          threadId: threadId!,
+          runId: run.id,
+        ); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
         // logger.i("Run created: ${updatedRun.id}");
         // logger.i("Run status: ${updatedRun.status}");
@@ -621,7 +686,8 @@ class ChatModel extends ChangeNotifier {
   }
 
   Future<String?> generatePremiumOfflineStatusMessage(
-      Map<String, dynamic> gameState,) async {
+    Map<String, dynamic> gameState,
+  ) async {
     final String message =
         "Send a message to a user that would appear in a push notification on their phone based on this info $gameState. Only pick two of the stats to mention. Don't use emoji's, Be personable and human. Take into account your personality cores.";
 
@@ -656,8 +722,9 @@ class ChatModel extends ChangeNotifier {
       while (runStatus != "completed" && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         final updatedRun = await openAI.threads.runs.retrieveRun(
-            threadId: threadId!,
-            runId: run.id,); // starts api call (probably doesn't use tokens?)
+          threadId: threadId!,
+          runId: run.id,
+        ); // starts api call (probably doesn't use tokens?)
         runStatus = updatedRun.status;
         // logger.i("Run created: ${updatedRun.id}");
         // logger.i("Run status: ${updatedRun.status}");

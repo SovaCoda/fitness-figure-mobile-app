@@ -115,6 +115,7 @@ message User {
     int64 premium = 11;
     string ready_for_week_reset = 12;
     string is_in_grace_period = 13;
+    int64 daily_chat_messages = 14;
 }
 
 message DailySnapshot {
