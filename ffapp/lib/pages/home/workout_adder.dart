@@ -1188,27 +1188,32 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         ),
                       ]
                     : [
-                        Consumer2<FigureModel, FigureInstancesProvider>(
-                          builder: (_, figure, figureinstances, __) {
-                            return Stack(
-                              children: [
-                                AnimatedFigure(
-                                  useEquippedFigure: false,
-                                  figureName: figure.figure!.figureName,
-                                  figureLevel: figure.figure!.evLevel,
-                                  height:
-                                      MediaQuery.of(context).size.height / 4,
-                                  width: MediaQuery.of(context).size.width,
-                                ),
-                                // DraggableAdminPanel(
-                                //   onButton1Pressed: add10Minutes,
-                                //   onButton2Pressed: add30Seconds,
-                                //   button1Text: "add 10 min",
-                                //   button2Text: "add 30 sec",
-                                // ),
-                              ],
-                            );
-                          },
+                        Container(
+                          margin: EdgeInsets.only(bottom: 60),
+                          child:
+                              Consumer2<FigureModel, FigureInstancesProvider>(
+                            builder: (_, figure, figureinstances, __) {
+                              return Stack(
+                                alignment: Alignment.topCenter,
+                                children: [
+                                  AnimatedFigure(
+                                    useEquippedFigure: false,
+                                    figureName: figure.figure!.figureName,
+                                    figureLevel: figure.figure!.evLevel,
+                                    height:
+                                        MediaQuery.of(context).size.height / 4,
+                                    width: MediaQuery.of(context).size.width,
+                                  ),
+                                  // DraggableAdminPanel(
+                                  //   onButton1Pressed: add10Minutes,
+                                  //   onButton2Pressed: add30Seconds,
+                                  //   button1Text: "add 10 min",
+                                  //   button2Text: "add 30 sec",
+                                  // ),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.only(

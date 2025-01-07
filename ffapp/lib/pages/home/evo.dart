@@ -1,3 +1,4 @@
+import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
@@ -79,6 +80,9 @@ class _EvolutionPageState extends State<EvolutionPage>
   }
 
   void evolveFigure() async {
+    bool purchaseable = await subtractEVPoints();
+    if (purchaseable == false) return;
+
     setState(() {
       _disabledButtons = true;
     });
@@ -181,8 +185,9 @@ class _EvolutionPageState extends State<EvolutionPage>
   }
 
   Future<bool> subtractEVPoints() async {
-    FigureModel userFigure = Provider.of<FigureModel>(context, listen: false);
-    int currentEVPoints = userFigure.figure!.evPoints;
+    FigureInstance userFigure =
+        Provider.of<FigureModel>(context, listen: false).figure!;
+    int currentEVPoints = userFigure.evPoints;
     int updatedEVPoints = currentEVPoints - _evolutionCost;
     logger.i(
         "Attempting to make transaction of cost $_evolutionCost on current points $currentEVPoints");
@@ -196,11 +201,20 @@ class _EvolutionPageState extends State<EvolutionPage>
         return false;
       }
     }
-    userFigure.figure!.evPoints = updatedEVPoints;
-    await auth.updateFigureInstance(userFigure.figure!);
+    if (updatedEVPoints == 0) {
+      updatedEVPoints += 1;
+    }
+    userFigure.evPoints = updatedEVPoints;
+    Provider.of<FigureModel>(context, listen: false).setFigure(userFigure);
+    Provider.of<Store.FigureInstancesProvider>(context, listen: false)
+        .setFigureInstanceEV(
+            Provider.of<SelectedFigureProvider>(context, listen: false)
+                .selectedFigureIndex,
+            updatedEVPoints);
+    await auth.updateFigureInstance(userFigure);
     if (mounted) {
-      Provider.of<CurrencyModel>(context, listen: false)
-          .setCurrency(updatedEVPoints.toString());
+      // Provider.of<CurrencyModel>(context, listen: false)
+      //     .setCurrency(updatedEVPoints.toString());
     }
     return true;
   }
@@ -241,13 +255,13 @@ class _EvolutionPageState extends State<EvolutionPage>
                                 offset: Offset(0, 3),
                               ),
                             ]),
-                        child: RobotImageHolder(
-                            url: (figure.figure != null)
-                                ? ("${figure.figure!.figureName}/${figure.figure!.figureName}_skin0_evo${(figure.EVLevel != null) ? figure.EVLevel : 0}_cropped_happy")
-                                : "robot1/robot1_skin0_evo0_cropped_happy",
+                        child: AnimatedFigure(
+                            useEquippedFigure: false,
+                            figureLevel: figure.EVLevel,
+                            figureName: figure.figure!.figureName,
                             height: _isAnimating
-                                ? MediaQuery.of(context).size.height * 0.8
-                                : MediaQuery.of(context).size.height * 0.4,
+                                ? MediaQuery.of(context).size.height * 0.7
+                                : MediaQuery.of(context).size.height * 0.3,
                             width: MediaQuery.of(context).size.width),
                       ),
                       _showNewBenefits

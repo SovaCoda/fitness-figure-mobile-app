@@ -22,7 +22,7 @@ class ResearchOption extends StatefulWidget {
   final ResearchTask task;
   final Function(String) onComplete;
   final Function(String, BuildContext) onStart;
-  final Future<bool>Function(double) onSubtractCurrency;
+  final Future<bool> Function(double) onSubtractCurrency;
   final Function releaseLockedTasks;
   final Function lockAllInactiveTasks;
 
@@ -95,7 +95,7 @@ class _ResearchOptionState extends State<ResearchOption> {
   Future<void> _initializeState() async {
     task = widget.task;
     prefs = await SharedPreferences.getInstance();
-    if(!mounted) return;
+    if (!mounted) return;
     final Map<String, bool> capabilities =
         Provider.of<FigureModel>(context, listen: false).capabilities;
     if (capabilities['Research 20% Faster'] == true) {
@@ -111,10 +111,11 @@ class _ResearchOptionState extends State<ResearchOption> {
       _currentEv = widget.task.ev;
     }
     _timer = PersistantTimer(
-        timerName: task.title,
-        prefs: prefs,
-        tickSpeedMS: _tickSpeed,
-        onTick: _updateTimer,);
+      timerName: task.title,
+      prefs: prefs,
+      tickSpeedMS: _tickSpeed,
+      onTick: _updateTimer,
+    );
     if (_timer.hasStoredTime()) {
       if (hasStoredInvestment()) {
         _updateInvestment(prefs.getDouble('${task.title} investment')!);
@@ -134,9 +135,9 @@ class _ResearchOptionState extends State<ResearchOption> {
       _currentCountdown = widget.task.duration.inSeconds;
       _currentChance = widget.task.chance;
     }
-    if(mounted) {
-    _auth = Provider.of<AuthService>(context, listen: false);
-    _figure = Provider.of<FigureModel>(context, listen: false);
+    if (mounted) {
+      _auth = Provider.of<AuthService>(context, listen: false);
+      _figure = Provider.of<FigureModel>(context, listen: false);
     }
 
     _randValue = Random().nextInt(100);
@@ -188,13 +189,15 @@ class _ResearchOptionState extends State<ResearchOption> {
     final UserModel user = Provider.of<UserModel>(context, listen: false);
     figureInstance = _figure.figure!;
 
-    await _auth.updateFigureInstance(FigureInstance(
-      figureId: figureInstance.figureId,
-      userEmail: user.user!.email,
-      figureName: figureInstance.figureName,
-      charge: figureInstance.charge,
-      evPoints: figureInstance.evPoints,
-    ),);
+    await _auth.updateFigureInstance(
+      FigureInstance(
+        figureId: figureInstance.figureId,
+        userEmail: user.user!.email,
+        figureName: figureInstance.figureName,
+        charge: figureInstance.charge,
+        evPoints: figureInstance.evPoints,
+      ),
+    );
     widget.onComplete(widget.task.id);
   }
 
@@ -283,89 +286,104 @@ class _ResearchOptionState extends State<ResearchOption> {
                     ? MainAxisAlignment.start
                     : MainAxisAlignment.end,
                 children: [
-                  if (_isExpanded) _buildExpandedContent() else _buildCollapsedContent(),
+                  if (_isExpanded)
+                    _buildExpandedContent()
+                  else
+                    _buildCollapsedContent(),
                 ],
               ),
             ),
-            if (_isExpanded && !_isCompleted) Positioned(
-                    bottom: MediaQuery.of(context).size.height * 0.025,
-                    left: MediaQuery.of(context).size.width * 0.10,
-                    child: FFAppButton(
-                        text: "BEGIN",
-                        fontSize: 20,
-                        onPressed: _startResearch,
-                        size: MediaQuery.of(context).size.width *
-                            0.79389312977099236641221374045802,
-                        height: MediaQuery.of(context).size.height *
-                            0.08098591549295774647887323943662,),
-                  ) else Container(),
-            if (_isExpanded && _isCompleted) _isSuccess
-                ? Positioned(
-                    bottom: MediaQuery.of(context).size.height * 0.035,
-                    left: MediaQuery.of(context).size.width * 0.10,
-                    child: FFAppButton(
+            if (_isExpanded && !_isCompleted)
+              Positioned(
+                bottom: MediaQuery.of(context).size.height * 0.025,
+                left: MediaQuery.of(context).size.width * 0.10,
+                child: FFAppButton(
+                  text: "BEGIN",
+                  fontSize: 20,
+                  onPressed: _startResearch,
+                  size: MediaQuery.of(context).size.width *
+                      0.79389312977099236641221374045802,
+                  height: MediaQuery.of(context).size.height *
+                      0.08098591549295774647887323943662,
+                ),
+              )
+            else
+              Container(),
+            if (_isExpanded && _isCompleted)
+              _isSuccess
+                  ? Positioned(
+                      bottom: MediaQuery.of(context).size.height * 0.035,
+                      left: MediaQuery.of(context).size.width * 0.10,
+                      child: FFAppButton(
                         text: "AWESOME",
                         fontSize: 20,
                         onPressed: _handleSuccessCompletion,
                         size: MediaQuery.of(context).size.width *
                             0.79389312977099236641221374045802,
                         height: MediaQuery.of(context).size.height *
-                            0.08098591549295774647887323943662,),
-                  ) : Positioned(
-                    bottom: MediaQuery.of(context).size.height * 0.035,
-                    left: MediaQuery.of(context).size.width * 0.10,
-                    child: FFAppButton(
+                            0.08098591549295774647887323943662,
+                      ),
+                    )
+                  : Positioned(
+                      bottom: MediaQuery.of(context).size.height * 0.035,
+                      left: MediaQuery.of(context).size.width * 0.10,
+                      child: FFAppButton(
                         text: "OK",
                         fontSize: 20,
                         onPressed: _handleFailureCompletion,
                         size: MediaQuery.of(context).size.width *
                             0.79389312977099236641221374045802,
                         height: MediaQuery.of(context).size.height *
-                            0.08098591549295774647887323943662,),) else Container(),
+                            0.08098591549295774647887323943662,
+                      ),
+                    )
+            else
+              Container(),
           ],
         ),
         if (widget.task.locked)
-        Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.95,
-            height: _getContainerHeight(),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.onSurface,
-                width: 2,
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.95,
+              height: _getContainerHeight(),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.lock, size: 50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Multi-Tasking Unlocks at ',
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(fontSize: 16),
+                      ),
+                      Text(
+                        'EVO 2',
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 16,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.lock, size: 50),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Multi-Tasking Unlocks at ',
-                      style: Theme.of(context)
-                          .textTheme
-                          .displayMedium!
-                          .copyWith(fontSize: 16),
-                    ),
-                    Text(
-                      'EVO 5',
-                      style: Theme.of(context)
-                          .textTheme
-                          .displayMedium!
-                          .copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontSize: 16,),
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
-        ),
       ],
     );
   }
@@ -385,8 +403,10 @@ class _ResearchOptionState extends State<ResearchOption> {
       padding: const EdgeInsets.only(bottom: 2),
       width: MediaQuery.of(context).size.width *
           0.90839694656488549618320610687023,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -397,9 +417,11 @@ class _ResearchOptionState extends State<ResearchOption> {
                     ),
               ),
               if (!_isCompleted) _buildTimer(),
-            ],),
-        _buildChanceAndEVInfo(),
-      ],),
+            ],
+          ),
+          _buildChanceAndEVInfo(),
+        ],
+      ),
     );
   }
 
@@ -421,22 +443,24 @@ class _ResearchOptionState extends State<ResearchOption> {
         Text(
           '$_currentChance% Chance',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              color: Color.fromARGB(
-                255,
-                255 - (2.55 * _currentChance).round(),
-                0 + (2.55 * _currentChance).round(),
-                0,
+                color: Color.fromARGB(
+                  255,
+                  255 - (2.55 * _currentChance).round(),
+                  0 + (2.55 * _currentChance).round(),
+                  0,
+                ),
+                fontSize: 14,
+                fontFamily: 'Roboto',
               ),
-              fontSize: 14,
-              fontFamily: 'Roboto',),
         ),
         const SizedBox(height: 4),
         Text(
           '+$_currentEv EVO',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
-              fontSize: 14,
-              fontFamily: 'Roboto',),
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 14,
+                fontFamily: 'Roboto',
+              ),
         ),
       ],
     );
@@ -457,19 +481,23 @@ class _ResearchOptionState extends State<ResearchOption> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (_tickSpeed != 1000)
-          Text("+${(1000 - _tickSpeed) / 10}%  ",
-              style: Theme.of(context).textTheme.displaySmall!.copyWith(
+          Text(
+            "+${(1000 - _tickSpeed) / 10}%  ",
+            style: Theme.of(context).textTheme.displaySmall!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: _isExpanded ? 20 : 14,
-                  fontFamily: 'Roboto',),),
+                  fontFamily: 'Roboto',
+                ),
+          ),
         Text(
           _isCountdown
               ? _formatDuration(Duration(seconds: _currentCountdown))
               : _formatDuration(widget.task.duration),
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              fontSize: _isExpanded ? 20 : 14,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w700,),
+                fontSize: _isExpanded ? 20 : 14,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w700,
+              ),
         ),
         const SizedBox(width: 2),
         Icon(Icons.access_time, size: _isExpanded ? 29 : 20, weight: 700),
@@ -489,17 +517,18 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   Widget _buildBeginButton() {
     return FFAppButton(
-        text: "BEGIN",
-        size: MediaQuery.of(context).size.width *
-            0.47697201017811704834605597964377,
-        height: MediaQuery.of(context).size.height *
-            0.04865023474178403755868544600939,
-        fontSize: 14,
-        onPressed: () {
-          setState(() {
-            _isExpanded = !_isExpanded;
-          });
-        },);
+      text: "BEGIN",
+      size: MediaQuery.of(context).size.width *
+          0.47697201017811704834605597964377,
+      height: MediaQuery.of(context).size.height *
+          0.04865023474178403755868544600939,
+      fontSize: 14,
+      onPressed: () {
+        setState(() {
+          _isExpanded = !_isExpanded;
+        });
+      },
+    );
   }
 
   Widget _buildProgressButton() {
@@ -524,11 +553,14 @@ class _ResearchOptionState extends State<ResearchOption> {
     //   style: _getButtonStyle(color: Theme.of(context).colorScheme.primary),
     //   child: Text('Completed', style: _getButtonTextStyle()),
     // );
-    return ResearchProgressBar(text: 'Complete', onPressed: () {
-      setState(() {
+    return ResearchProgressBar(
+      text: 'Complete',
+      onPressed: () {
+        setState(() {
           _isExpanded = !_isExpanded;
         });
-    },);
+      },
+    );
   }
 
   // ButtonStyle _getButtonStyle({Color? color}) {
@@ -576,18 +608,22 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   Widget _buildInvestmentContent() {
     return GradientedContainer(
-        height: MediaQuery.of(context).size.height *
-            0.2934272300469483568075117370892,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(widget.task.title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
-                  textAlign: TextAlign.left,),
+      height: MediaQuery.of(context).size.height *
+          0.2934272300469483568075117370892,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.task.title,
+                style: Theme.of(context)
+                    .textTheme
+                    .displayMedium!
+                    .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
+                textAlign: TextAlign.left,
+              ),
               FFAppButton(
                 text: "",
                 isBack: true,
@@ -599,34 +635,40 @@ class _ResearchOptionState extends State<ResearchOption> {
                   });
                 },
               ),
-            ],),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  child: Text(
-                    'Invest funds to improve chances of research success!',
-                    style: Theme.of(context)
-                        .textTheme
-                        .displaySmall!
-                        .copyWith(fontSize: 14, fontFamily: 'roboto'),
-                  ),),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Text(
+                'Invest funds to improve chances of research success!',
+                style: Theme.of(context)
+                    .textTheme
+                    .displaySmall!
+                    .copyWith(fontSize: 14, fontFamily: 'roboto'),
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FFCoin(
-                    size: MediaQuery.of(context).size.height * 0.058685,),
-                SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-                Text('$_cost',
-                    style: const TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,),),
-              ],
-            ),
-            Center(
-                child: SizedBox(
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FFCoin(
+                size: MediaQuery.of(context).size.height * 0.058685,
+              ),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+              Text(
+                '$_cost',
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          Center(
+            child: SizedBox(
               height: MediaQuery.of(context).size.height *
                   0.05, // Adjust this value as needed
               child: Center(
@@ -638,89 +680,102 @@ class _ResearchOptionState extends State<ResearchOption> {
                   label: _cost.toString(),
                 ),
               ),
-            ),),
-            Center(
-              child: Text(
-                '$_currentChance% Chance',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w600,
-                  color: Color.fromARGB(
-                    255,
-                    255 - (2.55 * _currentChance).round(),
-                    0 + (2.55 * _currentChance).round(),
-                    0,
-                  ),
+            ),
+          ),
+          Center(
+            child: Text(
+              '$_currentChance% Chance',
+              style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w600,
+                color: Color.fromARGB(
+                  255,
+                  255 - (2.55 * _currentChance).round(),
+                  0 + (2.55 * _currentChance).round(),
+                  0,
                 ),
               ),
             ),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text("+ ${widget.task.ev} EVO",
-                  style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                      color: Theme.of(context).colorScheme.secondary,),),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "+ ${widget.task.ev} EVO",
+                style: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
               _buildTimer(),
-            ],),
-            // if you are looking for begin button, look in the stack in the main widget build function
-          ],
-        ),);
+            ],
+          ),
+          // if you are looking for begin button, look in the stack in the main widget build function
+        ],
+      ),
+    );
   }
 
   Widget _buildSuccessContent() {
     return ConfettiSuccessWidget(
-        child: GradientedContainer(
-            height: MediaQuery.of(context).size.height *
-                0.2934272300469483568075117370892,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.task.title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
+      child: GradientedContainer(
+        height: MediaQuery.of(context).size.height *
+            0.2934272300469483568075117370892,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.task.title,
+              style: Theme.of(context)
+                  .textTheme
+                  .displayMedium!
+                  .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
+            ),
+            Center(
+              child: Image.asset(
+                'lib/assets/images/success.png',
+                width: MediaQuery.of(context).size.width *
+                    0.55470737913486005089058524173028,
+                height: MediaQuery.of(context).size.height *
+                    0.05286384976525821596244131455399,
+              ),
+            ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.55,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RobotImageHolder(
+                      url: _getRobotImageUrl(happy: true),
+                      height: MediaQuery.of(context).size.height * 0.17,
+                      width: MediaQuery.of(context).size.width * 0.27,
+                    ),
+                    Text(
+                      "+ ${widget.task.ev} EVO",
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 24,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ],
                 ),
-                Center(
-                  child: Image.asset(
-                    'lib/assets/images/success.png',
-                    width: MediaQuery.of(context).size.width *
-                        0.55470737913486005089058524173028,
-                    height: MediaQuery.of(context).size.height *
-                        0.05286384976525821596244131455399,
-                  ),
-                ),
-                Center(
-                    child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.55,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            RobotImageHolder(
-                              url: _getRobotImageUrl(happy: true),
-                              height: MediaQuery.of(context).size.height * 0.17,
-                              width: MediaQuery.of(context).size.width * 0.27,
-                            ),
-                            Text("+ ${widget.task.ev} EVO",
-                                style: TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 24,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .secondary,),),
-                          ],
-                        ),),),
-                // ElevatedButton(
-                //   onPressed: _handleSuccessCompletion,
-                //   style: _getButtonStyle(),
-                //   child: Text('Awesome!', style: _getButtonTextStyle()),
-                // ),
-              ],
-            ),),);
+              ),
+            ),
+            // ElevatedButton(
+            //   onPressed: _handleSuccessCompletion,
+            //   style: _getButtonStyle(),
+            //   child: Text('Awesome!', style: _getButtonTextStyle()),
+            // ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildFailureContent() {
@@ -737,36 +792,45 @@ class _ResearchOptionState extends State<ResearchOption> {
                 .displayMedium!
                 .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
           ),
-          Stack(children: [
-            
-            Center(
+          Stack(
+            children: [
+              Center(
                 child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.55,
-                    child: Column(
-                      children: [
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.06,),
-                        Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        RobotImageHolder(
-                          url: _getRobotImageUrl(happy: false),
-                          height: MediaQuery.of(context).size.height * 0.17,
-                          width: MediaQuery.of(context).size.width * 0.27,
-                        ),
-                        Text("+ 0 EVO",
+                  width: MediaQuery.of(context).size.width * 0.55,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.06,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RobotImageHolder(
+                            url: _getRobotImageUrl(happy: false),
+                            height: MediaQuery.of(context).size.height * 0.17,
+                            width: MediaQuery.of(context).size.width * 0.27,
+                          ),
+                          Text(
+                            "+ 0 EVO",
                             style: TextStyle(
-                                fontFamily: 'Roboto',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 24,
-                                color:
-                                    Theme.of(context).colorScheme.secondary,),),
-                      ],
-                    ),],),),),
-                    Positioned(
-              top: -MediaQuery.of(context).size.height * 0.06,
-              child: const AnimatedFitnessIcon(),
-            ),
-          ],),
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 24,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: -MediaQuery.of(context).size.height * 0.06,
+                child: const AnimatedFitnessIcon(),
+              ),
+            ],
+          ),
           // ElevatedButton(
           //   onPressed: _handleFailureCompletion,
           //   style: _getExpandedButtonStyle(),
@@ -779,9 +843,10 @@ class _ResearchOptionState extends State<ResearchOption> {
 
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final String twoDigitHours = twoDigits(duration.inHours.remainder(60));
     final String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     final String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$twoDigitMinutes:$twoDigitSeconds";
+    return "$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds";
   }
 }
 

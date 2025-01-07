@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
+import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
@@ -261,12 +262,12 @@ class _CoreState extends State<Core> {
                     right: 0,
                     child: _buildCurrencyDisplay(),
                   ),
-                  RobotImageHolder(
-                    url: (_figure.figure != null)
-                        ? "${_figure.figure!.figureName}/${_figure.figure!.figureName}_skin${_figure.figure!.curSkin}_evo${_figure.EVLevel}_cropped_happy"
-                        : "robot1/robot1_skin0_evo0_cropped_happy",
+                  AnimatedFigure(
+                    useEquippedFigure: false,
+                    figureLevel: _figure.EVLevel,
+                    figureName: _figure.figure!.figureName,
                     height: MediaQuery.of(context).size.height * 0.3,
-                    width: MediaQuery.of(context).size.width * 0.5,
+                    width: MediaQuery.of(context).size.width * 0.3,
                   ),
                 ],
               ),

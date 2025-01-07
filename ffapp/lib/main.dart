@@ -154,11 +154,11 @@ class FigureModel extends ChangeNotifier {
   };
 
   Map<String, int> capabilityUnlocks = {
-    "Research Unlocked": 1,
-    "Research 20% Faster": 2,
-    "Task EV +20%": 3,
-    "Multi Tasking": 4,
-    "Halve Research Time": 7,
+    "Research Unlocked": 0,
+    "Research 20% Faster": 7,
+    "Task EV +20%": 6,
+    "Multi Tasking": 1,
+    "Halve Research Time": 2,
   };
 
   void _updateCapabilities() {

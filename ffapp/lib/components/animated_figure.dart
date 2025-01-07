@@ -40,7 +40,7 @@ class AnimatedFigureState extends State<AnimatedFigure> {
     super.initState();
 
     controller = SpineWidgetController(onInitialized: (controller) {
-      controller.animationState.setAnimationByName(0, "idle", true);
+      controller.animationState.setAnimationByName(0, widget.animation, true);
     });
 
     // resetAnimations();
@@ -61,7 +61,7 @@ class AnimatedFigureState extends State<AnimatedFigure> {
     if ((oldWidget.figureName != widget.figureName) ||
         (oldWidget.figureLevel != widget.figureLevel)) {
       controller = SpineWidgetController(onInitialized: (controller) {
-        controller.animationState.setAnimationByName(0, "idle", true);
+        controller.animationState.setAnimationByName(0, widget.animation, true);
       });
     }
   }
@@ -93,6 +93,9 @@ class AnimatedFigureState extends State<AnimatedFigure> {
                   builder: (context, figureSkeletons, child) {
                     if (figureSkeletons.atlases[figureCode] != null) {
                       return SpineWidget.fromDrawable(
+                          boundsProvider:
+                              SkinAndAnimationBounds(animation: "happy"),
+                          sizedByBounds: true,
                           SkeletonDrawable(figureSkeletons.atlases[figureCode]!,
                               figureSkeletons.skeletons[figureCode]!, false),
                           controller);

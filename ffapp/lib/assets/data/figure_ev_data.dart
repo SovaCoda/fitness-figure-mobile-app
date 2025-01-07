@@ -30,15 +30,15 @@ class figureEvData {
 
 figureEvData figure1 = figureEvData(
   numberOfEvolutions: 8,
-  baseEvRequired: 100,
-  evRequirementGainPerLevel: 200,
-  levelScaleFactor: 2,
+  baseEvRequired: 300,
+  evRequirementGainPerLevel: 700,
+  levelScaleFactor: 1,
   figureName: "robot1",
   currencyGens: [0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5],
   figureEvUpgrades: [
-    ["\$0.025/Sec"],
-    ["\$0.05/Sec", "Research Unlocked"],
-    ["\$0.10/Sec", "Research 20% Faster"],
+    ["\$0.025/Sec" "Research Unlocked"],
+    ["\$0.05/Sec", "Multi Tasking"],
+    ["\$0.10/Sec", "Halve Research Time"],
     ["\$0.25/Sec", "Task EV +20%"],
     ["\$0.50/Sec", "Multi Tasking"],
     ["\$0.75/Sec"],
@@ -70,7 +70,7 @@ figureEvData figure2 = figureEvData(
 Map<String, double> figureSizeMultipliers = {
   "11": 0.75,
   "12": 1,
-  "13": 1.5,
+  "13": 1.25,
   "21": 0.75,
   "22": 1.0,
   "23": 1.5,

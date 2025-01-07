@@ -1,3 +1,4 @@
+import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
@@ -203,9 +204,12 @@ class _StoreState extends State<Store> {
             children: <Widget>[
               Positioned(
                 top: 0,
-                child: RobotImageHolder(
-                  url:
-                      "${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}/${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].figureName : "robot1"}_skin0_evo0_cropped",
+                child: AnimatedFigure(
+                  useEquippedFigure: false,
+                  figureName: listOfFigures.isNotEmpty
+                      ? listOfFigures[currentFigureIndex].figureName
+                      : "robot1",
+                  figureLevel: 0,
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width * 0.5,
                 ),
