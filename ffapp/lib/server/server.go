@@ -43,7 +43,7 @@ func newServer(db *sql.DB) *server {
 func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period, daily_chat_messages FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod, &user.DailyChatMessages)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -53,7 +53,7 @@ func (s *server) GetUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, time.Now().Format("2006-01-02 15:04:05"), 0, 0, "no", "yes")
+	s.db.QueryRowContext(ctx, "INSERT INTO users (email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period, daily_chat_messages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", in.Email, DefaultFigure, in.Name, DefaultCurrency, DefaultWeekComplete, DefaultWeekGoal, DefaultCurWorkout, DefaultMinTime, time.Now().Format("2006-01-02 15:04:05"), 0, 0, "no", "yes", 0)
 
 	return &user, nil
 }
@@ -62,7 +62,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	var user pb.User
 
 	// Retrieve existing user information
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period, daily_chat_messages FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod, &user.DailyChatMessages)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -106,9 +106,12 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	if in.IsInGracePeriod != "" {
 		user.IsInGracePeriod = in.IsInGracePeriod
 	}
+	if in.DailyChatMessages != 0 {
+		user.DailyChatMessages = in.DailyChatMessages
+	}
 
 	// Update the user in the database
-	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ?, workout_min_time = ?, last_login = ?, streak = ?, premium = ?, ready_for_week_reset = ?, is_in_grace_period = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.WorkoutMinTime, user.LastLogin, user.Streak, user.Premium, user.ReadyForWeekReset, user.IsInGracePeriod, user.Email)
+	_, err = s.db.ExecContext(ctx, "UPDATE users SET cur_figure = ?, name = ?, currency = ?, week_complete = ?, week_goal = ?, cur_workout = ?, workout_min_time = ?, last_login = ?, streak = ?, premium = ?, ready_for_week_reset = ?, is_in_grace_period = ?, daily_chat_messages = ? WHERE email = ?", user.CurFigure, user.Name, user.Currency, user.WeekComplete, user.WeekGoal, user.CurWorkout, user.WorkoutMinTime, user.LastLogin, user.Streak, user.Premium, user.ReadyForWeekReset, user.IsInGracePeriod, user.DailyChatMessages, user.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not update user: %v", err)
 	}
@@ -119,7 +122,7 @@ func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 func (s *server) DeleteUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
-	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod)
+	err := s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period, daily_chat_messages FROM users WHERE email = ?", in.Email).Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod, &user.DailyChatMessages)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %v", err)
 	}
@@ -192,8 +195,8 @@ func (s *server) UpdateUserEmail(ctx context.Context, in *pb.UpdateEmailRequest)
 
 	// Fetch and return the updated user
 	var user pb.User
-	err = s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period FROM users WHERE email = ?", in.NewEmail).
-		Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod)
+	err = s.db.QueryRowContext(ctx, "SELECT email, cur_figure, name, currency, week_complete, week_goal, cur_workout, workout_min_time, last_login, streak, premium, ready_for_week_reset, is_in_grace_period, daily_chat_messages FROM users WHERE email = ?", in.NewEmail).
+		Scan(&user.Email, &user.CurFigure, &user.Name, &user.Currency, &user.WeekComplete, &user.WeekGoal, &user.CurWorkout, &user.WorkoutMinTime, &user.LastLogin, &user.Streak, &user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod, &user.DailyChatMessages)
 	if err != nil {
 		return nil, fmt.Errorf("could not get updated user: %v", err)
 	}
