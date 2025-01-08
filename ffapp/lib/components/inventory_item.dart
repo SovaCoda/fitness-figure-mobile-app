@@ -14,6 +14,7 @@ class InventoryItem extends StatefulWidget {
   final FigureInstance? figureInstance;
   final bool isSelected;
   final int index;
+  final bool isWorkingOut;
 
   const InventoryItem({
     super.key,
@@ -22,6 +23,7 @@ class InventoryItem extends StatefulWidget {
     required this.figureInstance,
     this.locked = false,
     this.isSelected = false,
+    this.isWorkingOut = false,
     required this.index,
   });
 
@@ -30,7 +32,6 @@ class InventoryItem extends StatefulWidget {
 }
 
 class InventoryItemState extends State<InventoryItem> {
-
   @override
   void initState() {
     super.initState();
@@ -63,8 +64,7 @@ class InventoryItemState extends State<InventoryItem> {
                           Center(
                             child: Container(
                               width: MediaQuery.of(context).size.width * 0.43,
-                              height:
-                                  MediaQuery.of(context).size.height * 0.33,
+                              height: MediaQuery.of(context).size.height * 0.33,
                               decoration: BoxDecoration(
                                 border: widget.isSelected
                                     ? Border.all(
@@ -143,6 +143,32 @@ class InventoryItemState extends State<InventoryItem> {
                                         .listOfFigureInstances[widget.index]
                                     : widget.figureInstance!),
                           ),
+                          if (widget.isWorkingOut)
+                            if (!widget.isSelected)
+                              Center(
+                                  child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.441,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.3365,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.5),
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                      child: const Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                            Icon(Icons.lock, size: 40),
+                                        Text(
+                                            'You cannot switch figures during a workout!',
+                                            style: TextStyle(fontSize: 20),
+                                            textAlign: TextAlign.center)
+                                      ])))
+                            else
+                              Container()
+                          else
+                            Container(),
                         ],
                       );
                     },

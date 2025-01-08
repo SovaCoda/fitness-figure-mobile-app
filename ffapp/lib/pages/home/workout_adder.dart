@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:ffapp/assets/data/figure_ev_data.dart';
-import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/button_themes.dart';
@@ -11,10 +10,8 @@ import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/resuables/streak_shower.dart';
-import 'package:ffapp/components/resuables/week_goal_shower.dart';
 import 'package:ffapp/components/resuables/week_to_go_shower.dart';
 import 'package:ffapp/components/resuables/workout_time_shower.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/utils/time_utils.dart';
@@ -230,6 +227,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       },
     );
     if (_timer.hasStoredTime()) {
+      Provider.of<UserModel>(context, listen: false).setIsWorkingOut(true);
       states["logging"] = true;
       states["paused"] = _timer.hasStoredPauseTime();
       states["pre-logging"] = false;
@@ -267,6 +265,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void startLogging(bool paused) {
+    Provider.of<UserModel>(context, listen: false).setIsWorkingOut(true);
     setState(() {
       _logging = true;
       _startTime = DateTime.now().toUtc().toString();
@@ -326,6 +325,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     if (Platform.isIOS) {
       liveActivityManager.stopLiveActivity();
     }
+    Provider.of<UserModel>(context, listen: false).setIsWorkingOut(false);
     prefs!.setBool("hasOngoingWorkout", false);
     prefs!.setBool("hasOngoingWorkoutPaused", false);
     prefs!.remove("workout lastTicked");

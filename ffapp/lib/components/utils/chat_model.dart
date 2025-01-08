@@ -80,70 +80,6 @@ class ChatModel extends ChangeNotifier {
     // _initNotificationTimer(); unused as the server should handle notifications
   }
 
-  // Functionality for sending exercise reminder notifications (currently unused)
-  // void _initNotificationTimer() {
-  //   _notificationTimer = Timer.periodic(Duration(hours: 6), (_) {
-  //     // Adjust timer as needed
-  //     _sendExerciseReminder();
-  //   });
-  // }
-
-  // Future<void> _sendExerciseReminder() async {
-  //   if (Provider.of<HistoryModel>(context, listen: false).workedOutToday) {
-  //     // Check if the user has already worked out today
-  //     return;
-  //   }
-  //   try {
-  //     // Create a message in the thread
-
-  //     final createMessage = CreateMessage(
-  //       role: 'user',
-  //       content: "Generate a short, motivating exercise reminder message.",
-  //     );
-  //     await openAI.threads.v2.messages.createMessage(
-  //       threadId: threadId!,
-  //       request: createMessage,
-  //     );
-
-  //     // Run the assistant
-  //     final runRequest = CreateRun(assistantId: assistantId!);
-  //     final run = await openAI.threads.runs
-  //         .createRun(threadId: threadId!, request: runRequest);
-
-  //     // Wait for the run to complete
-  //     String runStatus = run.status;
-  //     while (runStatus != "completed") {
-  //       await Future.delayed(const Duration(seconds: 1));
-  //       final updatedRun = await openAI.threads.runs
-  //           .retrieveRun(threadId: threadId!, runId: run.id);
-  //       runStatus = updatedRun.status;
-
-  //       if (runStatus == "failed") {
-  //         print("Run failed: ${updatedRun.lastError.toString()}");
-  //         return;
-  //       }
-  //     }
-
-  // Retrieve the message
-  //     final messagesResponse =
-  //         await openAI.threads.v2.messages.listMessage(threadId: threadId!);
-  //     if (messagesResponse.data.isNotEmpty) {
-  //       final assistantMessage = messagesResponse.data.first;
-  //       if (assistantMessage.content.isNotEmpty) {
-  //         String reminderMessage = assistantMessage.content.first.text.value;
-  //         await _localNotificationService.showNotification(
-  //           id: 0,
-  //           title: "Time to Exercise!",
-  //           body: reminderMessage,
-  //         );
-  //         print("Exercise reminder sent: $reminderMessage");
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print("Error sending exercise reminder: $e");
-  //   }
-  // }
-
   void updateChat() {
     notifyListeners();
   }
@@ -167,17 +103,18 @@ class ChatModel extends ChangeNotifier {
     );
   }
 
-/// Initializes OpenAI, gets all of the personality traits from local storage
-/// Checks if an assistant id is in local storage to prevent creating multiple assistants per user
-///    If the assistant id is present, it creates a thread with that assistant id,
-///    Otherwise, it creates an assistant with access to [get_robot_stats], [getWeekData], and [startWorkoutTimer] which the assistant can call and creates a thread
-/// Shows a starting message to the user that says "Welcome to Fitness Figure! Let's start an exercise!"
-
+  /// Initializes OpenAI, gets all of the personality traits from local storage
+  /// Checks if an assistant id is in local storage to prevent creating multiple assistants per user
+  ///    If the assistant id is present, it creates a thread with that assistant id,
+  ///    Otherwise, it creates an assistant with access to [get_robot_stats], [getWeekData], and [startWorkoutTimer] which the assistant can call and creates a thread
+  /// Shows a starting message to the user that says "Welcome to Fitness Figure! Let's start an exercise!"
   Future<void> init(
       {bool changeFlag = false, required BuildContext context}) async {
     final User? user =
         await Provider.of<auth.AuthService>(context, listen: false)
             .getUserDBInfo();
+
+    // if user does not have premium
     if (user?.premium == Int64()) {
       messages.add(
         ChatMessage(
@@ -501,7 +438,8 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  // Handles when Assistant API wants to call a method
+  ///  Handles the methods that Assistants API is trying to run
+  ///  Currently supports [startWorkoutTimer], [get_robot_stats], [evolutionInfo], and [getWeekData]
   Future<void> handleRequiredAction(
       CreateRunResponse updatedRun, BuildContext context) async {
     // Get the methods that Assistants API is trying to run
@@ -549,7 +487,7 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  // Handles retrieving the response from Assistants API and displays it to the user
+  ///  Retrieves the response from the assistant and adds it to the chat
   Future<void> retrieveAndProcessAssistantResponse() async {
     // Lists the messages in the thread and grabs the most recent one to extract the message
     final messagesResponse =
@@ -632,6 +570,7 @@ class ChatModel extends ChangeNotifier {
   //   }
   // }
 
+  /// Adds [module] to the list of personality modules
   void addPersonalityModule(String module) {
     if (!personalityModules.contains(module)) {
       personalityModules.add(module);
@@ -640,6 +579,7 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
+  /// Removes [module] from the list of personality modules
   void removePersonalityModule(String module) {
     if (personalityModules.remove(module)) {
       savePersonalityModules();
@@ -647,7 +587,9 @@ class ChatModel extends ChangeNotifier {
     }
   }
 
-  // Generates workout message after using workout adder
+  /// Generates a message for the user based on the current [gameState]
+  /// 
+  /// Returns a message if a message is generated by the assistant otherwise ''
   Future<String>? generatePostWorkoutMessage(
     Map<String, dynamic> gameState,
   ) async {
@@ -721,6 +663,9 @@ class ChatModel extends ChangeNotifier {
     return '';
   }
 
+  /// Generates a push notification message for the user based on the current [gameState]
+  /// 
+  /// Returns a message if a message is generated by the assistant otherwise ''
   Future<String?> generatePremiumOfflineStatusMessage(
     Map<String, dynamic> gameState,
   ) async {
@@ -793,8 +738,73 @@ class ChatModel extends ChangeNotifier {
     return null;
   }
 
+  /// 
   void setRobotTyping(bool isTyping) {
     isRobotTyping = isTyping;
     notifyListeners();
   }
 }
+
+// Functionality for sending exercise reminder notifications (currently unused)
+  // void _initNotificationTimer() {
+  //   _notificationTimer = Timer.periodic(Duration(hours: 6), (_) {
+  //     // Adjust timer as needed
+  //     _sendExerciseReminder();
+  //   });
+  // }
+
+  // Future<void> _sendExerciseReminder() async {
+  //   if (Provider.of<HistoryModel>(context, listen: false).workedOutToday) {
+  //     // Check if the user has already worked out today
+  //     return;
+  //   }
+  //   try {
+  //     // Create a message in the thread
+
+  //     final createMessage = CreateMessage(
+  //       role: 'user',
+  //       content: "Generate a short, motivating exercise reminder message.",
+  //     );
+  //     await openAI.threads.v2.messages.createMessage(
+  //       threadId: threadId!,
+  //       request: createMessage,
+  //     );
+
+  //     // Run the assistant
+  //     final runRequest = CreateRun(assistantId: assistantId!);
+  //     final run = await openAI.threads.runs
+  //         .createRun(threadId: threadId!, request: runRequest);
+
+  //     // Wait for the run to complete
+  //     String runStatus = run.status;
+  //     while (runStatus != "completed") {
+  //       await Future.delayed(const Duration(seconds: 1));
+  //       final updatedRun = await openAI.threads.runs
+  //           .retrieveRun(threadId: threadId!, runId: run.id);
+  //       runStatus = updatedRun.status;
+
+  //       if (runStatus == "failed") {
+  //         print("Run failed: ${updatedRun.lastError.toString()}");
+  //         return;
+  //       }
+  //     }
+
+  // Retrieve the message
+  //     final messagesResponse =
+  //         await openAI.threads.v2.messages.listMessage(threadId: threadId!);
+  //     if (messagesResponse.data.isNotEmpty) {
+  //       final assistantMessage = messagesResponse.data.first;
+  //       if (assistantMessage.content.isNotEmpty) {
+  //         String reminderMessage = assistantMessage.content.first.text.value;
+  //         await _localNotificationService.showNotification(
+  //           id: 0,
+  //           title: "Time to Exercise!",
+  //           body: reminderMessage,
+  //         );
+  //         print("Exercise reminder sent: $reminderMessage");
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print("Error sending exercise reminder: $e");
+  //   }
+  // }
