@@ -110,7 +110,7 @@ class AuthService {
   }
 
  /* 
-  *   Old change email implementation in case we still need it
+  *   Old implementation for changing user email in case we still need it
   */
   
 //   Future<String> updateEmail(String oldEmail, String newEmail, FB.AuthCredential credential) async {
@@ -155,19 +155,19 @@ class AuthService {
 // }
 
 
-  Future completeEmailUpdate(String oldEmail, String newEmail) async {
-  try {
-    await _auth.currentUser?.reload();
-      final Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
-        Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail),
-      );
-      logger.i("Email updated successfully in database to: ${updatedUser.email}");
-      return updatedUser;
-  } catch (e) {
-    logger.e("Error updating email in database: $e");
-    rethrow;
-  }
-}
+//   Future completeEmailUpdate(String oldEmail, String newEmail) async {
+//   try {
+//     await _auth.currentUser?.reload();
+//       final Routes.User updatedUser = await _routes.routesClient.updateUserEmail(
+//         Routes.UpdateEmailRequest(oldEmail: oldEmail, newEmail: newEmail),
+//       );
+//       logger.i("Email updated successfully in database to: ${updatedUser.email}");
+//       return updatedUser;
+//   } catch (e) {
+//     logger.e("Error updating email in database: $e");
+//     rethrow;
+//   }
+// }
 
   Future<void> deleteUser(FB.AuthCredential credential) async {
     // I'll opt for the braindead solution for now

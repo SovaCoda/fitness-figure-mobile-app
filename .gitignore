@@ -15,3 +15,11 @@ docs/*
 **/__debug_bin*
 /ffapp/Flutter
 ffapp/.env
+ffapp/linux/flutter/generated_plugins.cmake
+ffapp/linux/flutter/generated_plugins.cmake
+ffapp/windows/flutter/generated_plugins.cmake
+/flutter
+/ffapp/linux/flutter
+*.cmake
+.idea/other.xml
+.idea/caches/deviceStreaming.xml

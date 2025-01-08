@@ -222,7 +222,7 @@ class SkinViewerState extends State<SkinViewer> {
           currentSkinIndex = 0;
         }
 
-        equippedSkin.initializeListOfFigureInstances(listOfFigureInstances);
+        equippedSkin.setListOfFigureInstances(listOfFigureInstances);
 
         final routes.Skin skin = listOfSkins.isNotEmpty
             ? listOfSkins[currentSkinIndex]

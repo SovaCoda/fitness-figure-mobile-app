@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../components/ff_app_button.dart';
+import '../../components/resuables/gradiented_container.dart';
+
 class AvatarSelection extends StatefulWidget {
   const AvatarSelection({super.key});
 
@@ -30,92 +33,118 @@ class _AvatarSelectionState extends State<AvatarSelection> {
     await user.initAuthService();
     await user.checkUser();
     curEmail = await user.getEmail();
-    setState(() {
-
-    });
+    setState(() {});
     logger.i(user);
   }
 
   Future<void> submitFigure(String figureUrl) async {
-    user.updateUser(routes.User(
+    user.updateUser(
+      routes.User(
         email: curEmail,
-        curFigure: figureUrl,),);
+        curFigure: figureUrl,
+      ),
+    );
 
-    await auth.createFigureInstance(routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
-    await auth.createSkinInstance(routes.SkinInstance(skinName:'0', userEmail: curEmail, figureName: figureUrl));
-    if(mounted) {
-      Provider.of<FigureModel>(context, listen: false).setFigure(routes.FigureInstance(figureName: figureUrl, userEmail: curEmail, curSkin: "0", evPoints: 0, charge: 70, lastReset: '2001-09-04 19:21:00'));
+    await auth.createFigureInstance(routes.FigureInstance(
+        figureName: figureUrl,
+        userEmail: curEmail,
+        curSkin: "0",
+        evPoints: 0,
+        charge: 70,
+        lastReset: '2001-09-04 19:21:00'));
+    await auth.createSkinInstance(routes.SkinInstance(
+        skinName: '0', userEmail: curEmail, figureName: figureUrl));
+    if (mounted) {
+      Provider.of<FigureModel>(context, listen: false).setFigure(
+          routes.FigureInstance(
+              figureName: figureUrl,
+              userEmail: curEmail,
+              curSkin: "0",
+              evPoints: 0,
+              charge: 70,
+              lastReset: '2001-09-04 19:21:00'));
     }
-    if(mounted) {
+    if (mounted) {
       context.goNamed('WorkoutFrequencySelection');
     }
-
   }
 
-  
   Widget _buildFigureOption(int index, String assetPath, String label) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double size = constraints.maxWidth < 600 ? constraints.maxWidth * 0.4 : 260.0;
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedFigure = index;
-            });
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: selectedFigure == index
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.surface,
+        final double size =
+            constraints.maxWidth < 600 ? constraints.maxWidth * 0.4 : 260.0;
+        return Stack(children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedFigure = index;
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: selectedFigure == index
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : Theme.of(context).colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                  child: Center(
-                    child: Image.asset(
-                      assetPath,
-                      fit: BoxFit.cover,
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                    child: Center(
+                      child: Image.asset(
+                        assetPath,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        );
+          
+        ]);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+    return Stack(
+      children: [
+    OverflowBox(
+              maxWidth: MediaQuery.sizeOf(context).width,
+              maxHeight: MediaQuery.sizeOf(context).height,
+              child: Image.asset(
+                'lib/assets/art/ff_background.png',
+                width: MediaQuery.sizeOf(context).width + 200,
+                height: MediaQuery.sizeOf(context).height,
+              )),
+              Scaffold(
+                backgroundColor: Colors.transparent,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -127,7 +156,7 @@ class _AvatarSelectionState extends State<AvatarSelection> {
           },
         ),
       ),
-    );
+    ),]);
   }
 
   Widget _buildWideLayout() {
@@ -156,11 +185,11 @@ class _AvatarSelectionState extends State<AvatarSelection> {
   }
 
   Widget _buildInstructions() {
-    return Container(
-      padding: const EdgeInsets.all(24.0),
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return GradientedContainerWidget(
+      width: MediaQuery.of(context).size.width * 1,
+      height: MediaQuery.of(context).size.height * 0.2,
+      showTopRectangle: true,
+      title: Column(
         children: [
           Text(
             "Choose Your",
@@ -173,19 +202,41 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          const SizedBox(height: 24),
-          Text(
+          
+        ],
+      ),
+      description: Text(
             "Select your virtual fitness buddy to guide and motivate you throughout your workout journey.",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-        ],
-      ),
     );
+    
   }
 
   Widget _buildFigureSelection() {
-    return Padding(
+    return Container(
+            padding: const EdgeInsets.only(
+              left: 20,
+              top: 10,
+              right: 14,
+            ),
+            width: MediaQuery.of(context).size.width,
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Color.fromRGBO(51, 133, 162, 1),
+                ),
+              ),
+              gradient: LinearGradient(
+                colors: <Color>[
+                  Color.fromRGBO(28, 109, 189, 0.29),
+                  Color.fromRGBO(0, 164, 123, 0.29),
+                ],
+              ),
+            ),
+            height: MediaQuery.of(context).size.height * 0.45,
+      child: Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -195,33 +246,48 @@ class _AvatarSelectionState extends State<AvatarSelection> {
             runSpacing: 24,
             alignment: WrapAlignment.center,
             children: [
-              _buildFigureOption(0, 'lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif', 'Robot 1'),
-              _buildFigureOption(1, 'lib/assets/robot2/robot2_skin0_evo0_cropped_happy.gif', 'Robot 2'),
+              _buildFigureOption(
+                  0,
+                  'lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif',
+                  'Robot 1'),
+              _buildFigureOption(
+                  1,
+                  'lib/assets/robot2/robot2_skin0_evo0_cropped_happy.gif',
+                  'Robot 2'),
             ],
           ),
           const SizedBox(height: 40),
-          ElevatedButton(
+          // ElevatedButton(
+          //   onPressed: selectedFigure != -1
+          //       ? () => submitFigure("robot${selectedFigure + 1}")
+          //       : null,
+          //   style: ElevatedButton.styleFrom(
+          //     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(30),
+          //     ),
+          //     backgroundColor: Theme.of(context).colorScheme.primary,
+          //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          //   ),
+          //   child: Text(
+          //     "Let's Get Started!",
+          //     style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          //       color: Theme.of(context).colorScheme.onPrimary,
+          //       fontWeight: FontWeight.bold,
+          //     ),
+          //   ),
+          // ),
+          FFAppButton(
+            text: "LET'S GET STARTED",
+            fontSize: 20,
+            size: MediaQuery.of(context).size.width * 0.7,
+            height: MediaQuery.of(context).size.height * 0.08,
             onPressed: selectedFigure != -1
                 ? () => submitFigure("robot${selectedFigure + 1}")
                 : null,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
-            child: Text(
-              "Let's Get Started!",
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          )
         ],
       ),
-    );
+    ));
   }
 }

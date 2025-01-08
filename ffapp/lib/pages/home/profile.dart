@@ -86,6 +86,7 @@ class _ProfileState extends State<Profile> {
     showModalBottomSheet(
       context: context,
       enableDrag: false,
+      isDismissible: false,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return BackdropFilter(
@@ -133,22 +134,28 @@ class _ProfileState extends State<Profile> {
                         height: MediaQuery.of(context).size.height * 0.5,
                         backgroundColor: Colors.transparent,
                         selectedItemIndex: safeWeeklyGoal - 1,
-                        itemExtent: 38,
                         buttonStyle: const BoxDecoration(),
+                        itemExtent: 38,
                         buttonWidth: MediaQuery.of(context).size.width * 0.77,
-                        dismissable: true,
-                        onSubmit: (dynamic index) {
+                        onChange: (dynamic index) {
                           setState(() {
                             final int indexInt = index as int;
                             weeklyGoal = indexInt + 1;
                           });
+                        },
+                        onClose: (dynamic index) {
+                          updateWeeklyGoal(weeklyGoal);
+                        },
+                        onSubmit: (dynamic index) {
                           updateWeeklyGoal(weeklyGoal);
                         },
                         displayCloseIcon: false,
                         buttonContent: FFAppButton(
                             text: 'Confirm',
                             size: MediaQuery.of(context).size.width * 0.77,
-                            height: MediaQuery.of(context).size.height * 0.07));
+                            height: MediaQuery.of(context).size.height * 0.07,
+                            onPressed: () =>
+                                {updateWeeklyGoal(weeklyGoal), context.pop()}));
                   },
                 )));
       },
@@ -160,6 +167,7 @@ class _ProfileState extends State<Profile> {
     showModalBottomSheet(
         context: context,
         enableDrag: false,
+        isDismissible: false,
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
           return BackdropFilter(
@@ -205,19 +213,27 @@ class _ProfileState extends State<Profile> {
                     backgroundColor: Colors.transparent,
                     selectedItemIndex: safeWeeklyGoal - 1,
                     itemExtent: 38,
-                    dismissable: true,
-                    onSubmit: (dynamic index) {
+                    onChange: (dynamic index) {
                       setState(() {
                         final int indexInt = index as int;
                         minExerciseGoal = (indexInt + 1) * 15;
                       });
+                    },
+                    onSubmit: (dynamic index) {
                       updateMinWorkoutTime(minExerciseGoal);
                     },
                     displayCloseIcon: false,
+                    onClose: (dynamic index) {
+                      updateMinWorkoutTime(minExerciseGoal);
+                    },
                     buttonContent: FFAppButton(
                         text: 'Confirm',
                         size: MediaQuery.of(context).size.width * 0.77,
-                        height: MediaQuery.of(context).size.height * 0.07),
+                        height: MediaQuery.of(context).size.height * 0.07,
+                        onPressed: () {
+                          updateMinWorkoutTime(minExerciseGoal);
+                          context.pop();
+                        }),
                   )));
         });
   }
@@ -642,6 +658,9 @@ class _ProfileState extends State<Profile> {
       context,
       FFAppButton(
         text: 'Delete Account',
+        size: MediaQuery.of(context).size.width * 0.8,
+        height: MediaQuery.of(context).size.height * 0.10,
+        isDelete: true,
         onPressed: () async {
           // current issue: auth.deleteUser() requires user reauthorization
           final String? userPassword = await _showPasswordConfirmDialog();
@@ -660,6 +679,9 @@ class _ProfileState extends State<Profile> {
       ),
       FFAppButton(
         text: 'Cancel',
+        size: MediaQuery.of(context).size.width * 0.8,
+        height: MediaQuery.of(context).size.height * 0.10,
+        isNoThanks: true,
         onPressed: () {
           if (mounted) {
             Navigator.of(context).pop();
@@ -816,28 +838,32 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showSignOutConfirmation() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sign Out'),
-          content: const Text('Are you sure you want to sign out?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: const Text('Sign Out'),
+    showFFDialogBinary(
+          'Sign out',
+          'Are you sure you want to sign out?',
+          true,
+          context,
+            
+            FFAppButton(
+              text: 'SIGN OUT',
+              size: MediaQuery.of(context).size.width * 0.75,
+              height: MediaQuery.of(context).size.height * 0.07,
+              fontSize: 20,
+              isSignOut: true,
               onPressed: () {
                 signOut(context);
                 GoRouter.of(context).go('/');
               },
             ),
-          ],
+            FFAppButton(
+              text: 'CANCEL',
+              isNoThanks: true,
+              fontSize: 20,
+              size: MediaQuery.of(context).size.width * 0.75,
+              height: MediaQuery.of(context).size.height * 0.07,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
         );
-      },
-    );
   }
 }
 

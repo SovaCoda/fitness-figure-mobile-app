@@ -1,13 +1,13 @@
-import 'package:ffapp/components/ff_app_button.dart';
-import 'package:ffapp/components/inventory_item.dart';
-import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/store.dart';
-import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/providers.dart';
-import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ffapp/pages/home/store.dart' as store;
+
+import '../../components/ff_app_button.dart';
+import '../../components/inventory_item.dart';
+import '../../main.dart';
+import '../../services/auth.dart';
+import '../../services/providers.dart';
+import '../../services/routes.pb.dart' as routes;
+import 'store.dart';
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -17,47 +17,13 @@ class Inventory extends StatefulWidget {
 }
 
 class _InventoryState extends State<Inventory> {
-  //add a skin's image path and its price to render it in the store
-  final listOfSkins = [
-    ["robot1_skin0_cropped", true],
-    ["robot2_skin0_cropped", false],
-  ];
-
   late AuthService auth;
   late int currency = 0;
-  late List<routes.FigureInstance> figureInstancesList = List.empty();
-  late List<routes.Figure> figureList = List.empty();
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-
-    initialize();
-  }
-
-  Future<void> initialize() async {
-    try {
-      final routes.User? databaseUser = await auth.getUserDBInfo();
-      final String stringCur = databaseUser?.currency.toString() ?? "0";
-      currency = int.parse(stringCur);
-      await auth.getFigureInstances(databaseUser!).then(
-            (value) => setState(() {
-              figureInstancesList = value.figureInstances;
-            }),
-          );
-      if (mounted) {
-        Provider.of<store.FigureInstancesProvider>(context, listen: false)
-            .initializeListOfFigureInstances(figureInstancesList);
-      }
-      await auth.getFigures().then(
-            (value) => setState(() {
-              figureList = value.figures;
-            }),
-          );
-    } catch (e) {
-      print(e);
-    }
   }
 
   Future<void> selectFigure(int index) async {
@@ -66,18 +32,19 @@ class _InventoryState extends State<Inventory> {
             .selectedFigureIndex) {
       return;
     }
+    final List<routes.FigureInstance> figureInstancesList = Provider.of<FigureInstancesProvider>(context, listen: false).listOfFigureInstances;
     Provider.of<FigureModel>(context, listen: false)
         .setFigure(figureInstancesList[index]);
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .setSelectedFigureIndex(index);
 
-    equipNew(figureInstancesList[index].figureName, index);
+    equipFigure(index, figureInstancesList);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SelectedFigureProvider>(
-      builder: (context, selectedFigureProvider, _) {
+    return Consumer2<SelectedFigureProvider, FigureInstancesProvider>(
+      builder: (context, selectedFigureProvider, figureInstancesProvider, _) {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -99,7 +66,8 @@ class _InventoryState extends State<Inventory> {
                                     context,
                                     i * 2,
                                     userModel,
-                                    selectedFigureProvider,
+                                    figureInstancesProvider.listOfFigureInstances,
+                                    selectedFigureProvider.selectedFigureIndex,
                                     totalSlots,
                                   ),
                                 ),
@@ -111,7 +79,8 @@ class _InventoryState extends State<Inventory> {
                                     context,
                                     i * 2 + 1,
                                     userModel,
-                                    selectedFigureProvider,
+                                    figureInstancesProvider.listOfFigureInstances,
+                                    selectedFigureProvider.selectedFigureIndex,
                                     totalSlots,
                                   ),
                                 ),
@@ -143,7 +112,7 @@ class _InventoryState extends State<Inventory> {
             Positioned(
               bottom: MediaQuery.of(context).size.height * 0.01,
               child: FFAppButton(
-                text: "GO TO STORE",
+                text: 'GO TO STORE',
                 size: MediaQuery.of(context).size.width *
                     0.79389312977099236641221374045802,
                 height: MediaQuery.of(context).size.height *
@@ -152,7 +121,7 @@ class _InventoryState extends State<Inventory> {
                 isStore: true,
                 onPressed: () =>
                     Provider.of<HomeIndexProvider>(context, listen: false)
-                        .setIndex(7),
+                        .setIndex(6),
               ),
             ),
           ],
@@ -161,25 +130,31 @@ class _InventoryState extends State<Inventory> {
     );
   }
 
+  /// Builds an inventory slot Widget for robot in [figureInstancesList] at [index]
+  /// 
+  /// Returns an inventory slot Widget if [index] < [totalSlots]
+  /// Otherwise returns an empty SizedBox
   Widget _buildInventorySlot(
     BuildContext context,
     int index,
     UserModel userModel,
-    SelectedFigureProvider selectedFigureProvider,
+    List<routes.FigureInstance> figureInstancesList,
+    int selectedFigureIndex,
     int totalSlots,
   ) {
     if (index < figureInstancesList.length) {
       return GestureDetector(
-        onTap: () => selectFigure(index),
+        onTap: () => !userModel.isWorkingOut ? selectFigure(index) : null,
         child: InventoryItem(
           figureInstance: figureInstancesList[index],
           equipped: figureInstancesList[index].figureName ==
               userModel.user?.curFigure,
-          onEquip: (context) => equipNew(
-            figureInstancesList[index].figureName,
+          onEquip: (context) => equipFigure(
             index,
+            figureInstancesList
           ),
-          isSelected: selectedFigureProvider.selectedFigureIndex == index,
+          isWorkingOut: userModel.isWorkingOut,
+          isSelected: selectedFigureIndex == index,
           index: index,
         ),
       );
@@ -198,10 +173,11 @@ class _InventoryState extends State<Inventory> {
     }
   }
 
-  void equipNew(String newFigureName, int figureIndex) {
+  /// Equips a figure at index [figureIndex] in [figureInstancesList]
+  void equipFigure(int figureIndex, List<routes.FigureInstance> figureInstancesList) {
     final routes.User user =
         Provider.of<UserModel>(context, listen: false).user!;
-    user.curFigure = newFigureName;
+    user.curFigure = figureInstancesList[figureIndex].figureName;
     Provider.of<UserModel>(context, listen: false).setUser(user);
 
     auth.updateUserDBInfo(Provider.of<UserModel>(context, listen: false).user!);
