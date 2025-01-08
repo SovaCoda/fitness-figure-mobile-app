@@ -658,6 +658,9 @@ class _ProfileState extends State<Profile> {
       context,
       FFAppButton(
         text: 'Delete Account',
+        size: MediaQuery.of(context).size.width * 0.8,
+        height: MediaQuery.of(context).size.height * 0.10,
+        isDelete: true,
         onPressed: () async {
           // current issue: auth.deleteUser() requires user reauthorization
           final String? userPassword = await _showPasswordConfirmDialog();
@@ -676,6 +679,9 @@ class _ProfileState extends State<Profile> {
       ),
       FFAppButton(
         text: 'Cancel',
+        size: MediaQuery.of(context).size.width * 0.8,
+        height: MediaQuery.of(context).size.height * 0.10,
+        isNoThanks: true,
         onPressed: () {
           if (mounted) {
             Navigator.of(context).pop();
@@ -832,28 +838,32 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showSignOutConfirmation() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sign Out'),
-          content: const Text('Are you sure you want to sign out?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: const Text('Sign Out'),
+    showFFDialogBinary(
+          'Sign out',
+          'Are you sure you want to sign out?',
+          true,
+          context,
+            
+            FFAppButton(
+              text: 'SIGN OUT',
+              size: MediaQuery.of(context).size.width * 0.75,
+              height: MediaQuery.of(context).size.height * 0.07,
+              fontSize: 20,
+              isSignOut: true,
               onPressed: () {
                 signOut(context);
                 GoRouter.of(context).go('/');
               },
             ),
-          ],
+            FFAppButton(
+              text: 'CANCEL',
+              isNoThanks: true,
+              fontSize: 20,
+              size: MediaQuery.of(context).size.width * 0.75,
+              height: MediaQuery.of(context).size.height * 0.07,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
         );
-      },
-    );
   }
 }
 
