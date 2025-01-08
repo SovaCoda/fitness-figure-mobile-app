@@ -152,7 +152,7 @@ class _InventoryState extends State<Inventory> {
                 isStore: true,
                 onPressed: () =>
                     Provider.of<HomeIndexProvider>(context, listen: false)
-                        .setIndex(7),
+                        .setIndex(6),
               ),
             ),
           ],

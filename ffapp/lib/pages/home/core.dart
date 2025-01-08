@@ -183,10 +183,15 @@ class _CoreState extends State<Core> {
   }
 
   Future<void> lockOrUnlock() async {
+    // debouncer
     await Future.delayed(const Duration(milliseconds: 100));
-    if (!mounted) return;
 
+    // mounted guard check before checking provider
+    if (!mounted) {
+      return;
+    }
     final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
+
     if (figure.capabilities['Multi Tasking']!) {
       await _taskManager.releaseLockedTasks();
     } else {
@@ -353,13 +358,15 @@ class _CoreState extends State<Core> {
                   Column(
                     children: [
                       _buildResearchHeader(),
-                      _taskManager.isDailyLimitReached()
-                          ? _buildDailyLimitReachedMessage()
-                          : _buildAvailableTasks(),
-                      _buildResetTasksButton(),
+                      if (_taskManager.isDailyLimitReached())
+                        _buildDailyLimitReachedMessage()
+                      else
+                        _buildAvailableTasks(),
+                      _buildResetTasksButton(), // debug widget
                     ],
                   ),
                   if (!figure.capabilities['Research Unlocked']!)
+                  // adds a locked overlay on this page
                     Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.51,

@@ -93,8 +93,9 @@ class FitnessIcon extends StatelessWidget {
         type.path,
         width: size,
         height:
-            height ?? size, // if height is null, default to equaling the width
+            height ?? size,
         colorFilter:
+            // blends color in the source image rather than the svg image container
             color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
       ),
     );
