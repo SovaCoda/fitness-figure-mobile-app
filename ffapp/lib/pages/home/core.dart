@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
@@ -11,7 +10,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
-import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/research_option.dart';
 import 'package:ffapp/components/research_task_manager.dart';
 import 'package:ffapp/components/research_glass_panel.dart';
@@ -230,57 +228,43 @@ class _CoreState extends State<Core> {
 
   Widget _buildTopSection() {
     return Stack(
-      alignment: Alignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Consumer<UserModel>(
-              builder: (context, figureModel, _) {
-                return Consumer<FigureModel>(
-                  builder: (context, figureModel, _) {
-                    _getCurrencyIncrement(figureModel, _user.isPremium());
+        alignment: Alignment.centerLeft,
+        children: [
+          Consumer<UserModel>(
+            builder: (context, figureModel, _) {
+              return Consumer<FigureModel>(
+                builder: (context, figureModel, _) {
+                  _getCurrencyIncrement(figureModel, _user.isPremium());
 
-                    return Container();
-                  },
-                );
-              },
+                  return Container();
+                },
+              );
+            },
+          ),
+          Positioned(
+            right: _figure.EVLevel == 0 ? MediaQuery.of(context).size.width * 0.4 : MediaQuery.of(context).size.width * 0.275,
+            child: FitnessIcon(
+              type: FitnessIconType.evolution_circuits,
+              size: _figure.EVLevel == 0 ? MediaQuery.of(context).size.width * 0.25 : MediaQuery.of(context).size.width * 0.375,
             ),
-            Expanded(
-              child: Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  // CustomPaint(
-                  //   size: Size(MediaQuery.of(context).size.width * 0.5,
-                  //       MediaQuery.of(context).size.height * 0.3),
-                  //   painter: RobotLinePainter(),
-                  // ),
-
-                  Positioned(
-                    right: MediaQuery.of(context).size.width * 0.3,
-                    child: const FitnessIcon(
-                      type: FitnessIconType.evolution_circuits,
-                      size: 120,
-                    ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: _buildCurrencyDisplay(),
-                  ),
-                  AnimatedFigure(
-                    useEquippedFigure: false,
-                    figureLevel: _figure.EVLevel,
-                    figureName: _figure.figure!.figureName,
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    width: MediaQuery.of(context).size.width * 0.3,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
+          ),
+          Positioned(
+            right: _figure.EVLevel == 0 ? MediaQuery.of(context).size.width * 0.1 : MediaQuery.of(context).size.width * 0.05,
+            child: _buildCurrencyDisplay(),
+          ),
+          // Positioned widget breaks this, so I just add padding
+          Padding(
+          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.125),
+          child: AnimatedFigure(
+            useEquippedFigure: false,
+            figureLevel: _figure.EVLevel,
+            figureName: _figure.figure!.figureName,
+            height: MediaQuery.of(context).size.height * 0.4,
+            width: MediaQuery.of(context).size.width * 0.4,
+          ),
+          ),
+        ],
+      );
   }
 
   Widget _buildCurrencyDisplay() {
@@ -297,8 +281,8 @@ class _CoreState extends State<Core> {
               ),
               child: Image.asset(
                 "lib/assets/images/evolution_panel_circle.png",
-                height: 150,
-                width: 150,
+                height: MediaQuery.of(context).size.width * 0.35,
+                width: MediaQuery.of(context).size.width * 0.35,
               ),
             ),
           ),
@@ -366,7 +350,7 @@ class _CoreState extends State<Core> {
                     ],
                   ),
                   if (!figure.capabilities['Research Unlocked']!)
-                  // adds a locked overlay on this page
+                    // adds a locked overlay on this page
                     Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.51,
@@ -485,10 +469,8 @@ class _CoreState extends State<Core> {
     );
   }
 
-  /*
-   * This widget creates a button that resets the tasks for debugging.
-   * Set [isDebugging] to true to enable it, but keep it disabled on the main branch.
-   */
+  /// This widget creates a button that resets the tasks for debugging.
+  /// Set [isDebugging] to true to enable it, but keep it disabled on the main branch.
   Widget _buildResetTasksButton({bool isDebugging = false}) {
     return isDebugging
         ? FFAppButton(

@@ -122,7 +122,7 @@ class MockFigureInstancesProvider extends _i1.Mock
       ) as bool);
 
   @override
-  void initializeListOfFigureInstances(
+  void setListOfFigureInstances(
           List<_i5.FigureInstance>? listOfFigureInstances) =>
       super.noSuchMethod(
         Invocation.method(

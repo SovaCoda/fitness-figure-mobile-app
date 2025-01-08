@@ -25,39 +25,11 @@ class _InventoryState extends State<Inventory> {
 
   late AuthService auth;
   late int currency = 0;
-  late List<routes.FigureInstance> figureInstancesList = List.empty();
-  late List<routes.Figure> figureList = List.empty();
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-
-    initialize();
-  }
-
-  Future<void> initialize() async {
-    try {
-      final routes.User? databaseUser = await auth.getUserDBInfo();
-      final String stringCur = databaseUser?.currency.toString() ?? "0";
-      currency = int.parse(stringCur);
-      await auth.getFigureInstances(databaseUser!).then(
-            (value) => setState(() {
-              figureInstancesList = value.figureInstances;
-            }),
-          );
-      if (mounted) {
-        Provider.of<store.FigureInstancesProvider>(context, listen: false)
-            .initializeListOfFigureInstances(figureInstancesList);
-      }
-      await auth.getFigures().then(
-            (value) => setState(() {
-              figureList = value.figures;
-            }),
-          );
-    } catch (e) {
-      print(e);
-    }
   }
 
   Future<void> selectFigure(int index) async {
@@ -66,18 +38,19 @@ class _InventoryState extends State<Inventory> {
             .selectedFigureIndex) {
       return;
     }
+    List<routes.FigureInstance> figureInstancesList = Provider.of<FigureInstancesProvider>(context, listen: false).listOfFigureInstances;
     Provider.of<FigureModel>(context, listen: false)
         .setFigure(figureInstancesList[index]);
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .setSelectedFigureIndex(index);
 
-    equipNew(figureInstancesList[index].figureName, index);
+    equipNew(figureInstancesList[index].figureName, index, figureInstancesList);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SelectedFigureProvider>(
-      builder: (context, selectedFigureProvider, _) {
+    return Consumer2<SelectedFigureProvider, FigureInstancesProvider>(
+      builder: (context, selectedFigureProvider, figureInstancesProvider, _) {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -99,6 +72,7 @@ class _InventoryState extends State<Inventory> {
                                     context,
                                     i * 2,
                                     userModel,
+                                    figureInstancesProvider.listOfFigureInstances,
                                     selectedFigureProvider,
                                     totalSlots,
                                   ),
@@ -111,6 +85,7 @@ class _InventoryState extends State<Inventory> {
                                     context,
                                     i * 2 + 1,
                                     userModel,
+                                    figureInstancesProvider.listOfFigureInstances,
                                     selectedFigureProvider,
                                     totalSlots,
                                   ),
@@ -165,6 +140,7 @@ class _InventoryState extends State<Inventory> {
     BuildContext context,
     int index,
     UserModel userModel,
+    List<routes.FigureInstance> figureInstancesList,
     SelectedFigureProvider selectedFigureProvider,
     int totalSlots,
   ) {
@@ -178,6 +154,7 @@ class _InventoryState extends State<Inventory> {
           onEquip: (context) => equipNew(
             figureInstancesList[index].figureName,
             index,
+            figureInstancesList
           ),
           isSelected: selectedFigureProvider.selectedFigureIndex == index,
           index: index,
@@ -198,7 +175,7 @@ class _InventoryState extends State<Inventory> {
     }
   }
 
-  void equipNew(String newFigureName, int figureIndex) {
+  void equipNew(String newFigureName, int figureIndex, List<routes.FigureInstance> figureInstancesList) {
     final routes.User user =
         Provider.of<UserModel>(context, listen: false).user!;
     user.curFigure = newFigureName;

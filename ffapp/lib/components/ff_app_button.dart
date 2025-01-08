@@ -62,7 +62,7 @@ class FFAppButtonState extends State<FFAppButton> {
             // SVG Button Base with Animated Opacity
             AnimatedOpacity(
               duration: const Duration(milliseconds: 50),
-              opacity: _isPressed ? 0.7 : 1.0,
+              opacity: _isPressed || widget.disabled ? 0.7 : 1.0,
               child: Image.asset(
                 widget.isShiny
                     ? "lib/assets/art/button_base_special.png"
@@ -77,9 +77,9 @@ class FFAppButtonState extends State<FFAppButton> {
                 height: widget.height ?? widget.size,
                 fit: BoxFit.fill,
                 colorBlendMode:
-                    _isPressed ? BlendMode.srcATop : BlendMode.darken,
+                    _isPressed || widget.disabled ? BlendMode.srcATop : BlendMode.darken,
                 color:
-                    _isPressed ? Colors.black.withOpacity(0.3) : widget.color,
+                    _isPressed || widget.disabled ? Colors.black.withOpacity(0.3) : widget.color,
               ),
             ),
 

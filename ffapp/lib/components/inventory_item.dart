@@ -1,16 +1,15 @@
-import 'package:ffapp/components/animated_figure.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
-import 'package:ffapp/icons/fitness_icon.dart';
-import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/store.dart';
-import 'package:ffapp/services/providers.dart';
-import 'package:ffapp/services/routes.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../icons/fitness_icon.dart';
+import '../main.dart';
+import '../pages/home/store.dart';
+import '../services/routes.pb.dart';
+import 'animated_figure.dart';
+
 class InventoryItem extends StatefulWidget {
   final bool equipped;
-  final Function(BuildContext) onEquip;
+  final void Function(BuildContext) onEquip;
   final bool locked;
   final FigureInstance? figureInstance;
   final bool isSelected;
@@ -31,49 +30,15 @@ class InventoryItem extends StatefulWidget {
 }
 
 class InventoryItemState extends State<InventoryItem> {
-  // late List<Skin> listOfSkins;
-  // late List<SkinInstance> listOfSkinInstances;
-  // late List<FigureInstance> listOfFigureInstances;
-  // late List<Figure> listOfFigures;
 
   @override
   void initState() {
     super.initState();
-    // _initializeSkinData();
   }
 
-  // void _initializeSkinData() async {
-  //   final auth = Provider.of<AuthService>(context, listen: false);
-  //   try {
-  // User? databaseUser = await auth.getUserDBInfo();
-  // final skins = await auth.getSkins();
-  // final skinInstances;
-  // if (mounted) {
-  //   skinInstances = await auth.getSkinInstances(
-  //       Provider.of<UserModel>(context, listen: false).user!);
-  // } else {
-  //   skinInstances = null;
+  // void _showSkinPage(BuildContext context) {
+  //   Provider.of<HomeIndexProvider>(context, listen: false).setIndex(6);
   // }
-  // final figures = await auth.getFigures().then((value) => value.figures);
-  // final figureInstances = await auth
-  //     .getFigureInstances(databaseUser!)
-  //     .then((value) => value.figureInstances);
-  //     if (mounted) {
-  //       setState(() {
-  // listOfSkins = skins.skins;
-  // listOfSkinInstances = skinInstances.skinInstances ?? [];
-  // listOfFigureInstances = figureInstances;
-  // listOfFigures = figures;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     logger.e(e);
-  //   }
-  // }
-
-  void _showSkinPage(BuildContext context) {
-    Provider.of<HomeIndexProvider>(context, listen: false).setIndex(6);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,11 +59,12 @@ class InventoryItemState extends State<InventoryItem> {
                       return Stack(
                         alignment: Alignment.center,
                         children: [
+                          // highlighted border over figure if selected
                           Center(
                             child: Container(
-                              width: MediaQuery.of(context).size.width * 0.455,
+                              width: MediaQuery.of(context).size.width * 0.43,
                               height:
-                                  MediaQuery.of(context).size.height * 0.333,
+                                  MediaQuery.of(context).size.height * 0.33,
                               decoration: BoxDecoration(
                                 border: widget.isSelected
                                     ? Border.all(
@@ -108,7 +74,7 @@ class InventoryItemState extends State<InventoryItem> {
                                         width: 3,
                                       )
                                     : null,
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                           ),
@@ -208,7 +174,7 @@ class InventoryItemState extends State<InventoryItem> {
       );
     } else {
       return Text(
-        "--",
+        '--',
         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -235,7 +201,7 @@ class InventoryItemState extends State<InventoryItem> {
       );
     } else {
       return Text(
-        "--",
+        '--',
         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
               color: Theme.of(context).colorScheme.secondary,
             ),

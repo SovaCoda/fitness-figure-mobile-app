@@ -1,6 +1,5 @@
 import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
@@ -8,17 +7,17 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:spine_flutter/spine_widget.dart';
 
 Logger logger = Logger();
 
 class FigureInstancesProvider extends ChangeNotifier {
-  late List<routes.FigureInstance> listOfFigureInstances;
+  late List<routes.FigureInstance> listOfFigureInstances = List.empty();
 
-  void initializeListOfFigureInstances(
+  void setListOfFigureInstances(
     List<routes.FigureInstance> listOfFigureInstances,
   ) {
     this.listOfFigureInstances = listOfFigureInstances;
+    notifyListeners();
   }
 
   void setFigureInstanceCurSkin(
@@ -60,6 +59,7 @@ class _StoreState extends State<Store> {
   late AuthService auth;
   late int currency = 0;
   int currentFigureIndex = 0;
+  bool disableButton = false;
 
   @override
   void initState() {
@@ -77,6 +77,8 @@ class _StoreState extends State<Store> {
     listOfFigureInstances = await auth
         .getFigureInstances(databaseUser!)
         .then((routes.MultiFigureInstance value) => value.figureInstances);
+    Provider.of<FigureInstancesProvider>(context, listen: false)
+        .setListOfFigureInstances(listOfFigureInstances);
 
     final String stringCur = databaseUser.currency.toString();
     currency = int.parse(stringCur);
@@ -171,6 +173,10 @@ class _StoreState extends State<Store> {
             userEmail: user.email,
           ),
         );
+
+        // Update provider
+        Provider.of<FigureInstancesProvider>(context, listen: false)
+            .setListOfFigureInstances(listOfFigureInstances);
       });
 
       // Update currency in provider
@@ -181,6 +187,10 @@ class _StoreState extends State<Store> {
         showOverlayAlert(context, 'Figure purchased!', Colors.green, 73);
       }
     } else {
+      // reenable the button if the purchase failed
+      setState(() {
+        disableButton = false;
+      });
       showOverlayAlert(context, 'Not enough currency!', Colors.red, 90);
     }
   }
@@ -280,27 +290,36 @@ class _StoreState extends State<Store> {
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               FFAppButton(
+                disabled:
+                    // checks all of the user's figure instances to see if they match the name of the figure viewed
+                    listOfFigureInstances.any(
+                          (routes.FigureInstance instance) =>
+                              instance.figureName ==
+                              listOfFigures[currentFigureIndex].figureName,
+                        ) ||
+                        disableButton,
                 text: listOfFigureInstances.any(
                   (routes.FigureInstance instance) =>
                       instance.figureName ==
                       listOfFigures[currentFigureIndex].figureName,
                 )
                     ? 'Owned'
-                    : 'Purchase',
+                    : disableButton
+                        ? 'Purchasing...'
+                        : 'Purchase',
                 size: MediaQuery.of(context).size.width * 0.79,
                 height: MediaQuery.of(context).size.height * 0.08,
-                onPressed: () => listOfFigureInstances.any(
-                  (routes.FigureInstance instance) =>
-                      instance.figureName ==
-                      listOfFigures[currentFigureIndex].figureName,
-                )
-                    ? null
-                    : purchaseFigure(
-                        context,
-                        int.parse(
-                            listOfFigures[currentFigureIndex].price.toString()),
-                        listOfFigures[currentFigureIndex].figureName,
-                      ),
+                onPressed: () {
+                  purchaseFigure(
+                    context,
+                    int.parse(
+                        listOfFigures[currentFigureIndex].price.toString()),
+                    listOfFigures[currentFigureIndex].figureName,
+                  );
+                  setState(() {
+                    disableButton = true;
+                  });
+                },
               ),
             ],
           ),
