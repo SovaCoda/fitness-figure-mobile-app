@@ -167,11 +167,11 @@ class ChatModel extends ChangeNotifier {
     );
   }
 
-/**
- * Initializes OpenAI, creates an assistant with access to [get_robot_stats], [getWeekData], and [startWorkoutTimer] that the assistant can call
- * 
- * 
- */
+/// Initializes OpenAI, gets all of the personality traits from local storage
+/// Checks if an assistant id is in local storage to prevent creating multiple assistants per user
+///    If the assistant id is present, it creates a thread with that assistant id,
+///    Otherwise, it creates an assistant with access to [get_robot_stats], [getWeekData], and [startWorkoutTimer] which the assistant can call and creates a thread
+/// Shows a starting message to the user that says "Welcome to Fitness Figure! Let's start an exercise!"
 
   Future<void> init(
       {bool changeFlag = false, required BuildContext context}) async {
@@ -566,7 +566,7 @@ class ChatModel extends ChangeNotifier {
             'robot1',
           ),
         );
-        // Hides 'Robot is typing' text 
+        // Hides 'Robot is typing' text
         setRobotTyping(false);
         notifyListeners();
       } else {
@@ -675,12 +675,14 @@ class ChatModel extends ChangeNotifier {
 
       String runStatus = run.status;
       int retries = 0;
-      const maxRetries = 30; // Adjust for allowing more cycles through the while loop
-      const pollingInterval = Duration.zero; // Adjust for longer interval between retrieve times
+      const maxRetries =
+          30; // Adjust for allowing more cycles through the while loop
+      const pollingInterval =
+          Duration.zero; // Adjust for longer interval between retrieve times
 
       while (runStatus != 'completed' && retries < maxRetries) {
         await Future.delayed(pollingInterval);
-        
+
         // Attempts to retrieve run and update run status
         final updatedRun = await openAI.threads.v2.runs.retrieveRun(
           threadId: threadId!,
