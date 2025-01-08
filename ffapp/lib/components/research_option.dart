@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/ff_app_coin.dart';
 import 'package:ffapp/components/button_themes.dart';
@@ -749,11 +750,15 @@ class _ResearchOptionState extends State<ResearchOption> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    RobotImageHolder(
-                      url: _getRobotImageUrl(happy: true),
-                      height: MediaQuery.of(context).size.height * 0.17,
-                      width: MediaQuery.of(context).size.width * 0.27,
-                    ),
+                    Consumer<FigureModel>(builder: (_, figure, __) {
+                      return AnimatedFigure(
+                        figureLevel: figure.EVLevel,
+                        figureName: figure.figure!.figureName,
+                        height: MediaQuery.of(context).size.height * 0.17,
+                        width: MediaQuery.of(context).size.width * 0.27,
+                        animation: "happy",
+                      );
+                    }),
                     Text(
                       "+ ${widget.task.ev} EVO",
                       style: TextStyle(
@@ -805,11 +810,15 @@ class _ResearchOptionState extends State<ResearchOption> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          RobotImageHolder(
-                            url: _getRobotImageUrl(happy: false),
-                            height: MediaQuery.of(context).size.height * 0.17,
-                            width: MediaQuery.of(context).size.width * 0.27,
-                          ),
+                          Consumer<FigureModel>(builder: (_, figure, __) {
+                            return AnimatedFigure(
+                              figureLevel: figure.EVLevel,
+                              figureName: figure.figure!.figureName,
+                              animation: "sad",
+                              height: MediaQuery.of(context).size.height * 0.17,
+                              width: MediaQuery.of(context).size.width * 0.27,
+                            );
+                          }),
                           Text(
                             "+ 0 EVO",
                             style: TextStyle(

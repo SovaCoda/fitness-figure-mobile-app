@@ -70,7 +70,7 @@ class CurrencyModel extends ChangeNotifier {
 
   void addToCurrency(double numberToAdd) {
     double currentCurrency = double.parse(currency);
-    String newCurrency = (currentCurrency + numberToAdd).toStringAsFixed(2);
+    String newCurrency = (currentCurrency + numberToAdd).toStringAsFixed(3);
     currency = newCurrency;
     notifyListeners();
   }

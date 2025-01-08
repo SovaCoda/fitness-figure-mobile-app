@@ -64,6 +64,8 @@ class _CoreState extends State<Core> {
 
     if (!mounted) return;
 
+    Provider.of<FigureModel>(context, listen: false)
+        .addListener(() => _getCurrencyIncrement);
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .addListener(() => lockOrUnlock());
   }
@@ -87,6 +89,8 @@ class _CoreState extends State<Core> {
   double _getCurrencyIncrement(FigureModel figure, bool isPremium) {
     _currencyIncrement =
         (figure1.currencyGens[figure.EVLevel]) * (isPremium ? 2 : 1);
+
+    _currencyIncrement = _currencyIncrement! * (figure.figure!.charge / 100);
     return _currencyIncrement!;
   }
 
@@ -307,15 +311,32 @@ class _CoreState extends State<Core> {
                   fontSize: 24,
                 ),
               ),
+              Text(
+                '${_figure.figure!.charge}%',
+                style: const TextStyle(
+                  color: Color(0xFFFF9E45),
+                  fontSize: 20,
+                ),
+              ),
               Column(
                 children: [
-                  Text(
-                    '\$${_getCurrencyIncrement(_figure, _user.isPremium())}/sec',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontFamily: 'Roberto',
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '\$${_getCurrencyIncrement(_figure, _user.isPremium()).toStringAsFixed(3)}/sec',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontFamily: 'Roberto',
+                        ),
+                      ),
+                      FitnessIcon(
+                        type: FitnessIconType.up_arrow,
+                        size: 10,
+                        height: 30,
+                        color: Color.fromARGB(255, 255, 158, 69),
+                      )
+                    ],
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 125),
