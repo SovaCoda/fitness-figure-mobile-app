@@ -232,7 +232,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       states["paused"] = _timer.hasStoredPauseTime();
       states["pre-logging"] = false;
       await _timer.start();
-
+      // Provider.of<UserModel>(context, listen: false).setIsWorkingOut(true);
       setState(() {
         time = Int64(_timer.getTimeInSeconds());
       });
@@ -247,6 +247,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
       }
     } else {
       if (!isInit) {
+        Provider.of<UserModel>(context, listen: false).setIsWorkingOut(true);
         if (Platform.isIOS) {
           liveActivityManager.startLiveActivity(
             jsonData: DynamicIslandStopwatchDataModel(
@@ -265,7 +266,6 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   }
 
   void startLogging(bool paused) {
-    Provider.of<UserModel>(context, listen: false).setIsWorkingOut(true);
     setState(() {
       _logging = true;
       _startTime = DateTime.now().toUtc().toString();

@@ -62,6 +62,8 @@ class ChatMessage {
   ChatMessage(this.text, this.user, this.robot, {this.isTyping = false});
 }
 
+
+/// 
 class ChatModel extends ChangeNotifier {
   List<ChatMessage> messages = List.empty(growable: true);
   bool isRobotTyping = false;
@@ -279,7 +281,9 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
-  // Allows Assistants API to start a workout timer
+  /// Allows Assistants API to start a workout timer
+  /// 
+  /// Returns status message 'Workout timer started successfully'
   Future<String> startWorkoutTimer(BuildContext context) async {
     const String timerName = 'workout_timer';
     final DateTime now = DateTime.now();
@@ -287,11 +291,16 @@ class ChatModel extends ChangeNotifier {
     if (context.mounted) {
       context.goNamed('Workout');
       Provider.of<HomeIndexProvider>(context, listen: false).setIndex(2);
+      // Update provider for workout page to update the state
+      Provider.of<UserModel>(context, listen: false).setIsWorkingOut(true);
     }
     return 'Workout timer started successfully.';
   }
 
-  // Handles the logic of the user sending messages and the Assistant responding
+  /// Sends [message] from [role] to the Assistants API and starts a run
+  /// 
+  /// Returns if the request doesn't finish within maxRetries
+  /// Otherwise calls [retrieveAndProcessAssistantResponse]
   Future<void> sendMessage(
     String message,
     String role,
@@ -397,7 +406,7 @@ class ChatModel extends ChangeNotifier {
       String runStatus = run.status;
       int retries = 0;
       const maxRetries = 30; // Adjust as needed
-      const pollingInterval = Duration.zero; // Adjust as needed
+      const pollingInterval = Duration(seconds: 2); // Adjust as needed
 
       // Checks when run status has completed or if max retries has been reached
       while (runStatus != 'completed' && retries < maxRetries) {
@@ -409,8 +418,9 @@ class ChatModel extends ChangeNotifier {
           threadId: threadId!,
           runId: run.id,
         );
+        logger.i(updatedRun);
         runStatus = updatedRun.status;
-
+        logger.i(runStatus);
         // For the case that Assistants API wants to make a method call before responding
         if (runStatus == 'requires_action') {
           if (context.mounted) {
@@ -447,7 +457,7 @@ class ChatModel extends ChangeNotifier {
             ?['tool_calls'] as List ??
         [];
     final List<Map<String, dynamic>> toolOutputs = [];
-
+    logger.i(toolCalls);
     for (final toolCall in toolCalls) {
       switch (toolCall['function']['name']) {
         case 'startWorkoutTimer':
@@ -475,6 +485,7 @@ class ChatModel extends ChangeNotifier {
             'output': jsonEncode(stats),
           });
       }
+      logger.i(toolOutputs);
     }
 
     if (toolOutputs.isNotEmpty) {
@@ -615,12 +626,15 @@ class ChatModel extends ChangeNotifier {
       final run = await openAI.threads.v2.runs
           .createRun(threadId: threadId!, request: runRequest);
 
+      
+
       String runStatus = run.status;
+      logger.i(runStatus);
       int retries = 0;
       const maxRetries =
           30; // Adjust for allowing more cycles through the while loop
       const pollingInterval =
-          Duration.zero; // Adjust for longer interval between retrieve times
+          Duration(seconds: 2); // Adjust for longer interval between retrieve times. 2 seconds worked better than 0 during testing
 
       while (runStatus != 'completed' && retries < maxRetries) {
         await Future.delayed(pollingInterval);
@@ -631,6 +645,8 @@ class ChatModel extends ChangeNotifier {
           runId: run.id,
         );
         runStatus = updatedRun.status;
+        logger.i(runStatus);
+        logger.i(updatedRun);
 
         if (runStatus == 'failed') {
           logger.e('Run failed: ${updatedRun.lastError}');
@@ -738,7 +754,6 @@ class ChatModel extends ChangeNotifier {
     return null;
   }
 
-  /// 
   void setRobotTyping(bool isTyping) {
     isRobotTyping = isTyping;
     notifyListeners();
