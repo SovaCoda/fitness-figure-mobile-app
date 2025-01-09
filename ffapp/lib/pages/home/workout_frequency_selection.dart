@@ -303,12 +303,14 @@ class _WorkoutFrequencySelectionState extends State<WorkoutFrequencySelection> {
                       ),
                       const SizedBox(height: 16),
                       _buildWeeklyGoalCard(),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.02),
                       _buildWorkoutGoalCard(),
                       const SizedBox(height: 40),
                       FFAppButton(
                         onPressed: submitFrequency,
                         text: 'Activate Workout Mode',
+                        fontSize: 20,
                         size: MediaQuery.of(context).size.width * 1,
                         height: MediaQuery.of(context).size.height * 0.1,
                       ),

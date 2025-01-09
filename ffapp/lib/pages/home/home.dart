@@ -1,6 +1,7 @@
 import 'package:ffapp/components/ff_app_bar.dart';
 import 'package:ffapp/components/ff_body_scaffold.dart';
 import 'package:ffapp/components/ff_bottom_nav_bar.dart';
+import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/pages/home/core.dart';
 import 'package:ffapp/pages/home/dashboard.dart';
 import 'package:ffapp/pages/home/evo.dart';
@@ -37,6 +38,9 @@ class _DashboardPageState extends State<DashboardPage> {
     const ChatPage()
   ];
 
+  bool loading = true;
+  double loadOpacity = 1.0;
+
   @override
   void initState() {
     LocalNotificationService().initNotifications();
@@ -61,6 +65,17 @@ class _DashboardPageState extends State<DashboardPage> {
       setState(() {
         currency = usrCurrency;
       });
+
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        setState(() {
+          loadOpacity = 0.0;
+          Future.delayed(const Duration(milliseconds: 300), () {
+            setState(() {
+              loading = false;
+            });
+          });
+        });
+      });
     } catch (e) {
       logger.e('Error initializing currency: $e');
     }
@@ -68,33 +83,73 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.onError,
+    return Stack(children: [
+      Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.onError,
 
-        // Custom app bar with the logo and store button
-        // AppBar is constant 40 pixels tall across all screens
-        appBar: PreferredSize(
-          preferredSize: Size(MediaQuery.sizeOf(context).width, 40),
-          child: const FfAppBar(),
-        ), // Has to be a preferred size widget cause of scaffold parameter
+          // Custom app bar with the logo and store button
+          // AppBar is constant 40 pixels tall across all screens
+          appBar: PreferredSize(
+            preferredSize: Size(MediaQuery.sizeOf(context).width, 40),
+            child: const FfAppBar(),
+          ), // Has to be a preferred size widget cause of scaffold parameter
 
-        //renders the page that the nav bar has currently selected
-        //indexed stack allows pages to retain their state when switching between them
-        body: Consumer<HomeIndexProvider>(
-          builder: (_, HomeIndexProvider homeIndex, __) {
-            return FfBodyScaffold(
-                selectedIndex: homeIndex.selectedIndex, pages: _pages);
-          },
+          //renders the page that the nav bar has currently selected
+          //indexed stack allows pages to retain their state when switching between them
+          body: Consumer<HomeIndexProvider>(
+            builder: (_, HomeIndexProvider homeIndex, __) {
+              return FfBodyScaffold(
+                  selectedIndex: homeIndex.selectedIndex, pages: _pages);
+            },
+          ),
+
+          // Permanent footer navigation that changes the page index state to switch displays
+          // Size is a constant 80 pixels tall across all screens
+          bottomNavigationBar: Consumer<HomeIndexProvider>(
+            builder: (_, HomeIndexProvider homeIndex, __) {
+              return FfBottomNavBar(
+                selectedIndex: homeIndex.selectedIndex,
+              );
+            },
+          )),
+      AnimatedOpacity(
+        duration: const Duration(milliseconds: 300),
+        opacity: loadOpacity,
+        child: Visibility(
+          visible: loading,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.asset(
+                  'lib/assets/art/ff_background.png',
+                  width: MediaQuery.sizeOf(context).width,
+                  height: MediaQuery.sizeOf(context).height,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const FitnessIcon(
+                      type: FitnessIconType.logo_white,
+                      size: 200,
+                    ),
+                    Text(
+                      "Loading",
+                      style: Theme.of(context)
+                          .textTheme
+                          .displayLarge!
+                          .copyWith(color: Colors.white),
+                    ),
+                    CircularProgressIndicator()
+                  ],
+                )
+              ],
+            ),
+          ),
         ),
-
-        // Permanent footer navigation that changes the page index state to switch displays
-        // Size is a constant 80 pixels tall across all screens
-        bottomNavigationBar: Consumer<HomeIndexProvider>(
-          builder: (_, HomeIndexProvider homeIndex, __) {
-            return FfBottomNavBar(
-              selectedIndex: homeIndex.selectedIndex,
-            );
-          },
-        ));
+      ),
+    ]);
   }
 }

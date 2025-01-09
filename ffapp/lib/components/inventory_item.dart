@@ -63,8 +63,8 @@ class InventoryItemState extends State<InventoryItem> {
                           // highlighted border over figure if selected
                           Center(
                             child: Container(
-                              width: MediaQuery.of(context).size.width * 0.43,
-                              height: MediaQuery.of(context).size.height * 0.33,
+                              width: MediaQuery.of(context).size.width * 0.47,
+                              height: MediaQuery.of(context).size.height * 0.34,
                               decoration: BoxDecoration(
                                 border: widget.isSelected
                                     ? Border.all(
@@ -157,14 +157,15 @@ class InventoryItemState extends State<InventoryItem> {
                                         borderRadius: BorderRadius.circular(24),
                                       ),
                                       child: const Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
                                             Icon(Icons.lock, size: 40),
-                                        Text(
-                                            'You cannot switch figures during a workout!',
-                                            style: TextStyle(fontSize: 20),
-                                            textAlign: TextAlign.center)
-                                      ])))
+                                            Text(
+                                                'You cannot switch figures during a workout!',
+                                                style: TextStyle(fontSize: 20),
+                                                textAlign: TextAlign.center)
+                                          ])))
                             else
                               Container()
                           else

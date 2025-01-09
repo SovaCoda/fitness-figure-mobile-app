@@ -125,7 +125,6 @@ class _AvatarSelectionState extends State<AvatarSelection> {
               ),
             ),
           ),
-          
         ]);
       },
     );
@@ -133,30 +132,30 @@ class _AvatarSelectionState extends State<AvatarSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-    OverflowBox(
-              maxWidth: MediaQuery.sizeOf(context).width,
-              maxHeight: MediaQuery.sizeOf(context).height,
-              child: Image.asset(
-                'lib/assets/art/ff_background.png',
-                width: MediaQuery.sizeOf(context).width + 200,
-                height: MediaQuery.sizeOf(context).height,
-              )),
-              Scaffold(
-                backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth > 600) {
-              return _buildWideLayout();
-            } else {
-              return _buildNarrowLayout();
-            }
-          },
+    return Stack(children: [
+      OverflowBox(
+          maxWidth: MediaQuery.sizeOf(context).width + 200,
+          maxHeight: MediaQuery.sizeOf(context).height + 200,
+          child: Image.asset(
+            'lib/assets/art/ff_background.png',
+            width: MediaQuery.sizeOf(context).width + 200,
+            height: MediaQuery.sizeOf(context).height + 400,
+          )),
+      Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 600) {
+                return _buildWideLayout();
+              } else {
+                return _buildNarrowLayout();
+              }
+            },
+          ),
         ),
       ),
-    ),]);
+    ]);
   }
 
   Widget _buildWideLayout() {
@@ -202,92 +201,90 @@ class _AvatarSelectionState extends State<AvatarSelection> {
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          
         ],
       ),
       description: Text(
-            "Select your virtual fitness buddy to guide and motivate you throughout your workout journey.",
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+        "Select your virtual fitness buddy to guide and motivate you throughout your workout journey.",
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
     );
-    
   }
 
   Widget _buildFigureSelection() {
     return Container(
-            padding: const EdgeInsets.only(
-              left: 20,
-              top: 10,
-              right: 14,
+        padding: const EdgeInsets.only(
+          left: 20,
+          top: 10,
+          right: 14,
+        ),
+        width: MediaQuery.of(context).size.width,
+        decoration: const BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Color.fromRGBO(51, 133, 162, 1),
             ),
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Color.fromRGBO(51, 133, 162, 1),
-                ),
-              ),
-              gradient: LinearGradient(
-                colors: <Color>[
-                  Color.fromRGBO(28, 109, 189, 0.29),
-                  Color.fromRGBO(0, 164, 123, 0.29),
-                ],
-              ),
-            ),
-            height: MediaQuery.of(context).size.height * 0.45,
-      child: Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Wrap(
-            spacing: 24,
-            runSpacing: 24,
-            alignment: WrapAlignment.center,
-            children: [
-              _buildFigureOption(
-                  0,
-                  'lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif',
-                  'Robot 1'),
-              _buildFigureOption(
-                  1,
-                  'lib/assets/robot2/robot2_skin0_evo0_cropped_happy.gif',
-                  'Robot 2'),
+          ),
+          gradient: LinearGradient(
+            colors: <Color>[
+              Color.fromRGBO(28, 109, 189, 0.29),
+              Color.fromRGBO(0, 164, 123, 0.29),
             ],
           ),
-          const SizedBox(height: 40),
-          // ElevatedButton(
-          //   onPressed: selectedFigure != -1
-          //       ? () => submitFigure("robot${selectedFigure + 1}")
-          //       : null,
-          //   style: ElevatedButton.styleFrom(
-          //     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(30),
-          //     ),
-          //     backgroundColor: Theme.of(context).colorScheme.primary,
-          //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          //   ),
-          //   child: Text(
-          //     "Let's Get Started!",
-          //     style: Theme.of(context).textTheme.titleLarge!.copyWith(
-          //       color: Theme.of(context).colorScheme.onPrimary,
-          //       fontWeight: FontWeight.bold,
-          //     ),
-          //   ),
-          // ),
-          FFAppButton(
-            text: "LET'S GET STARTED",
-            fontSize: 20,
-            size: MediaQuery.of(context).size.width * 0.7,
-            height: MediaQuery.of(context).size.height * 0.08,
-            onPressed: selectedFigure != -1
-                ? () => submitFigure("robot${selectedFigure + 1}")
-                : null,
-          )
-        ],
-      ),
-    ));
+        ),
+        height: MediaQuery.of(context).size.height * 0.75,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Wrap(
+                spacing: 24,
+                runSpacing: 24,
+                alignment: WrapAlignment.center,
+                children: [
+                  _buildFigureOption(
+                      0,
+                      'lib/assets/robot1/robot1_skin0_evo0_cropped_happy.gif',
+                      'Robot 1'),
+                  _buildFigureOption(
+                      1,
+                      'lib/assets/robot2/robot2_skin0_evo0_cropped_happy.gif',
+                      'Robot 2'),
+                ],
+              ),
+              const SizedBox(height: 40),
+              // ElevatedButton(
+              //   onPressed: selectedFigure != -1
+              //       ? () => submitFigure("robot${selectedFigure + 1}")
+              //       : null,
+              //   style: ElevatedButton.styleFrom(
+              //     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(30),
+              //     ),
+              //     backgroundColor: Theme.of(context).colorScheme.primary,
+              //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              //   ),
+              //   child: Text(
+              //     "Let's Get Started!",
+              //     style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              //       color: Theme.of(context).colorScheme.onPrimary,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              // ),
+              FFAppButton(
+                text: "LET'S GET STARTED",
+                fontSize: 20,
+                size: MediaQuery.of(context).size.width * 0.7,
+                height: MediaQuery.of(context).size.height * 0.08,
+                onPressed: selectedFigure != -1
+                    ? () => submitFigure("robot${selectedFigure + 1}")
+                    : null,
+              )
+            ],
+          ),
+        ));
   }
 }

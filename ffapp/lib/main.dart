@@ -68,10 +68,23 @@ class CurrencyModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addToCurrency(double numberToAdd) {
+  void addToCurrency(double numberToAdd, BuildContext context) async {
     double currentCurrency = double.parse(currency);
+
+    if ((currentCurrency + numberToAdd).toInt() > currentCurrency.toInt()) {
+      AuthService instance = await AuthService.instance;
+      instance.updateCurrency((currentCurrency + numberToAdd).toInt());
+      String email = Provider.of<UserModel>(context, listen: false).user!.email;
+      instance.updateOfflineDateTime(
+        OfflineDateTime(
+          email: email,
+          currency: DateTime.now().toString(),
+        ),
+      );
+    }
     String newCurrency = (currentCurrency + numberToAdd).toStringAsFixed(3);
     currency = newCurrency;
+
     notifyListeners();
   }
 }
@@ -85,7 +98,6 @@ class UserModel extends ChangeNotifier {
   int get baseGain => 5;
 
   int get streak => 5;
-
 
   void setUser(Routes.User newUser) {
     user = newUser;

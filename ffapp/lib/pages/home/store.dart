@@ -186,12 +186,16 @@ class _StoreState extends State<Store> {
 
         showOverlayAlert(context, 'Figure purchased!', Colors.green, 73);
       }
-    } else {
-      // reenable the button if the purchase failed
       setState(() {
         disableButton = false;
       });
+    } else {
+      // reenable the button if the purchase failed
+
       showOverlayAlert(context, 'Not enough currency!', Colors.red, 90);
+      setState(() {
+        disableButton = false;
+      });
     }
   }
 
@@ -310,15 +314,15 @@ class _StoreState extends State<Store> {
                 size: MediaQuery.of(context).size.width * 0.79,
                 height: MediaQuery.of(context).size.height * 0.08,
                 onPressed: () {
+                  setState(() {
+                    disableButton = true;
+                  });
                   purchaseFigure(
                     context,
                     int.parse(
                         listOfFigures[currentFigureIndex].price.toString()),
                     listOfFigures[currentFigureIndex].figureName,
                   );
-                  setState(() {
-                    disableButton = true;
-                  });
                 },
               ),
             ],

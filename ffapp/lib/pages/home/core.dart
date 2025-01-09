@@ -56,14 +56,15 @@ class _CoreState extends State<Core> {
 
     // Run multiple initialization tasks concurrently
     await Future.wait([
-      _initializeServices(),
       _initializeTaskManager(),
     ]);
 
     if (!mounted) return;
 
-    Provider.of<FigureModel>(context, listen: false)
-        .addListener(() => _getCurrencyIncrement);
+    Provider.of<FigureModel>(context, listen: false).addListener(() {
+      _getCurrencyIncrement;
+      _initializeServices();
+    });
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .addListener(() => lockOrUnlock());
   }
@@ -81,7 +82,7 @@ class _CoreState extends State<Core> {
   }
 
   void _handleCurrencyUpdate() {
-    _currency.addToCurrency(_currencyIncrement!);
+    _currency.addToCurrency(_currencyIncrement!, context);
   }
 
   double _getCurrencyIncrement(FigureModel figure, bool isPremium) {
@@ -116,7 +117,7 @@ class _CoreState extends State<Core> {
       await _auth.updateCurrency(0);
     } else {
       final double currencyToAdd = difference.inSeconds * _currencyIncrement!;
-      _currency.addToCurrency(currencyToAdd);
+      _currency.addToCurrency(currencyToAdd, context);
       await _auth.updateCurrency(double.parse(_currency.currency).ceil());
     }
   }
@@ -232,33 +233,40 @@ class _CoreState extends State<Core> {
 
   Widget _buildTopSection() {
     return Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          Consumer<UserModel>(
-            builder: (context, figureModel, _) {
-              return Consumer<FigureModel>(
-                builder: (context, figureModel, _) {
-                  _getCurrencyIncrement(figureModel, _user.isPremium());
+      alignment: Alignment.centerLeft,
+      children: [
+        Consumer<UserModel>(
+          builder: (context, figureModel, _) {
+            return Consumer<FigureModel>(
+              builder: (context, figureModel, _) {
+                _getCurrencyIncrement(figureModel, _user.isPremium());
 
-                  return Container();
-                },
-              );
-            },
+                return Container();
+              },
+            );
+          },
+        ),
+        Positioned(
+          right: _figure.EVLevel == 0
+              ? MediaQuery.of(context).size.width * 0.4
+              : MediaQuery.of(context).size.width * 0.275,
+          child: FitnessIcon(
+            type: FitnessIconType.evolution_circuits,
+            size: _figure.EVLevel == 0
+                ? MediaQuery.of(context).size.width * 0.25
+                : MediaQuery.of(context).size.width * 0.375,
           ),
-          Positioned(
-            right: _figure.EVLevel == 0 ? MediaQuery.of(context).size.width * 0.4 : MediaQuery.of(context).size.width * 0.275,
-            child: FitnessIcon(
-              type: FitnessIconType.evolution_circuits,
-              size: _figure.EVLevel == 0 ? MediaQuery.of(context).size.width * 0.25 : MediaQuery.of(context).size.width * 0.375,
-            ),
-          ),
-          Positioned(
-            right: _figure.EVLevel == 0 ? MediaQuery.of(context).size.width * 0.1 : MediaQuery.of(context).size.width * 0.05,
-            child: _buildCurrencyDisplay(),
-          ),
-          // Positioned widget breaks this, so I just add padding
-          Padding(
-          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.125),
+        ),
+        Positioned(
+          right: _figure.EVLevel == 0
+              ? MediaQuery.of(context).size.width * 0.1
+              : MediaQuery.of(context).size.width * 0.05,
+          child: _buildCurrencyDisplay(),
+        ),
+        // Positioned widget breaks this, so I just add padding
+        Padding(
+          padding:
+              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.125),
           child: AnimatedFigure(
             useEquippedFigure: false,
             figureLevel: _figure.EVLevel,
@@ -266,9 +274,9 @@ class _CoreState extends State<Core> {
             height: MediaQuery.of(context).size.height * 0.4,
             width: MediaQuery.of(context).size.width * 0.4,
           ),
-          ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 
   Widget _buildCurrencyDisplay() {
