@@ -90,7 +90,7 @@ class AuthService {
   Future<Routes.User?> getUserDBInfo() async {
     final FB.User? currentUser = _auth.currentUser;
     if (currentUser == null) {
-      throw Exception("No user is currently signed in.");
+      return null;
     }
     final Routes.User user = Routes.User(email: currentUser.email);
     return await _routes.routesClient.getUser(user);

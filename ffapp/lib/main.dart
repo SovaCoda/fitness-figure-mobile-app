@@ -104,6 +104,11 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setUserName(String newName) {
+    user?.name = newName;
+    notifyListeners();
+  }
+
   void setUserWeekCompleted(Int64 newValue) {
     user?.weekComplete = newValue;
     notifyListeners();

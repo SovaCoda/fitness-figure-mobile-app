@@ -2,16 +2,13 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:bottom_picker/bottom_picker.dart';
-import 'package:bottom_picker/resources/arrays.dart';
 import 'package:ffapp/components/ff_app_premium_badge.dart';
 import 'package:ffapp/components/ff_app_button.dart';
-import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
-import 'package:ffapp/services/flutterUser.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fixnum/fixnum.dart';
@@ -27,53 +24,14 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  late final AuthService auth;
-  final FlutterUser user = FlutterUser();
-  late String name = 'Loading...';
-  late String email = 'Loading...';
-  late String password = 'Loading...';
-  late int weeklyGoal = 4; // default values
-  late int minExerciseGoal = 30;
-  late String manageSub = 'Loading...';
+  late AuthService auth;
+  int weeklyGoal = 5;
+  int minExerciseGoal = 45;
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
-    initialize();
-  }
-
-  Future<void> initialize() async {
-    try {
-      final Future<routes.User?> userFuture = auth.getUserDBInfo();
-      final UserModel userModel =
-          Provider.of<UserModel>(context, listen: false);
-      final routes.User? databaseUser = await userFuture;
-      if (!mounted || databaseUser == null) {
-        return;
-      }
-      userModel.setUser(databaseUser);
-
-      if (mounted) {
-        final String curName = databaseUser.name;
-        final String curEmail = databaseUser.email;
-        final int curGoal = databaseUser.weekGoal.toInt();
-        final int minExerciseTime = databaseUser.workoutMinTime.toInt();
-        final bool premiumStatus =
-            Provider.of<UserModel>(context, listen: false).isPremium();
-
-        setState(() {
-          name = curName;
-          email = curEmail;
-          password = '*******';
-          weeklyGoal = curGoal;
-          minExerciseGoal = minExerciseTime;
-          manageSub = premiumStatus ? 'Subscription Tier 1' : 'Regular User';
-        });
-      }
-    } catch (e) {
-      logger.e(e);
-    }
   }
 
   @override
@@ -239,87 +197,30 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> updateName(String newName) async {
+    // update database
     await auth.updateName(newName);
-    setState(() {
-      name = newName;
-    });
+
+    // update local state
+    Provider.of<UserModel>(context, listen: false).setUserName(newName);
   }
 
-  // Future updateEmail(
-  //   String userEmail,
-  //   String userPassword,
-  //   String newEmail,
-  // ) async {
-  //   try {
-  //     final AuthCredential credential = EmailAuthProvider.credential(
-  //       email: userEmail,
-  //       password: userPassword,
-  //     );
-  //     final String result =
-  //         await auth.updateEmail(userEmail, newEmail, credential);
-  //     prefs.setString("oldEmail", userEmail);
-  //     prefs.setString("newEmail", newEmail);
-  //     prefs.setString("isVerified", "false");
-
-  //     if (mounted) {
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text(result)),
-  //         );
-  //       }
-  //     }
-
-  //     // Don't sign out or navigate away, wait for verification
-  //   } catch (e) {
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text(e.toString())),
-  //       );
-  //     }
-  //   }
-  // }
-
-  // void checkEmailVerification(String newEmail) {
-  //   _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-  //     try {
-  //       final User? user = FirebaseAuth.instance.currentUser;
-  //       await user?.reload();
-  //       if (user?.email == newEmail && user?.emailVerified == true) {
-  //         timer.cancel();
-  //         if (mounted) {
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             const SnackBar(content: Text("Email updated successfully!")),
-  //           );
-  //         }
-  //       }
-  //     } on FirebaseAuthException {
-  //       // setState(() {
-  //       //   email = newEmail;
-  //       // });
-  //       prefs.setString("isVerified", "true");
-  //       prefs.setString("newEmail", "");
-  //       if (mounted) {
-  //         signOut(context);
-  //         GoRouter.of(context).go("/");
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           const SnackBar(content: Text("Success! Please sign back in.")),
-  //         );
-  //       }
-  //     }
-  //   });
-  // }
-
+  /// 
   Future<void> updatePassword(
     String userEmail,
     String userPassword,
     String newPassword,
   ) async {
     try {
+      // Firebase requires user credentials to update the user's password
       final AuthCredential credential = EmailAuthProvider.credential(
         email: userEmail,
         password: userPassword,
       );
+
+      // Update the password on firebase
       await auth.updatePassword(newPassword, credential);
+
+      // Sign the user out and bring to sign in page on success
       if (mounted) {
         signOut(context);
         GoRouter.of(context).go('/');
@@ -327,8 +228,12 @@ class _ProfileState extends State<Profile> {
           const SnackBar(content: Text('Success! Please sign back in.')),
         );
       }
-    } catch (e) {
+    } 
+    // Exception typically occurs if the user enters the incorrect password
+    // However, it is also possible that firebase could be down
+    catch (e) {
       if (mounted) {
+        // ! print the error to the user (risky)
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
@@ -337,6 +242,9 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> updateWeeklyGoal(int goal) async {
+    setState(() {
+      weeklyGoal = goal;
+    });
     await auth.updateWeeklyGoal(goal);
     if (mounted) {
       Provider.of<UserModel>(context, listen: false)
@@ -345,9 +253,19 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> updateMinWorkoutTime(int time) async {
+    // update state of page
+    setState(() {
+      minExerciseGoal = time;
+    });
+
+    // update database
+    final String email =
+        Provider.of<UserModel>(context, listen: false).user!.email;
     await auth.updateUserDBInfo(
       routes.User(email: email, workoutMinTime: Int64(time)),
     );
+
+    // update state of entire app
     if (mounted) {
       Provider.of<UserModel>(context, listen: false)
           .setWorkoutMinTime(Int64(time));
@@ -356,47 +274,49 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        // Background image
-        Positioned.fill(
-          child: Image.asset(
-            'lib/assets/art/profile_background.png', // Make sure this image exists in your assets
-            fit: BoxFit.cover,
-          ),
-        ),
-        // Existing content
-        SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics().applyTo(
-            const BouncingScrollPhysics(),
-          ), // quick fix for this https://github.com/flutter/flutter/issues/138940
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                const Text(
-                  'PROFILE',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                _buildProfileSection(),
-                const SizedBox(height: 24),
-                _buildGoalsSection(),
-                const SizedBox(height: 24),
-                _buildSubscriptionSection(),
-                const SizedBox(height: 32),
-                _buildActionButtons(),
-              ],
+    return Consumer<UserModel>(builder: (context, userModel, _) {
+      return Stack(
+        children: <Widget>[
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'lib/assets/art/profile_background.png', // Make sure this image exists in your assets
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-      ],
-    );
+          // Existing content
+          SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics().applyTo(
+              const BouncingScrollPhysics(),
+            ), // quick fix for this https://github.com/flutter/flutter/issues/138940
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const Text(
+                    'PROFILE',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildProfileSection(userModel),
+                  const SizedBox(height: 24),
+                  _buildGoalsSection(userModel),
+                  const SizedBox(height: 24),
+                  _buildSubscriptionSection(userModel),
+                  const SizedBox(height: 32),
+                  _buildActionButtons(userModel),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(UserModel userModel) {
     return GradientedContainer(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -415,13 +335,13 @@ class _ProfileState extends State<Profile> {
             _buildProfileItem(
               Icons.person,
               'Name',
-              name,
-              () => _showEditDialog('Name', name, updateName),
+              userModel.user!.name,
+              () => _showEditDialog('Name', userModel.user!.name, updateName),
             ),
             _buildProfileItem(
                 Icons.email,
                 'Email',
-                email,
+                userModel.user!.email,
                 // () => _showEditDialog("Email", email, (newEmail) async {
                 //   final userPassword = await _showPasswordConfirmDialog();
                 //   if (userPassword != null) {
@@ -491,7 +411,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildGoalsSection() {
+  Widget _buildGoalsSection(UserModel userModel) {
     return GradientedContainer(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -509,12 +429,12 @@ class _ProfileState extends State<Profile> {
             const SizedBox(height: 16),
             _buildGoalItem(
               'Weekly Workout Goal',
-              '$weeklyGoal ${weeklyGoal == 1 ? "day" : "days"}',
+              '${userModel.user!.weekGoal} ${userModel.user!.weekGoal == 1 ? "day" : "days"}',
               _showWeeklyGoalPicker,
             ),
             _buildGoalItem(
               'Minimum Workout Time',
-              '$minExerciseGoal ${minExerciseGoal == 1 ? "minute" : "minutes"}',
+              '${userModel.user!.workoutMinTime} ${userModel.user!.workoutMinTime == 1 ? "minute" : "minutes"}',
               _showMinGoalPicker,
             ),
           ],
@@ -561,7 +481,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildSubscriptionSection() {
+  Widget _buildSubscriptionSection(UserModel userModel) {
     return GradientedContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -581,7 +501,7 @@ class _ProfileState extends State<Profile> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: <Widget>[
-                if (manageSub == 'Regular User')
+                if (!userModel.isPremium())
                   const FitnessIcon(
                     type: FitnessIconType.regular_badge,
                     size: 50,
@@ -593,7 +513,7 @@ class _ProfileState extends State<Profile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      manageSub == 'Regular User' ? 'REGULAR' : 'PREMIUM',
+                      !userModel.isPremium() ? 'REGULAR' : 'PREMIUM',
                       style: const TextStyle(
                         fontFamily: 'Roboto',
                         color: Colors.white,
@@ -601,7 +521,7 @@ class _ProfileState extends State<Profile> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    if (manageSub == 'Regular User')
+                    if (!userModel.isPremium())
                       GestureDetector(
                         onTap: () {}, // TODO: Implement purchase premium page
                         child: const Text(
@@ -624,7 +544,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(UserModel userModel) {
     return Column(
       children: <Widget>[
         FFAppButton(
@@ -637,7 +557,8 @@ class _ProfileState extends State<Profile> {
         ),
         const SizedBox(height: 16),
         FFAppButton(
-          onPressed: () => _showDeleteAccountConfirmation(),
+          onPressed: () =>
+              _showDeleteAccountConfirmation(userModel.user!.email),
           text: 'DELETE ACCOUNT',
           fontSize: 20,
           isDelete: true,
@@ -650,7 +571,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void _showDeleteAccountConfirmation() {
+  void _showDeleteAccountConfirmation(String email) {
     showFFDialogBinary(
       'Delete Account',
       'Are you sure you want to delete your account? This action cannot be undone.',
@@ -801,6 +722,10 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Opens a popup that prompts the user to enter their current password
+  /// and then a new password to update their current password
+  /// 
+  /// Calls [updatePassword] with the info to update the password in firebase
   Future<void> _showPasswordChangeDialog() async {
     final String? currentPassword = await _showPasswordConfirmDialog();
     if (currentPassword == null || !mounted) {
@@ -827,6 +752,8 @@ class _ProfileState extends State<Profile> {
             TextButton(
               child: const Text('Change'),
               onPressed: () {
+                final String email =
+                    Provider.of<UserModel>(context, listen: false).user!.email;
                 updatePassword(email, currentPassword, newPassword);
                 Navigator.of(context).pop();
               },
@@ -837,42 +764,103 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Shows a popup confirmation for the user to sign out or cancel
   void _showSignOutConfirmation() {
     showFFDialogBinary(
-          'Sign out',
-          'Are you sure you want to sign out?',
-          true,
-          context,
-            
-            FFAppButton(
-              text: 'SIGN OUT',
-              size: MediaQuery.of(context).size.width * 0.75,
-              height: MediaQuery.of(context).size.height * 0.07,
-              fontSize: 20,
-              isSignOut: true,
-              onPressed: () {
-                signOut(context);
-                GoRouter.of(context).go('/');
-              },
-            ),
-            FFAppButton(
-              text: 'CANCEL',
-              isNoThanks: true,
-              fontSize: 20,
-              size: MediaQuery.of(context).size.width * 0.75,
-              height: MediaQuery.of(context).size.height * 0.07,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-        );
+      'Sign out',
+      'Are you sure you want to sign out?',
+      true,
+      context,
+      FFAppButton(
+        text: 'SIGN OUT',
+        size: MediaQuery.of(context).size.width * 0.75,
+        height: MediaQuery.of(context).size.height * 0.07,
+        fontSize: 20,
+        isSignOut: true,
+        onPressed: () {
+          signOut(context);
+          GoRouter.of(context).go('/');
+        },
+      ),
+      FFAppButton(
+        text: 'CANCEL',
+        isNoThanks: true,
+        fontSize: 20,
+        size: MediaQuery.of(context).size.width * 0.75,
+        height: MediaQuery.of(context).size.height * 0.07,
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 }
 
-class InvalidEmailException implements Exception {
-  InvalidEmailException(this.cause);
-  String cause;
-}
-
+/// Sets the user provider to an empty user and removes the user's firebase instance
 Future<void> signOut(BuildContext context) async {
   Provider.of<UserModel>(context, listen: false).setUser(routes.User());
   await FirebaseAuth.instance.signOut();
 }
+
+  // Update Email function (scrapped)
+  // Future updateEmail(
+  //   String userEmail,
+  //   String userPassword,
+  //   String newEmail,
+  // ) async {
+  //   try {
+  //     final AuthCredential credential = EmailAuthProvider.credential(
+  //       email: userEmail,
+  //       password: userPassword,
+  //     );
+  //     final String result =
+  //         await auth.updateEmail(userEmail, newEmail, credential);
+  //     prefs.setString("oldEmail", userEmail);
+  //     prefs.setString("newEmail", newEmail);
+  //     prefs.setString("isVerified", "false");
+
+  //     if (mounted) {
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text(result)),
+  //         );
+  //       }
+  //     }
+
+  //     // Don't sign out or navigate away, wait for verification
+  //   } catch (e) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text(e.toString())),
+  //       );
+  //     }
+  //   }
+  // }
+
+  // void checkEmailVerification(String newEmail) {
+  //   _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+  //     try {
+  //       final User? user = FirebaseAuth.instance.currentUser;
+  //       await user?.reload();
+  //       if (user?.email == newEmail && user?.emailVerified == true) {
+  //         timer.cancel();
+  //         if (mounted) {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             const SnackBar(content: Text("Email updated successfully!")),
+  //           );
+  //         }
+  //       }
+  //     } on FirebaseAuthException {
+  //       // setState(() {
+  //       //   email = newEmail;
+  //       // });
+  //       prefs.setString("isVerified", "true");
+  //       prefs.setString("newEmail", "");
+  //       if (mounted) {
+  //         signOut(context);
+  //         GoRouter.of(context).go("/");
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(content: Text("Success! Please sign back in.")),
+  //         );
+  //       }
+  //     }
+  //   });
+  // }

@@ -118,7 +118,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       final int curGoal = databaseUser.weekGoal.toInt();
       final int curWeekly = databaseUser.weekComplete.toInt();
       final String curFigure = databaseUser.curFigure;
-
+      Provider.of<UserModel>(context, listen: false).setUser(databaseUser);
       // Update UI state
       setState(() {
         SystemChannels.textInput.invokeMethod('TextInput.hide');

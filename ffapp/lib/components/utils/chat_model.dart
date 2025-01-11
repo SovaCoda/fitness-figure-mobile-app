@@ -105,8 +105,8 @@ class ChatModel extends ChangeNotifier {
     );
   }
 
-  /// Initializes OpenAI, gets all of the personality traits from local storage
-  /// Checks if an assistant id is in local storage to prevent creating multiple assistants per user
+  /// Initializes OpenAI and loads personality traits
+  /// Checks if an assistant id is in local storage 
   ///    If the assistant id is present, it creates a thread with that assistant id,
   ///    Otherwise, it creates an assistant with access to [get_robot_stats], [getWeekData], and [startWorkoutTimer] which the assistant can call and creates a thread
   /// Shows a starting message to the user that says "Welcome to Fitness Figure! Let's start an exercise!"
@@ -233,10 +233,11 @@ class ChatModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Allows Assistants API to get current information about the robot
+  /// Gets current charge, evo points, and currency of the selected robot
+  /// 
+  /// Returns a map containing the attribute name as a String and the value as dynamic
   // ignore: non_constant_identifier_names
   Future<Map<String, dynamic>> get_robot_stats(BuildContext context) async {
-    // currently unused
     final figureModel = Provider.of<FigureModel>(context, listen: false);
     final userModel = Provider.of<UserModel>(context, listen: false);
 
@@ -251,7 +252,9 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
-  // Allows Assistants API to get personalized week data
+  /// Gets user's status of working out today and current streak for the week
+  /// 
+  /// Returns a map containing the attribute name as a String and the value as dynamic 
   Future<Map<String, dynamic>> getWeekData(BuildContext context) async {
     DateTime date = DateTime.now();
     date = date.toUtc();
@@ -264,7 +267,10 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
-  // Allows Assistants API to get evolution information
+  /// Collects the EVLevel, evo points, the evo point threshold to evolve, 
+  /// if it is able to evolve, and the evolution benefits for that level for the selected robot
+  /// 
+  /// Returns a map containing the attribute name as a String and the value as dynamic
   Future<Map<String, dynamic>> evolutionInfo(BuildContext context) async {
     final figureModel = Provider.of<FigureModel>(context, listen: false);
 
@@ -281,9 +287,9 @@ class ChatModel extends ChangeNotifier {
     };
   }
 
-  /// Allows Assistants API to start a workout timer
+  /// Starts a workout timer and navigates to the workout adder page
   /// 
-  /// Returns status message 'Workout timer started successfully'
+  /// Returns status message 'Workout timer started successfully' and `null` on failure
   Future<String> startWorkoutTimer(BuildContext context) async {
     const String timerName = 'workout_timer';
     final DateTime now = DateTime.now();
@@ -300,6 +306,7 @@ class ChatModel extends ChangeNotifier {
   /// Sends [message] from [role] to the Assistants API and starts a run
   /// 
   /// Returns if the request doesn't finish within maxRetries
+  /// or if the user has reached the maximum number of messages
   /// Otherwise calls [retrieveAndProcessAssistantResponse]
   Future<void> sendMessage(
     String message,
@@ -418,9 +425,7 @@ class ChatModel extends ChangeNotifier {
           threadId: threadId!,
           runId: run.id,
         );
-        logger.i(updatedRun);
         runStatus = updatedRun.status;
-        logger.i(runStatus);
         // For the case that Assistants API wants to make a method call before responding
         if (runStatus == 'requires_action') {
           if (context.mounted) {
@@ -457,7 +462,6 @@ class ChatModel extends ChangeNotifier {
             ?['tool_calls'] as List ??
         [];
     final List<Map<String, dynamic>> toolOutputs = [];
-    logger.i(toolCalls);
     for (final toolCall in toolCalls) {
       switch (toolCall['function']['name']) {
         case 'startWorkoutTimer':
@@ -485,7 +489,6 @@ class ChatModel extends ChangeNotifier {
             'output': jsonEncode(stats),
           });
       }
-      logger.i(toolOutputs);
     }
 
     if (toolOutputs.isNotEmpty) {
@@ -626,10 +629,7 @@ class ChatModel extends ChangeNotifier {
       final run = await openAI.threads.v2.runs
           .createRun(threadId: threadId!, request: runRequest);
 
-      
-
       String runStatus = run.status;
-      logger.i(runStatus);
       int retries = 0;
       const maxRetries =
           30; // Adjust for allowing more cycles through the while loop
@@ -645,8 +645,6 @@ class ChatModel extends ChangeNotifier {
           runId: run.id,
         );
         runStatus = updatedRun.status;
-        logger.i(runStatus);
-        logger.i(updatedRun);
 
         if (runStatus == 'failed') {
           logger.e('Run failed: ${updatedRun.lastError}');
@@ -681,7 +679,7 @@ class ChatModel extends ChangeNotifier {
 
   /// Generates a push notification message for the user based on the current [gameState]
   /// 
-  /// Returns a message if a message is generated by the assistant otherwise ''
+  /// Returns a message if a message is generated by the assistant otherwise `''`
   Future<String?> generatePremiumOfflineStatusMessage(
     Map<String, dynamic> gameState,
   ) async {
@@ -710,12 +708,12 @@ class ChatModel extends ChangeNotifier {
       String runStatus = run.status;
       int retries = 0;
       const maxRetries = 30; // Adjust as needed
-      const pollingInterval = Duration.zero; // Adjust as needed
+      const pollingInterval = Duration(seconds: 2); // Adjust as needed
 
       while (runStatus != 'completed' && retries < maxRetries) {
         await Future.delayed(pollingInterval);
         // Tries to get the prompt back from Assistants API and updates the status
-        final updatedRun = await openAI.threads.runs.retrieveRun(
+        final updatedRun = await openAI.threads.v2.runs.retrieveRun(
           threadId: threadId!,
           runId: run.id,
         ); // starts api call (probably doesn't use tokens?)

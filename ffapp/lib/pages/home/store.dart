@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/routes.pbgrpc.dart';
+
 Logger logger = Logger();
 
 class FigureInstancesProvider extends ChangeNotifier {
@@ -74,6 +76,7 @@ class _StoreState extends State<Store> {
     listOfFigures = await auth
         .getFigures()
         .then((routes.MultiFigure value) => value.figures);
+    routes.MultiFigure(figures: List<Figure>.empty());
     listOfFigureInstances = await auth
         .getFigureInstances(databaseUser!)
         .then((routes.MultiFigureInstance value) => value.figureInstances);
