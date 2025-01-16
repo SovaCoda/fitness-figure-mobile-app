@@ -1159,9 +1159,6 @@ func main() {
 		log.Fatalf("could not connect to database: %v", err)
 	}
 	defer db.Close()
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(25)
-	db.SetConnMaxLifetime(5 * time.Minute)
 
 	// resetticker := time.NewTicker(resetTimer)
 

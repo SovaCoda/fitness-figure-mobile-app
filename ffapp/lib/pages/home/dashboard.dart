@@ -158,10 +158,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       FocusScope.of(context).unfocus();
     });
 
-    // Initialize offline notification service
-    // cannot be called in isolate as it uses native channels
-    // LocalNotificationService().initNotifications();
-
     if (!mounted) {
       return;
     }
@@ -322,7 +318,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                //WeekView(),
                 Consumer<FigureModel>(
                   builder: (context, figure, child) {
                     return Padding(
