@@ -91,7 +91,7 @@ func (s *server) InitializeUser(ctx context.Context, in *pb.GenericStringRespons
 
 	// Pre-allocate maps with a reasonable size
 	seenWorkouts := make(map[string]bool, 100) // Adjust size based on typical workout count
-	seenFigures := make(map[string]bool, 4)   // Adjust size based on typical figure count
+	seenFigures := make(map[string]bool, 4)    // Adjust size based on typical figure count
 
 	// Pre-allocate slices
 	workouts := &pb.MultiWorkout{Workouts: make([]*pb.Workout, 0, 100)}

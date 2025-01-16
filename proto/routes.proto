@@ -79,6 +79,8 @@ service Routes {
     // SERVER ACTIONS //
     rpc FigureDecay(FigureInstance) returns (GenericStringResponse) {}
     rpc UserWeeklyReset(User) returns (GenericStringResponse) {}
+
+    rpc InitializeUser(GenericStringResponse) returns (UserInfo) {}
 }
 
 message GenericStringResponse {
@@ -116,6 +118,12 @@ message User {
     string ready_for_week_reset = 12;
     string is_in_grace_period = 13;
     int64 daily_chat_messages = 14;
+}
+
+message UserInfo {
+    User user = 1;
+    MultiFigureInstance figures = 2;
+    MultiWorkout workouts = 3;
 }
 
 message DailySnapshot {
