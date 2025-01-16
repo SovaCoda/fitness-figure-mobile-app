@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+
+import '../../main.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -43,6 +46,7 @@ class _SignInState extends State<SignIn> {
     if (user != null) {
       logger.i("User is signed in");
       final dbUser = await auth.getUserDBInfo();
+      Provider.of<UserModel>(context, listen: false).setUser(dbUser!);
       logger.i("Getting user info...");
       logger.i(dbUser?.weekGoal);
       if ((dbUser?.curFigure == "none" || dbUser?.curFigure == "") && mounted) {
@@ -55,7 +59,7 @@ class _SignInState extends State<SignIn> {
         context.goNamed('WorkoutFrequencySelection');
       } else {
         if (mounted) {
-          context.goNamed('Home');
+        context.goNamed('Home');
         }
       }
     }
@@ -204,9 +208,9 @@ class _SignInState extends State<SignIn> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 //spacer
                 const SizedBox(height: 20),
 
@@ -239,27 +243,29 @@ class _SignInState extends State<SignIn> {
                 const SizedBox(height: 5),
 
                 Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: GestureDetector(
-                      onTap: () => {
-                        showFFDialog(
-                            "Forgot Password?",
-                            "If you're having trouble logging in email fitnessfigure01@gmail.com with your email and we will reset your password for you.",
-                            true,
-                            context,),
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Get help logging in.',
-                          style: TextStyle(
-                            color: Colors.blue.shade900,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: GestureDetector(
+                    onTap: () => {
+                      showFFDialog(
+                        "Forgot Password?",
+                        "If you're having trouble logging in email fitnessfigure01@gmail.com with your email and we will reset your password for you.",
+                        true,
+                        context,
+                      ),
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Get help logging in.',
+                        style: TextStyle(
+                          color: Colors.blue.shade900,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),),
+                    ),
+                  ),
+                ),
 
                 //spacer
                 const SizedBox(height: 15),
@@ -277,8 +283,9 @@ class _SignInState extends State<SignIn> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: CustomButton(
-                      onTap: () => context.goNamed('Register'),
-                      text: "Create Account",),
+                    onTap: () => context.goNamed('Register'),
+                    text: "Create Account",
+                  ),
                 ),
 
                 //spacer
@@ -287,7 +294,9 @@ class _SignInState extends State<SignIn> {
                 ),
 
                 const SizedBox(height: 50),
-              ],),),
+              ],
+            ),
+          ),
         ),
       ),
     );

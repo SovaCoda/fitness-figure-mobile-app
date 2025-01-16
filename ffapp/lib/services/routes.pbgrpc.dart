@@ -230,6 +230,10 @@ class RoutesClient extends $grpc.Client {
       '/routes.Routes/UserWeeklyReset',
       ($0.User value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value));
+  static final _$initializeUser = $grpc.ClientMethod<$0.GenericStringResponse, $0.UserInfo>(
+      '/routes.Routes/InitializeUser',
+      ($0.GenericStringResponse value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.UserInfo.fromBuffer(value));
 
   RoutesClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -443,6 +447,10 @@ class RoutesClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.GenericStringResponse> userWeeklyReset($0.User request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$userWeeklyReset, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.UserInfo> initializeUser($0.GenericStringResponse request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$initializeUser, request, options: options);
   }
 }
 
@@ -815,6 +823,13 @@ abstract class RoutesServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.User.fromBuffer(value),
         ($0.GenericStringResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GenericStringResponse, $0.UserInfo>(
+        'InitializeUser',
+        initializeUser_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GenericStringResponse.fromBuffer(value),
+        ($0.UserInfo value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.User> getUser_Pre($grpc.ServiceCall call, $async.Future<$0.User> request) async {
@@ -1025,6 +1040,10 @@ abstract class RoutesServiceBase extends $grpc.Service {
     return userWeeklyReset(call, await request);
   }
 
+  $async.Future<$0.UserInfo> initializeUser_Pre($grpc.ServiceCall call, $async.Future<$0.GenericStringResponse> request) async {
+    return initializeUser(call, await request);
+  }
+
   $async.Future<$0.User> getUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> createUser($grpc.ServiceCall call, $0.User request);
   $async.Future<$0.User> updateUser($grpc.ServiceCall call, $0.User request);
@@ -1077,4 +1096,5 @@ abstract class RoutesServiceBase extends $grpc.Service {
   $async.Future<$0.SubscriptionTimeStamp> deleteSubscriptionTimeStamp($grpc.ServiceCall call, $0.SubscriptionTimeStamp request);
   $async.Future<$0.GenericStringResponse> figureDecay($grpc.ServiceCall call, $0.FigureInstance request);
   $async.Future<$0.GenericStringResponse> userWeeklyReset($grpc.ServiceCall call, $0.User request);
+  $async.Future<$0.UserInfo> initializeUser($grpc.ServiceCall call, $0.GenericStringResponse request);
 }

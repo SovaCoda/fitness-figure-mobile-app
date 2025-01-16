@@ -12,9 +12,12 @@ import 'package:ffapp/pages/home/workout_adder.dart';
 import 'package:ffapp/services/local_notification_service.dart';
 import 'package:ffapp/services/providers.dart';
 import 'package:ffapp/pages/home/chat.dart';
+import 'package:ffapp/services/auth.dart'; // for the logger
 import 'package:flutter/material.dart';
 import 'package:ffapp/services/flutterUser.dart';
 import 'package:provider/provider.dart';
+
+import '../../main.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -54,31 +57,18 @@ class _DashboardPageState extends State<DashboardPage> {
     super.dispose();
   }
 
-  FlutterUser user = FlutterUser();
-  late String currency = "0000";
-
+  // TODO: MOVE GENERAL LOGIC INTO THE HOME PAGE FROM DASHBOARD (Initializing providers etc.)
   Future<void> initialize() async {
-    try {
-      await user.initAuthService();
-      await user.checkUser();
-      final String usrCurrency = await user.getCurrency();
+    Future.delayed(const Duration(milliseconds: 3000), () {
       setState(() {
-        currency = usrCurrency;
-      });
-
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        setState(() {
-          loadOpacity = 0.0;
-          Future.delayed(const Duration(milliseconds: 300), () {
-            setState(() {
-              loading = false;
-            });
+        loadOpacity = 0.0;
+        Future.delayed(const Duration(milliseconds: 300), () {
+          setState(() {
+            loading = false;
           });
         });
       });
-    } catch (e) {
-      logger.e('Error initializing currency: $e');
-    }
+    });
   }
 
   @override

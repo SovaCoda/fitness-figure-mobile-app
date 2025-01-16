@@ -5,12 +5,10 @@ import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
+import '../../assets/data/figure_ev_data.dart';
 import '../../services/routes.pbgrpc.dart';
-
-Logger logger = Logger();
 
 class FigureInstancesProvider extends ChangeNotifier {
   late List<routes.FigureInstance> listOfFigureInstances = List.empty();
@@ -56,10 +54,7 @@ class Store extends StatefulWidget {
 
 class _StoreState extends State<Store> {
   late List<routes.Figure> listOfFigures = List<routes.Figure>.empty();
-  late List<routes.FigureInstance> listOfFigureInstances =
-      List<routes.FigureInstance>.empty();
   late AuthService auth;
-  late int currency = 0;
   int currentFigureIndex = 0;
   bool disableButton = false;
 
@@ -71,25 +66,13 @@ class _StoreState extends State<Store> {
   }
 
   Future<void> initialize() async {
-    final routes.User? databaseUser = await auth.getUserDBInfo();
+    // listOfFigures = await auth
+    //     .getFigures()
+    //     .then((routes.MultiFigure value) => value.figures);
+    // this way avoids a database call.
+    listOfFigures = [figure1.getFigure(), figure2.getFigure()];
 
-    listOfFigures = await auth
-        .getFigures()
-        .then((routes.MultiFigure value) => value.figures);
-    routes.MultiFigure(figures: List<Figure>.empty());
-    listOfFigureInstances = await auth
-        .getFigureInstances(databaseUser!)
-        .then((routes.MultiFigureInstance value) => value.figureInstances);
-    Provider.of<FigureInstancesProvider>(context, listen: false)
-        .setListOfFigureInstances(listOfFigureInstances);
-
-    final String stringCur = databaseUser.currency.toString();
-    currency = int.parse(stringCur);
-    logger.i('Currency: $currency');
-
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
   }
 
   void showOverlayAlert(
@@ -140,7 +123,10 @@ class _StoreState extends State<Store> {
   }
 
   Future<void> purchaseFigure(
-      BuildContext context, int price, String figureName) async {
+      BuildContext context,
+      List<FigureInstance> listOfFigureInstances,
+      int price,
+      String figureName) async {
     if (listOfFigureInstances.length > 4) {
       showOverlayAlert(context, 'Maximum figures reached!', Colors.red, 90);
       return;
@@ -296,38 +282,42 @@ class _StoreState extends State<Store> {
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-              FFAppButton(
-                disabled:
-                    // checks all of the user's figure instances to see if they match the name of the figure viewed
-                    listOfFigureInstances.any(
-                          (routes.FigureInstance instance) =>
-                              instance.figureName ==
-                              listOfFigures[currentFigureIndex].figureName,
-                        ) ||
-                        disableButton,
-                text: listOfFigureInstances.any(
-                  (routes.FigureInstance instance) =>
-                      instance.figureName ==
+              Consumer<FigureInstancesProvider>(
+                builder: (context, figureInstancesProvider, child) =>
+                    FFAppButton(
+                  disabled:
+                      // checks all of the user's figure instances to see if they match the name of the figure viewed
+                      figureInstancesProvider.listOfFigureInstances.any(
+                            (routes.FigureInstance instance) =>
+                                instance.figureName ==
+                                listOfFigures[currentFigureIndex].figureName,
+                          ) ||
+                          disableButton,
+                  text: figureInstancesProvider.listOfFigureInstances.any(
+                    (routes.FigureInstance instance) =>
+                        instance.figureName ==
+                        listOfFigures[currentFigureIndex].figureName,
+                  )
+                      ? 'Owned'
+                      : disableButton
+                          ? 'Purchasing...'
+                          : 'Purchase',
+                  size: MediaQuery.of(context).size.width * 0.79,
+                  height: MediaQuery.of(context).size.height * 0.08,
+                  onPressed: () {
+                    setState(() {
+                      disableButton = true;
+                    });
+                    purchaseFigure(
+                      context,
+                      figureInstancesProvider.listOfFigureInstances,
+                      int.parse(
+                          listOfFigures[currentFigureIndex].price.toString()),
                       listOfFigures[currentFigureIndex].figureName,
-                )
-                    ? 'Owned'
-                    : disableButton
-                        ? 'Purchasing...'
-                        : 'Purchase',
-                size: MediaQuery.of(context).size.width * 0.79,
-                height: MediaQuery.of(context).size.height * 0.08,
-                onPressed: () {
-                  setState(() {
-                    disableButton = true;
-                  });
-                  purchaseFigure(
-                    context,
-                    int.parse(
-                        listOfFigures[currentFigureIndex].price.toString()),
-                    listOfFigures[currentFigureIndex].figureName,
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+              )
             ],
           ),
         ),

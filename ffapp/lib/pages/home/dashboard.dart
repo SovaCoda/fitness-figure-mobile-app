@@ -1,3 +1,7 @@
+// ignore_for_file: unreachable_from_main
+
+import 'dart:io';
+
 import 'package:ffapp/components/admin_panel.dart';
 import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/button_themes.dart';
@@ -5,26 +9,72 @@ import 'package:ffapp/components/charge_bar.dart';
 import 'package:ffapp/components/dashboard/workout_numbers.dart';
 import 'package:ffapp/components/ev_bar.dart';
 import 'package:ffapp/components/ff_alert_dialog.dart';
-import 'package:ffapp/components/robot_image_holder.dart';
 import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/components/week_complete_showcase.dart';
 import 'package:ffapp/main.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/local_notification_service.dart';
-import 'package:ffapp/services/robot_dialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as Routes;
 import 'package:ffapp/services/routes.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ffapp/services/flutterUser.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'dart:async';
+import 'store.dart';
 
-import 'package:spine_flutter/spine_widget.dart';
+class IsolateInitData {
+  IsolateInitData(this.token, this.email);
+  final RootIsolateToken token;
+  final String email;
+}
+
+/// The isolate function that gets database information for the user.
+/// Note: An isolate has completely separate memory from the main thread, so
+///       it must be a top level function, and the auth provider cannot be passed into it
+///
+/// Isolates cannot perform updateUserDBInfo as the proto requires the use of
+/// setMessageHandler(), which only the root isolate can do
+///
+/// [@pragma('vm:entry-point')] lets the precompiler know to compile this code ahead of time
+/// instead of discarding it as unused during compilation
+@pragma('vm:entry-point')
+Future<List<dynamic>> isolateFetchDatabaseInfo(IsolateInitData initData) async {
+  BackgroundIsolateBinaryMessenger.ensureInitialized(initData.token);
+
+  try {
+    final AuthService auth = await AuthService.instance;
+
+    // Create a timeout for the database call
+    final userInfoFuture = auth
+        .initializeUserInfo(initData.email)
+        .timeout(const Duration(seconds: 10), onTimeout: () {
+      throw TimeoutException('Database call timed out');
+    });
+
+    final customerInfoFuture = !Platform.isIOS
+        ? Future.value(null)
+        : Purchases.getCustomerInfo().catchError((e) {
+            logger.e('RevenueCat error: $e');
+            return null;
+          });
+
+    // Run futures in parallel
+    final results = await Future.wait([
+      userInfoFuture,
+      customerInfoFuture,
+    ], eagerError: true);
+
+    return results;
+  } catch (e) {
+    logger.e('Error in isolate: $e');
+    return [null, null];
+  }
+}
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -35,20 +85,6 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   late AuthService auth;
-  FlutterUser user = FlutterUser();
-  late String email = "Loading...";
-  late int weeklyGoal = 0;
-  late int weeklyCompleted = 0;
-  late String figureURL = "robot1";
-  late double charge = 0;
-  final int robotCharge = 100;
-  late Map<String, int> evData = {};
-  late Figure figure = Figure();
-  RobotDialog robotDialog = RobotDialog();
-  bool chatEnabled = false;
-  bool showInteractions = false;
-  String loginMessage = "Hey i would like to speak with you";
-  late AppBarAndBottomNavigationBarModel appBarAndBottomNavigationBar;
 
   @override
   void initState() {
@@ -56,38 +92,54 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     auth = Provider.of<AuthService>(context, listen: false);
 
     initialize();
-    appBarAndBottomNavigationBar =
-        Provider.of<AppBarAndBottomNavigationBarModel>(context, listen: false);
   }
 
-  void initialize() async {
-    try {
-      // Start fetching multiple async data concurrently.
-      Future<Routes.User?> databaseUserFuture = auth.getUserDBInfo();
-      Future<CustomerInfo?> customerInfoFuture = _getCustomerInfoSafely();
-      Provider.of<HistoryModel>(context, listen: false).retrieveWorkouts();
-      Future<Routes.FigureInstance?> databaseFigureFuture =
-          databaseUserFuture.then((databaseUser) {
-        if (databaseUser != null) {
-          return auth.getFigureInstance(Routes.FigureInstance(
-              userEmail: databaseUser.email,
-              figureName: databaseUser.curFigure));
-        }
-        return null;
-      });
+  Future<void> initialize() async {
+    final UserModel userModel = Provider.of<UserModel>(context, listen: false);
+    if (userModel.user?.email == null) {
+      logger.e('No logged in user!');
+      return;
+    }
 
-      // Wait for the results concurrently
-      Routes.User? databaseUser = await databaseUserFuture;
-      CustomerInfo? customerInfo = await customerInfoFuture;
-      Routes.FigureInstance? databaseFigure = await databaseFigureFuture;
+    final stopwatch = Stopwatch()..start();
 
-      // If databaseUser is null, exit early.
-      if (databaseUser == null) {
-        logger.e("Failed to fetch user data.");
-        return;
-      }
+    final initData =
+        IsolateInitData(RootIsolateToken.instance!, userModel.user!.email);
 
-      // Update user data based on customer info.
+    final isolateResult = await compute(
+      isolateFetchDatabaseInfo,
+      initData,
+    ).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw TimeoutException('Isolate timed out');
+      },
+    );
+
+    stopwatch.stop();
+
+    final Routes.UserInfo? userInfo = isolateResult[0] as Routes.UserInfo?;
+    final Routes.User? databaseUser = userInfo?.user;
+    final Routes.MultiFigureInstance? figureInstances = userInfo?.figures;
+    final Routes.MultiWorkout? workouts = userInfo?.workouts;
+
+    // final Routes.MultiFigureInstance figureInstances =
+    //     isolateResult[1] as Routes.MultiFigureInstance;
+
+    logger.i('Database calls finished in ${stopwatch.elapsedMilliseconds}ms');
+
+    // If databaseUser is null, exit early.
+    // TODO: Implement an error screen & retry connecting to server error handling
+    if (databaseUser == null) {
+      logger.e('Failed to fetch user data.');
+      return;
+    }
+
+    // Get customer info from isolate
+    final CustomerInfo? customerInfo = isolateResult[1] as CustomerInfo?;
+
+    // Update user data based on customer info.
+    if (Platform.isIOS) {
       if (customerInfo != null) {
         databaseUser.premium =
             (customerInfo.entitlements.active['ff_plus'] != null)
@@ -97,174 +149,154 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         // Handle the case where customerInfo is null (due to RevenueCat error)
         // databaseUser.premium = Int64(-1); TODO: determine what to do with this code
       }
+    }
 
-      databaseUser.lastLogin = DateTime.now().toUtc().toString();
-      await auth.updateUserDBInfo(databaseUser);
+    // hide the keyboard if open
+    setState(() {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+      FocusManager.instance.primaryFocus?.unfocus();
+      FocusScope.of(context).unfocus();
+    });
 
-      // Proceed with other operations only if `mounted` is true.
-      if (!mounted) return;
+    // Initialize offline notification service
+    // cannot be called in isolate as it uses native channels
+    // LocalNotificationService().initNotifications();
 
-      // If `databaseFigure` is not null, set the figure and update capabilities
-      if (databaseFigure != null) {
-        // Set the figure in the model, this will notify listeners and trigger the UI update
-        Provider.of<FigureModel>(context, listen: false)
-            .setFigure(databaseFigure);
+    if (!mounted) {
+      return;
+    }
+    // Set all providers for use around the app
+    Provider.of<UserModel>(context, listen: false).setUser(databaseUser);
+    Provider.of<FigureInstancesProvider>(context, listen: false)
+        .setListOfFigureInstances(figureInstances!.figureInstances);
+    Provider.of<FigureModel>(context, listen: false).setFigure(
+        figureInstances.figureInstances[
+            Provider.of<SelectedFigureProvider>(context, listen: false)
+                .selectedFigureIndex]);
+    Provider.of<HistoryModel>(context, listen: false)
+        .setWorkouts(workouts!.workouts);
+    final FigureInstance databaseFigure =
+        Provider.of<FigureModel>(context, listen: false).figure!;
+
+    // Get the current game state to use in offline notifications
+    final Map<String, dynamic> gameState = {
+      'charge': databaseFigure.charge,
+      'evo': databaseFigure.evPoints,
+      'currency': databaseUser.currency,
+      'evoNeededForLevel': figure1.evCutoffs[databaseFigure.evLevel],
+      'workoutsCompleteThisWeek': databaseUser.weekComplete,
+      'workoutsNeededThisWeek': databaseUser.weekGoal,
+    };
+
+    // Schedule notifications based on user's premium status
+    if (databaseUser.hasPremium() &&
+        await LocalNotificationService().isReadyForNotification()) {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (!mounted) {
+        return;
+      }
+      final String? premiumOfflineNotification =
+          await Provider.of<ChatModel>(context, listen: false)
+              .generatePremiumOfflineStatusMessage(gameState);
+
+      if (premiumOfflineNotification != null) {
+        LocalNotificationService().scheduleOfflineNotification(
+            title: 'Your Figure', body: premiumOfflineNotification);
       } else {
-        // In case no database figure is available, still proceed with the default one
-        logger.e("No figure data available from database, using default.");
+        logger.e('Received null response from OpenAI for push notification');
       }
+    } else if (await LocalNotificationService().isReadyForNotification()) {
+      final String body = databaseFigure.charge > 50
+          ? "My charge is at ${databaseFigure.charge}, great job! Let's keep it that way."
+          : 'My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online';
+      LocalNotificationService()
+          .scheduleOfflineNotification(title: 'Your Figure', body: body);
+    }
 
-      final String curEmail = databaseUser.email;
-      final int curGoal = databaseUser.weekGoal.toInt();
-      final int curWeekly = databaseUser.weekComplete.toInt();
-      final String curFigure = databaseUser.curFigure;
-      Provider.of<UserModel>(context, listen: false).setUser(databaseUser);
-      // Update UI state
-      setState(() {
-        SystemChannels.textInput.invokeMethod('TextInput.hide');
-        FocusManager.instance.primaryFocus?.unfocus();
-        FocusScope.of(context).unfocus();
+    // Show week information popup after the user completed their week
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (databaseUser.readyForWeekReset == 'yes') {
+        final bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
+        showFFDialogWithChildren(
+          'Week Complete!',
+          [
+            WeekCompleteShowcase(isUserFirstWeek: isUsersFirstWeek),
+          ],
+          false,
+          FfButton(
+            text: 'Get Fit',
+            textColor: Theme.of(context).colorScheme.onPrimary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            onPressed: () async {
+              final bool isComplete = isUsersFirstWeek ||
+                  Provider.of<HistoryModel>(context, listen: false)
+                          .lastWeek
+                          .where((element) => element == 2)
+                          .length >=
+                      Provider.of<UserModel>(context, listen: false)
+                          .user!
+                          .weekGoal
+                          .toInt();
 
-        charge = curWeekly / curGoal;
-        email = curEmail;
-        weeklyGoal = curGoal;
-        weeklyCompleted = curWeekly;
-      });
+              final double investment =
+                  Provider.of<HistoryModel>(context, listen: false)
+                      .lastWeekInvestment;
+              final int investmentAdd = (investment / 100).toInt();
+              final int numComplete =
+                  Provider.of<HistoryModel>(context, listen: false)
+                      .lastWeek
+                      .where((element) => element == 2)
+                      .length;
 
-      // Initialize offline notification service asynchronously.
-      LocalNotificationService().initNotifications;
+              final int chargeGain = isComplete ? numComplete * 3 : numComplete;
+              final int evGain = isComplete
+                  ? numComplete * 50 + investmentAdd
+                  : numComplete * 25;
 
-      Map<String, dynamic> gameState = {
-        "charge": databaseFigure?.charge ?? 0,
-        "evo": databaseFigure?.evPoints ?? 0,
-        "currency": databaseUser.currency,
-        "evoNeededForLevel": figure1.evCutoffs[databaseFigure?.evLevel ?? 0],
-        "workoutsCompleteThisWeek": weeklyCompleted,
-        "workoutsNeededThisWeek": weeklyGoal,
-      };
+              final User user =
+                  Provider.of<UserModel>(context, listen: false).user!;
+              final FigureInstance figure =
+                  Provider.of<FigureModel>(context, listen: false).figure!;
+              figure.charge += chargeGain;
+              figure.charge = figure.charge > 100 ? 100 : figure.charge;
+              figure.evPoints += evGain;
 
-      // Schedule notifications based on user's premium status
-      if (databaseUser.hasPremium() &&
-          await LocalNotificationService().isReadyForNotification()) {
-        await Future.delayed(const Duration(milliseconds: 500));
-        String? premiumOfflineNotification =
-            await Provider.of<ChatModel>(context, listen: false)
-                .generatePremiumOfflineStatusMessage(gameState);
+              Navigator.of(context).pop();
+              user.readyForWeekReset = 'no';
+              user.weekComplete = Int64.ZERO;
 
-        if (premiumOfflineNotification != null) {
-          LocalNotificationService().scheduleOfflineNotification(
-              title: "Your Figure", body: premiumOfflineNotification);
-        } else {
-          logger.e('Received null response from OpenAI for push notification');
-        }
-      } else if (await LocalNotificationService().isReadyForNotification()) {
-        String body = databaseFigure!.charge > 50
-            ? "My charge is at ${databaseFigure.charge}, great job! Let's keep it that way."
-            : "My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online";
-        LocalNotificationService()
-            .scheduleOfflineNotification(title: "Your Figure", body: body);
-      }
+              // update in database
+              await auth.updateUserDBInfo(user);
+              await auth.updateFigureInstance(figure);
+              await auth.resetUserWeekComplete(user);
+              await auth.resetUserStreak(user);
 
-      // Schedule dialog after frame callback
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (databaseUser.readyForWeekReset == 'yes') {
-          bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
-          showFFDialogWithChildren(
-            "Week Complete!",
-            [
-              WeekCompleteShowcase(isUserFirstWeek: isUsersFirstWeek),
-            ],
-            false,
-            FfButton(
-              text: "Get Fit",
-              textColor: Theme.of(context).colorScheme.onPrimary,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              onPressed: () async {
-                bool isComplete = isUsersFirstWeek
-                    ? true
-                    : Provider.of<HistoryModel>(context, listen: false)
-                            .lastWeek
-                            .where((element) => element == 2)
-                            .length >=
-                        Provider.of<UserModel>(context, listen: false)
-                            .user!
-                            .weekGoal
-                            .toInt();
-
-                double investment =
-                    Provider.of<HistoryModel>(context, listen: false)
-                        .lastWeekInvestment;
-                int investmentAdd = (investment / 100).toInt();
-                int numComplete =
-                    Provider.of<HistoryModel>(context, listen: false)
-                        .lastWeek
-                        .where((element) => element == 2)
-                        .length;
-
-                int chargeGain = isComplete ? numComplete * 3 : numComplete;
-                int evGain = isComplete
-                    ? numComplete * 50 + investmentAdd
-                    : numComplete * 25;
-
-                User user =
-                    Provider.of<UserModel>(context, listen: false).user!;
-                FigureInstance figure =
-                    Provider.of<FigureModel>(context, listen: false).figure!;
-                figure.charge += chargeGain;
-                figure.charge = figure.charge > 100 ? 100 : figure.charge;
-                figure.evPoints += evGain;
-
-                Navigator.of(context).pop();
-                user.readyForWeekReset = 'no';
-                user.weekComplete = Int64.ZERO;
-
-                await auth.updateUserDBInfo(user);
-                await auth.updateFigureInstance(figure);
-                await auth.resetUserWeekComplete(user);
-                await auth.resetUserStreak(user);
-
+              // update providers
+              if (mounted) {
                 Provider.of<UserModel>(context, listen: false).setUser(user);
                 Provider.of<FigureModel>(context, listen: false)
                     .setFigure(figure);
-              },
-            ),
-            context,
-          );
-        }
-      });
-
-      logger.i(figureURL);
-    } catch (e, stacktrace) {
-      logger.e("Error initializing dashboard: ${e.toString()}");
-      logger.e("Stacktrace: ${stacktrace.toString()}");
-    }
-  }
-
-  Future<CustomerInfo?> _getCustomerInfoSafely() async {
-    try {
-      return await Purchases.getCustomerInfo();
-    } on PlatformException catch (e) {
-      // Handle the RevenueCat error
-      logger.e("RevenueCat error: ${e.message}");
-      return null; // Return null to continue gracefully
-    } catch (e) {
-      logger.e("Unexpected error: $e");
-      rethrow; // Rethrow any other exceptions
-    }
+              }
+            },
+          ),
+          context,
+        );
+      }
+    });
   }
 
   void setAnimationHappy() {
     Provider.of<FigureModel>(context, listen: false)
         .controller
         .animationState
-        .setAnimationByName(0, "happy", true);
+        .setAnimationByName(0, 'happy', true);
   }
 
   void setAnimationSad() {
     Provider.of<FigureModel>(context, listen: false)
         .controller
         .animationState
-        .setAnimationByName(0, "sad", true);
+        .setAnimationByName(0, 'sad', true);
   }
 
   double? usableScreenHeight;
@@ -311,26 +343,37 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   child: Stack(
                     children: [
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Center(
-                            child: AnimatedFigure(
-                              height: robotImageHeight,
-                              width: robotImageHeight,
-                            ),
-                          )
+                              // delay the execution of the animated figure to prevent freezing (any faster causes set state after dispose)
+                              child: FutureBuilder(
+                                  future: Future<void>.delayed(const Duration(
+                                      seconds: 2)), // Add a 2-second delay
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      // While waiting for the delay, you can show a placeholder
+                                      return const CircularProgressIndicator(); // Replace with your desired placeholder
+                                    } else {
+                                      // Once the delay is over, build the AnimatedFigure
+                                      return AnimatedFigure(
+                                        height: robotImageHeight,
+                                        width: robotImageHeight,
+                                      );
+                                    }
+                                  }))
                         ],
                       ),
                       Consumer<UserModel>(
                         builder: (context, user, child) => (user.user != null &&
-                                    user.user?.email == "chb263@msstate.ed" ||
-                                user.user?.email == "blizard265@gmail.com")
+                                    user.user?.email == 'chb263@msstate.ed' ||
+                                user.user?.email == 'blizard265@gmail.com')
                             ? DraggableAdminPanel(
                                 onButton1Pressed: setAnimationSad,
                                 onButton2Pressed: setAnimationHappy,
-                                button1Text: "Sad Animation",
-                                button2Text: "Happy Animation",
+                                button1Text: 'Sad Animation',
+                                button2Text: 'Happy Animation',
                               )
                             : Container(),
                       ),
@@ -398,3 +441,42 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 }
+
+/// Old database fetching algorithm (unused)
+// Future<List<dynamic>> fetchDatabaseInfo() {
+  //   final Future<Routes.User?> databaseUserFuture = auth.getUserDBInfo();
+
+  //   final List<Future<dynamic>> databaseCalls = [
+  //     databaseUserFuture,
+  //     // gets customer information
+  //     // _getCustomerInfoSafely(),
+  //     // fetches all figure instances that the user has and stores it in a provider
+  //     databaseUserFuture.then((databaseUser) {
+  //       return auth
+  //           .getFigureInstances(databaseUser!)
+  //           .then((Routes.MultiFigureInstance value) => {
+  //                 Provider.of<FigureInstancesProvider>(context, listen: false)
+  //                     .setListOfFigureInstances(value.figureInstances),
+  //                 Provider.of<FigureModel>(context, listen: false).setFigure(
+  //                     value.figureInstances[Provider.of<SelectedFigureProvider>(
+  //                             context,
+  //                             listen: false)
+  //                         .selectedFigureIndex])
+  //               });
+  //     }),
+  //     // updates the user's last login time in the database to now
+  //     databaseUserFuture.then((databaseUser) async => {
+  //           databaseUser!.lastLogin = DateTime.now().toUtc().toString(),
+  //           auth.updateUserDBInfo(databaseUser)
+  //         }),
+  //     databaseUserFuture.then((databaseUser) => {
+  //           Provider.of<UserModel>(context, listen: false)
+  //               .setUser(databaseUser!)
+  //         }),
+  //     // Retrieves workouts from database and stores it in HistoryModel provider
+  //     Provider.of<HistoryModel>(context, listen: false).retrieveWorkouts()
+  //   ];
+
+  //   return Future.wait(databaseCalls);
+  // }
+  

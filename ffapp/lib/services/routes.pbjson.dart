@@ -95,6 +95,22 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'dyYWNlX3BlcmlvZBgNIAEoCVIPaXNJbkdyYWNlUGVyaW9kEi4KE2RhaWx5X2NoYXRfbWVzc2Fn'
     'ZXMYDiABKANSEWRhaWx5Q2hhdE1lc3NhZ2Vz');
 
+@$core.Deprecated('Use userInfoDescriptor instead')
+const UserInfo$json = {
+  '1': 'UserInfo',
+  '2': [
+    {'1': 'user', '3': 1, '4': 1, '5': 11, '6': '.routes.User', '10': 'user'},
+    {'1': 'figures', '3': 2, '4': 1, '5': 11, '6': '.routes.MultiFigureInstance', '10': 'figures'},
+    {'1': 'workouts', '3': 3, '4': 1, '5': 11, '6': '.routes.MultiWorkout', '10': 'workouts'},
+  ],
+};
+
+/// Descriptor for `UserInfo`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userInfoDescriptor = $convert.base64Decode(
+    'CghVc2VySW5mbxIgCgR1c2VyGAEgASgLMgwucm91dGVzLlVzZXJSBHVzZXISNQoHZmlndXJlcx'
+    'gCIAEoCzIbLnJvdXRlcy5NdWx0aUZpZ3VyZUluc3RhbmNlUgdmaWd1cmVzEjAKCHdvcmtvdXRz'
+    'GAMgASgLMhQucm91dGVzLk11bHRpV29ya291dFIId29ya291dHM=');
+
 @$core.Deprecated('Use dailySnapshotDescriptor instead')
 const DailySnapshot$json = {
   '1': 'DailySnapshot',

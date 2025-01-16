@@ -72,6 +72,7 @@ const (
 	Routes_DeleteSubscriptionTimeStamp_FullMethodName = "/routes.Routes/DeleteSubscriptionTimeStamp"
 	Routes_FigureDecay_FullMethodName                 = "/routes.Routes/FigureDecay"
 	Routes_UserWeeklyReset_FullMethodName             = "/routes.Routes/UserWeeklyReset"
+	Routes_InitializeUser_FullMethodName              = "/routes.Routes/InitializeUser"
 )
 
 // RoutesClient is the client API for Routes service.
@@ -141,6 +142,7 @@ type RoutesClient interface {
 	// SERVER ACTIONS //
 	FigureDecay(ctx context.Context, in *FigureInstance, opts ...grpc.CallOption) (*GenericStringResponse, error)
 	UserWeeklyReset(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericStringResponse, error)
+	InitializeUser(ctx context.Context, in *GenericStringResponse, opts ...grpc.CallOption) (*UserInfo, error)
 }
 
 type routesClient struct {
@@ -671,6 +673,16 @@ func (c *routesClient) UserWeeklyReset(ctx context.Context, in *User, opts ...gr
 	return out, nil
 }
 
+func (c *routesClient) InitializeUser(ctx context.Context, in *GenericStringResponse, opts ...grpc.CallOption) (*UserInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserInfo)
+	err := c.cc.Invoke(ctx, Routes_InitializeUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoutesServer is the server API for Routes service.
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility.
@@ -738,6 +750,7 @@ type RoutesServer interface {
 	// SERVER ACTIONS //
 	FigureDecay(context.Context, *FigureInstance) (*GenericStringResponse, error)
 	UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error)
+	InitializeUser(context.Context, *GenericStringResponse) (*UserInfo, error)
 	mustEmbedUnimplementedRoutesServer()
 }
 
@@ -903,6 +916,9 @@ func (UnimplementedRoutesServer) FigureDecay(context.Context, *FigureInstance) (
 }
 func (UnimplementedRoutesServer) UserWeeklyReset(context.Context, *User) (*GenericStringResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserWeeklyReset not implemented")
+}
+func (UnimplementedRoutesServer) InitializeUser(context.Context, *GenericStringResponse) (*UserInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitializeUser not implemented")
 }
 func (UnimplementedRoutesServer) mustEmbedUnimplementedRoutesServer() {}
 func (UnimplementedRoutesServer) testEmbeddedByValue()                {}
@@ -1861,6 +1877,24 @@ func _Routes_UserWeeklyReset_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Routes_InitializeUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenericStringResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoutesServer).InitializeUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Routes_InitializeUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoutesServer).InitializeUser(ctx, req.(*GenericStringResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Routes_ServiceDesc is the grpc.ServiceDesc for Routes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2075,6 +2109,10 @@ var Routes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserWeeklyReset",
 			Handler:    _Routes_UserWeeklyReset_Handler,
+		},
+		{
+			MethodName: "InitializeUser",
+			Handler:    _Routes_InitializeUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

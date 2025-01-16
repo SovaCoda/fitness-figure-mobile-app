@@ -110,7 +110,11 @@ class FfBottomNavBar extends StatelessWidget {
                           type: FitnessIconType.map_active, size: 50),
                     ),
                   ],
-                  currentIndex: selectedIndex > 4 ? 0 : selectedIndex,
+                  currentIndex: selectedIndex == 6
+                      ? 1
+                      : selectedIndex > 4
+                          ? 0
+                          : selectedIndex,
                   onTap: Provider.of<HomeIndexProvider>(context, listen: false)
                       .setIndex) // Provider.of<HomeIndexProvider>(context, listen: false).setIndex)
               )

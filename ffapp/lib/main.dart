@@ -27,6 +27,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -74,6 +75,9 @@ class CurrencyModel extends ChangeNotifier {
     if ((currentCurrency + numberToAdd).toInt() > currentCurrency.toInt()) {
       AuthService instance = await AuthService.instance;
       instance.updateCurrency((currentCurrency + numberToAdd).toInt());
+      User user = Provider.of<UserModel>(context, listen: false).user!;
+      user.currency = Int64((currentCurrency + numberToAdd).toInt());
+      Provider.of<UserModel>(context, listen: false).setUser(user);
       String email = Provider.of<UserModel>(context, listen: false).user!.email;
       instance.updateOfflineDateTime(
         OfflineDateTime(
@@ -92,8 +96,6 @@ class CurrencyModel extends ChangeNotifier {
 class UserModel extends ChangeNotifier {
   Routes.User? user = Routes.User();
   bool isWorkingOut = false;
-
-  String newEmail = "";
 
   int get baseGain => 5;
 
@@ -135,11 +137,6 @@ class UserModel extends ChangeNotifier {
     } else {
       return false;
     }
-  }
-
-  void setNewEmail(String newEmail) {
-    this.newEmail = newEmail;
-    notifyListeners();
   }
 
   void setIsWorkingOut(bool value) {
@@ -303,17 +300,20 @@ class AppBarAndBottomNavigationBarModel extends ChangeNotifier {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Spine.initSpineFlutter(enableMemoryDebugging: false);
   await dotenv.load(fileName: ".env");
   // Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
   OpenAI.apiKey = dotenv.env['OPENAI_KEY']!;
   // await Stripe.instance.applySettings();
-
+  const loader = SvgAssetLoader('lib/assets/art/panel_bottom_bg.svg');
+  svg.cache.putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
+  const loader1 = SvgAssetLoader('lib/assets/art/panel_top_bg.svg');
+  svg.cache.putIfAbsent(loader1.cacheKey(null), () => loader1.loadBytes(null));
   //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final AuthService auth = await AuthService.instance;
   //await FirebaseApi().initNotifications();
 
   // Initialize Spine run time
-  Spine.initSpineFlutter(enableMemoryDebugging: true);
 
   runApp(
     MultiProvider(providers: [

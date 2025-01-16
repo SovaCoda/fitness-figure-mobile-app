@@ -58,6 +58,127 @@ func (s *server) CreateUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 	return &user, nil
 }
 
+func (s *server) InitializeUser(ctx context.Context, in *pb.GenericStringResponse) (*pb.UserInfo, error) {
+	var userInfo pb.UserInfo
+	var user pb.User
+	userInfo.User = &user
+
+	stmt, err := s.db.PrepareContext(ctx, `
+        SELECT u.email, u.cur_figure, u.name, u.currency, u.week_complete, 
+               u.week_goal, u.cur_workout, u.workout_min_time, u.last_login, 
+               u.streak, u.premium, u.ready_for_week_reset, u.is_in_grace_period,
+               u.daily_chat_messages,
+               w.start_date, w.elapsed, w.evo_add, w.end_date, w.charge_add,
+               w.countable, w.robot_name, w.investment,
+               f.Figure_Id, f.Figure_Name, f.Cur_Skin, f.Ev_Points, f.Charge,
+               f.Mood, f.Last_Reset, f.Ev_Level
+        FROM users u
+        LEFT JOIN workouts w ON u.email = w.email
+        LEFT JOIN figure_instances f ON u.email = f.User_Email
+        WHERE u.email = ?
+        ORDER BY w.start_date DESC, f.Figure_Id`)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, in.Message)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %v", err)
+	}
+	defer rows.Close()
+
+	// Pre-allocate maps with a reasonable size
+	seenWorkouts := make(map[string]bool, 100) // Adjust size based on typical workout count
+	seenFigures := make(map[string]bool, 4)   // Adjust size based on typical figure count
+
+	// Pre-allocate slices
+	workouts := &pb.MultiWorkout{Workouts: make([]*pb.Workout, 0, 100)}
+	figureInstances := &pb.MultiFigureInstance{FigureInstances: make([]*pb.FigureInstance, 0, 4)}
+
+	// Single scan to populate all data
+	for rows.Next() {
+		var workout pb.Workout
+		var figure pb.FigureInstance
+
+		// Nullable fields for workout and figure data
+		var startDate, endDate, robotName sql.NullString
+		var elapsed, evoAdd, chargeAdd sql.NullInt64
+		var countable sql.NullBool
+		var investment sql.NullFloat64
+		var figureId, figureName, curSkin sql.NullString
+		var evPoints, charge, mood, evLevel sql.NullInt64
+		var lastReset sql.NullString
+
+		err := rows.Scan(
+			// User fields
+			&user.Email, &user.CurFigure, &user.Name, &user.Currency,
+			&user.WeekComplete, &user.WeekGoal, &user.CurWorkout,
+			&user.WorkoutMinTime, &user.LastLogin, &user.Streak,
+			&user.Premium, &user.ReadyForWeekReset, &user.IsInGracePeriod,
+			&user.DailyChatMessages,
+			// Workout fields
+			&startDate, &elapsed, &evoAdd, &endDate, &chargeAdd,
+			&countable, &robotName, &investment,
+			// Figure fields
+			&figureId, &figureName, &curSkin, &evPoints, &charge,
+			&mood, &lastReset, &evLevel,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %v", err)
+		}
+
+		// Add workout if it exists and hasn't been seen
+		if startDate.Valid && !seenWorkouts[startDate.String+user.Email] {
+			workout.Email = user.Email
+			workout.StartDate = startDate.String
+			workout.Elapsed = elapsed.Int64
+			workout.Evo_Add = evoAdd.Int64
+			workout.End_Date = endDate.String
+			workout.Charge_Add = chargeAdd.Int64
+			// cannot cast bool explicitly into int32 (which for some reason this table has), so this approach is what I went with
+			if countable.Bool {
+				workout.Countable = int32(1)
+			} else {
+				workout.Countable = int32(0)
+			}
+
+			workout.Robot_Name = robotName.String
+			workout.Investment = investment.Float64
+
+			workouts.Workouts = append(workouts.Workouts, &workout)
+			seenWorkouts[startDate.String+user.Email] = true
+		}
+
+		// Add figure if it exists and hasn't been seen
+		if figureId.Valid && !seenFigures[figureId.String] {
+			figure.Figure_Id = figureId.String
+			figure.Figure_Name = figureName.String
+			figure.User_Email = user.Email
+			figure.Cur_Skin = curSkin.String
+			figure.Ev_Points = int32(evPoints.Int64)
+			figure.Charge = int32(charge.Int64)
+			figure.Mood = int32(mood.Int64)
+			figure.Last_Reset = lastReset.String
+			figure.Ev_Level = int32(evLevel.Int64)
+
+			figureInstances.FigureInstances = append(figureInstances.FigureInstances, &figure)
+			seenFigures[figureId.String] = true
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %v", err)
+	}
+
+	userInfo.Workouts = workouts
+	userInfo.Figures = figureInstances
+
+	return &userInfo, nil
+}
+
 func (s *server) UpdateUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	var user pb.User
 
@@ -463,7 +584,6 @@ func (s *server) DeleteFigureInstance(ctx context.Context, in *pb.FigureInstance
 
 func (s *server) GetFigureInstances(ctx context.Context, in *pb.User) (*pb.MultiFigureInstance, error) {
 	figureInstances := &pb.MultiFigureInstance{} // Initialize figureInstances
-
 	rows, err := s.db.QueryContext(ctx, "SELECT Figure_Id, Figure_Name, User_Email, Cur_Skin, Ev_Points, Charge, Mood, Last_Reset, Ev_Level FROM figure_instances WHERE User_Email = ?", in.Email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get figureInstances: %v", err)
@@ -897,12 +1017,12 @@ func (s *server) DeleteOfflineDateTime(ctx context.Context, in *pb.OfflineDateTi
 // rpc UpdateSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
 // rpc DeleteSubscriptionTimeStamp(SubscriptionTimeStamp) returns (SubscriptionTimeStamp) {}
 
-// message SubscriptionTimeStamp {
-//     string Email = 1;
-//     string SubscribedOn = 2;
-//     string ExpiresOn = 3;
-//     string transaction_id = 4;
-// }
+//	message SubscriptionTimeStamp {
+//	    string Email = 1;
+//	    string SubscribedOn = 2;
+//	    string ExpiresOn = 3;
+//	    string transaction_id = 4;
+//	}
 func (s *server) CreateSubscriptionTimeStamp(ctx context.Context, in *pb.SubscriptionTimeStamp) (*pb.SubscriptionTimeStamp, error) {
 	_, err := s.db.ExecContext(ctx, "INSERT INTO subscription_timestamps (Email, SubscribedOn, ExpiresOn, transaction_id) VALUES (?, ?, ?, ?)", in.Email, in.SubscribedOn, in.ExpiresOn, in.Transaction_Id)
 	if err != nil {
@@ -1039,6 +1159,9 @@ func main() {
 		log.Fatalf("could not connect to database: %v", err)
 	}
 	defer db.Close()
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	// resetticker := time.NewTicker(resetTimer)
 

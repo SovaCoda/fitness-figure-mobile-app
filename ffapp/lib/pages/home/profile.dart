@@ -16,6 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/providers.dart';
+import '../../services/routes.pbgrpc.dart';
+import 'store.dart';
+
 class Profile extends StatefulWidget {
   const Profile({super.key});
 
@@ -25,6 +29,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   late AuthService auth;
+  late routes.User user;
   int weeklyGoal = 5;
   int minExerciseGoal = 45;
 
@@ -32,6 +37,11 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     auth = Provider.of<AuthService>(context, listen: false);
+    user = Provider.of<UserModel>(context, listen: false).user!;
+    setState(() {
+      weeklyGoal = user.weekGoal.toInt();
+      minExerciseGoal = user.workoutMinTime.toInt();
+    });
   }
 
   @override
@@ -204,7 +214,7 @@ class _ProfileState extends State<Profile> {
     Provider.of<UserModel>(context, listen: false).setUserName(newName);
   }
 
-  /// 
+  ///
   Future<void> updatePassword(
     String userEmail,
     String userPassword,
@@ -222,13 +232,13 @@ class _ProfileState extends State<Profile> {
 
       // Sign the user out and bring to sign in page on success
       if (mounted) {
-        signOut(context);
+        await FirebaseAuth.instance.signOut();
         GoRouter.of(context).go('/');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Success! Please sign back in.')),
         );
       }
-    } 
+    }
     // Exception typically occurs if the user enters the incorrect password
     // However, it is also possible that firebase could be down
     catch (e) {
@@ -429,12 +439,12 @@ class _ProfileState extends State<Profile> {
             const SizedBox(height: 16),
             _buildGoalItem(
               'Weekly Workout Goal',
-              '${userModel.user!.weekGoal} ${userModel.user!.weekGoal == 1 ? "day" : "days"}',
+              '${weeklyGoal} ${weeklyGoal == 1 ? "day" : "days"}',
               _showWeeklyGoalPicker,
             ),
             _buildGoalItem(
               'Minimum Workout Time',
-              '${userModel.user!.workoutMinTime} ${userModel.user!.workoutMinTime == 1 ? "minute" : "minutes"}',
+              '${minExerciseGoal} ${minExerciseGoal == 1 ? "minute" : "minutes"}',
               _showMinGoalPicker,
             ),
           ],
@@ -583,17 +593,22 @@ class _ProfileState extends State<Profile> {
         height: MediaQuery.of(context).size.height * 0.10,
         isDelete: true,
         onPressed: () async {
-          // current issue: auth.deleteUser() requires user reauthorization
+          // Prompt the user to enter their password
           final String? userPassword = await _showPasswordConfirmDialog();
+
+          // Use password to create a credential in order to delete the user
           if (userPassword != null) {
             final AuthCredential credential = EmailAuthProvider.credential(
               email: email,
               password: userPassword,
             );
             await auth.deleteUser(credential);
+
+            // Sign the user out and route them to sign in page
             if (mounted) {
-              signOut(context);
-              GoRouter.of(context).go('/');
+              setProvidersToDefault();
+              await FirebaseAuth.instance.signOut();
+              context.goNamed('LandingPage');
             }
           }
         },
@@ -610,46 +625,27 @@ class _ProfileState extends State<Profile> {
         },
       ),
     );
-    //     return GradientedContainer(
-    //     child: AlertDialog(
-    //       content: const GradientedContainer(
-    //         height: 300,
-    //         width: 200,
-    //         showTopRectangle: true,
-    //         title: "Delete Account",
-    //         child: Text('Are you sure you want to delete your account? This action cannot be undone.')),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () {
-    //             if (mounted) {
-    //               Navigator.of(context).pop();
-    //             }
-    //           },
-    //           child: const Text('Cancel'),
-    //         ),
-    //         ElevatedButton(
-    //           onPressed: () async {
-    //             // current issue: auth.deleteUser() requires user reauthorization
-    //             final userPassword = await _showPasswordConfirmDialog();
-    //             if (userPassword != null) {
-    //               AuthCredential credential = EmailAuthProvider.credential(
-    //                   email: email, password: userPassword);
-    //               await auth.deleteUser(credential);
-    //               signOut(context);
-    //               GoRouter.of(context).go("/");
-    //             }
-    //           },
-    //           style: ElevatedButton.styleFrom(
-    //             backgroundColor: Theme.of(context).colorScheme.error,
-    //             foregroundColor: Theme.of(context).colorScheme.onError,
-    //           ),
-    //           child: const Text('Delete'),
-    //         ),
-    //       ],
-    //     )
-    //     );
-    //   },
-    // );
+  }
+
+  /// Sets all providers back to their default value
+  void setProvidersToDefault() {
+    if (mounted) {
+      Provider.of<UserModel>(context, listen: false).setUser(routes.User());
+      Provider.of<UserModel>(context, listen: false).setIsWorkingOut(false);
+      Provider.of<FigureModel>(context, listen: false).setFigure(
+          routes.FigureInstance(
+              figureName: 'robot1',
+              curSkin: '0',
+              evLevel: 0,
+              evPoints: 0,
+              charge: 0));
+      Provider.of<FigureInstancesProvider>(context, listen: false)
+          .setListOfFigureInstances(List.empty());
+      Provider.of<HomeIndexProvider>(context, listen: false).setIndex(0);
+      Provider.of<SelectedFigureProvider>(context, listen: false)
+          .setSelectedFigureIndex(0);
+      Provider.of<CurrencyModel>(context, listen: false).setCurrency('0000');
+    }
   }
 
   void _showEditDialog(
@@ -724,7 +720,7 @@ class _ProfileState extends State<Profile> {
 
   /// Opens a popup that prompts the user to enter their current password
   /// and then a new password to update their current password
-  /// 
+  ///
   /// Calls [updatePassword] with the info to update the password in firebase
   Future<void> _showPasswordChangeDialog() async {
     final String? currentPassword = await _showPasswordConfirmDialog();
@@ -778,8 +774,9 @@ class _ProfileState extends State<Profile> {
         fontSize: 20,
         isSignOut: true,
         onPressed: () {
-          signOut(context);
-          GoRouter.of(context).go('/');
+          setProvidersToDefault();
+          FirebaseAuth.instance.signOut();
+          context.goNamed('LandingPage');
         },
       ),
       FFAppButton(
@@ -794,73 +791,68 @@ class _ProfileState extends State<Profile> {
   }
 }
 
-/// Sets the user provider to an empty user and removes the user's firebase instance
-Future<void> signOut(BuildContext context) async {
-  Provider.of<UserModel>(context, listen: false).setUser(routes.User());
-  await FirebaseAuth.instance.signOut();
-}
 
-  // Update Email function (scrapped)
-  // Future updateEmail(
-  //   String userEmail,
-  //   String userPassword,
-  //   String newEmail,
-  // ) async {
-  //   try {
-  //     final AuthCredential credential = EmailAuthProvider.credential(
-  //       email: userEmail,
-  //       password: userPassword,
-  //     );
-  //     final String result =
-  //         await auth.updateEmail(userEmail, newEmail, credential);
-  //     prefs.setString("oldEmail", userEmail);
-  //     prefs.setString("newEmail", newEmail);
-  //     prefs.setString("isVerified", "false");
+// Update Email function (scrapped)
+// Future updateEmail(
+//   String userEmail,
+//   String userPassword,
+//   String newEmail,
+// ) async {
+//   try {
+//     final AuthCredential credential = EmailAuthProvider.credential(
+//       email: userEmail,
+//       password: userPassword,
+//     );
+//     final String result =
+//         await auth.updateEmail(userEmail, newEmail, credential);
+//     prefs.setString("oldEmail", userEmail);
+//     prefs.setString("newEmail", newEmail);
+//     prefs.setString("isVerified", "false");
 
-  //     if (mounted) {
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text(result)),
-  //         );
-  //       }
-  //     }
+//     if (mounted) {
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text(result)),
+//         );
+//       }
+//     }
 
-  //     // Don't sign out or navigate away, wait for verification
-  //   } catch (e) {
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text(e.toString())),
-  //       );
-  //     }
-  //   }
-  // }
+//     // Don't sign out or navigate away, wait for verification
+//   } catch (e) {
+//     if (mounted) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text(e.toString())),
+//       );
+//     }
+//   }
+// }
 
-  // void checkEmailVerification(String newEmail) {
-  //   _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-  //     try {
-  //       final User? user = FirebaseAuth.instance.currentUser;
-  //       await user?.reload();
-  //       if (user?.email == newEmail && user?.emailVerified == true) {
-  //         timer.cancel();
-  //         if (mounted) {
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             const SnackBar(content: Text("Email updated successfully!")),
-  //           );
-  //         }
-  //       }
-  //     } on FirebaseAuthException {
-  //       // setState(() {
-  //       //   email = newEmail;
-  //       // });
-  //       prefs.setString("isVerified", "true");
-  //       prefs.setString("newEmail", "");
-  //       if (mounted) {
-  //         signOut(context);
-  //         GoRouter.of(context).go("/");
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           const SnackBar(content: Text("Success! Please sign back in.")),
-  //         );
-  //       }
-  //     }
-  //   });
-  // }
+// void checkEmailVerification(String newEmail) {
+//   _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+//     try {
+//       final User? user = FirebaseAuth.instance.currentUser;
+//       await user?.reload();
+//       if (user?.email == newEmail && user?.emailVerified == true) {
+//         timer.cancel();
+//         if (mounted) {
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             const SnackBar(content: Text("Email updated successfully!")),
+//           );
+//         }
+//       }
+//     } on FirebaseAuthException {
+//       // setState(() {
+//       //   email = newEmail;
+//       // });
+//       prefs.setString("isVerified", "true");
+//       prefs.setString("newEmail", "");
+//       if (mounted) {
+//         signOut(context);
+//         GoRouter.of(context).go("/");
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(content: Text("Success! Please sign back in.")),
+//         );
+//       }
+//     }
+//   });
+// }

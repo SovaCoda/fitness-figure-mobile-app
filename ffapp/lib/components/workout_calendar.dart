@@ -3,7 +3,7 @@ import 'package:ffapp/components/button_themes.dart';
 import 'package:ffapp/components/resuables/gradiented_container.dart';
 import 'package:ffapp/components/utils/history_model.dart';
 import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/store.dart';
+import 'package:ffapp/services/auth.dart'; // for the logger
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +16,13 @@ class WorkoutCalendar extends StatefulWidget {
   final bool isInteractable;
   final int workoutMinTime;
   final bool showWorkoutData;
-  const WorkoutCalendar(
-      {super.key,
-      this.showWorkoutData = false,
-      this.workoutMinTime = 30,
-      this.calendarFormat = CalendarFormat.week,
-      this.isInteractable = true,});
+  const WorkoutCalendar({
+    super.key,
+    this.showWorkoutData = false,
+    this.workoutMinTime = 30,
+    this.calendarFormat = CalendarFormat.week,
+    this.isInteractable = true,
+  });
 
   @override
   WorkoutCalendarState createState() => WorkoutCalendarState();
@@ -74,7 +75,7 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
       _selectedColor = Theme.of(context).colorScheme.primary;
     });
     getWeekDataForDate(DateTime.now());
-    if(mounted) {
+    if (mounted) {
       usermodelref = Provider.of<UserModel>(context, listen: false);
     }
     usermodelref!.addListener(() => getWeekDataForDate(DateTime.now()));
@@ -94,16 +95,17 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
     final User user = Provider.of<UserModel>(context, listen: false).user!;
     final FigureInstance figure =
         Provider.of<FigureModel>(context, listen: false).figure!;
-    weekData = await Provider.of<HistoryModel>(context, listen: false)
-        .getWeekData(
-            user.email,
-            figure1.evCutoffs[figure.evLevel],
-            user.curFigure,
-            date,
-            figure.charge,
-            figure.evPoints,
-            user.streak.toInt(),
-            user.weekComplete.toInt(),);
+    weekData =
+        await Provider.of<HistoryModel>(context, listen: false).getWeekData(
+      user.email,
+      figure1.evCutoffs[figure.evLevel],
+      user.curFigure,
+      date,
+      figure.charge,
+      figure.evPoints,
+      user.streak.toInt(),
+      user.weekComplete.toInt(),
+    );
 
     indicatorsShown = weekData['charge']!.map((e) {
       return weekData['charge']!.indexWhere((element) => element == e);
@@ -161,27 +163,32 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-                color: hasWorkout
-                    ? Theme.of(context).colorScheme.primary
-                    : day.isBefore(DateTime.now().toUtc())
-                        ? (day.day == DateTime.now().toUtc().day &&
-                                day.month == DateTime.now().toUtc().month &&
-                                day.year == DateTime.now().toUtc().year)
-                            ? Theme.of(context).colorScheme.surface
-                            : Theme.of(context).colorScheme.primaryFixedDim
-                        : Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(
-                    strokeAlign: BorderSide.strokeAlignOutside,
-                    width: 2,
-                    color: Theme.of(context).colorScheme.primary,),),
-            child: Text(day.day.toString(),
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+              color: hasWorkout
+                  ? Theme.of(context).colorScheme.primary
+                  : day.isBefore(DateTime.now().toUtc())
+                      ? (day.day == DateTime.now().toUtc().day &&
+                              day.month == DateTime.now().toUtc().month &&
+                              day.year == DateTime.now().toUtc().year)
+                          ? Theme.of(context).colorScheme.surface
+                          : Theme.of(context).colorScheme.primaryFixedDim
+                      : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(
+                strokeAlign: BorderSide.strokeAlignOutside,
+                width: 2,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            child: Text(
+              day.day.toString(),
+              style: Theme.of(context).textTheme.displaySmall!.copyWith(
                     color: hasWorkout
                         ? Theme.of(context).colorScheme.onPrimary
                         : day.isBefore(DateTime.now().toUtc())
                             ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurface,),),
+                            : Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
           );
         },
       ),
@@ -223,13 +230,16 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                       : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(5.0),
             ),
-            child: Text(day.day.toString(),
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+            child: Text(
+              day.day.toString(),
+              style: Theme.of(context).textTheme.displaySmall!.copyWith(
                     color: hasWorkout
                         ? Theme.of(context).colorScheme.onPrimary
                         : day.isBefore(DateTime.now().toUtc())
                             ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurface,),),
+                            : Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
           ),
         );
       },
@@ -274,39 +284,43 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                   ? Container(
                       margin: const EdgeInsets.only(top: 1, bottom: 1),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: isSameDay(day, _rangeStart)
-                                  ? const Radius.circular(5)
-                                  : Radius.zero,
-                              bottomLeft: isSameDay(day, _rangeStart)
-                                  ? const Radius.circular(5)
-                                  : Radius.zero,
-                              topRight: isSameDay(day, _rangeEnd)
-                                  ? const Radius.circular(5)
-                                  : Radius.zero,
-                              bottomRight: isSameDay(day, _rangeEnd)
-                                  ? const Radius.circular(5)
-                                  : Radius.zero,),
-                          border: Border(
-                            top: BorderSide(
-                                width: 2,
-                                color: Theme.of(context).colorScheme.primary,),
-                            bottom: BorderSide(
-                                width: 2,
-                                color: Theme.of(context).colorScheme.primary,),
-                            left: isSameDay(day, _rangeStart)
-                                ? BorderSide(
-                                    width: 2,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,)
-                                : BorderSide.none,
-                            right: isSameDay(day, _rangeEnd)
-                                ? BorderSide(
-                                    width: 2,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,)
-                                : BorderSide.none,
-                          ),),
+                        borderRadius: BorderRadius.only(
+                          topLeft: isSameDay(day, _rangeStart)
+                              ? const Radius.circular(5)
+                              : Radius.zero,
+                          bottomLeft: isSameDay(day, _rangeStart)
+                              ? const Radius.circular(5)
+                              : Radius.zero,
+                          topRight: isSameDay(day, _rangeEnd)
+                              ? const Radius.circular(5)
+                              : Radius.zero,
+                          bottomRight: isSameDay(day, _rangeEnd)
+                              ? const Radius.circular(5)
+                              : Radius.zero,
+                        ),
+                        border: Border(
+                          top: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          bottom: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          left: isSameDay(day, _rangeStart)
+                              ? BorderSide(
+                                  width: 2,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                              : BorderSide.none,
+                          right: isSameDay(day, _rangeEnd)
+                              ? BorderSide(
+                                  width: 2,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                              : BorderSide.none,
+                        ),
+                      ),
                     )
                   : Container();
             },
@@ -391,17 +405,19 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             ),
             selectedDecoration: BoxDecoration(
               border: Border.all(
-                  width: 2,
-                  strokeAlign: BorderSide.strokeAlignOutside,
-                  color: Theme.of(context).colorScheme.primary,),
+                width: 2,
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
             todayDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5.0),
               color: Theme.of(context).colorScheme.surface,
               border: Border.all(
-                  width: 2,
-                  strokeAlign: BorderSide.strokeAlignOutside,
-                  color: Theme.of(context).colorScheme.primary,),
+                width: 2,
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           ),
           headerStyle: HeaderStyle(
@@ -412,8 +428,10 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
             leftChevronPadding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               border: Border(
-                  bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,),),
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
             ),
           ),
         ),
@@ -433,16 +451,19 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                             .textTheme
                             .displayMedium!
                             .copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,),
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
                       Center(
-                          child: Container(
-                        margin: const EdgeInsets.only(bottom: 4),
-                        decoration: BoxDecoration(
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
-                            color: Theme.of(context).colorScheme.onSurface,),
-                        height: 2,
-                      ),),
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          height: 2,
+                        ),
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -450,22 +471,28 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                             builder: (_, user, __) {
                               return Row(
                                 children: [
-                                  Text('Weekly Goal ',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displaySmall!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface,),),
-                                  Text("$_goal/${user.user!.weekGoal}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displaySmall!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,),),
+                                  Text(
+                                    'Weekly Goal ',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall!
+                                        .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                        ),
+                                  ),
+                                  Text(
+                                    "$_goal/${user.user!.weekGoal}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall!
+                                        .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                  ),
                                 ],
                               );
                             },
@@ -489,130 +516,139 @@ class WorkoutCalendarState extends State<WorkoutCalendar> {
                         height: 120,
                         child: LineChart(
                           LineChartData(
-                              showingTooltipIndicators:
-                                  indicatorsShown.map((index) {
-                                return ShowingTooltipIndicators([
-                                  LineBarSpot(
-                                      lineBarsData[0],
-                                      lineBarsData.indexOf(lineBarsData[0]),
-                                      lineBarsData[0].spots[index],),
-                                ]);
-                              }).toList(),
-                              lineTouchData: LineTouchData(
-                                handleBuiltInTouches: false,
-                                touchCallback: (FlTouchEvent event,
-                                    LineTouchResponse? response,) {
-                                  if (response == null ||
-                                      response.lineBarSpots == null) {
-                                    return;
-                                  }
-                                  if (event is FlTapUpEvent) {
-                                    // final spotIndex =
-                                    //     response.lineBarSpots!.first.spotIndex;
-                                  }
-                                },
-                                mouseCursorResolver: (FlTouchEvent event,
-                                    LineTouchResponse? response,) {
-                                  if (response == null ||
-                                      response.lineBarSpots == null) {
-                                    return SystemMouseCursors.basic;
-                                  }
-                                  return SystemMouseCursors.click;
-                                },
-                                getTouchedSpotIndicator:
-                                    (LineChartBarData barData,
-                                        List<int> spotIndexes,) {
-                                  return spotIndexes.map((index) {
-                                    return TouchedSpotIndicatorData(
-                                      FlLine(
+                            showingTooltipIndicators:
+                                indicatorsShown.map((index) {
+                              return ShowingTooltipIndicators([
+                                LineBarSpot(
+                                  lineBarsData[0],
+                                  lineBarsData.indexOf(lineBarsData[0]),
+                                  lineBarsData[0].spots[index],
+                                ),
+                              ]);
+                            }).toList(),
+                            lineTouchData: LineTouchData(
+                              handleBuiltInTouches: false,
+                              touchCallback: (
+                                FlTouchEvent event,
+                                LineTouchResponse? response,
+                              ) {
+                                if (response == null ||
+                                    response.lineBarSpots == null) {
+                                  return;
+                                }
+                                if (event is FlTapUpEvent) {
+                                  // final spotIndex =
+                                  //     response.lineBarSpots!.first.spotIndex;
+                                }
+                              },
+                              mouseCursorResolver: (
+                                FlTouchEvent event,
+                                LineTouchResponse? response,
+                              ) {
+                                if (response == null ||
+                                    response.lineBarSpots == null) {
+                                  return SystemMouseCursors.basic;
+                                }
+                                return SystemMouseCursors.click;
+                              },
+                              getTouchedSpotIndicator: (
+                                LineChartBarData barData,
+                                List<int> spotIndexes,
+                              ) {
+                                return spotIndexes.map((index) {
+                                  return TouchedSpotIndicatorData(
+                                    FlLine(
+                                      color: _selectedColor,
+                                    ),
+                                    FlDotData(
+                                      getDotPainter:
+                                          (spot, percent, barData, index) =>
+                                              FlDotCirclePainter(
+                                        radius: 2,
                                         color: _selectedColor,
+                                        strokeWidth: 2,
+                                        strokeColor: _selectedColor,
                                       ),
-                                      FlDotData(
-                                        getDotPainter:
-                                            (spot, percent, barData, index) =>
-                                                FlDotCirclePainter(
-                                          radius: 2,
-                                          color: _selectedColor,
-                                          strokeWidth: 2,
-                                          strokeColor: _selectedColor,
-                                        ),
+                                    ),
+                                  );
+                                }).toList();
+                              },
+                              touchTooltipData: LineTouchTooltipData(
+                                getTooltipColor: (touchedSpot) =>
+                                    Colors.transparent,
+                                tooltipRoundedRadius: 8,
+                                tooltipMargin: 0,
+                                getTooltipItems:
+                                    (List<LineBarSpot> lineBarsSpot) {
+                                  return lineBarsSpot.map((lineBarSpot) {
+                                    return LineTooltipItem(
+                                      evTrueChargeFalse
+                                          ? lineBarSpot.y == maxEv.toDouble()
+                                              ? "MAX"
+                                              : lineBarSpot.y.toString()
+                                          : lineBarSpot.y.toString(),
+                                      TextStyle(
+                                        color: _selectedColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
                                       ),
                                     );
                                   }).toList();
                                 },
-                                touchTooltipData: LineTouchTooltipData(
-                                  getTooltipColor: (touchedSpot) =>
-                                      Colors.transparent,
-                                  tooltipRoundedRadius: 8,
-                                  tooltipMargin: 0,
-                                  getTooltipItems:
-                                      (List<LineBarSpot> lineBarsSpot) {
-                                    return lineBarsSpot.map((lineBarSpot) {
-                                      return LineTooltipItem(
-                                        evTrueChargeFalse
-                                            ? lineBarSpot.y == maxEv.toDouble()
-                                                ? "MAX"
-                                                : lineBarSpot.y.toString()
-                                            : lineBarSpot.y.toString(),
-                                        TextStyle(
-                                            color: _selectedColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,),
-                                      );
-                                    }).toList();
+                              ),
+                            ),
+                            lineBarsData: lineBarsData,
+                            minX: 1,
+                            maxX: 7,
+                            minY: evTrueChargeFalse ? 0 : 0,
+                            maxY: evTrueChargeFalse ? maxEv.toDouble() : 100,
+                            titlesData: FlTitlesData(
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  getTitlesWidget:
+                                      (double value, TitleMeta meta) {
+                                    return dayOfWeekLabel(value, meta);
                                   },
+                                  interval: 1,
+                                  showTitles: true,
+                                  reservedSize: 40,
                                 ),
                               ),
-                              lineBarsData: lineBarsData,
-                              minX: 1,
-                              maxX: 7,
-                              minY: evTrueChargeFalse ? 0 : 0,
-                              maxY: evTrueChargeFalse ? maxEv.toDouble() : 100,
-                              titlesData: FlTitlesData(
-                                  bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                          getTitlesWidget:
-                                              (double value, TitleMeta meta) {
-                                            return dayOfWeekLabel(value, meta);
-                                          },
-                                          interval: 1,
-                                          showTitles: true,
-                                          reservedSize: 40,),),
-                                  leftTitles: const AxisTitles(
-                                      ),
-                                  rightTitles: const AxisTitles(
-                                      ),
-                                  topTitles: const AxisTitles(
-                                      ),),),
+                              leftTitles: const AxisTitles(),
+                              rightTitles: const AxisTitles(),
+                              topTitles: const AxisTitles(),
+                            ),
+                          ),
                         ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           FfButton(
-                              width: 120,
-                              height: 40,
-                              text:
-                                  "Charge ${_chargeChange! > 0 ? "+$_chargeChange" : "$_chargeChange"}%",
-                              textStyle:
-                                  Theme.of(context).textTheme.displaySmall!,
-                              textColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              onPressed: () => {_showChargeData(context)},),
+                            width: 120,
+                            height: 40,
+                            text:
+                                "Charge ${_chargeChange! > 0 ? "+$_chargeChange" : "$_chargeChange"}%",
+                            textStyle:
+                                Theme.of(context).textTheme.displaySmall!,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            onPressed: () => {_showChargeData(context)},
+                          ),
                           FfButton(
-                              width: 120,
-                              height: 40,
-                              text:
-                                  "Evo ${_evChange! > 0 ? "+$_evChange" : "$_evChange"}",
-                              textStyle:
-                                  Theme.of(context).textTheme.displaySmall!,
-                              textColor:
-                                  Theme.of(context).colorScheme.onSecondary,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              onPressed: () => {_showEvoData(context)},),
+                            width: 120,
+                            height: 40,
+                            text:
+                                "Evo ${_evChange! > 0 ? "+$_evChange" : "$_evChange"}",
+                            textStyle:
+                                Theme.of(context).textTheme.displaySmall!,
+                            textColor:
+                                Theme.of(context).colorScheme.onSecondary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                            onPressed: () => {_showEvoData(context)},
+                          ),
                         ],
                       ),
                     ],

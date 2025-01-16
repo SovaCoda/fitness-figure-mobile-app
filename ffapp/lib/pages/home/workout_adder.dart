@@ -22,7 +22,6 @@ import 'package:ffapp/pages/home/store.dart';
 import 'package:ffapp/services/auth.dart';
 import 'package:ffapp/services/dynamic_island_manager.dart';
 import 'package:ffapp/services/local_notification_service.dart';
-import 'package:ffapp/services/robot_dialog.dart';
 import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:ffapp/services/routes.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -62,11 +61,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   late String _startTime;
   late String _endTime;
   late AuthService auth;
-  late String figureURL = "robot1_skin0_cropped";
-  RobotDialog robotDialog = RobotDialog();
   // final int RANDRANGE = 100;
   // final double OFFSET = 250 / 4;
-  late double scoreIncrement;
+  // late double scoreIncrement;
   final int sigfigs = 2;
   bool _goalMet = false;
   int minWorkoutTime = 30;
@@ -165,7 +162,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     prefs = await SharedPreferences.getInstance();
     final User user = await getUserModel().then((value) => value.user!);
     final Int64 timegoal = user.workoutMinTime;
-    scoreIncrement = 1 / (timegoal.toDouble() * 60);
+    // scoreIncrement = 1 / (timegoal.toDouble() * 60); TODO: UNUSED Figure out if get rid of
     if (_logging) {
       logger.i(timegoal);
     }
@@ -184,7 +181,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Future<UserModel> getUserModel() async {
     UserModel userModel;
     do {
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       if (!mounted) return Future.error("MountedException");
       userModel = Provider.of<UserModel>(context, listen: false);
     } while (userModel.user == User());

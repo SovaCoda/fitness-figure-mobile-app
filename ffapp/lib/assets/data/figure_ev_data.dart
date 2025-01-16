@@ -1,14 +1,44 @@
-class figureEvData {
+import '../../services/routes.pb.dart';
+
+/// This class serves to encapsulate the information of each figure
+///
+/// It contains static information about a figure such as:
+///     - The number of evolutions a figure can perform,
+///     - Calculations for how much evo it takes to level up a figure
+///     - The evolution upgrades for that figure
+class FigureEvData {
+  /// A list of the amount of required EV to c
   List<int> evCutoffs = [];
+
+  /// The figure name as stated in the database
   String figureName = "";
+
+  /// The number of evolutions that the figure can undergo (currently unused)
   int numberOfEvolutions = 0;
+
+  /// The amount of evo required to evolve a figure that hasn't evolved
+  ///
+  /// Adds onto the [evCutoffs]
   int baseEvRequired = 0;
+
+  /// The total price for the figure in the store page
+  int price = 0;
+
+  /// The amount of the required ev to evolve that will be multiplied by the EV level
+  ///
+  /// multiplies by the EV level (starting from zero) when calculating [evCutoffs]
   int evRequirementGainPerLevel = 0;
+
+  /// The scale to increase the figure when it levels up
   int levelScaleFactor = 0;
+
+  /// A list of upgrades from evolution for display in the evolution page
   List<List<String>> figureEvUpgrades = [];
+
+  /// A list of the amount of currency that the figure generates based on EV level
   List<double> currencyGens = [];
 
-  figureEvData({
+  FigureEvData({
     required this.figureName,
     this.numberOfEvolutions = 0,
     this.baseEvRequired = 0,
@@ -20,15 +50,38 @@ class figureEvData {
     evCutoffs = _generateEvCutoffs;
   }
 
+  /// Calculates the EV cutoffs of the figure for all levels
   List<int> get _generateEvCutoffs {
     return List.generate(
       numberOfEvolutions,
       (index) => baseEvRequired + evRequirementGainPerLevel * index,
     );
   }
+
+  /// Gathers data from the class to instantiate a [Figure] object
+  ///
+  /// Returns a figure object from figureEvData
+  Figure getFigure() {
+    return Figure(
+      figureName: figureName,
+      // ! these are hardcoded in as there are no fields for these
+      baseEvGain: 10,
+      baseCurrencyGain: 5,
+      price: 300,
+      stage1EvCutoff: evCutoffs[0],
+      stage2EvCutoff: evCutoffs[1],
+      stage3EvCutoff: evCutoffs[2],
+      stage4EvCutoff: evCutoffs[3],
+      stage5EvCutoff: evCutoffs[4],
+      stage6EvCutoff: evCutoffs[5],
+      stage7EvCutoff: evCutoffs[6],
+      stage8EvCutoff: evCutoffs[7],
+    );
+  }
 }
 
-figureEvData figure1 = figureEvData(
+/// Static information for "robot1"
+FigureEvData figure1 = FigureEvData(
   numberOfEvolutions: 8,
   baseEvRequired: 300,
   evRequirementGainPerLevel: 700,
@@ -48,7 +101,7 @@ figureEvData figure1 = figureEvData(
   ],
 );
 
-figureEvData figure2 = figureEvData(
+FigureEvData figure2 = FigureEvData(
   numberOfEvolutions: 8,
   baseEvRequired: 100,
   evRequirementGainPerLevel: 100,

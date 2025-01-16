@@ -35,6 +35,7 @@ class _CoreState extends State<Core> {
   void initState() {
     _user = UserModel();
     _figure = FigureModel();
+    _auth = Provider.of<AuthService>(context, listen: false);
 
     super.initState();
 
@@ -49,18 +50,20 @@ class _CoreState extends State<Core> {
 
   Future<void> _initialize() async {
     _currency = Provider.of<CurrencyModel>(context, listen: false);
+    // Calls _handleCurrencyUpdate every second
     _currencyGenTimer = Timer.periodic(
       const Duration(seconds: 1),
       (_) => _handleCurrencyUpdate(),
     );
 
-    // Run multiple initialization tasks concurrently
-    await Future.wait([
-      _initializeTaskManager(),
-    ]);
+    // Start up task manager for research tasks
+    await _initializeTaskManager();
 
-    if (!mounted) return;
-
+    // mounted guard
+    if (!mounted) {
+      return;
+    }
+    // Add listeners to trigger function calls once a provider has changed
     Provider.of<FigureModel>(context, listen: false).addListener(() {
       _getCurrencyIncrement;
       _initializeServices();
@@ -69,15 +72,17 @@ class _CoreState extends State<Core> {
         .addListener(() => lockOrUnlock());
   }
 
+  /// Initializes the currency generation
   Future<void> _initializeServices() async {
-    if (!mounted) return;
-
+    if (!mounted) {
+      return;
+    }
     _auth = Provider.of<AuthService>(context, listen: false);
     _user = Provider.of<UserModel>(context, listen: false);
     _figure = Provider.of<FigureModel>(context, listen: false);
     _getCurrencyIncrement(_figure, _user.isPremium());
 
-    // Run currency reactivation concurrently with other initialization tasks
+    // Start up the currency generator
     await _reactivateGenerationServer();
   }
 
@@ -85,6 +90,10 @@ class _CoreState extends State<Core> {
     _currency.addToCurrency(_currencyIncrement!, context);
   }
 
+  /// Gets the value of currency generation from [figure1] currencyGens list,
+  /// multiplies by the [figure] charge percentage, and doubles if [isPremium] is true
+  ///
+  /// Returns the currency increment to be added to the user's balance
   double _getCurrencyIncrement(FigureModel figure, bool isPremium) {
     _currencyIncrement =
         (figure1.currencyGens[figure.EVLevel]) * (isPremium ? 2 : 1);
@@ -93,35 +102,63 @@ class _CoreState extends State<Core> {
     return _currencyIncrement!;
   }
 
+  /// Initializes the currency generation and awards the user currency during
+  /// the time that they are offline
   Future<void> _reactivateGenerationServer() async {
-    // Run user info and offline datetime fetching concurrently
-    final futures = await Future.wait([
-      _auth.getUserDBInfo(),
-      _auth.getOfflineDateTime(
-        routes.OfflineDateTime(email: _user.user!.email),
-      ),
-    ]);
+    try {
+      // Get user's last online date
+      final Future<routes.OfflineDateTime> futureLastLoggedGeneration = _auth
+          .getOfflineDateTime(routes.OfflineDateTime(email: _user.user!.email));
+      // TODO: Figure out how to do currency when a user switches figures
+      // * Issue: When user switches figures, their currency rounds down as user.currency is Int64
+      // * First solution: only set currencymodel to usermodel on startup
+      // * Problem: Adds bug where user can swap figures rapidly for double currency rewards
+      // if (Provider.of<CurrencyModel>(context, listen: false).currency ==
+      //     '0000') {
+      //   final routes.User? user =
+      //       Provider.of<UserModel>(context, listen: false).user;
 
-    final routes.User? user = futures[0] as routes.User?;
-    final routes.OfflineDateTime lastLoggedGeneration =
-        futures[1] as routes.OfflineDateTime;
+      //   if (user == null) {
+      //     return;
+      //   }
 
-    if (user == null) return;
+      //   _currency.setCurrency(user.currency.toString());
+      // }
 
-    _currency.setCurrency(user.currency.toString());
-    final DateTime parsedDateTime =
-        DateTime.parse(lastLoggedGeneration.currency);
-    final Duration difference = DateTime.now().difference(parsedDateTime);
+      // Set the currency provider to the user DB info
+      final routes.User? user =
+          Provider.of<UserModel>(context, listen: false).user;
+      if (user == null) {
+        return;
+      }
+      _currency.setCurrency(user.currency.toString());
 
-    if (difference.inSeconds < 0) {
-      await _auth.updateCurrency(0);
-    } else {
-      final double currencyToAdd = difference.inSeconds * _currencyIncrement!;
-      _currency.addToCurrency(currencyToAdd, context);
-      await _auth.updateCurrency(double.parse(_currency.currency).ceil());
+      // Compare the difference with the last logged generation and now
+      final routes.OfflineDateTime lastLoggedGeneration =
+          await futureLastLoggedGeneration;
+      final DateTime parsedDateTime =
+          DateTime.parse(lastLoggedGeneration.currency);
+      final Duration difference = DateTime.now().difference(parsedDateTime);
+
+      // Difference can be negative based on the timezone of the user
+      // in this case, we set the currency to zero
+      if (difference.inSeconds < 0) {
+        await _auth.updateCurrency(0);
+      } else {
+        // Add to the currency for the time the user is offline
+        final double currencyToAdd = difference.inSeconds * _currencyIncrement!;
+        if (mounted) {
+          _currency.addToCurrency(currencyToAdd, context);
+        }
+        await _auth.updateCurrency(double.parse(_currency.currency).ceil());
+      }
+    } catch (e) {
+      // TODO: handle gRPC empty rows / bad connection error
+      logger.e('Error activating generation server $e');
     }
   }
 
+  /// Disposes the currency generator and saves last currency gen date to database
   void _deactivateGenerationServer() {
     _auth.updateCurrency(double.parse(_currency.currency).toInt());
     _auth.updateOfflineDateTime(
@@ -132,19 +169,32 @@ class _CoreState extends State<Core> {
     );
   }
 
+  /// Resets task manager to the initial state
+  ///
+  /// Used for the debug Widget [_buildResetTasksButton]
   void _resetTasks() {
     _taskManager.resetUnconditionally();
   }
 
+  /// Completes the task by id
+  ///
+  /// Passed to [ResearchOption] Widget to allow it to set state in the Research page
   void _onTaskComplete(String taskId) {
     setState(() {
+      // removes the task from available tasks and adds it to completed tasks
       _taskManager.completeTask(taskId);
     });
   }
 
+  /// Subtracts the user's currency by [investmentAmount] to invest into research
+  /// Passed into [ResearchOption] Widget to allow the user to invest to increase research odds
+  ///
+  /// Returns `true` if successful, `false` otherwise
   Future<bool> _subtractCurrency(double investmentAmount) async {
     final routes.User? user = await _auth.getUserDBInfo();
-    if (user == null) return false;
+    if (user == null) {
+      return false;
+    }
 
     final double currentCurrency = double.parse(_currency.currency);
     logger.i(
@@ -153,11 +203,11 @@ class _CoreState extends State<Core> {
 
     final double updateCurrency = currentCurrency - investmentAmount.round();
     if (updateCurrency < 0) {
-      logger.i("Not enough currency to complete transaction.");
+      logger.i('Not enough currency to complete transaction.');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Not enough currency to complete this purchase!"),
+            content: Text('Not enough currency to complete this purchase!'),
           ),
         );
         return false;
@@ -185,6 +235,11 @@ class _CoreState extends State<Core> {
     super.dispose();
   }
 
+  /// Contains logic on whether to unlock or lock the available research tasks
+  /// after the user starts a research task
+  ///
+  /// Unlocks all tasks if the current figure has 'Multi Tasking' capability
+  /// Otherwise, it locks all tasks
   Future<void> lockOrUnlock() async {
     // debouncer
     await Future.delayed(const Duration(milliseconds: 100));
@@ -194,11 +249,14 @@ class _CoreState extends State<Core> {
       return;
     }
     final FigureModel figure = Provider.of<FigureModel>(context, listen: false);
-
-    if (figure.capabilities['Multi Tasking']!) {
-      await _taskManager.releaseLockedTasks();
-    } else {
-      await _taskManager.lockAllInactiveTasks();
+    for (int i = 0; i < _taskManager.getAvailableTasks().length; i++) {
+      if (_taskManager.getAvailableTasks()[i].startTime != null) {
+        if (figure.capabilities['Multi Tasking']!) {
+          await _taskManager.releaseLockedTasks();
+        } else {
+          await _taskManager.lockAllInactiveTasks();
+        }
+      }
     }
   }
 
@@ -235,6 +293,7 @@ class _CoreState extends State<Core> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
+        // hidden widget that updates currency increments when user changes figures
         Consumer<UserModel>(
           builder: (context, figureModel, _) {
             return Consumer<FigureModel>(
@@ -292,7 +351,7 @@ class _CoreState extends State<Core> {
                 shape: BoxShape.circle,
               ),
               child: Image.asset(
-                "lib/assets/images/evolution_panel_circle.png",
+                'lib/assets/images/evolution_panel_circle.png',
                 height: MediaQuery.of(context).size.width * 0.35,
                 width: MediaQuery.of(context).size.width * 0.35,
               ),
@@ -327,7 +386,7 @@ class _CoreState extends State<Core> {
                           fontFamily: 'Roberto',
                         ),
                       ),
-                      FitnessIcon(
+                      const FitnessIcon(
                         type: FitnessIconType.up_arrow,
                         size: 10,
                         height: 30,
@@ -356,6 +415,7 @@ class _CoreState extends State<Core> {
     );
   }
 
+  /// Builds the gradiented container and the research tasks inside of it
   Widget _buildResearchSection() {
     return Consumer<FigureModel>(
       builder: (_, figure, __) {
@@ -427,6 +487,7 @@ class _CoreState extends State<Core> {
     );
   }
 
+  /// Builds the RESEARCH title bar
   Widget _buildResearchHeader() {
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -451,6 +512,7 @@ class _CoreState extends State<Core> {
     );
   }
 
+  /// Builds the daily limit when the user has done all tasks for the day
   Widget _buildDailyLimitReachedMessage() {
     return Column(
       children: [
@@ -473,8 +535,9 @@ class _CoreState extends State<Core> {
     );
   }
 
+  /// Builds all the available tasks in the [_taskManager]
   Widget _buildAvailableTasks() {
-    List<Widget> content = _taskManager.getAvailableTasks().map((task) {
+    final List<Widget> content = _taskManager.getAvailableTasks().map((task) {
       return ResearchOption(
         key: ValueKey(task.id),
         task: task,

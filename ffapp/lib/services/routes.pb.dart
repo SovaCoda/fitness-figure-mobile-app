@@ -502,6 +502,90 @@ class User extends $pb.GeneratedMessage {
   void clearDailyChatMessages() => clearField(14);
 }
 
+class UserInfo extends $pb.GeneratedMessage {
+  factory UserInfo({
+    User? user,
+    MultiFigureInstance? figures,
+    MultiWorkout? workouts,
+  }) {
+    final $result = create();
+    if (user != null) {
+      $result.user = user;
+    }
+    if (figures != null) {
+      $result.figures = figures;
+    }
+    if (workouts != null) {
+      $result.workouts = workouts;
+    }
+    return $result;
+  }
+  UserInfo._() : super();
+  factory UserInfo.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UserInfo.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UserInfo', package: const $pb.PackageName(_omitMessageNames ? '' : 'routes'), createEmptyInstance: create)
+    ..aOM<User>(1, _omitFieldNames ? '' : 'user', subBuilder: User.create)
+    ..aOM<MultiFigureInstance>(2, _omitFieldNames ? '' : 'figures', subBuilder: MultiFigureInstance.create)
+    ..aOM<MultiWorkout>(3, _omitFieldNames ? '' : 'workouts', subBuilder: MultiWorkout.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UserInfo clone() => UserInfo()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UserInfo copyWith(void Function(UserInfo) updates) => super.copyWith((message) => updates(message as UserInfo)) as UserInfo;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UserInfo create() => UserInfo._();
+  UserInfo createEmptyInstance() => create();
+  static $pb.PbList<UserInfo> createRepeated() => $pb.PbList<UserInfo>();
+  @$core.pragma('dart2js:noInline')
+  static UserInfo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserInfo>(create);
+  static UserInfo? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  User get user => $_getN(0);
+  @$pb.TagNumber(1)
+  set user(User v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUser() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUser() => clearField(1);
+  @$pb.TagNumber(1)
+  User ensureUser() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  MultiFigureInstance get figures => $_getN(1);
+  @$pb.TagNumber(2)
+  set figures(MultiFigureInstance v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFigures() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFigures() => clearField(2);
+  @$pb.TagNumber(2)
+  MultiFigureInstance ensureFigures() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  MultiWorkout get workouts => $_getN(2);
+  @$pb.TagNumber(3)
+  set workouts(MultiWorkout v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasWorkouts() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearWorkouts() => clearField(3);
+  @$pb.TagNumber(3)
+  MultiWorkout ensureWorkouts() => $_ensure(2);
+}
+
 class DailySnapshot extends $pb.GeneratedMessage {
   factory DailySnapshot({
     $core.String? userEmail,

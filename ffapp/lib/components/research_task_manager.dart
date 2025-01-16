@@ -1,10 +1,11 @@
 import 'dart:math';
 import 'package:ffapp/main.dart';
-import 'package:ffapp/pages/home/store.dart';
+import 'package:ffapp/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+/// This class encapsulates the data of a research task
 class ResearchTask {
   final String id;
   final String title;
@@ -23,6 +24,10 @@ class ResearchTask {
     this.startTime,
   });
 
+  /// Creates a research task from [taskString] from the format it was stored
+  /// in local storage
+  ///
+  /// Returns a research task
   factory ResearchTask.fromString(String taskString) {
     final parts = taskString.split('|');
     return ResearchTask(
@@ -36,15 +41,23 @@ class ResearchTask {
   }
 
   @override
+
+  /// Creates a string that will be used to serialize a research task to local storage
   String toString() {
     return '$id|$title|$chance|$ev|${duration.inSeconds}|${startTime?.toIso8601String()}';
   }
 }
 
 class ResearchTaskManager {
-  final FigureModel figureModel;
   ResearchTaskManager({required this.figureModel});
+
+  /// The currently selected figure to determine what upgrades the user has access to
+  final FigureModel figureModel;
+
+  /// The amount of research tasks that the user is allowed to do in a day
   static const int _dailyTaskLimit = 5;
+
+  /// Titles that are randomly chosen for each research task
   static const List<String> _taskTitles = [
     // made uppercase to match design
     'OPTIMIZE PROCESSORS',
@@ -73,11 +86,24 @@ class ResearchTaskManager {
     'INCREASE PAYLOAD CAPACITY',
   ];
 
+  /// Contains a list of tasks that have not been done yet by the user
   List<ResearchTask> _availableTasks = [];
+
+  /// Contains a set of UUIDs from research tasks that the user has already completed
   Set<String> _completedTaskIds = {};
+
+  /// The number of tasks that the user has completed
   int _tasksCompletedToday = 0;
+
+  /// The last time that the research task manager has been reset
+  ///
+  /// The task manager resets daily
   DateTime _lastResetDate = DateTime.now();
+
+  /// Random number generator that is used to create unique titles
   final Random _random = Random.secure();
+
+  /// UUID generator that is used to create UUIDs for each research task
   final Uuid _uuid = const Uuid();
 
   Future<void> init() async {

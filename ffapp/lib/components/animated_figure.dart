@@ -45,7 +45,6 @@ class AnimatedFigureState extends State<AnimatedFigure> {
 
     // resetAnimations();
   }
-
   // void resetAnimations() async {
   //   Future.delayed(const Duration(milliseconds: 5000), () {
   //     setState(() {
@@ -69,10 +68,10 @@ class AnimatedFigureState extends State<AnimatedFigure> {
   @override
   Widget build(BuildContext context) {
     return Consumer<FigureModel>(builder: (context, figure, child) {
-      String figureCode = widget.useEquippedFigure
+      final String figureCode = widget.useEquippedFigure
           ? "${int.parse(figure.figure!.figureName.replaceAll(RegExp(r'[^0-9]'), ''))}${figure.figure!.evLevel + 1}"
           : "${int.parse(widget.figureName.replaceAll(RegExp(r'[^0-9]'), ''))}${widget.figureLevel + 1}";
-      double figureSizeMultiplier = figureSizeMultipliers[figureCode]!;
+      final double figureSizeMultiplier = figureSizeMultipliers[figureCode]!;
       return SizedBox(
         width: widget.width,
         height: widget.height,
@@ -100,7 +99,7 @@ class AnimatedFigureState extends State<AnimatedFigure> {
                               figureSkeletons.skeletons[figureCode]!, false),
                           controller);
                     }
-                    return Text("data");
+                    return const Text("data");
                   },
                 ),
         ),
