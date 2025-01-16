@@ -56,17 +56,9 @@ Future<List<dynamic>> isolateFetchDatabaseInfo(IsolateInitData initData) async {
       throw TimeoutException('Database call timed out');
     });
 
-    final customerInfoFuture = !Platform.isIOS
-        ? Future.value(null)
-        : Purchases.getCustomerInfo().catchError((e) {
-            logger.e('RevenueCat error: $e');
-            return null;
-          });
-
     // Run futures in parallel
     final results = await Future.wait([
       userInfoFuture,
-      customerInfoFuture,
     ], eagerError: true);
 
     return results;
@@ -136,7 +128,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     }
 
     // Get customer info from isolate
-    final CustomerInfo? customerInfo = isolateResult[1] as CustomerInfo?;
+    final CustomerInfo? customerInfo = await !Platform.isIOS
+        ? await Future.value(null)
+        : await Purchases.getCustomerInfo().catchError((e) {
+            logger.e('RevenueCat error: $e');
+            return null;
+          });
 
     // Update user data based on customer info.
     if (Platform.isIOS) {

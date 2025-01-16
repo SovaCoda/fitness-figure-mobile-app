@@ -8,12 +8,12 @@ class RoutesService {
   // int port = 443;
 
   //works for android
-  String baseUrl = "10.0.2.2";
-  int port = 8080;
+  // String baseUrl = "10.0.2.2";
+  // int port = 8080;
 
   // works for ios/macos
-  // String baseUrl = "10.13.11.160";
-  // int port = 8080;
+  String baseUrl = "10.13.8.195";
+  int port = 8080;
 
   //String baseUrl = "127.0.0.1";
 
