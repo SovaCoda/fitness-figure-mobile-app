@@ -37,6 +37,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spine_flutter/spine_flutter.dart' as Spine;
 import 'package:spine_flutter/spine_widget.dart';
 
+class LoadingScreen extends ChangeNotifier {
+  bool isLoading = true;
+
+  void setIsLoading(bool loading) {
+    isLoading = loading;
+    notifyListeners();
+  }
+}
+
 class SelectedFigureProvider extends ChangeNotifier {
   int _selectedFigureIndex = 0;
 
@@ -345,6 +354,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (_) => HomeIndexProvider()),
       ChangeNotifierProvider(
           create: (_) => FigureSkeletonProvider()..initialize()),
+      ChangeNotifierProvider(create: (_) => LoadingScreen())
     ], child: const MyApp()),
   );
 }

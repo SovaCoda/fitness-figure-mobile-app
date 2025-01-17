@@ -293,6 +293,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         );
       }
     });
+    await Future.delayed(const Duration(seconds: 3));
+    Provider.of<LoadingScreen>(context, listen: false).setIsLoading(false);
   }
 
   void setAnimationHappy() {
