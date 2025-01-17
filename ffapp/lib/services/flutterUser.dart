@@ -78,10 +78,10 @@ class FlutterUser {
     return await auth.getUserDBInfo().then((value) => value!.currency.toInt());
   }
 
-  Future<Routes.User> updateCurrency(int currency) async {
+  Future<Routes.User> updateCurrency(double currency) async {
     logger.i("Updating user's currency");
     String email = await auth.getUser().then((value) => value!.email.toString());
-    Routes.User user = Routes.User(email: email, currency: Int64(currency));
+    Routes.User user = Routes.User(email: email, currency: currency);
     return await auth.updateUserDBInfo(user);
   }
 
