@@ -1,6 +1,7 @@
 import 'package:ffapp/components/ff_app_bar.dart';
 import 'package:ffapp/components/ff_body_scaffold.dart';
 import 'package:ffapp/components/ff_bottom_nav_bar.dart';
+import 'package:ffapp/components/utils/chat_model.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:ffapp/pages/home/core.dart';
 import 'package:ffapp/pages/home/dashboard.dart';

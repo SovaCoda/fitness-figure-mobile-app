@@ -821,12 +821,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                                 context,
                                                                 listen: false,
                                                               ).user!;
-                                                              user.currency =
-                                                                  
-                                                                ((user.currency
-                                                                            .toDouble() -
-                                                                        _investment)
-                                                                    .toDouble());
+                                                              user.currency = ((user
+                                                                          .currency
+                                                                          .toDouble() -
+                                                                      _investment)
+                                                                  .toDouble());
                                                               Provider.of<
                                                                   UserModel>(
                                                                 context,
@@ -1078,67 +1077,71 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                 ],
                               ),
                             ),
-                            child: Column(children: [
-                              FutureBuilder<String>(
-                                future: _postWorkoutMessage,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return BinaryGlowChatBubble(
-                                      width: screenWidth * 0.8,
-                                      message: snapshot.data!,
-                                      chatMore: true,
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return BinaryGlowChatBubble(
-                                      width: screenWidth * 0.8,
-                                      message:
-                                          "[CRITICAL CHAT MODULE ERR ::Code 402::]",
-                                    );
-                                  } else {
-                                    return const SizedBox(
-                                      width: 100,
-                                      height: 60,
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                },
-                              ),
-                              Consumer<FigureModel>(builder: (_, figure, __) {
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AnimatedFigure(
-                                      useEquippedFigure: false,
-                                      figureName: figure.figure!.figureName,
-                                      figureLevel: figure.figure!.evLevel,
-                                      height: screenHeight * 0.278169014084507,
-                                      width: screenWidth * 0.4452926208651399,
-                                    ),
-                                  ],
-                                );
-                              }),
-                              FFAppButton(
-                                fontSize: 20,
-                                size: screenWidth *
-                                    0.85272264631043256997455470737913,
-                                height: screenHeight *
-                                    0.0946478873239436619718309859155,
-                                text: "OK",
-                                onPressed: () => {
-                                  setState(() {
-                                    states['chatting'] = false;
-                                    if (_goalMet) {
-                                      states['post-logging'] = true;
-                                      states['investing'] = true;
+                            child: SingleChildScrollView(
+                              child: Column(children: [
+                                FutureBuilder<String>(
+                                  future: _postWorkoutMessage,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return BinaryGlowChatBubble(
+                                        width: screenWidth * 0.8,
+                                        message: snapshot.data!,
+                                        chatMore: true,
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return BinaryGlowChatBubble(
+                                        width: screenWidth * 0.8,
+                                        message:
+                                            "[CRITICAL CHAT MODULE ERR ::Code 402::]",
+                                      );
                                     } else {
-                                      states['investing'] = false;
-                                      endLogging();
-                                      states['post-logging'] = true;
+                                      return const SizedBox(
+                                        width: 100,
+                                        height: 60,
+                                        child: CircularProgressIndicator(),
+                                      );
                                     }
-                                  }),
-                                },
-                              ),
-                            ])),
+                                  },
+                                ),
+                                Consumer<FigureModel>(builder: (_, figure, __) {
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AnimatedFigure(
+                                        useEquippedFigure: false,
+                                        figureName: figure.figure!.figureName,
+                                        figureLevel: figure.figure!.evLevel,
+                                        height:
+                                            screenHeight * 0.278169014084507,
+                                        width: screenWidth * 0.4452926208651399,
+                                      ),
+                                    ],
+                                  );
+                                }),
+                                FFAppButton(
+                                  fontSize: 20,
+                                  size: screenWidth *
+                                      0.85272264631043256997455470737913,
+                                  height: screenHeight *
+                                      0.0946478873239436619718309859155,
+                                  text: "OK",
+                                  onPressed: () => {
+                                    setState(() {
+                                      states['chatting'] = false;
+                                      if (_goalMet) {
+                                        states['post-logging'] = true;
+                                        states['investing'] = true;
+                                      } else {
+                                        states['investing'] = false;
+                                        endLogging();
+                                        states['post-logging'] = true;
+                                      }
+                                    }),
+                                  },
+                                ),
+                              ]),
+                            )),
                         const SizedBox(
                           height: 10,
                         ),

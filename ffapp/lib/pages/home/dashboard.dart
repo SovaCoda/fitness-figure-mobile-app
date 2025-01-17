@@ -182,29 +182,31 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     };
 
     // Schedule notifications based on user's premium status
-    if (databaseUser.hasPremium() &&
-        await LocalNotificationService().isReadyForNotification()) {
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      if (!mounted) {
-        return;
-      }
-      final String? premiumOfflineNotification =
-          await Provider.of<ChatModel>(context, listen: false)
-              .generatePremiumOfflineStatusMessage(gameState);
+    Future.delayed(const Duration(milliseconds: 1000), () async {
+      if (databaseUser.hasPremium() &&
+          await LocalNotificationService().isReadyForNotification()) {
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        if (!mounted) {
+          return;
+        }
+        final String? premiumOfflineNotification =
+            await Provider.of<ChatModel>(context, listen: false)
+                .generatePremiumOfflineStatusMessage(gameState);
 
-      if (premiumOfflineNotification != null) {
-        LocalNotificationService().scheduleOfflineNotification(
-            title: 'Your Figure', body: premiumOfflineNotification);
-      } else {
-        logger.e('Received null response from OpenAI for push notification');
+        if (premiumOfflineNotification != null) {
+          LocalNotificationService().scheduleOfflineNotification(
+              title: 'Your Figure', body: premiumOfflineNotification);
+        } else {
+          logger.e('Received null response from OpenAI for push notification');
+        }
+      } else if (await LocalNotificationService().isReadyForNotification()) {
+        final String body = databaseFigure.charge > 50
+            ? "My charge is at ${databaseFigure.charge}, great job! Let's keep it that way."
+            : 'My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online';
+        LocalNotificationService()
+            .scheduleOfflineNotification(title: 'Your Figure', body: body);
       }
-    } else if (await LocalNotificationService().isReadyForNotification()) {
-      final String body = databaseFigure.charge > 50
-          ? "My charge is at ${databaseFigure.charge}, great job! Let's keep it that way."
-          : 'My charge is at ${databaseFigure.charge}, you need to workout more if you want me to stay online';
-      LocalNotificationService()
-          .scheduleOfflineNotification(title: 'Your Figure', body: body);
-    }
+    });
 
     // Show week information popup after the user completed their week
     WidgetsBinding.instance.addPostFrameCallback((_) {

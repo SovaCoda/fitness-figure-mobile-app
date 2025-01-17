@@ -63,10 +63,13 @@ class _CoreState extends State<Core> {
     if (!mounted) {
       return;
     }
+    await _initializeServices();
     // Add listeners to trigger function calls once a provider has changed
     Provider.of<FigureModel>(context, listen: false).addListener(() {
-      _getCurrencyIncrement;
-      _initializeServices();
+      _auth = Provider.of<AuthService>(context, listen: false);
+      _user = Provider.of<UserModel>(context, listen: false);
+      _figure = Provider.of<FigureModel>(context, listen: false);
+      _getCurrencyIncrement(_figure, _user.isPremium());
     });
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .addListener(() => lockOrUnlock());
