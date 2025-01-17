@@ -32,7 +32,9 @@ class _InventoryState extends State<Inventory> {
             .selectedFigureIndex) {
       return;
     }
-    final List<routes.FigureInstance> figureInstancesList = Provider.of<FigureInstancesProvider>(context, listen: false).listOfFigureInstances;
+    final List<routes.FigureInstance> figureInstancesList =
+        Provider.of<FigureInstancesProvider>(context, listen: false)
+            .listOfFigureInstances;
     Provider.of<FigureModel>(context, listen: false)
         .setFigure(figureInstancesList[index]);
     Provider.of<SelectedFigureProvider>(context, listen: false)
@@ -43,80 +45,71 @@ class _InventoryState extends State<Inventory> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     return Consumer2<SelectedFigureProvider, FigureInstancesProvider>(
       builder: (context, selectedFigureProvider, figureInstancesProvider, _) {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                  Consumer<UserModel>(
-                    builder: (context, userModel, _) {
-                      const int totalSlots = 6; // 4 slots for now
-                      return Column(
-                        children: [
-                          for (int i = 0; i < (totalSlots + 1) ~/ 2; i++) ...[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: _buildInventorySlot(
-                                    context,
-                                    i * 2,
-                                    userModel,
-                                    figureInstancesProvider.listOfFigureInstances,
-                                    selectedFigureProvider.selectedFigureIndex,
-                                    totalSlots,
-                                  ),
-                                ),
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.001),
-                                Expanded(
-                                  child: _buildInventorySlot(
-                                    context,
-                                    i * 2 + 1,
-                                    userModel,
-                                    figureInstancesProvider.listOfFigureInstances,
-                                    selectedFigureProvider.selectedFigureIndex,
-                                    totalSlots,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.01),
-                          ],
-                          SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.1),
-                        ],
-                      );
-                    },
+            Consumer<UserModel>(
+              builder: (context, userModel, _) {
+                const int totalSlots = 6; // 4 slots for now
+                return ListView.builder(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
+                  physics: const AlwaysScrollableScrollPhysics().applyTo(
+                    const BouncingScrollPhysics(),
                   ),
-                  // SizedBox(height: 20),
-                  // ElevatedButton(
-                  //   onPressed: () => context.goNamed('SkinStore'),
-                  //   child: Text('Go to Store'),
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: Theme.of(context).colorScheme.primary,
-                  //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  //   ),
-                  // ),
-                ],
-              ),
+                  // Add 1 to account for the bottom spacing
+                  itemCount: ((totalSlots + 1) ~/ 2) + 1,
+                  itemBuilder: (context, index) {
+                    // Handle the bottom spacing
+                    if (index == (totalSlots + 1) ~/ 2) {
+                      return SizedBox(height: screenHeight * 0.1);
+                    }
+
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: _buildInventorySlot(
+                                context,
+                                index * 2,
+                                userModel,
+                                figureInstancesProvider.listOfFigureInstances,
+                                selectedFigureProvider.selectedFigureIndex,
+                                totalSlots,
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildInventorySlot(
+                                context,
+                                index * 2 + 1,
+                                userModel,
+                                figureInstancesProvider.listOfFigureInstances,
+                                selectedFigureProvider.selectedFigureIndex,
+                                totalSlots,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: screenHeight * 0.01),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
             Positioned(
-              bottom: MediaQuery.of(context).size.height * 0.01,
+              bottom: screenHeight * 0.01,
               child: FFAppButton(
                 text: 'GO TO STORE',
-                size: MediaQuery.of(context).size.width *
-                    0.79389312977099236641221374045802,
-                height: MediaQuery.of(context).size.height *
-                    0.08098591549295774647887323943662,
+                size: screenWidth * 0.79389312977099236641221374045802,
+                height: screenHeight * 0.08098591549295774647887323943662,
                 fontSize: 20,
                 isStore: true,
                 onPressed: () =>
@@ -131,7 +124,7 @@ class _InventoryState extends State<Inventory> {
   }
 
   /// Builds an inventory slot Widget for robot in [figureInstancesList] at [index]
-  /// 
+  ///
   /// Returns an inventory slot Widget if [index] < [totalSlots]
   /// Otherwise returns an empty SizedBox
   Widget _buildInventorySlot(
@@ -149,10 +142,7 @@ class _InventoryState extends State<Inventory> {
           figureInstance: figureInstancesList[index],
           equipped: figureInstancesList[index].figureName ==
               userModel.user?.curFigure,
-          onEquip: (context) => equipFigure(
-            index,
-            figureInstancesList
-          ),
+          onEquip: (context) => equipFigure(index, figureInstancesList),
           isWorkingOut: userModel.isWorkingOut,
           isSelected: selectedFigureIndex == index,
           index: index,
@@ -174,7 +164,8 @@ class _InventoryState extends State<Inventory> {
   }
 
   /// Equips a figure at index [figureIndex] in [figureInstancesList]
-  void equipFigure(int figureIndex, List<routes.FigureInstance> figureInstancesList) {
+  void equipFigure(
+      int figureIndex, List<routes.FigureInstance> figureInstancesList) {
     final routes.User user =
         Provider.of<UserModel>(context, listen: false).user!;
     user.curFigure = figureInstancesList[figureIndex].figureName;

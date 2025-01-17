@@ -459,7 +459,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     });
   }
 
-  Future<void> endWorkout() async {
+  Future<void> endWorkout(double screenHeight) async {
     if (time < _timegoal.toInt()) {
       showFFDialogBinary(
         "ARE YOU SURE?",
@@ -467,7 +467,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
         true,
         context,
         FFAppButton(
-          height: MediaQuery.of(context).size.height * 0.0751173708920188,
+          height: screenHeight * 0.0751173708920188,
           fontSize: 20,
           text: "OK",
           onPressed: () async => {
@@ -482,7 +482,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           },
         ),
         FFAppButton(
-          height: MediaQuery.of(context).size.height * 0.0751173708920188,
+          height: screenHeight * 0.0751173708920188,
           fontSize: 20,
           isNoThanks: true,
           text: "GO BACK",
@@ -611,14 +611,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     return Center(
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.03,
+            top: screenHeight * 0.03,
             child: SizedBox(
-              width: MediaQuery.of(context).size.width.clamp(0, 400),
+              width: screenWidth.clamp(0, 400),
               child: WorkoutCalendar(
                 isInteractable: false,
                 workoutMinTime: minWorkoutTime,
@@ -627,7 +630,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           ),
           if (states['post-logging']!)
             Positioned(
-                bottom: MediaQuery.of(context).size.height * -0.015,
+                bottom: screenHeight * -0.015,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -638,9 +641,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                         bottom: 12,
                         right: 40,
                       ),
-                      width: MediaQuery.of(context).size.width,
-                      height:
-                          MediaQuery.of(context).size.height * 0.615, // 0.295
+                      width: screenWidth,
+                      height: screenHeight * 0.615, // 0.295
                       decoration: const BoxDecoration(
                         border: Border(
                           top: BorderSide(
@@ -665,9 +667,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                       children: states['investing']!
                                           ? [
                                               SizedBox(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
+                                                width: screenWidth,
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -705,11 +705,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                                   .colorScheme
                                                                   .onSurface,
                                                         ),
-                                                        width:
-                                                            MediaQuery.sizeOf(
-                                                                        context)
-                                                                    .width *
-                                                                1,
+                                                        width: screenWidth * 1,
                                                         height: 2,
                                                       ),
                                                     ),
@@ -754,15 +750,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                           children: [
                                                             WeekToGoShower(
                                                               boxSize: Size(
-                                                                MediaQuery
-                                                                        .sizeOf(
-                                                                      context,
-                                                                    ).width *
+                                                                screenWidth *
                                                                     0.09,
-                                                                MediaQuery
-                                                                        .sizeOf(
-                                                                      context,
-                                                                    ).width *
+                                                                screenWidth *
                                                                     0.09,
                                                               ),
                                                               weekGoal: user
@@ -795,9 +785,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                       builder: (context, value,
                                                           child) {
                                                         return FFAppButton(
-                                                          size: MediaQuery.sizeOf(
-                                                                      context)
-                                                                  .width *
+                                                          size: screenWidth *
                                                               0.85,
                                                           height: 50,
                                                           disabled: hasInvested,
@@ -881,15 +869,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                           .figure!.figureName,
                                                       figureLevel: figure
                                                           .figure!.evLevel,
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.278169014084507,
-                                                      width: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width *
+                                                      height: screenHeight *
+                                                          0.278169014084507,
+                                                      width: screenWidth *
                                                           0.4460559796437659,
                                                     );
                                                   }),
@@ -962,15 +944,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                         CrossAxisAlignment.end,
                                                     children: [
                                                       ChargeBar(
-                                                        barHeight: MediaQuery
-                                                                    .of(context)
-                                                                .size
-                                                                .height *
+                                                        barHeight: screenHeight *
                                                             0.0195305164319249,
-                                                        barWidth: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
+                                                        barWidth: screenWidth *
                                                             0.5338422391857506,
                                                         fillColor:
                                                             Theme.of(context)
@@ -994,11 +970,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                     ],
                                                   ),
                                                   SizedBox(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.03,
+                                                    height: screenHeight * 0.03,
                                                   ),
                                                   Row(
                                                     mainAxisAlignment:
@@ -1017,15 +989,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                             Theme.of(context)
                                                                 .colorScheme
                                                                 .secondary,
-                                                        barHeight: MediaQuery
-                                                                    .of(context)
-                                                                .size
-                                                                .height *
+                                                        barHeight: screenHeight *
                                                             0.0195305164319249,
-                                                        barWidth: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
+                                                        barWidth: screenWidth *
                                                             0.5338422391857506,
                                                         showInfoBox: true,
                                                         showIcon: true,
@@ -1054,9 +1020,9 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             FFAppButton(
                               text: "AWESOME!",
                               fontSize: 20,
-                              size: MediaQuery.of(context).size.width *
+                              size: screenWidth *
                                   0.85272264631043256997455470737913,
-                              height: MediaQuery.of(context).size.height *
+                              height: screenHeight *
                                   0.0946478873239436619718309859155,
                               onPressed: () => {
                                 if (states['investing']!)
@@ -1086,7 +1052,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                 ))
           else
             Positioned(
-              bottom: MediaQuery.of(context).size.height * -0.015,
+              bottom: screenHeight * -0.015,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: states['chatting']!
@@ -1098,9 +1064,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                               bottom: 12,
                               right: 40,
                             ),
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height *
-                                0.615, // 0.295
+                            width: screenWidth,
+                            height: screenHeight * 0.615, // 0.295
                             decoration: const BoxDecoration(
                               border: Border(
                                 top: BorderSide(
@@ -1120,15 +1085,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     return BinaryGlowChatBubble(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.8,
+                                      width: screenWidth * 0.8,
                                       message: snapshot.data!,
                                       chatMore: true,
                                     );
                                   } else if (snapshot.hasError) {
                                     return BinaryGlowChatBubble(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.8,
+                                      width: screenWidth * 0.8,
                                       message:
                                           "[CRITICAL CHAT MODULE ERR ::Code 402::]",
                                     );
@@ -1149,20 +1112,17 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                       useEquippedFigure: false,
                                       figureName: figure.figure!.figureName,
                                       figureLevel: figure.figure!.evLevel,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.278169014084507,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.4452926208651399,
+                                      height: screenHeight * 0.278169014084507,
+                                      width: screenWidth * 0.4452926208651399,
                                     ),
                                   ],
                                 );
                               }),
                               FFAppButton(
                                 fontSize: 20,
-                                size: MediaQuery.of(context).size.width *
+                                size: screenWidth *
                                     0.85272264631043256997455470737913,
-                                height: MediaQuery.of(context).size.height *
+                                height: screenHeight *
                                     0.0946478873239436619718309859155,
                                 text: "OK",
                                 onPressed: () => {
@@ -1197,9 +1157,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                     useEquippedFigure: false,
                                     figureName: figure.figure!.figureName,
                                     figureLevel: figure.figure!.evLevel,
-                                    height:
-                                        MediaQuery.of(context).size.height / 4,
-                                    width: MediaQuery.of(context).size.width,
+                                    height: screenHeight / 4,
+                                    width: screenWidth,
                                   ),
                                   // DraggableAdminPanel(
                                   //   onButton1Pressed: add10Minutes,
@@ -1218,7 +1177,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                             top: 12,
                             right: 14,
                           ),
-                          width: MediaQuery.of(context).size.width,
+                          width: screenWidth,
                           decoration: const BoxDecoration(
                             border: Border(
                               top: BorderSide(
@@ -1232,7 +1191,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                               ],
                             ),
                           ),
-                          height: MediaQuery.of(context).size.height * 0.285,
+                          height: screenHeight * 0.285,
                           // doWeBinkTheBorder: false,
                           // radius: 0,
                           child: Column(
@@ -1245,7 +1204,8 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                   children: states["logging"]!
                                       ? [
                                           GestureDetector(
-                                            onTap: () => {endWorkout()},
+                                            onTap: () =>
+                                                {endWorkout(screenHeight)},
                                             child: Icon(
                                               Icons.stop,
                                               color: Theme.of(context)
@@ -1309,15 +1269,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                             simulateCurrentGains:
                                                                 true,
                                                             showIcon: true,
-                                                            barHeight: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height *
-                                                                0.0157863849765258215962441314554, // sizes calculated from figma
-                                                            barWidth: MediaQuery
-                                                                    .of(
-                                                                  context,
-                                                                ).size.width *
+                                                            barHeight:
+                                                                screenHeight *
+                                                                    0.0157863849765258215962441314554, // sizes calculated from figma
+                                                            barWidth: screenWidth *
                                                                 0.43531806615776081424936386768448,
                                                             fillColor: Theme.of(
                                                                     context)
@@ -1344,29 +1299,25 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                                   true,
                                                               areWeShadowing:
                                                                   true,
-                                                              currentXp: figure
-                                                                  .figure!
-                                                                  .evPoints,
+                                                              currentXp:
+                                                                  figure.figure!
+                                                                      .evPoints,
                                                               maxXp: figure1
                                                                       .evCutoffs[
                                                                   figure
                                                                       .EVLevel],
-                                                              fillColor:
-                                                                  Theme.of(
+                                                              fillColor: Theme
+                                                                      .of(
                                                                 context,
                                                               )
-                                                                      .colorScheme
-                                                                      .secondary,
-                                                              barHeight: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height *
-                                                                  0.0157863849765258215962441314554,
-                                                              barWidth: MediaQuery
-                                                                      .of(
-                                                                    context,
-                                                                  ).size.width *
-                                                                  0.43531806615776081424936386768448,
+                                                                  .colorScheme
+                                                                  .secondary,
+                                                              barHeight:
+                                                                  screenHeight *
+                                                                      0.0157863849765258215962441314554,
+                                                              barWidth:
+                                                                  screenWidth *
+                                                                      0.43531806615776081424936386768448,
                                                               iconSize: 40),
                                                         ],
                                                       ),
@@ -1394,10 +1345,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                         .toInt(),
                                                   ),
                                                   SizedBox(
-                                                    height: MediaQuery.of(
-                                                                context)
-                                                            .size
-                                                            .height *
+                                                    height: screenHeight *
                                                         0.016431924882629107981220657277,
                                                   ),
                                                   StreakShower(
@@ -1418,16 +1366,13 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                               states['pre-logging']!
                                   ? FFAppButton(
                                       icon: Icons.add,
-                                      iconPadding:
-                                          MediaQuery.of(context).size.width *
-                                              0.15,
+                                      iconPadding: screenWidth * 0.15,
                                       text: "START WORKOUT",
                                       fontSize: 20,
-                                      size: MediaQuery.of(context).size.width *
+                                      size: screenWidth *
                                           0.85272264631043256997455470737913,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.0946478873239436619718309859155,
+                                      height: screenHeight *
+                                          0.0946478873239436619718309859155,
                                       onPressed: () {
                                         startLogging(false);
                                         startTimer(false, false);
@@ -1437,23 +1382,18 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                   : states['paused']!
                                       ? Padding(
                                           padding: EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
+                                              top: screenHeight *
                                                   0.0461971830985915492957746478873),
                                           child: FFAppButton(
                                             icon: Icons.add,
-                                            size: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
+                                            size: screenWidth *
                                                 0.85272264631043256997455470737913,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
+                                            height: screenHeight *
                                                 0.0946478873239436619718309859155,
                                             fontSize: 20,
                                             text: 'COMPLETE WORKOUT',
-                                            onPressed: () => {endWorkout()},
+                                            onPressed: () =>
+                                                {endWorkout(screenHeight)},
                                           ))
                                       : WorkoutProgressBar(
                                           progress: ((_timer.milliseconds /

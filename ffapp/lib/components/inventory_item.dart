@@ -43,10 +43,13 @@ class InventoryItemState extends State<InventoryItem> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return widget.locked
         ? Image.asset(
             "lib/assets/images/locked_figure.png",
-            height: MediaQuery.of(context).size.height * 0.33,
+            height: screenHeight * 0.33,
           )
         : Consumer2<FigureModel, FigureInstancesProvider>(
             builder: (context, figureModel, figureInstances, _) {
@@ -63,8 +66,8 @@ class InventoryItemState extends State<InventoryItem> {
                           // highlighted border over figure if selected
                           Center(
                             child: Container(
-                              width: MediaQuery.of(context).size.width * 0.47,
-                              height: MediaQuery.of(context).size.height * 0.34,
+                              width: screenWidth * 0.47,
+                              height: screenHeight * 0.34,
                               decoration: BoxDecoration(
                                 border: widget.isSelected
                                     ? Border.all(
@@ -82,8 +85,8 @@ class InventoryItemState extends State<InventoryItem> {
                           Center(
                             child: FitnessIcon(
                               type: FitnessIconType.figure_full,
-                              size: MediaQuery.of(context).size.width * 0.4,
-                              height: MediaQuery.of(context).size.height * 0.35,
+                              size: screenWidth * 0.4,
+                              height: screenHeight * 0.35,
                             ),
                           ),
                           // Original elements positioned over the FitnessIcon
@@ -147,10 +150,10 @@ class InventoryItemState extends State<InventoryItem> {
                             if (!widget.isSelected)
                               Center(
                                   child: Container(
-                                      width: MediaQuery.of(context).size.width *
+                                      width: screenWidth *
                                           0.441,
                                       height:
-                                          MediaQuery.of(context).size.height *
+                                          screenHeight *
                                               0.3365,
                                       decoration: BoxDecoration(
                                         color: Colors.black.withOpacity(0.5),

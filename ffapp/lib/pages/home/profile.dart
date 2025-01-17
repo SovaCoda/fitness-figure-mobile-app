@@ -49,9 +49,9 @@ class _ProfileState extends State<Profile> {
     super.dispose();
   }
 
-  void _showWeeklyGoalPicker() {
+  void _showWeeklyGoalPicker(double screenWidth, double screenHeight) {
     final int safeWeeklyGoal = weeklyGoal.clamp(1, 7);
-    showModalBottomSheet(
+    showModalBottomSheet<Widget>(
       context: context,
       enableDrag: false,
       isDismissible: false,
@@ -60,8 +60,8 @@ class _ProfileState extends State<Profile> {
         return BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
             child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.5, // 0.295
+                width: screenWidth,
+                height: screenHeight * 0.5, // 0.295
                 decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(
@@ -99,12 +99,12 @@ class _ProfileState extends State<Profile> {
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: screenHeight * 0.5,
                         backgroundColor: Colors.transparent,
                         selectedItemIndex: safeWeeklyGoal - 1,
                         buttonStyle: const BoxDecoration(),
                         itemExtent: 38,
-                        buttonWidth: MediaQuery.of(context).size.width * 0.77,
+                        buttonWidth: screenWidth * 0.77,
                         onChange: (dynamic index) {
                           setState(() {
                             final int indexInt = index as int;
@@ -120,8 +120,8 @@ class _ProfileState extends State<Profile> {
                         displayCloseIcon: false,
                         buttonContent: FFAppButton(
                             text: 'Confirm',
-                            size: MediaQuery.of(context).size.width * 0.77,
-                            height: MediaQuery.of(context).size.height * 0.07,
+                            size: screenWidth * 0.77,
+                            height: screenHeight * 0.07,
                             onPressed: () =>
                                 {updateWeeklyGoal(weeklyGoal), context.pop()}));
                   },
@@ -130,9 +130,9 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void _showMinGoalPicker() {
+  void _showMinGoalPicker(double screenWidth, double screenHeight) {
     final int safeWeeklyGoal = weeklyGoal.clamp(1, 12);
-    showModalBottomSheet(
+    showModalBottomSheet<Widget>(
         context: context,
         enableDrag: false,
         isDismissible: false,
@@ -141,8 +141,8 @@ class _ProfileState extends State<Profile> {
           return BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 3, sigmaY: 5),
               child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.5, // 0.295
+                  width: screenWidth,
+                  height: screenHeight * 0.5, // 0.295
                   decoration: const BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -176,8 +176,8 @@ class _ProfileState extends State<Profile> {
                       fontWeight: FontWeight.bold,
                     ),
                     buttonStyle: const BoxDecoration(),
-                    buttonWidth: MediaQuery.of(context).size.width * 0.77,
-                    height: MediaQuery.of(context).size.height * 0.5,
+                    buttonWidth: screenWidth * 0.77,
+                    height: screenHeight * 0.5,
                     backgroundColor: Colors.transparent,
                     selectedItemIndex: safeWeeklyGoal - 1,
                     itemExtent: 38,
@@ -196,8 +196,8 @@ class _ProfileState extends State<Profile> {
                     },
                     buttonContent: FFAppButton(
                         text: 'Confirm',
-                        size: MediaQuery.of(context).size.width * 0.77,
-                        height: MediaQuery.of(context).size.height * 0.07,
+                        size: screenWidth * 0.77,
+                        height: screenHeight * 0.07,
                         onPressed: () {
                           updateMinWorkoutTime(minExerciseGoal);
                           context.pop();
@@ -284,45 +284,42 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final screenWidth = size.width;
+    final screenHeight = size.height;
+
     return Consumer<UserModel>(builder: (context, userModel, _) {
-      return Stack(
-        children: <Widget>[
-          // Background image
-          Positioned.fill(
-            child: Image.asset(
-              'lib/assets/art/profile_background.png', // Make sure this image exists in your assets
-              fit: BoxFit.cover,
-            ),
+      return Stack(children: <Widget>[
+        // Background image
+        Positioned.fill(
+          child: Image.asset(
+            'lib/assets/art/profile_background.png', // Make sure this image exists in your assets
+            fit: BoxFit.cover,
           ),
-          // Existing content
-          SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics().applyTo(
-              const BouncingScrollPhysics(),
-            ), // quick fix for this https://github.com/flutter/flutter/issues/138940
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const Text(
-                    'PROFILE',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildProfileSection(userModel),
-                  const SizedBox(height: 24),
-                  _buildGoalsSection(userModel),
-                  const SizedBox(height: 24),
-                  _buildSubscriptionSection(userModel),
-                  const SizedBox(height: 32),
-                  _buildActionButtons(userModel),
-                ],
-              ),
-            ),
+        ),
+        // Existing content
+        ListView(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          physics: const AlwaysScrollableScrollPhysics().applyTo(
+            const BouncingScrollPhysics(),
           ),
-        ],
-      );
+          children: <Widget>[
+            const Text(
+              'PROFILE',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            _buildProfileSection(userModel),
+            const SizedBox(height: 24),
+            _buildGoalsSection(userModel, screenWidth, screenHeight),
+            const SizedBox(height: 24),
+            _buildSubscriptionSection(userModel),
+            const SizedBox(height: 32),
+            _buildActionButtons(userModel, screenWidth, screenHeight),
+          ],
+        ),
+      ]);
     });
   }
 
@@ -421,7 +418,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildGoalsSection(UserModel userModel) {
+  Widget _buildGoalsSection(
+      UserModel userModel, double screenWidth, double screenHeight) {
     return GradientedContainer(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -440,11 +438,15 @@ class _ProfileState extends State<Profile> {
             _buildGoalItem(
               'Weekly Workout Goal',
               '${weeklyGoal} ${weeklyGoal == 1 ? "day" : "days"}',
+              screenWidth,
+              screenHeight,
               _showWeeklyGoalPicker,
             ),
             _buildGoalItem(
               'Minimum Workout Time',
               '${minExerciseGoal} ${minExerciseGoal == 1 ? "minute" : "minutes"}',
+              screenWidth,
+              screenHeight,
               _showMinGoalPicker,
             ),
           ],
@@ -453,7 +455,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildGoalItem(String title, String value, VoidCallback onTap) {
+  Widget _buildGoalItem(String title, String value, double screenWidth,
+      double screenHeight, void Function(double, double) onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -483,7 +486,9 @@ class _ProfileState extends State<Profile> {
             ],
           ),
           GestureDetector(
-            onTap: onTap,
+            onTap: () {
+              onTap(screenWidth, screenHeight);
+            },
             child: const Icon(Icons.edit, color: Colors.white),
           ),
         ],
@@ -554,34 +559,34 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildActionButtons(UserModel userModel) {
+  Widget _buildActionButtons(
+      UserModel userModel, double screenWidth, double screenHeight) {
     return Column(
       children: <Widget>[
         FFAppButton(
-          onPressed: () => _showSignOutConfirmation(),
+          onPressed: () => _showSignOutConfirmation(screenWidth, screenHeight),
           text: 'SIGN OUT',
           isSignOut: true,
           fontSize: 24,
-          size: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.08,
+          size: screenWidth * 0.8,
+          height: screenHeight * 0.08,
         ),
         const SizedBox(height: 16),
         FFAppButton(
-          onPressed: () =>
-              _showDeleteAccountConfirmation(userModel.user!.email),
+          onPressed: () => _showDeleteAccountConfirmation(
+              userModel.user!.email, screenWidth, screenHeight),
           text: 'DELETE ACCOUNT',
           fontSize: 20,
           isDelete: true,
-          size: MediaQuery.of(context).size.width *
-              0.79389312977099236641221374045802,
-          height: MediaQuery.of(context).size.height *
-              0.08098591549295774647887323943662,
+          size: screenWidth * 0.79389312977099236641221374045802,
+          height: screenHeight * 0.08098591549295774647887323943662,
         ),
       ],
     );
   }
 
-  void _showDeleteAccountConfirmation(String email) {
+  void _showDeleteAccountConfirmation(
+      String email, double screenWidth, double screenHeight) {
     showFFDialogBinary(
       'Delete Account',
       'Are you sure you want to delete your account? This action cannot be undone.',
@@ -589,8 +594,8 @@ class _ProfileState extends State<Profile> {
       context,
       FFAppButton(
         text: 'Delete Account',
-        size: MediaQuery.of(context).size.width * 0.8,
-        height: MediaQuery.of(context).size.height * 0.10,
+        size: screenWidth * 0.8,
+        height: screenHeight * 0.10,
         isDelete: true,
         onPressed: () async {
           // Prompt the user to enter their password
@@ -615,8 +620,8 @@ class _ProfileState extends State<Profile> {
       ),
       FFAppButton(
         text: 'Cancel',
-        size: MediaQuery.of(context).size.width * 0.8,
-        height: MediaQuery.of(context).size.height * 0.10,
+        size: screenWidth * 0.8,
+        height: screenHeight * 0.10,
         isNoThanks: true,
         onPressed: () {
           if (mounted) {
@@ -761,7 +766,7 @@ class _ProfileState extends State<Profile> {
   }
 
   /// Shows a popup confirmation for the user to sign out or cancel
-  void _showSignOutConfirmation() {
+  void _showSignOutConfirmation(double screenWidth, double screenHeight) {
     showFFDialogBinary(
       'Sign out',
       'Are you sure you want to sign out?',
@@ -769,8 +774,8 @@ class _ProfileState extends State<Profile> {
       context,
       FFAppButton(
         text: 'SIGN OUT',
-        size: MediaQuery.of(context).size.width * 0.75,
-        height: MediaQuery.of(context).size.height * 0.07,
+        size: screenWidth * 0.75,
+        height: screenHeight * 0.07,
         fontSize: 20,
         isSignOut: true,
         onPressed: () {
@@ -783,8 +788,8 @@ class _ProfileState extends State<Profile> {
         text: 'CANCEL',
         isNoThanks: true,
         fontSize: 20,
-        size: MediaQuery.of(context).size.width * 0.75,
-        height: MediaQuery.of(context).size.height * 0.07,
+        size: screenWidth * 0.75,
+        height: screenHeight * 0.07,
         onPressed: () => Navigator.of(context).pop(),
       ),
     );

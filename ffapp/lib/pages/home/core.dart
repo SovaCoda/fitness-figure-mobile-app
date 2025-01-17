@@ -262,6 +262,9 @@ class _CoreState extends State<Core> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     return FutureBuilder(
       future: _intializationFuture,
       builder: (context, snapshot) {
@@ -272,13 +275,13 @@ class _CoreState extends State<Core> {
                 top: 0,
                 left: 0,
                 right: 0,
-                child: _buildTopSection(),
+                child: _buildTopSection(screenWidth, screenHeight),
               ),
               Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: _buildResearchSection(),
+                child: _buildResearchSection(screenWidth, screenHeight),
               )
             ],
           );
@@ -289,7 +292,7 @@ class _CoreState extends State<Core> {
     );
   }
 
-  Widget _buildTopSection() {
+  Widget _buildTopSection(double screenWidth, double screenHeight) {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
@@ -306,21 +309,16 @@ class _CoreState extends State<Core> {
           },
         ),
         Positioned(
-          right: _figure.EVLevel == 0
-              ? MediaQuery.of(context).size.width * 0.4
-              : MediaQuery.of(context).size.width * 0.275,
+          right: _figure.EVLevel == 0 ? screenWidth * 0.4 : screenWidth * 0.275,
           child: FitnessIcon(
             type: FitnessIconType.evolution_circuits,
-            size: _figure.EVLevel == 0
-                ? MediaQuery.of(context).size.width * 0.25
-                : MediaQuery.of(context).size.width * 0.375,
+            size:
+                _figure.EVLevel == 0 ? screenWidth * 0.25 : screenWidth * 0.375,
           ),
         ),
         Positioned(
-          right: _figure.EVLevel == 0
-              ? MediaQuery.of(context).size.width * 0.1
-              : MediaQuery.of(context).size.width * 0.05,
-          child: _buildCurrencyDisplay(),
+          right: _figure.EVLevel == 0 ? screenWidth * 0.1 : screenWidth * 0.05,
+          child: _buildCurrencyDisplay(screenWidth, screenHeight),
         ),
         // Positioned widget breaks this, so I just add padding
         Padding(
@@ -330,15 +328,15 @@ class _CoreState extends State<Core> {
             useEquippedFigure: false,
             figureLevel: _figure.EVLevel,
             figureName: _figure.figure!.figureName,
-            height: MediaQuery.of(context).size.height * 0.4,
-            width: MediaQuery.of(context).size.width * 0.4,
+            height: screenHeight * 0.4,
+            width: screenWidth * 0.4,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCurrencyDisplay() {
+  Widget _buildCurrencyDisplay(double screenWidth, double screenHeight) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10, top: 10, right: 30),
       child: Stack(
@@ -352,8 +350,8 @@ class _CoreState extends State<Core> {
               ),
               child: Image.asset(
                 'lib/assets/images/evolution_panel_circle.png',
-                height: MediaQuery.of(context).size.width * 0.35,
-                width: MediaQuery.of(context).size.width * 0.35,
+                height: screenWidth * 0.35,
+                width: screenWidth * 0.35,
               ),
             ),
           ),
@@ -416,12 +414,12 @@ class _CoreState extends State<Core> {
   }
 
   /// Builds the gradiented container and the research tasks inside of it
-  Widget _buildResearchSection() {
+  Widget _buildResearchSection(double screenWidth, double screenHeight) {
     return Consumer<FigureModel>(
       builder: (_, figure, __) {
         return SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.5,
+          width: screenWidth,
+          height: screenHeight * 0.5,
           child: ResearchGlassPanel(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 32),
@@ -430,19 +428,21 @@ class _CoreState extends State<Core> {
                 children: [
                   Column(
                     children: [
-                      _buildResearchHeader(),
+                      _buildResearchHeader(screenWidth, screenHeight),
                       if (_taskManager.isDailyLimitReached())
-                        _buildDailyLimitReachedMessage()
+                        _buildDailyLimitReachedMessage(
+                            screenWidth, screenHeight)
                       else
                         _buildAvailableTasks(),
-                      _buildResetTasksButton(), // debug widget
+                      _buildResetTasksButton(
+                          screenWidth, screenHeight), // debug widget
                     ],
                   ),
                   if (!figure.capabilities['Research Unlocked']!)
                     // adds a locked overlay on this page
                     Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.51,
+                      width: screenWidth,
+                      height: screenHeight * 0.51,
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(10),
@@ -488,12 +488,12 @@ class _CoreState extends State<Core> {
   }
 
   /// Builds the RESEARCH title bar
-  Widget _buildResearchHeader() {
+  Widget _buildResearchHeader(double screenWidth, double screenHeight) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: screenWidth,
       margin: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * 0.05,
-        vertical: MediaQuery.of(context).size.height * 0.01,
+        horizontal: screenWidth * 0.05,
+        vertical: screenHeight * 0.01,
       ),
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: const BoxDecoration(
@@ -513,14 +513,15 @@ class _CoreState extends State<Core> {
   }
 
   /// Builds the daily limit when the user has done all tasks for the day
-  Widget _buildDailyLimitReachedMessage() {
+  Widget _buildDailyLimitReachedMessage(
+      double screenWidth, double screenHeight) {
     return Column(
       children: [
         Container(
-          width: MediaQuery.of(context).size.width * 0.85,
+          width: screenWidth * 0.85,
           margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.02,
-            vertical: MediaQuery.of(context).size.height * 0.02,
+            horizontal: screenWidth * 0.02,
+            vertical: screenHeight * 0.02,
           ),
           padding: const EdgeInsets.all(5),
           child: Text(
@@ -537,39 +538,59 @@ class _CoreState extends State<Core> {
 
   /// Builds all the available tasks in the [_taskManager]
   Widget _buildAvailableTasks() {
-    final List<Widget> content = _taskManager.getAvailableTasks().map((task) {
-      return ResearchOption(
-        key: ValueKey(task.id),
-        task: task,
-        onComplete: _onTaskComplete,
-        releaseLockedTasks: _taskManager.releaseLockedTasks,
-        onStart: _taskManager.startTask,
-        onSubtractCurrency: _subtractCurrency,
-        lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
-      );
-    }).toList();
-
     return Expanded(
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics().applyTo(
-          const BouncingScrollPhysics(),
-        ), // quick fix for this https://github.com/flutter/flutter/issues/138940
-        child: Column(
-          children: content,
-        ),
-      ),
-    );
+        child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics().applyTo(
+              const BouncingScrollPhysics(),
+            ),
+            padding: const EdgeInsets.all(8),
+            itemCount: _taskManager.getAvailableTasks().length,
+            itemBuilder: (BuildContext context, int index) {
+              return ResearchOption(
+                key: ValueKey(_taskManager.getAvailableTasks()[index].id),
+                task: _taskManager.getAvailableTasks()[index],
+                onComplete: _onTaskComplete,
+                releaseLockedTasks: _taskManager.releaseLockedTasks,
+                onStart: _taskManager.startTask,
+                onSubtractCurrency: _subtractCurrency,
+                lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
+              );
+            }));
+
+    // final List<Widget> content = _taskManager.getAvailableTasks().map((task) {
+    //   return ResearchOption(
+    //     key: ValueKey(task.id),
+    //     task: task,
+    //     onComplete: _onTaskComplete,
+    //     releaseLockedTasks: _taskManager.releaseLockedTasks,
+    //     onStart: _taskManager.startTask,
+    //     onSubtractCurrency: _subtractCurrency,
+    //     lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
+    //   );
+    // }).toList();
+
+    // return Expanded(
+    //   child: SingleChildScrollView(
+    //     physics: const AlwaysScrollableScrollPhysics().applyTo(
+    //       const BouncingScrollPhysics(),
+    //     ), // quick fix for this https://github.com/flutter/flutter/issues/138940
+    //     child: Column(
+    //       children: content,
+    //     ),
+    //   ),
+    // );
   }
 
   /// This widget creates a button that resets the tasks for debugging.
   /// Set [isDebugging] to true to enable it, but keep it disabled on the main branch.
-  Widget _buildResetTasksButton({bool isDebugging = false}) {
+  Widget _buildResetTasksButton(double screenWidth, double screenHeight,
+      {bool isDebugging = false}) {
     return isDebugging
         ? FFAppButton(
             onPressed: _resetTasks,
             text: 'Reset tasks (for debugging)',
-            size: MediaQuery.of(context).size.width * 0.55,
-            height: MediaQuery.of(context).size.height * 0.06,
+            size: screenWidth * 0.55,
+            height: screenHeight * 0.06,
             fontSize: 14,
           )
         : Container();

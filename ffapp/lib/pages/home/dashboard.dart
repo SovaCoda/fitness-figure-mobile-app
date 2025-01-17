@@ -296,7 +296,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     // Use MediaQuery to get screen size
-    final Size screenSize = MediaQuery.of(context).size;
+    final Size screenSize = MediaQuery.sizeOf(context);
     final double screenWidth = screenSize.width;
     final double screenHeight = screenSize.height;
 
@@ -337,24 +337,32 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Center(
-                              // delay the execution of the animated figure to prevent freezing (any faster causes set state after dispose)
-                              child: FutureBuilder(
-                                  future: Future<void>.delayed(const Duration(
-                                      seconds: 2)), // Add a 2-second delay
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      // While waiting for the delay, you can show a placeholder
-                                      return const CircularProgressIndicator(); // Replace with your desired placeholder
-                                    } else {
-                                      // Once the delay is over, build the AnimatedFigure
-                                      return AnimatedFigure(
-                                        height: robotImageHeight,
-                                        width: robotImageHeight,
-                                      );
-                                    }
-                                  }))
+                          Consumer<FigureModel>(
+                              builder: (context, figure, child) => Center(
+
+                                  // delay the execution of the animated figure to prevent freezing (any faster causes set state after dispose)
+                                  child: FutureBuilder(
+                                      future: Future<void>.delayed(
+                                          const Duration(
+                                              seconds:
+                                                  2)), // Add a 2-second delay
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          // While waiting for the delay, you can show a placeholder
+                                          return const CircularProgressIndicator(); // Replace with your desired placeholder
+                                        } else {
+                                          // Once the delay is over, build the AnimatedFigure
+                                          return AnimatedFigure(
+                                            height: robotImageHeight,
+                                            width: robotImageHeight,
+                                            useEquippedFigure: false,
+                                            figureName:
+                                                figure.figure!.figureName,
+                                            figureLevel: figure.figure!.evLevel,
+                                          );
+                                        }
+                                      })))
                         ],
                       ),
                       Consumer<UserModel>(
