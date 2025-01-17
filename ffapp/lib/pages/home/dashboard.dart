@@ -25,6 +25,7 @@ import 'package:provider/provider.dart';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'dart:async';
+import 'dart:math';
 import 'store.dart';
 
 class IsolateInitData {
@@ -46,24 +47,46 @@ class IsolateInitData {
 Future<List<dynamic>> isolateFetchDatabaseInfo(IsolateInitData initData) async {
   BackgroundIsolateBinaryMessenger.ensureInitialized(initData.token);
 
+  const maxRetries = 3;
+  int currentAttempt = 0;
+  const Duration initialDelay = Duration(seconds: 1);
+
+  Future<dynamic> retryableUserInfoFetch() async {
+    while (currentAttempt < maxRetries) {
+      assert(initData.email.isNotEmpty, 'Received empty email for query');
+      try {
+        final AuthService auth = await AuthService.instance;
+
+        return await auth
+            .initializeUserInfo(initData.email)
+            .timeout(const Duration(seconds: 10), onTimeout: () {
+          throw TimeoutException('Database call timed out');
+        });
+      } catch (e) {
+        currentAttempt++;
+        if (currentAttempt >= maxRetries) {
+          logger.e('Final retry attempt failed: $e');
+          rethrow;
+        }
+
+        // Calculate exponential backoff delay
+        final delay = initialDelay * pow(2, currentAttempt - 1);
+        logger.w(
+            'Attempt $currentAttempt failed. Retrying in ${delay.inSeconds}s. Error: $e');
+
+        await Future.delayed(delay);
+      }
+    }
+  }
+
   try {
-    final AuthService auth = await AuthService.instance;
-
-    // Create a timeout for the database call
-    final userInfoFuture = auth
-        .initializeUserInfo(initData.email)
-        .timeout(const Duration(seconds: 10), onTimeout: () {
-      throw TimeoutException('Database call timed out');
-    });
-
-    // Run futures in parallel
     final results = await Future.wait([
-      userInfoFuture,
+      retryableUserInfoFetch(),
     ], eagerError: true);
 
     return results;
   } catch (e) {
-    logger.e('Error in isolate: $e');
+    logger.e('All retry attempts failed in isolate: $e');
     return [null, null];
   }
 }
@@ -88,10 +111,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   Future<void> initialize() async {
     final UserModel userModel = Provider.of<UserModel>(context, listen: false);
-    if (userModel.user?.email == null) {
-      logger.e('No logged in user!');
-      return;
-    }
+    assert(userModel.user?.email != null || userModel.user!.email.isNotEmpty);
 
     final stopwatch = Stopwatch()..start();
 
@@ -114,9 +134,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     final Routes.User? databaseUser = userInfo?.user;
     final Routes.MultiFigureInstance? figureInstances = userInfo?.figures;
     final Routes.MultiWorkout? workouts = userInfo?.workouts;
-
-    // final Routes.MultiFigureInstance figureInstances =
-    //     isolateResult[1] as Routes.MultiFigureInstance;
 
     logger.i('Database calls finished in ${stopwatch.elapsedMilliseconds}ms');
 
@@ -278,6 +295,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         );
       }
     });
+    await Future.delayed(const Duration(seconds: 3));
+    Provider.of<LoadingScreen>(context, listen: false).setIsLoading(false);
   }
 
   void setAnimationHappy() {

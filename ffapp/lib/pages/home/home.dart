@@ -20,6 +20,8 @@ import 'package:provider/provider.dart';
 
 import '../../main.dart';
 
+
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
   @override
@@ -49,7 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     LocalNotificationService().initNotifications();
 
-    initialize();
+    // initialize();
     super.initState();
   }
 
@@ -59,18 +61,18 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   // TODO: MOVE GENERAL LOGIC INTO THE HOME PAGE FROM DASHBOARD (Initializing providers etc.)
-  Future<void> initialize() async {
-    Future.delayed(const Duration(milliseconds: 3000), () {
-      setState(() {
-        loadOpacity = 0.0;
-        Future.delayed(const Duration(milliseconds: 300), () {
-          setState(() {
-            loading = false;
-          });
-        });
-      });
-    });
-  }
+  // Future<void> initialize() async {
+  //   Future.delayed(const Duration(milliseconds: 3000), () {
+  //     setState(() {
+  //       loadOpacity = 0.0;
+  //       Future.delayed(const Duration(milliseconds: 300), () {
+  //         setState(() {
+  //           Provider.of<LoadingScreen>(context, listen: false).setIsLoading(false);
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,11 +105,12 @@ class _DashboardPageState extends State<DashboardPage> {
               );
             },
           )),
+      Consumer<LoadingScreen>(builder: (context, loadingScreen, child) => 
       AnimatedOpacity(
         duration: const Duration(milliseconds: 300),
         opacity: loadOpacity,
         child: Visibility(
-          visible: loading,
+          visible: loadingScreen.isLoading,
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -141,6 +144,6 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
       ),
-    ]);
+    )]);
   }
 }
