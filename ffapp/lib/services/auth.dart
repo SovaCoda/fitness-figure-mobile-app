@@ -344,14 +344,14 @@ class AuthService {
     await _routes.routesClient.updateUser(user);
   }
 
-  Future<void> updateCurrency(int currency) async {
+  Future<void> updateCurrency(double currency) async {
     final FB.User? currentUser = _auth.currentUser;
     final Routes.User user = Routes.User(
       email: currentUser?.email,
     ); // Caused crash if user logged out when using !
     if (currentUser == null) return;
-    final Int64 currency64 = Int64(currency);
-    user.currency = currency64;
+    
+    user.currency = currency;
     await _routes.routesClient.updateUser(user);
   }
 

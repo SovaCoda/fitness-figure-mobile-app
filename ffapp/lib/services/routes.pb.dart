@@ -275,7 +275,7 @@ class User extends $pb.GeneratedMessage {
     $core.String? email,
     $core.String? curFigure,
     $core.String? name,
-    $fixnum.Int64? currency,
+    $core.double? currency,
     $fixnum.Int64? weekComplete,
     $fixnum.Int64? weekGoal,
     $core.String? curWorkout,
@@ -340,7 +340,7 @@ class User extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'email')
     ..aOS(2, _omitFieldNames ? '' : 'curFigure')
     ..aOS(3, _omitFieldNames ? '' : 'name')
-    ..aInt64(4, _omitFieldNames ? '' : 'currency')
+    ..a<$core.double>(4, _omitFieldNames ? '' : 'currency', $pb.PbFieldType.OD)
     ..aInt64(5, _omitFieldNames ? '' : 'weekComplete')
     ..aInt64(6, _omitFieldNames ? '' : 'weekGoal')
     ..aOS(7, _omitFieldNames ? '' : 'curWorkout')
@@ -403,9 +403,9 @@ class User extends $pb.GeneratedMessage {
   void clearName() => clearField(3);
 
   @$pb.TagNumber(4)
-  $fixnum.Int64 get currency => $_getI64(3);
+  $core.double get currency => $_getN(3);
   @$pb.TagNumber(4)
-  set currency($fixnum.Int64 v) { $_setInt64(3, v); }
+  set currency($core.double v) { $_setDouble(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasCurrency() => $_has(3);
   @$pb.TagNumber(4)

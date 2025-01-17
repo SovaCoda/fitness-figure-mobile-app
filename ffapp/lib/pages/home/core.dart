@@ -150,7 +150,7 @@ class _CoreState extends State<Core> {
         if (mounted) {
           _currency.addToCurrency(currencyToAdd, context);
         }
-        await _auth.updateCurrency(double.parse(_currency.currency).ceil());
+        await _auth.updateCurrency(double.parse(_currency.currency));
       }
     } catch (e) {
       // TODO: handle gRPC empty rows / bad connection error
@@ -160,7 +160,7 @@ class _CoreState extends State<Core> {
 
   /// Disposes the currency generator and saves last currency gen date to database
   void _deactivateGenerationServer() {
-    _auth.updateCurrency(double.parse(_currency.currency).toInt());
+    _auth.updateCurrency(double.parse(_currency.currency));
     _auth.updateOfflineDateTime(
       routes.OfflineDateTime(
         email: _user.user!.email,
@@ -216,7 +216,7 @@ class _CoreState extends State<Core> {
 
     // Run currency updates concurrently
     await Future.wait([
-      _auth.updateUserDBInfo(user..currency = Int64(updateCurrency.ceil())),
+      _auth.updateUserDBInfo(user..currency = updateCurrency),
       Future(() {
         if (mounted) {
           Provider.of<CurrencyModel>(context, listen: false)

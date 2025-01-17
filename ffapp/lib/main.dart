@@ -72,11 +72,11 @@ class CurrencyModel extends ChangeNotifier {
   void addToCurrency(double numberToAdd, BuildContext context) async {
     double currentCurrency = double.parse(currency);
 
-    if ((currentCurrency + numberToAdd).toInt() > currentCurrency.toInt()) {
+    if ((currentCurrency + numberToAdd) > currentCurrency) {
       AuthService instance = await AuthService.instance;
-      instance.updateCurrency((currentCurrency + numberToAdd).toInt());
+      instance.updateCurrency((currentCurrency + numberToAdd));
       User user = Provider.of<UserModel>(context, listen: false).user!;
-      user.currency = Int64((currentCurrency + numberToAdd).toInt());
+      user.currency = (currentCurrency + numberToAdd);
       Provider.of<UserModel>(context, listen: false).setUser(user);
       String email = Provider.of<UserModel>(context, listen: false).user!.email;
       instance.updateOfflineDateTime(

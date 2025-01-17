@@ -107,7 +107,7 @@ message User {
     string email = 1;
     string cur_figure = 2;
     string name = 3;
-    int64 currency = 4;
+    double currency = 4;
     int64 week_complete = 5;
     int64 week_goal = 6;
     string cur_workout = 7;

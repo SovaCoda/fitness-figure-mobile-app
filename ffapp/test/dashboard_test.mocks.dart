@@ -589,7 +589,7 @@ class MockAuthService extends _i1.Mock implements _i3.AuthService {
       ) as _i6.Future<void>);
 
   @override
-  _i6.Future<void> updateCurrency(int? currency) => (super.noSuchMethod(
+  _i6.Future<void> updateCurrency(double? currency) => (super.noSuchMethod(
         Invocation.method(
           #updateCurrency,
           [currency],
@@ -1276,7 +1276,7 @@ class MockFlutterUser extends _i1.Mock implements _i8.FlutterUser {
       ) as _i6.Future<int>);
 
   @override
-  _i6.Future<_i2.User> updateCurrency(int? currency) => (super.noSuchMethod(
+  _i6.Future<_i2.User> updateCurrency(double? currency) => (super.noSuchMethod(
         Invocation.method(
           #updateCurrency,
           [currency],
@@ -1459,10 +1459,10 @@ class MockCurrencyModel extends _i1.Mock implements _i10.CurrencyModel {
       );
 
   @override
-  void addToCurrency(double? numberToAdd) => super.noSuchMethod(
+  void addToCurrency(double? numberToAdd, _i4.BuildContext? context) => super.noSuchMethod(
         Invocation.method(
           #addToCurrency,
-          [numberToAdd],
+          [numberToAdd, context],
         ),
         returnValueForMissingStub: null,
       );

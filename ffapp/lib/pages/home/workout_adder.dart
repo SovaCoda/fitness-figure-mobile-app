@@ -822,12 +822,11 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                                 listen: false,
                                                               ).user!;
                                                               user.currency =
-                                                                  Int64(
-                                                                (user.currency
+                                                                  
+                                                                ((user.currency
                                                                             .toDouble() -
                                                                         _investment)
-                                                                    .toInt(),
-                                                              );
+                                                                    .toDouble());
                                                               Provider.of<
                                                                   UserModel>(
                                                                 context,

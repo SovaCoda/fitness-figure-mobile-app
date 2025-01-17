@@ -168,7 +168,7 @@ class SkinViewerState extends State<SkinViewer> {
       );
       if (context.mounted) {
         Provider.of<UserModel>(context, listen: false).user?.currency =
-            Int64((curCurrency - price).toInt());
+            (curCurrency - price);
       }
       await auth.updateUserDBInfo(userModel.user!);
 

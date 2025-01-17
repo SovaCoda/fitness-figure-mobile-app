@@ -138,7 +138,7 @@ class _StoreState extends State<Store> {
 
     if (currentCurrency >= price) {
       // Update currency
-      user.currency = Int64(currentCurrency - price);
+      user.currency = currentCurrency - price.toDouble();
       await auth.updateUserDBInfo(user);
 
       // Create figure instance
