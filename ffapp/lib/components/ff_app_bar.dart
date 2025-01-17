@@ -59,7 +59,7 @@ class FfAppBar extends StatelessWidget {
                 InkWell(
                   onTap: () =>
                       Provider.of<HomeIndexProvider>(context, listen: false)
-                          .setIndex(7),
+                          .setIndex(6),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

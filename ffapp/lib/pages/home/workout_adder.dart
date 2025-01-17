@@ -160,7 +160,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
   Future<void> initialize({bool restartLiveActivity = true}) async {
     stopLiveActivities(liveActivityManager);
     prefs = await SharedPreferences.getInstance();
-    final User user = await getUserModel().then((value) => value.user!);
+    if (!mounted) {
+      return;
+    }
+    final User user = Provider.of<UserModel>(context, listen: false).user!;
     final Int64 timegoal = user.workoutMinTime;
     // scoreIncrement = 1 / (timegoal.toDouble() * 60); TODO: UNUSED Figure out if get rid of
     if (_logging) {
@@ -178,15 +181,15 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
     startTimer(true, restartLiveActivity);
   }
 
-  Future<UserModel> getUserModel() async {
-    UserModel userModel;
-    do {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      if (!mounted) return Future.error("MountedException");
-      userModel = Provider.of<UserModel>(context, listen: false);
-    } while (userModel.user == User());
-    return userModel;
-  }
+  // Future<UserModel> getUserModel() async {
+  //   UserModel userModel;
+  //   do {
+  //     await Future<void>.delayed(const Duration(milliseconds: 100));
+  //     if (!mounted) return Future.error("MountedException");
+  //     userModel = Provider.of<UserModel>(context, listen: false);
+  //   } while (userModel.user == User());
+  //   return userModel;
+  // }
 
   Future<void> startTimer(bool isInit, bool restartLiveActivity) async {
     _timer = PersistantTimer(

@@ -59,7 +59,7 @@ class _SignInState extends State<SignIn> {
         context.goNamed('WorkoutFrequencySelection');
       } else {
         if (mounted) {
-        context.goNamed('Home');
+          context.goNamed('Home');
         }
       }
     }
@@ -80,6 +80,7 @@ class _SignInState extends State<SignIn> {
         final String email = emailController.text;
         logger.i("$email is signed in");
         final dbUser = await auth.getUserDBInfo();
+        Provider.of<UserModel>(context, listen: false).setUser(dbUser!);
         logger.i("Getting user info...");
         logger.i(dbUser?.weekGoal);
         if (dbUser?.curFigure == null && mounted) {
