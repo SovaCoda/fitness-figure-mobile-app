@@ -26,6 +26,7 @@ import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'dart:async';
 import 'dart:math';
+import '../../components/ff_app_button.dart';
 import 'store.dart';
 
 class IsolateInitData {
@@ -227,6 +228,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
     // Show week information popup after the user completed their week
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // TODO: change this back when done
       if (databaseUser.readyForWeekReset == 'yes') {
         final bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
         showFFDialogWithChildren(
@@ -235,10 +237,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             WeekCompleteShowcase(isUserFirstWeek: isUsersFirstWeek),
           ],
           false,
-          FfButton(
+          FFAppButton(
+            size: MediaQuery.sizeOf(context).width * 0.6,
+            height: MediaQuery.sizeOf(context).height * 0.08,
             text: 'Get Fit',
-            textColor: Theme.of(context).colorScheme.onPrimary,
-            backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () async {
               final bool isComplete = isUsersFirstWeek ||
                   Provider.of<HistoryModel>(context, listen: false)

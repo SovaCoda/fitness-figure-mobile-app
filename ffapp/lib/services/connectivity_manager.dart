@@ -6,6 +6,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
+import '../components/ff_app_button.dart';
+
 class ConnectivityService {
   // Singleton instance
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -60,9 +62,10 @@ class ConnectivityService {
 
   // Handle connectivity changes
   void _handleConnectivityChange(ConnectivityResult result) async {
-    await Future.delayed(Duration.zero); // Some platforms need a delay for context to load before connection changes
+    await Future.delayed(Duration
+        .zero); // Some platforms need a delay for context to load before connection changes
     final context = navigatorKey.currentState?.overlay?.context;
-    
+
     if (context != null && context.mounted) {
       switch (result) {
         case ConnectivityResult.none: // No Connection Send User to Sign In
@@ -86,11 +89,11 @@ class ConnectivityService {
               'It looks like youre offline, connect to the internet and reload!')
         ],
         false,
-        FfButton(
+        FFAppButton(
             text: "Okay!",
-            textColor: Theme.of(context).colorScheme.onPrimary,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            onPressed: () => {context.goNamed("SignIn")}),
+            onPressed: () => {context.goNamed("SignIn")},
+            size: MediaQuery.sizeOf(context).width * 0.6,
+            height: MediaQuery.sizeOf(context).height * 0.08),
         context);
   }
 

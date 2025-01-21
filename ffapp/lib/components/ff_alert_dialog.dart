@@ -105,7 +105,7 @@ void showFFDialogWithChildren(
   String title,
   List<Widget> children,
   bool dismissable,
-  FfButton doneButton,
+  FFAppButton doneButton,
   BuildContext context,
 ) {
   showDialog(
@@ -113,6 +113,7 @@ void showFFDialogWithChildren(
     context: context,
     builder: (context) {
       return Dialog(
+        backgroundColor: Colors.transparent,
         child: FfAlertDialog(
           title: title,
           child: SingleChildScrollView(

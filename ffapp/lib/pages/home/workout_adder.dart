@@ -558,11 +558,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                           ),
                         ],
                         true,
-                        FfButton(
+                        FFAppButton(
                           text: "Awesome!",
-                          textColor: Theme.of(context).colorScheme.onPrimary,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          size: MediaQuery.sizeOf(context).width * 0.6,
+                          height: MediaQuery.sizeOf(context).height * 0.07,
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                         context,
