@@ -63,8 +63,6 @@ class _CoreState extends State<Core> {
     if (!mounted) {
       return;
     }
-    await _initializeServices();
-    // Add listeners to trigger function calls once a provider has changed
     Provider.of<FigureModel>(context, listen: false).addListener(() {
       _auth = Provider.of<AuthService>(context, listen: false);
       _user = Provider.of<UserModel>(context, listen: false);
@@ -73,6 +71,9 @@ class _CoreState extends State<Core> {
     });
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .addListener(() => lockOrUnlock());
+
+    await _initializeServices();
+    // Add listeners to trigger function calls once a provider has changed
   }
 
   /// Initializes the currency generation
@@ -146,14 +147,14 @@ class _CoreState extends State<Core> {
       // Difference can be negative based on the timezone of the user
       // in this case, we set the currency to zero
       if (difference.inSeconds < 0) {
-        await _auth.updateCurrency(0);
+        //await _auth.updateCurrency(0);
       } else {
         // Add to the currency for the time the user is offline
+
         final double currencyToAdd = difference.inSeconds * _currencyIncrement!;
         if (mounted) {
           _currency.addToCurrency(currencyToAdd, context);
         }
-        await _auth.updateCurrency(double.parse(_currency.currency));
       }
     } catch (e) {
       // TODO: handle gRPC empty rows / bad connection error
