@@ -228,7 +228,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
     // Show week information popup after the user completed their week
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // TODO: change this back when done
       if (databaseUser.readyForWeekReset == 'yes') {
         final bool isUsersFirstWeek = databaseUser.isInGracePeriod == 'yes';
         showFFDialogWithChildren(
