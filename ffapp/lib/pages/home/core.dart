@@ -63,14 +63,15 @@ class _CoreState extends State<Core> {
     if (!mounted) {
       return;
     }
+
+    Provider.of<SelectedFigureProvider>(context, listen: false)
+        .addListener(() => lockOrUnlock());
     Provider.of<FigureModel>(context, listen: false).addListener(() {
       _auth = Provider.of<AuthService>(context, listen: false);
       _user = Provider.of<UserModel>(context, listen: false);
       _figure = Provider.of<FigureModel>(context, listen: false);
       _getCurrencyIncrement(_figure, _user.isPremium());
     });
-    Provider.of<SelectedFigureProvider>(context, listen: false)
-        .addListener(() => lockOrUnlock());
 
     await _initializeServices();
     // Add listeners to trigger function calls once a provider has changed
@@ -423,7 +424,7 @@ class _CoreState extends State<Core> {
       builder: (_, figure, __) {
         return SizedBox(
           width: screenWidth,
-          height: screenHeight * 0.5,
+          height: screenHeight * 0.45,
           child: ResearchGlassPanel(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 32),
