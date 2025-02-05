@@ -277,6 +277,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               Navigator.of(context).pop();
               user.readyForWeekReset = 'no';
               user.weekComplete = Int64.ZERO;
+              user.isInGracePeriod = 'no';
 
               // update in database
               await auth.updateUserDBInfo(user);
