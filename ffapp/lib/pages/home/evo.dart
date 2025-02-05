@@ -275,11 +275,13 @@ class _EvolutionPageState extends State<EvolutionPage>
                                   crossAxisSpacing: 16,
                                   shrinkWrap: true,
                                   children: [
-                                    EvolutionItem(
+                                    Semantics(
+                                      identifier: 'curr-evo',
+                                      child: EvolutionItem(
                                       title: 'EVO ${figure.EVLevel + 1}',
                                       upgrades: figure1.figureEvUpgrades[figure
                                           .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
-                                    ),
+                                    )),
                                   ],
                                 ),
                               ),
@@ -287,16 +289,20 @@ class _EvolutionPageState extends State<EvolutionPage>
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                EvolutionItem(
+                                Semantics(
+                                  identifier: 'curr-evo',
+                                  child: EvolutionItem(
                                   title: 'EVO ${figure.EVLevel + 1}',
                                   upgrades: figure1.figureEvUpgrades[figure
                                       .EVLevel], // Replace benefits with a variable list that contains the benefits of each evolution (figure_ev_data.dart?)
-                                ),
+                                )),
                                 const FitnessIcon(
                                   type: FitnessIconType.evo_arrow,
                                   rotation: 3.14 / 2,
                                 ),
-                                EvolutionItem(
+                                Semantics(
+                                  identifier: 'next-evo',
+                                  child: EvolutionItem(
                                   title: 'EVO ${figure.EVLevel + 2}',
                                   upgrades: figure1
                                       .figureEvUpgrades[figure.EVLevel + 1],
@@ -304,12 +310,14 @@ class _EvolutionPageState extends State<EvolutionPage>
                                       false, // Adds lock icon to next line
                                 ),
                                 // Add more EvolutionItem widgets as needed
-                              ],
+                          )],
                             ),
                       Opacity(
                         opacity: _opacityAnimation.value ?? 0,
                         child: !_isEvolved
-                            ? FFAppButton(
+                            ? Semantics(
+                              identifier: 'evolve-btn',
+                              child: FFAppButton(
                                 height: 75.0,
                                 size: MediaQuery.sizeOf(context).width * 0.8,
                                 text: "Evolve",
@@ -318,8 +326,10 @@ class _EvolutionPageState extends State<EvolutionPage>
                                     _isAnimating = true;
                                     _disabledButtons ? () : evolveFigure();
                                   });
-                                })
-                            : FFAppButton(
+                                }))
+                            : Semantics(
+                              identifier: 'awesome-btn',
+                              child: FFAppButton(
                                 height: 75.0,
                                 size: MediaQuery.sizeOf(context).width * 0.8,
                                 text: "Awesome",
@@ -331,7 +341,7 @@ class _EvolutionPageState extends State<EvolutionPage>
                                   Provider.of<HomeIndexProvider>(context,
                                           listen: false)
                                       .setIndex(0);
-                                }),
+                                })),
                       ),
                     ],
                   );

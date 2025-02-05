@@ -131,7 +131,7 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showMinGoalPicker(double screenWidth, double screenHeight) {
-    final int safeWeeklyGoal = weeklyGoal.clamp(1, 12);
+    final int safeMinExerciseGoal = (minExerciseGoal ~/ 15).clamp(1, 12);
     showModalBottomSheet<Widget>(
         context: context,
         enableDrag: false,
@@ -179,7 +179,7 @@ class _ProfileState extends State<Profile> {
                     buttonWidth: screenWidth * 0.77,
                     height: screenHeight * 0.5,
                     backgroundColor: Colors.transparent,
-                    selectedItemIndex: safeWeeklyGoal - 1,
+                    selectedItemIndex: safeMinExerciseGoal - 1,
                     itemExtent: 38,
                     onChange: (dynamic index) {
                       setState(() {
@@ -376,46 +376,48 @@ class _ProfileState extends State<Profile> {
     VoidCallback onTap,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          children: <Widget>[
-            if (icon == Icons.person)
-              const FitnessIcon(type: FitnessIconType.logo_white, size: 24)
-            else
-              Icon(icon, color: Colors.white),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: 'Roboto',
-                    ),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Semantics(
+          identifier: 'usr-${title.toLowerCase()}',
+          child: InkWell(
+            onTap: onTap,
+            child: Row(
+              children: <Widget>[
+                if (icon == Icons.person)
+                  const FitnessIcon(type: FitnessIconType.logo_white, size: 24)
+                else
+                  Icon(icon, color: Colors.white),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Roboto',
+                        ),
+                      ),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 145, 145, 145),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontFamily: 'Roboto',
-                      fontSize: 14,
-                      color: Color.fromARGB(255, 145, 145, 145),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                // Icon(Icons.edit, color: Colors.grey), removed according to the design
+              ],
             ),
-            // Icon(Icons.edit, color: Colors.grey), removed according to the design
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   Widget _buildGoalsSection(
@@ -485,19 +487,26 @@ class _ProfileState extends State<Profile> {
               ),
             ],
           ),
-          GestureDetector(
-            onTap: () {
-              onTap(screenWidth, screenHeight);
-            },
-            child: const Icon(Icons.edit, color: Colors.white),
-          ),
+          Semantics(
+              identifier: title == "Weekly Workout Goal"
+                  ? "modify-week-goal"
+                  : "modify-min-goal",
+              child: GestureDetector(
+                onTap: () {
+                  onTap(screenWidth, screenHeight);
+                },
+                child: const Icon(Icons.edit, color: Colors.white),
+              )),
         ],
       ),
     );
   }
 
   Widget _buildSubscriptionSection(UserModel userModel) {
-    return GradientedContainer(
+    return Semantics(
+      identifier: 'premium-container',
+      explicitChildNodes: true,
+      child: GradientedContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -527,7 +536,9 @@ class _ProfileState extends State<Profile> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
+                    Semantics(
+                      identifier: 'premium-text',
+                      child: Text(
                       !userModel.isPremium() ? 'REGULAR' : 'PREMIUM',
                       style: const TextStyle(
                         fontFamily: 'Roboto',
@@ -535,7 +546,7 @@ class _ProfileState extends State<Profile> {
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
-                    ),
+                    )),
                     if (!userModel.isPremium())
                       GestureDetector(
                         onTap: () {}, // TODO: Implement purchase premium page
@@ -556,23 +567,27 @@ class _ProfileState extends State<Profile> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildActionButtons(
       UserModel userModel, double screenWidth, double screenHeight) {
     return Column(
       children: <Widget>[
-        FFAppButton(
+        Semantics(
+          identifier: 'sign-out-btn',
+          child: FFAppButton(
           onPressed: () => _showSignOutConfirmation(screenWidth, screenHeight),
           text: 'SIGN OUT',
           isSignOut: true,
           fontSize: 24,
           size: screenWidth * 0.8,
           height: screenHeight * 0.08,
-        ),
+        )),
         const SizedBox(height: 16),
-        FFAppButton(
+        Semantics(
+          identifier: 'delete-acc-btn',
+          child: FFAppButton(
           onPressed: () => _showDeleteAccountConfirmation(
               userModel.user!.email, screenWidth, screenHeight),
           text: 'DELETE ACCOUNT',
@@ -580,7 +595,7 @@ class _ProfileState extends State<Profile> {
           isDelete: true,
           size: screenWidth * 0.79389312977099236641221374045802,
           height: screenHeight * 0.08098591549295774647887323943662,
-        ),
+        )),
       ],
     );
   }

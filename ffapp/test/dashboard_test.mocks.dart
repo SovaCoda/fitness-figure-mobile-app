@@ -355,7 +355,6 @@ class MockAuthService extends _i1.Mock implements _i3.AuthService {
         )),
       ) as _i6.Future<_i2.User>);
 
-
   @override
   _i6.Future<dynamic> completeEmailUpdate(
     String? oldEmail,
@@ -1459,7 +1458,8 @@ class MockCurrencyModel extends _i1.Mock implements _i10.CurrencyModel {
       );
 
   @override
-  void addToCurrency(double? numberToAdd, _i4.BuildContext? context) => super.noSuchMethod(
+  void addToCurrency(double? numberToAdd, _i4.BuildContext? context) =>
+      super.noSuchMethod(
         Invocation.method(
           #addToCurrency,
           [numberToAdd, context],

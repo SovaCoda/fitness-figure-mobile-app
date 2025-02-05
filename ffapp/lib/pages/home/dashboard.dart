@@ -341,15 +341,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   builder: (context, figure, child) {
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: ChargeBar(
-                        showIcon: true,
-                        currentCharge: figure.figure?.charge ?? 0,
-                        fillColor: Theme.of(context).colorScheme.primary,
-                        barHeight: chargeBarHeight,
-                        barWidth: chargeBarWidth,
-                        showDashedLines: true,
-                        showInfoCircle: true,
-                      ),
+                      child: Semantics(
+                          identifier: 'charge-bar-text',
+                          child: ChargeBar(
+                            showIcon: true,
+                            currentCharge: figure.figure?.charge ?? 0,
+                            fillColor: Theme.of(context).colorScheme.primary,
+                            barHeight: chargeBarHeight,
+                            barWidth: chargeBarWidth,
+                            showDashedLines: true,
+                            showInfoCircle: true,
+                          )),
                     );
                   },
                 ),
@@ -408,18 +410,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       return const CircularProgressIndicator();
                     }
                     return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: EvBar(
-                        showIcon: true,
-                        currentXp: figure.figure?.evPoints ?? 0,
-                        maxXp: figure1.evCutoffs[figure.EVLevel],
-                        fillColor: Theme.of(context).colorScheme.secondary,
-                        barHeight: evBarHeight,
-                        barWidth: evBarWidth,
-                        showInfoBox: true,
-                        isMaxLevel: figure.EVLevel == 2,
-                      ),
-                    );
+                        padding: const EdgeInsets.all(16.0),
+                        child: Semantics(
+                          identifier: 'ev-bar-text',
+                          child: EvBar(
+                            showIcon: true,
+                            currentXp: figure.figure?.evPoints ?? 0,
+                            maxXp: figure1.evCutoffs[figure.EVLevel],
+                            fillColor: Theme.of(context).colorScheme.secondary,
+                            barHeight: evBarHeight,
+                            barWidth: evBarWidth,
+                            showInfoBox: true,
+                            isMaxLevel: figure.EVLevel == 2,
+                          ),
+                        ));
                   },
                 ),
                 Container(

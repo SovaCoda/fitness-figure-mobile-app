@@ -60,16 +60,19 @@ class _ChatPageState extends State<ChatPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Double back arrow icon that sends user to dashboard
-                  GestureDetector(
-                      child: const FitnessIcon(
-                          type: FitnessIconType.double_back_arrow, size: 20),
-                      onTap: () => {
-                            // unfocus the keyboard if it exists
-                            FocusManager.instance.primaryFocus?.unfocus(),
-                            Provider.of<HomeIndexProvider>(context,
-                                    listen: false)
-                                .setIndex(0)
-                          }),
+                  Semantics(
+                      identifier: 'back-btn',
+                      child: GestureDetector(
+                          child: const FitnessIcon(
+                              type: FitnessIconType.double_back_arrow,
+                              size: 20),
+                          onTap: () => {
+                                // unfocus the keyboard if it exists
+                                FocusManager.instance.primaryFocus?.unfocus(),
+                                Provider.of<HomeIndexProvider>(context,
+                                        listen: false)
+                                    .setIndex(0)
+                              })),
                   // Title text
                   const Text('CHAT',
                       style:
@@ -111,15 +114,19 @@ class _ChatPageState extends State<ChatPage> {
                         case 'system':
                           return null;
                         case 'assistant':
-                          return RobotResponse(
-                              text: message.text,
-                              figureName: Provider.of<FigureModel>(context)
-                                  .figure!
-                                  .figureName,
-                              datetime: 'now');
+                          return Semantics(
+                              identifier: 'assistant-message',
+                              child: RobotResponse(
+                                  text: message.text,
+                                  figureName: Provider.of<FigureModel>(context)
+                                      .figure!
+                                      .figureName,
+                                  datetime: 'now'));
                         case 'user':
-                          return UserMessage(
-                              text: message.text, datetime: 'now');
+                          return Semantics(
+                              identifier: 'user-message',
+                              child: UserMessage(
+                                  text: message.text, datetime: 'now'));
                         default:
                           throw UnimplementedError(
                               'This user type was not implemented');

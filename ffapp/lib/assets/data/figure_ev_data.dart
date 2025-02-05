@@ -89,7 +89,7 @@ FigureEvData figure1 = FigureEvData(
   figureName: "robot1",
   currencyGens: [0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5],
   figureEvUpgrades: [
-    ["\$0.025/Sec" "Research Unlocked"],
+    ["\$0.025/Sec", "Research Unlocked"],
     ["\$0.05/Sec", "Multi Tasking"],
     ["\$0.10/Sec", "Halve Research Time"],
     ["\$0.25/Sec", "Task EV +20%"],

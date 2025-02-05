@@ -219,18 +219,22 @@ class _StoreState extends State<Store> {
               ),
               Positioned(
                 left: 10,
-                child: IconButton(
+                child: Semantics(
+                  identifier: 'prev-figure-btn',
+                  child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
                   onPressed: previousFigure,
-                ),
+                )),
               ),
               Positioned(
                 right: 10,
-                child: IconButton(
+                child: Semantics(
+                  identifier: 'next-figure-btn',
+                  child: IconButton(
                   icon:
                       const Icon(Icons.arrow_forward_ios, color: Colors.white),
                   onPressed: nextFigure,
-                ),
+                )),
               ),
             ],
           ),
@@ -261,7 +265,9 @@ class _StoreState extends State<Store> {
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height * 0.1,
-                  child: Text(
+                  child: Semantics(
+                    identifier: 'figure-desc',
+                    child: Text(
                     listOfFigures.isNotEmpty
                         ? listOfFigures[currentFigureIndex].figureName ==
                                 'robot1'
@@ -270,21 +276,25 @@ class _StoreState extends State<Store> {
                         : 'The original figure - a classic design that combines style and functionality. Perfect for beginners and veterans alike.',
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     textAlign: TextAlign.left,
-                  ),
+                  )),
                 ),
               ),
-              Text(
+              Semantics(
+                identifier: 'figure-price',
+                child: Text(
                 '\$${listOfFigures.isNotEmpty ? listOfFigures[currentFigureIndex].price : "0"}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
+              )),
               SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               Consumer<FigureInstancesProvider>(
                 builder: (context, figureInstancesProvider, child) =>
-                    FFAppButton(
+                    Semantics(
+                      identifier: 'purchase-btn',
+                      child: FFAppButton(
                   disabled:
                       // checks all of the user's figure instances to see if they match the name of the figure viewed
                       figureInstancesProvider.listOfFigureInstances.any(
@@ -316,7 +326,7 @@ class _StoreState extends State<Store> {
                       listOfFigures[currentFigureIndex].figureName,
                     );
                   },
-                ),
+                )),
               )
             ],
           ),
