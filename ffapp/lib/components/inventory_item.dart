@@ -47,77 +47,98 @@ class InventoryItemState extends State<InventoryItem> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return widget.locked
-        ? Image.asset(
-            "lib/assets/images/locked_figure.png",
-            height: screenHeight * 0.33,
-          )
-        : Consumer2<FigureModel, FigureInstancesProvider>(
-            builder: (context, figureModel, figureInstances, _) {
-              return Stack(
-                children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final size = constraints.maxWidth < constraints.maxHeight
-                          ? constraints.maxWidth
-                          : constraints.maxHeight;
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // highlighted border over figure if selected
-                          Center(
-                            child: Container(
-                              width: screenWidth * 0.47,
-                              height: screenHeight * 0.34,
-                              decoration: BoxDecoration(
-                                border: widget.isSelected
-                                    ? Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        width: 3,
-                                      )
-                                    : null,
-                                borderRadius: BorderRadius.circular(20),
+        // Added semantics for easier time with testing (they just add labels for testing software to find)
+        ? Semantics(
+            identifier: "locked-figure-${widget.index}",
+            child: Image.asset(
+              "lib/assets/images/locked_figure.png",
+              height: screenHeight * 0.33,
+            ))
+        : Semantics(
+            identifier: "figure-${widget.index}",
+            child: Consumer2<FigureModel, FigureInstancesProvider>(
+              builder: (context, figureModel, figureInstances, _) {
+                return Stack(
+                  children: [
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final size =
+                            constraints.maxWidth < constraints.maxHeight
+                                ? constraints.maxWidth
+                                : constraints.maxHeight;
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // highlighted border over figure if selected
+                            Semantics(
+                              selected: widget.isSelected,
+                              child: Center(
+                                child: Container(
+                                  width: screenWidth * 0.47,
+                                  height: screenHeight * 0.34,
+                                  decoration: BoxDecoration(
+                                    border: widget.isSelected
+                                        ? Border.all(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            width: 3,
+                                          )
+                                        : null,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          // FitnessIcon as the main container
-                          Center(
-                            child: FitnessIcon(
-                              type: FitnessIconType.figure_full,
-                              size: screenWidth * 0.4,
-                              height: screenHeight * 0.35,
+                            // FitnessIcon as the main container
+                            Center(
+                              child: FitnessIcon(
+                                type: FitnessIconType.figure_full,
+                                size: screenWidth * 0.4,
+                                height: screenHeight * 0.35,
+                              ),
                             ),
-                          ),
-                          // Original elements positioned over the FitnessIcon
-                          if (widget.figureInstance != null)
-                            // Positioned(
-                            //   left: size * 0.05,
-                            //   top: size * 0.05,
-                            //   child: GestureDetector(
-                            //     onTap: () {
-                            //       if (!widget.isSelected) {
-                            //         figureModel
-                            //             .setFigure(widget.figureInstance!);
-                            //         Provider.of<SelectedFigureProvider>(context,
-                            //                 listen: false,)
-                            //             .setSelectedFigureIndex(widget.index);
-                            //         widget.onEquip(context);
-                            //       }
-                            //       _showSkinPage(context);
-                            //     },
-                            //     child: Padding(
-                            //       padding: const EdgeInsets.all(10),
-                            //       child: FitnessIcon(
-                            //       type: FitnessIconType.swap,
-                            //       size: size * 0.15,
-                            //     ),),
-                            //   ),
-                            // ),
+                            // Original elements positioned over the FitnessIcon
+                            if (widget.figureInstance != null)
+                              // Positioned(
+                              //   left: size * 0.05,
+                              //   top: size * 0.05,
+                              //   child: GestureDetector(
+                              //     onTap: () {
+                              //       if (!widget.isSelected) {
+                              //         figureModel
+                              //             .setFigure(widget.figureInstance!);
+                              //         Provider.of<SelectedFigureProvider>(context,
+                              //                 listen: false,)
+                              //             .setSelectedFigureIndex(widget.index);
+                              //         widget.onEquip(context);
+                              //       }
+                              //       _showSkinPage(context);
+                              //     },
+                              //     child: Padding(
+                              //       padding: const EdgeInsets.all(10),
+                              //       child: FitnessIcon(
+                              //       type: FitnessIconType.swap,
+                              //       size: size * 0.15,
+                              //     ),),
+                              //   ),
+                              // ),
+                              Positioned(
+                                left: size * 0.05,
+                                bottom: size * 0.05,
+                                child: _buildChargeBar(
+                                    context,
+                                    size,
+                                    figureInstances
+                                            .listOfFigureInstances.isNotEmpty
+                                        ? figureInstances
+                                            .listOfFigureInstances[widget.index]
+                                        : widget.figureInstance!),
+                              ),
                             Positioned(
-                              left: size * 0.05,
+                              right: size * 0.05,
                               bottom: size * 0.05,
-                              child: _buildChargeBar(
+                              child: _buildEvBar(
                                   context,
                                   size,
                                   figureInstances
@@ -126,61 +147,50 @@ class InventoryItemState extends State<InventoryItem> {
                                           .listOfFigureInstances[widget.index]
                                       : widget.figureInstance!),
                             ),
-                          Positioned(
-                            right: size * 0.05,
-                            bottom: size * 0.05,
-                            child: _buildEvBar(
-                                context,
-                                size,
-                                figureInstances.listOfFigureInstances.isNotEmpty
-                                    ? figureInstances
-                                        .listOfFigureInstances[widget.index]
-                                    : widget.figureInstance!),
-                          ),
-                          Center(
-                            child: _buildFigureImage(
-                                context,
-                                size,
-                                figureInstances.listOfFigureInstances.isNotEmpty
-                                    ? figureInstances
-                                        .listOfFigureInstances[widget.index]
-                                    : widget.figureInstance!),
-                          ),
-                          if (widget.isWorkingOut)
-                            if (!widget.isSelected)
-                              Center(
-                                  child: Container(
-                                      width: screenWidth *
-                                          0.441,
-                                      height:
-                                          screenHeight *
-                                              0.3365,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.5),
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                      child: const Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.lock, size: 40),
-                                            Text(
-                                                'You cannot switch figures during a workout!',
-                                                style: TextStyle(fontSize: 20),
-                                                textAlign: TextAlign.center)
-                                          ])))
+                            Center(
+                              child: _buildFigureImage(
+                                  context,
+                                  size,
+                                  figureInstances
+                                          .listOfFigureInstances.isNotEmpty
+                                      ? figureInstances
+                                          .listOfFigureInstances[widget.index]
+                                      : widget.figureInstance!),
+                            ),
+                            if (widget.isWorkingOut)
+                              if (!widget.isSelected)
+                                Center(
+                                    child: Container(
+                                        width: screenWidth * 0.441,
+                                        height: screenHeight * 0.3365,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.5),
+                                          borderRadius:
+                                              BorderRadius.circular(24),
+                                        ),
+                                        child: const Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.lock, size: 40),
+                                              Text(
+                                                  'You cannot switch figures during a workout!',
+                                                  style:
+                                                      TextStyle(fontSize: 20),
+                                                  textAlign: TextAlign.center)
+                                            ])))
+                              else
+                                Container()
                             else
-                              Container()
-                          else
-                            Container(),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
-          );
+                              Container(),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ));
   }
 
   Widget _buildChargeBar(

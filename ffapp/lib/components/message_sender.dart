@@ -63,7 +63,9 @@ class _MessageSenderState extends State<MessageSender> {
                         borderRadius: BorderRadius.circular(6),
                         color: const Color(0xFF151515)),
                     // Text input for the user to type their message
-                    child: TextField(
+                    child: Semantics(
+                      identifier: 'text-field',
+                      child: TextField(
                       minLines: 1,
                       maxLines: null,
                       controller: _controller,
@@ -71,10 +73,12 @@ class _MessageSenderState extends State<MessageSender> {
                         hintText: 'Type here...',
                         border: InputBorder.none,
                       ),
-                    ),
+                    )),
                   ),
                   // Send icon that creates chat messages
-                  GestureDetector(
+                  Semantics(
+                    identifier: 'send-btn',
+                    child: GestureDetector(
                     child: FitnessIcon(
                         type: FitnessIconType.send_icon,
                         size: MediaQuery.of(context).size.width * 0.13,
@@ -84,7 +88,7 @@ class _MessageSenderState extends State<MessageSender> {
                           .sendMessage(_controller.text, 'user', context);
                       _controller.clear();
                     },
-                  ),
+                  )),
                 ],
               ),
             ])));

@@ -511,7 +511,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
           .generatePostWorkoutMessage({
         "workoutTimeMinutes": _timePassed.toDouble() / 60,
         "workoutTimeNeededMinutes": _timegoal.toDouble() / 60,
-      })!;
+      }, context)!;
     } else {
       if (_goalMet) {
         return "Awesome job! Keep up workouts like this and we'll evolve in no time at all!";
@@ -879,7 +879,10 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment.end,
                                                     children: [
-                                                      WorkoutTimeShower(
+
+                                                      Semantics(
+                                                        explicitChildNodes: true,
+                                                        child: WorkoutTimeShower(
                                                         textStyle:
                                                             Theme.of(context)
                                                                 .textTheme
@@ -890,7 +893,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                                             true,
                                                         showStatus: true,
                                                         goalMet: _goalMet,
-                                                      ),
+                                                      )),
                                                       const SizedBox(
                                                         height: 10,
                                                       ),

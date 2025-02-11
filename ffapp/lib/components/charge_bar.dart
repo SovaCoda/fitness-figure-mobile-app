@@ -66,7 +66,8 @@ class ChargeBar extends StatelessWidget {
                         false,
                         context)
                     : () => {},
-                child: Row(children: [Text(
+                child: Row(children: [
+                  Text(
                     simulateCurrentGains
                         ? overrideGains == 0
                             ? didWeWorkoutToday

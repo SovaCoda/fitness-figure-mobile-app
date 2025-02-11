@@ -298,7 +298,9 @@ class _ResearchOptionState extends State<ResearchOption> {
               Positioned(
                 bottom: MediaQuery.of(context).size.height * 0.025,
                 left: MediaQuery.of(context).size.width * 0.10,
-                child: FFAppButton(
+                child: Semantics(
+                  identifier: "begin-btn",
+                  child: FFAppButton(
                   text: "BEGIN",
                   fontSize: 20,
                   onPressed: _startResearch,
@@ -306,7 +308,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                       0.79389312977099236641221374045802,
                   height: MediaQuery.of(context).size.height *
                       0.08098591549295774647887323943662,
-                ),
+                )),
               )
             else
               Container(),
@@ -410,13 +412,15 @@ class _ResearchOptionState extends State<ResearchOption> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Semantics(
+                identifier: "task-title",
+              child: Text(
                 widget.task.title,
                 style: Theme.of(context).textTheme.displayMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                     ),
-              ),
+              )),
               if (!_isCompleted) _buildTimer(),
             ],
           ),
@@ -441,7 +445,9 @@ class _ResearchOptionState extends State<ResearchOption> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        Semantics(
+          identifier: "task-chance",
+        child: Text(
           '$_currentChance% Chance',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
                 color: Color.fromARGB(
@@ -453,16 +459,18 @@ class _ResearchOptionState extends State<ResearchOption> {
                 fontSize: 14,
                 fontFamily: 'Roboto',
               ),
-        ),
+        )),
         const SizedBox(height: 4),
-        Text(
+        Semantics(
+          identifier: "task-ev-gain",
+        child: Text(
           '+$_currentEv EVO',
           style: Theme.of(context).textTheme.displayMedium!.copyWith(
                 color: Theme.of(context).colorScheme.secondary,
                 fontSize: 14,
                 fontFamily: 'Roboto',
               ),
-        ),
+        )),
       ],
     );
   }
@@ -490,7 +498,9 @@ class _ResearchOptionState extends State<ResearchOption> {
                   fontFamily: 'Roboto',
                 ),
           ),
-        Text(
+        Semantics(
+          identifier: "timerInfo",
+          child: Text(
           _isCountdown
               ? _formatDuration(Duration(seconds: _currentCountdown))
               : _formatDuration(widget.task.duration),
@@ -499,7 +509,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w700,
               ),
-        ),
+        )),
         const SizedBox(width: 2),
         Icon(Icons.access_time, size: _isExpanded ? 29 : 20, weight: 700),
       ],
@@ -617,15 +627,19 @@ class _ResearchOptionState extends State<ResearchOption> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Semantics(
+                identifier: "expanded-task-title",
+              child: Text(
                 widget.task.title,
                 style: Theme.of(context)
                     .textTheme
                     .displayMedium!
                     .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
                 textAlign: TextAlign.left,
-              ),
-              FFAppButton(
+              )),
+              Semantics(
+                identifier: "back-btn",
+              child: FFAppButton(
                 text: "",
                 isBack: true,
                 size: MediaQuery.of(context).size.width *
@@ -635,7 +649,7 @@ class _ResearchOptionState extends State<ResearchOption> {
                     _isExpanded = false;
                   });
                 },
-              ),
+              )),
             ],
           ),
           Padding(
@@ -658,14 +672,16 @@ class _ResearchOptionState extends State<ResearchOption> {
                 size: MediaQuery.of(context).size.height * 0.058685,
               ),
               SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-              Text(
+              Semantics(
+                identifier: "curr-investment",
+                child: Text(
                 '$_cost',
                 style: const TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
-              ),
+              )),
             ],
           ),
           Center(

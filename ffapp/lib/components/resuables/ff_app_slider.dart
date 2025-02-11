@@ -113,11 +113,13 @@ class FFAppSliderState extends State<FFAppSlider> {
                 Positioned(
                   left: 0,
                   right: 0,
-                  child: Image.asset(
+                  child: Semantics(
+                    identifier: "slider",
+                    child: Image.asset(
                     "lib/assets/art/slider_start.png",
                     height: sliderHeight,
                     fit: BoxFit.fill,
-                  ),
+                  )),
                 ),
                 Positioned(
                   left: 0,
@@ -136,12 +138,14 @@ class FFAppSliderState extends State<FFAppSlider> {
                 ),
                 Positioned(
                   left: (sliderWidth * normalizedValue) - (thumbWidth / 2),
-                  child: Image.asset(
+                  child: Semantics(
+                    identifier: "slider-knob",
+                    child: Image.asset(
                     'lib/assets/art/custom_thumb.png',
                     width: thumbWidth,
                     height: thumbHeight,
                   ),
-                ),
+                )),
               ],
             ),
           ),

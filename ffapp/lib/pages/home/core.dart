@@ -431,32 +431,38 @@ class _CoreState extends State<Core> {
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
+              Semantics(
+                identifier: "figure-ev-lvl",
+              child: Text(
                 'EVO ${_figure.EVLevel + 1}',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                   fontSize: 24,
                 ),
-              ),
-              Text(
+              )),
+              Semantics(
+                identifier: "figure-charge",
+              child: Text(
                 '${_figure.figure!.charge}%',
                 style: const TextStyle(
                   color: Color(0xFFFF9E45),
                   fontSize: 20,
                 ),
-              ),
+              )),
               Column(
                 children: [
                   Row(
                     children: [
-                      Text(
+                      Semantics(
+                        identifier: "figure-incr",
+                      child: Text(
                         '\$${_getCurrencyIncrement(_figure, _user.isPremium()).toStringAsFixed(3)}/sec',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 16,
                           fontFamily: 'Roberto',
                         ),
-                      ),
+                      )),
                       const FitnessIcon(
                         type: FitnessIconType.up_arrow,
                         size: 10,
@@ -467,7 +473,9 @@ class _CoreState extends State<Core> {
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 125),
-                    child: Text(
+                    child: Semantics(
+                      identifier: "usr-currency",
+                      child: Text(
                       '\$${Provider.of<CurrencyModel>(context, listen: true).currency}',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -475,7 +483,7 @@ class _CoreState extends State<Core> {
                         fontSize: 16,
                         fontFamily: 'Roberto',
                       ),
-                    ),
+                    )),
                   ),
                 ],
               ),
@@ -612,23 +620,29 @@ class _CoreState extends State<Core> {
   /// Builds all the available tasks in the [_taskManager]
   Widget _buildAvailableTasks() {
     return Expanded(
-        child: ListView.builder(
+        child: Semantics(
+      identifier: "research-scrollview",
+      child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics().applyTo(
               const BouncingScrollPhysics(),
             ),
             padding: const EdgeInsets.all(8),
             itemCount: _taskManager.getAvailableTasks().length,
             itemBuilder: (BuildContext context, int index) {
-              return ResearchOption(
-                key: ValueKey(_taskManager.getAvailableTasks()[index].id),
-                task: _taskManager.getAvailableTasks()[index],
-                onComplete: _onTaskComplete,
-                releaseLockedTasks: _taskManager.releaseLockedTasks,
-                onStart: _taskManager.startTask,
-                onSubtractCurrency: _subtractCurrency,
-                lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
-              );
-            }));
+              return Semantics(
+                  explicitChildNodes: true,
+                  value: "task",
+                  identifier: "task-${index}",
+                  child: ResearchOption(
+                    key: ValueKey(_taskManager.getAvailableTasks()[index].id),
+                    task: _taskManager.getAvailableTasks()[index],
+                    onComplete: _onTaskComplete,
+                    releaseLockedTasks: _taskManager.releaseLockedTasks,
+                    onStart: _taskManager.startTask,
+                    onSubtractCurrency: _subtractCurrency,
+                    lockAllInactiveTasks: _taskManager.lockAllInactiveTasks,
+                  ));
+            })));
 
     // final List<Widget> content = _taskManager.getAvailableTasks().map((task) {
     //   return ResearchOption(

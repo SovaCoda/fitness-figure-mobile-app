@@ -24,35 +24,41 @@ class WorkoutTimeShower extends StatelessWidget {
       children: [
         if (showStatus)
           goalMet
-              ? Icon(Icons.check,
-                  color: themeColor,
-                  shadows: const [
-                    BoxShadow(
-                        blurRadius: 4,
-                        color: Colors.black,
-                        offset: Offset(0, 4))
-                  ],
-                  size: 15)
-              : const Icon(Icons.timer_off_outlined,
-                  color: Colors.red,
-                  shadows: [
-                    BoxShadow(
-                        blurRadius: 4,
-                        color: Colors.black,
-                        offset: Offset(0, 4))
-                  ],
-                  size: 15),
-        Text(
-            secondsTrueMinutesFalse
-                ? formatSeconds(workoutMinTime)
-                : formatSeconds(workoutMinTime * 60),
-            style: textStyle.copyWith(color: themeColor, shadows: [
-            ], fontFamily: "Roboto", fontSize: 19)),
-            const SizedBox(width: 7.13),
-        Icon(Icons.access_time,
-            color: themeColor,
-            
-            size: 30),
+              ? Semantics(
+                  identifier: 'goal-met-img',
+                  child: Icon(Icons.check,
+                      color: themeColor,
+                      shadows: const [
+                        BoxShadow(
+                            blurRadius: 4,
+                            color: Colors.black,
+                            offset: Offset(0, 4))
+                      ],
+                      size: 15))
+              : Semantics(
+                  identifier: 'goal-not-met-img',
+                  child: const Icon(Icons.timer_off_outlined,
+                      color: Colors.red,
+                      shadows: [
+                        BoxShadow(
+                            blurRadius: 4,
+                            color: Colors.black,
+                            offset: Offset(0, 4))
+                      ],
+                      size: 15)),
+        Semantics(
+            identifier: 'post-workout-time',
+            child: Text(
+                secondsTrueMinutesFalse
+                    ? formatSeconds(workoutMinTime)
+                    : formatSeconds(workoutMinTime * 60),
+                style: textStyle.copyWith(
+                    color: themeColor,
+                    shadows: [],
+                    fontFamily: "Roboto",
+                    fontSize: 19))),
+        const SizedBox(width: 7.13),
+        Icon(Icons.access_time, color: themeColor, size: 30),
       ],
     );
   }
