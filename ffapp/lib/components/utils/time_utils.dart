@@ -45,6 +45,12 @@ class PersistantTimer {
     await prefs!.setString('$timerName timerStarted', now.toString());
   }
 
+  Future storeDisposalTime() async {
+    DateTime now = DateTime.now();
+
+    await prefs!.setString('$timerName disposedAt', now.toString());
+  }
+
   Future storePauseTime() async {
     DateTime now = DateTime.now();
 
@@ -59,7 +65,11 @@ class PersistantTimer {
     return prefs!.containsKey('$timerName pausedAt');
   }
 
-  Future loadTime() async {
+  bool hasStoredDisposalTime() {
+    return prefs!.containsKey('$timerName disposedAt');
+  }
+
+  Future<int?> loadTime() async {
     if (hasStoredPauseTime()) {
       String? pausedAt = prefs!.getString('$timerName pausedAt');
       DateTime pausedAtDate = DateTime.parse(pausedAt!);
@@ -75,11 +85,28 @@ class PersistantTimer {
       if (classTimer != null) {
         classTimer!.cancel();
       }
-      return;
+      return 0;
+    }
+
+    if (hasStoredDisposalTime()) {
+      String? disposedAt = prefs!.getString('$timerName disposedAt');
+      DateTime disposedAtDate = DateTime.parse(disposedAt!);
+      DateTime now = DateTime.now();
+      prefs!.remove('$timerName disposedAt');
+      int differenceInSeconds = now.difference(disposedAtDate).inSeconds;
+      if (classTimer != null) {
+        classTimer!.cancel();
+      }
+      classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
+        milliseconds += addableTime;
+        if (onTick != null) {
+          onTick!();
+        }
+      });
+      return differenceInSeconds;
     }
 
     String? timerStarted = prefs!.getString('$timerName timerStarted');
-    //String? pausedAt = prefs!.getString('$timerName pausedAt');
     DateTime timerStartedDate;
     try {
       timerStartedDate = DateTime.parse(timerStarted!);
@@ -87,7 +114,7 @@ class PersistantTimer {
       logger.e("Error parsing timerStartedDate: $e");
       milliseconds = 0;
       deleteTimer();
-      return;
+      return 0;
     }
 
     // if (pausedAt != null) {
@@ -116,6 +143,7 @@ class PersistantTimer {
         onTick!();
       }
     });
+    return 1;
   }
 
   void changeTickSpeedMS(int tickSpeedMS) {
@@ -140,6 +168,17 @@ class PersistantTimer {
 
   int getTimeInMinutes() {
     return milliseconds ~/ 60000;
+  }
+
+  int getDisposalDifferenceInSeconds() {
+    if (hasStoredDisposalTime()) {
+      String? disposedAt = prefs!.getString('$timerName disposedAt');
+      DateTime disposedAtDate = DateTime.parse(disposedAt!);
+      DateTime now = DateTime.now();
+      int differenceInSeconds = now.difference(disposedAtDate).inSeconds;
+      return differenceInSeconds;
+    }
+    return 0;
   }
 
   void addTime(int addableMilliseconds) {
@@ -172,11 +211,10 @@ class PersistantTimer {
     });
   }
 
-  Future start() async {
+  Future<int?> start() async {
     addableTime = 1000;
-    if (hasStoredTime()) {
-      await loadTime();
-      return;
+    if (hasStoredTime() || hasStoredDisposalTime()) {
+      return loadTime();
     }
 
     classTimer = Timer.periodic(Duration(milliseconds: tickSpeedMS), (timer) {
@@ -186,6 +224,7 @@ class PersistantTimer {
       }
     });
     prefs!.setString('$timerName timerStarted', DateTime.now().toString());
+    return 0;
   }
 
   void stop() {
@@ -199,6 +238,7 @@ class PersistantTimer {
   void deleteTimer() {
     prefs!.remove('$timerName timerStarted');
     prefs!.remove('$timerName pausedAt');
+    prefs!.remove('$timerName disposedAt');
     stop();
   }
 }

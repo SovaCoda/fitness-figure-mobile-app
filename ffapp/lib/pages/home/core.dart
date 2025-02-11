@@ -1,10 +1,15 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
+import 'dart:ui';
 import 'package:ffapp/assets/data/figure_ev_data.dart';
 import 'package:ffapp/components/animated_figure.dart';
 import 'package:ffapp/components/ff_app_button.dart';
 import 'package:ffapp/components/resuables/animated_border_painter.dart';
+import 'package:ffapp/components/utils/time_utils.dart';
 import 'package:ffapp/icons/fitness_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:ffapp/main.dart';
@@ -13,6 +18,7 @@ import 'package:ffapp/services/routes.pb.dart' as routes;
 import 'package:ffapp/components/research_option.dart';
 import 'package:ffapp/components/research_task_manager.dart';
 import 'package:ffapp/components/research_glass_panel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Core extends StatefulWidget {
   const Core({super.key});
@@ -25,11 +31,13 @@ class _CoreState extends State<Core> {
   late ResearchTaskManager _taskManager;
   late FigureModel _figure;
   late CurrencyModel _currency;
-  late Timer _currencyGenTimer;
+  late PersistantTimer _currencyGenTimer;
   late UserModel _user;
   late double? _currencyIncrement;
   late AuthService _auth;
   late Future<void> _intializationFuture;
+  late final AppLifecycleListener _listener;
+  late AppLifecycleState? _lifeState;
 
   @override
   void initState() {
@@ -40,6 +48,35 @@ class _CoreState extends State<Core> {
     super.initState();
 
     _currencyIncrement = 0;
+
+    _lifeState = SchedulerBinding.instance.lifecycleState;
+    _listener = AppLifecycleListener(
+      onHide: () {
+        //_currencyGenTimer.storeDisposalTime();
+      },
+      onDetach: () {
+        //_currencyGenTimer.storeDisposalTime();
+      },
+      onResume: () async {
+        logger.i("resumed");
+        int? currencyRecoupSeconds = await _currencyGenTimer.loadTime();
+        if (currencyRecoupSeconds != null) {
+          _currency.addToCurrency(
+              _currencyIncrement! * currencyRecoupSeconds, context);
+          logger.i(
+              "Found $currencyRecoupSeconds seconds of currency gen offline, totaling ${_currencyIncrement! * currencyRecoupSeconds}");
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  "Found $currencyRecoupSeconds seconds of currency gen offline FROM RESUME, totaling ${_currencyIncrement! * currencyRecoupSeconds!}")));
+        }
+        _currencyGenTimer.storeDisposalTime();
+      },
+      onExitRequested: () async {
+        //_currencyGenTimer.storeDisposalTime();
+        return AppExitResponse.exit;
+      },
+    );
+
     _intializationFuture = _initialize();
   }
 
@@ -50,11 +87,9 @@ class _CoreState extends State<Core> {
 
   Future<void> _initialize() async {
     _currency = Provider.of<CurrencyModel>(context, listen: false);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
     // Calls _handleCurrencyUpdate every second
-    _currencyGenTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => _handleCurrencyUpdate(),
-    );
 
     // Start up task manager for research tasks
     await _initializeTaskManager();
@@ -63,6 +98,8 @@ class _CoreState extends State<Core> {
     if (!mounted) {
       return;
     }
+
+    await _initializeServices();
 
     Provider.of<SelectedFigureProvider>(context, listen: false)
         .addListener(() => lockOrUnlock());
@@ -73,7 +110,35 @@ class _CoreState extends State<Core> {
       _getCurrencyIncrement(_figure, _user.isPremium());
     });
 
-    await _initializeServices();
+    final routes.User? user =
+        Provider.of<UserModel>(context, listen: false).user;
+    if (user == null) {
+      return;
+    }
+    _currency.setCurrency(user.currency.toString());
+    _currencyGenTimer = PersistantTimer(
+        timerName: "currency",
+        prefs: prefs,
+        onTick: () {
+          logger.i(
+              "Currency timer original start: ${prefs!.getString('currency timerStarted')}");
+          logger.i(
+              "Currency timer last disposal: ${prefs!.getString('currency disposedAt')}");
+          _handleCurrencyUpdate();
+        });
+    await Future.delayed(Duration(seconds: 3));
+    int? currencyRecoupSeconds = await _currencyGenTimer.start();
+    while (_currencyIncrement == 0.0) {
+      await Future.delayed(Duration(seconds: 3));
+    }
+    logger.i(
+        "Found $currencyRecoupSeconds seconds of currency gen offline, totaling ${_currencyIncrement! * currencyRecoupSeconds!}");
+    _currency.addToCurrency(
+        _currencyIncrement! * currencyRecoupSeconds!, context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "Found $currencyRecoupSeconds seconds of currency gen offline FROM STATE, totaling ${_currencyIncrement! * currencyRecoupSeconds!}")));
+    //await _initializeServices();
     // Add listeners to trigger function calls once a provider has changed
   }
 
@@ -88,11 +153,14 @@ class _CoreState extends State<Core> {
     _getCurrencyIncrement(_figure, _user.isPremium());
 
     // Start up the currency generator
-    await _reactivateGenerationServer();
+    //await _reactivateGenerationServer();
   }
 
   void _handleCurrencyUpdate() {
     _currency.addToCurrency(_currencyIncrement!, context);
+    if (_currencyGenTimer.getDisposalDifferenceInSeconds() < 2) {
+      _currencyGenTimer.storeDisposalTime();
+    }
   }
 
   /// Gets the value of currency generation from [figure1] currencyGens list,
@@ -235,8 +303,8 @@ class _CoreState extends State<Core> {
 
   @override
   void dispose() {
-    _currencyGenTimer.cancel();
-    _deactivateGenerationServer();
+    _currencyGenTimer.storeDisposalTime();
+    //_deactivateGenerationServer();
     super.dispose();
   }
 

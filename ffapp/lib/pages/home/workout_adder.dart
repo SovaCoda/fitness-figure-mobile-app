@@ -1383,7 +1383,7 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                       },
                                       isShiny: true,
                                     )
-                                  : states['paused']!
+                                  : _goalMet
                                       ? Padding(
                                           padding: EdgeInsets.only(
                                               top: screenHeight *
@@ -1399,17 +1399,39 @@ class _WorkoutAdderState extends State<WorkoutAdder> {
                                             onPressed: () =>
                                                 {endWorkout(screenHeight)},
                                           ))
-                                      : WorkoutProgressBar(
-                                          progress: ((_timer.milliseconds /
-                                                  1000) /
-                                              (Provider.of<UserModel>(context,
-                                                          listen: false)
-                                                      .user!
-                                                      .workoutMinTime
-                                                      .toInt() *
-                                                  60)),
-                                          width: 300,
-                                          height: 30,
+                                      : Column(
+                                          children: [
+                                            WorkoutProgressBar(
+                                              progress: ((_timer.milliseconds /
+                                                      1000) /
+                                                  (Provider.of<UserModel>(
+                                                              context,
+                                                              listen: false)
+                                                          .user!
+                                                          .workoutMinTime
+                                                          .toInt() *
+                                                      60)),
+                                              width: 300,
+                                              height: 30,
+                                            ),
+                                            Padding(
+                                                padding: EdgeInsets.only(
+                                                    top: screenHeight *
+                                                        0.0461971830985915492957746478873),
+                                                child: FFAppButton(
+                                                  icon: Icons.delete,
+                                                  size: screenWidth *
+                                                      0.85272264631043256997455470737913,
+                                                  height: screenHeight *
+                                                      0.0946478873239436619718309859155,
+                                                  fontSize: 20,
+                                                  isDelete: true,
+                                                  text: 'STOP WORKOUT',
+                                                  onPressed: () => {
+                                                    endWorkout(screenHeight)
+                                                  },
+                                                ))
+                                          ],
                                         ),
                             ],
                           ),
